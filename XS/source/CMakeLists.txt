@@ -1,0 +1,42 @@
+cmake_minimum_required(VERSION 3.5)
+
+project(XS LANGUAGES CXX)
+
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+
+set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+set(CMAKE_PREFIX_PATH $ENV{QT_DIR})
+
+find_package(QT NAMES Qt6 Qt5 COMPONENTS Widgets REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets REQUIRED)
+
+FILE(GLOB_RECURSE SOURCE_FILES *.*)
+add_library(XS ${X_LIB_TYPE} ${SOURCE_FILES})
+
+target_compile_definitions(XS PRIVATE -DXS_EXPORT)
+target_link_directories(XS PRIVATE ${CMAKE_SOURCE_DIR}/depends/lib/${X_PLATFORM}/${X_CONFIG} ${X_TARGET_DIR}/lib/${X_CONFIG})
+target_include_directories(XS PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/depends/include ${X_TARGET_DIR}/include)
+target_link_libraries(XS PRIVATE XE Qt${QT_VERSION_MAJOR}::Widgets)
+
+install(TARGETS XS
+        EXPORT XSTargets
+        RUNTIME DESTINATION bin
+        LIBRARY DESTINATION bin
+        ARCHIVE DESTINATION lib
+        )
+        
+FILE(GLOB_RECURSE PUBLIC_HEADER_FILES ${CMAKE_CURRENT_SOURCE_DIR}/*.h)
+add_custom_command(
+	TARGET XS
+    PRE_BUILD
+	COMMAND ${CMAKE_COMMAND} -E make_directory ${X_TARGET_DIR}/include/XS/
+	COMMAND ${CMAKE_COMMAND} -E copy ${PUBLIC_HEADER_FILES} ${X_TARGET_DIR}/include/XS/
+	COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/../resource ${X_TARGET_DIR}/bin/${X_CONFIG}/resource/
+    )
+install(FILES ${PUBLIC_HEADER_FILES} DESTINATION bin)

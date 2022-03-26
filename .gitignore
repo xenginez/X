@@ -30,3 +30,15 @@
 *.exe
 *.out
 *.app
+
+# Directorys
+/.vs
+/out
+/idea
+/build
+/target
+/vscode
+/depends
+
+# Files
+/CMakeSettings.json

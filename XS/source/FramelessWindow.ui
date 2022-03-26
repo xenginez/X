@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>FramelessWindow</class>
+ <widget class="QMainWindow" name="FramelessWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>659</width>
+    <height>558</height>
+   </rect>
+  </property>
+  <property name="mouseTracking">
+   <bool>true</bool>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">#FramelessWindow
+{
+	border-radius:5px 5px 5px 5px;
+}</string>
+  </property>
+  <property name="documentMode">
+   <bool>true</bool>
+  </property>
+  <property name="tabShape">
+   <enum>QTabWidget::Rounded</enum>
+  </property>
+  <property name="dockNestingEnabled">
+   <bool>true</bool>
+  </property>
+  <property name="dockOptions">
+   <set>QMainWindow::AllowNestedDocks|QMainWindow::AllowTabbedDocks|QMainWindow::AnimatedDocks</set>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <property name="autoFillBackground">
+    <bool>true</bool>
+   </property>
+   <layout class="QVBoxLayout" name="verticalLayout_2">
+    <property name="spacing">
+     <number>0</number>
+    </property>
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
+    <item>
+     <widget class="QLabel" name="icon">
+      <property name="text">
+       <string/>
+      </property>
+      <property name="scaledContents">
+       <bool>false</bool>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QStatusBar" name="statusBar">
+   <property name="styleSheet">
+    <string notr="true">#statusBar
+{
+	border: 0px none palette(base);
+	background-color:palette(shadow);
+}</string>
+   </property>
+  </widget>
+  <widget class="XS::MenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>659</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>0</width>
+     <height>23</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>16777215</width>
+     <height>23</height>
+    </size>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::StrongFocus</enum>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">#menuBar
+{
+	border: 0px none palette(base);
+	background-color:palette(dark);
+}</string>
+   </property>
+  </widget>
+  <action name="actionbbb">
+   <property name="text">
+    <string>1111</string>
+   </property>
+  </action>
+  <action name="actioneee">
+   <property name="text">
+    <string>11111</string>
+   </property>
+  </action>
+  <action name="action2222">
+   <property name="text">
+    <string>2222</string>
+   </property>
+  </action>
+  <action name="action22222">
+   <property name="text">
+    <string>22222</string>
+   </property>
+  </action>
+  <action name="action22222_2">
+   <property name="text">
+    <string>22222</string>
+   </property>
+  </action>
+  <action name="action333333">
+   <property name="text">
+    <string>333333</string>
+   </property>
+  </action>
+  <action name="action111">
+   <property name="text">
+    <string>111</string>
+   </property>
+  </action>
+  <action name="action222">
+   <property name="text">
+    <string>222</string>
+   </property>
+  </action>
+  <action name="action111_2">
+   <property name="text">
+    <string>111</string>
+   </property>
+  </action>
+  <action name="action222_2">
+   <property name="text">
+    <string>222</string>
+   </property>
+  </action>
+  <action name="action3333">
+   <property name="text">
+    <string>3333</string>
+   </property>
+  </action>
+  <action name="action111_3">
+   <property name="text">
+    <string>111</string>
+   </property>
+  </action>
+  <action name="action222_3">
+   <property name="text">
+    <string>222</string>
+   </property>
+  </action>
+  <action name="action333">
+   <property name="text">
+    <string>333</string>
+   </property>
+  </action>
+  <action name="action444">
+   <property name="text">
+    <string>444</string>
+   </property>
+  </action>
+  <action name="action11111">
+   <property name="text">
+    <string>11111</string>
+   </property>
+  </action>
+  <action name="action11111_2">
+   <property name="text">
+    <string>11111</string>
+   </property>
+  </action>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>XS::MenuBar</class>
+   <extends>QMenuBar</extends>
+   <header>Menubar.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>
