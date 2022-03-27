@@ -54,7 +54,7 @@ const XE::Array< XE::MetaAttributeCPtr > & XE::MetaProperty::GetAttributes() con
 	return _Attributes;
 }
 
-XE::MetaAttributeCPtr XE::MetaProperty::FindAttribute( const XE::MetaClassPtr & val ) const
+XE::MetaAttributeCPtr XE::MetaProperty::FindAttribute( const XE::MetaClassCPtr & val ) const
 {
 	for( const auto & it : _Attributes )
 	{

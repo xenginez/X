@@ -19,7 +19,7 @@ XE::uint64 XE::MetaType::GetSize() const
 	return _Size;
 }
 
-XE::MetaAttributeCPtr XE::MetaType::FindAttribute( const XE::MetaClassPtr & val ) const
+XE::MetaAttributeCPtr XE::MetaType::FindAttribute( const XE::MetaClassCPtr & val ) const
 {
 	for ( const auto & it : _Attributes )
 	{

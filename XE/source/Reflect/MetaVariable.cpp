@@ -48,7 +48,7 @@ const XE::Array< XE::MetaAttributeCPtr > & XE::MetaVariable::GetAttributes() con
 	return _Attributes;
 }
 
-XE::MetaAttributeCPtr XE::MetaVariable::FindAttribute( const XE::MetaClassPtr & val ) const
+XE::MetaAttributeCPtr XE::MetaVariable::FindAttribute( const XE::MetaClassCPtr & val ) const
 {
 	for( const auto & it : _Attributes )
 	{
@@ -68,12 +68,5 @@ XE::Variant XE::MetaVariable::Get() const
 
 void XE::MetaVariable::Set( const XE::Variant & val ) const
 {
-	XE::Variant v = val;
-
-	for( const auto & it : _Attributes )
-	{
-		v = it->Execute( v );
-	}
-
-	Setter( v );
+	Setter( val );
 }

@@ -11,8 +11,10 @@
 
 #include <XS/XS.h>
 
+#include <QList>
 #include <QDialog>
 #include <QWidget>
+#include <QPushButton>
 #include <QJsonObject>
 #include <QListWidget>
 #include <QListWidgetItem>

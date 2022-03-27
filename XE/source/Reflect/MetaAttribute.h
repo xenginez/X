@@ -24,9 +24,14 @@ public:
 	MetaAttribute() = default;
 
 	virtual ~MetaAttribute() = default;
+};
 
+class XE_API FlagAttribute : public MetaAttribute
+{
 public:
-	virtual XE::Variant Execute( const XE::Variant & val ) const;
+	static XE::MetaClassPtr GetMetaClassStatic();
+
+	virtual XE::MetaClassPtr GetMetaClass() const;
 };
 
 class XE_API RangeAttribute : public MetaAttribute
@@ -40,7 +45,9 @@ public:
 	RangeAttribute( XE::float64 min, XE::float64 max );
 
 public:
-	XE::Variant Execute( const XE::Variant & val ) const override;
+	XE::float64 GetMin() const;
+
+	XE::float64 GetMax() const;
 
 private:
 	XE::float64 _Min = std::numeric_limits< XE::float64 >::min();
@@ -67,6 +74,23 @@ public:
 
 public:
 	NonEditorAttribute() = default;
+};
+
+class XE_API InspectorAttribute : public MetaAttribute
+{
+public:
+	static XE::MetaClassPtr GetMetaClassStatic();
+
+	virtual XE::MetaClassPtr GetMetaClass() const;
+
+public:
+	InspectorAttribute( const XE::String & type );
+
+public:
+	const XE::String & GetTypeName() const;
+
+private:
+	XE::String _Type;
 };
 
 class XE_API NonSerializeAttribute : public MetaAttribute

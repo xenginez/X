@@ -4,6 +4,8 @@
 
 #include <Skin.h>
 
+REG_WIDGET( XS::LoggerDockWidget );
+
 XS::LoggerDockWidget::LoggerDockWidget( QWidget * parent /*= nullptr */ )
 	:XS::DockWidget( parent ), ui( new Ui::LoggerDockWidget )
 {

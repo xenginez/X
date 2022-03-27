@@ -683,7 +683,7 @@ template< typename T > struct VariantDataGetFundamental
 	}
 	T operator()( const XE::VariantEnumData & val ) const
 	{
-		throw std::bad_variant_access();
+		return val.Value;
 	}
 	T operator()( const XE::VariantSmallData & val ) const
 	{

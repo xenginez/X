@@ -11,7 +11,7 @@
 
 #include <QCheckBox>
 
-#include "Inspector.h"
+#include "../Inspector.h"
 
 BEG_XS_NAMESPACE
 
@@ -32,7 +32,5 @@ private:
 };
 
 END_XS_NAMESPACE
-
-XS_DECLARE_WIDGET( BoolInspector );
 
 #endif//BOOLINSPECTOR_H__24EE26F5_4C25_4624_B1D1_31EB4C01E611

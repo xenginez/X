@@ -4,6 +4,8 @@
 
 #include <Skin.h>
 
+REG_WIDGET( XS::ObjectsDockWidget );
+
 XS::ObjectsDockWidget::ObjectsDockWidget( QWidget * parent /*= nullptr */ )
 	:DockWidget( parent ), ui( new Ui::ObjectsDockWidget )
 {

@@ -4,6 +4,8 @@
 
 #include <Skin.h>
 
+REG_WIDGET( XS::EditSceneDockWidget );
+
 XS::EditSceneDockWidget::EditSceneDockWidget( QWidget * parent /*= nullptr */ )
 	:DockWidget( parent ), ui( new Ui::EditSceneDockWidget )
 {

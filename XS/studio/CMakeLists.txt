@@ -21,4 +21,4 @@ add_executable(XStudio ${SOURCE_FILES})
 
 target_include_directories(XStudio PRIVATE ${X_TARGET_DIR}/include)
 target_link_directories(XStudio PRIVATE ${X_TARGET_DIR}/lib/${X_CONFIG})
-target_link_libraries(XStudio PRIVATE XS Qt${QT_VERSION_MAJOR}::Widgets)
+target_link_libraries(XStudio PRIVATE XE XS Qt${QT_VERSION_MAJOR}::Widgets)

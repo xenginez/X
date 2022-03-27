@@ -40,7 +40,7 @@ public:
 	const XE::Array< XE::MetaAttributeCPtr > & GetAttributes() const;
 
 public:
-	XE::MetaAttributeCPtr FindAttribute( const XE::MetaClassPtr & val ) const;
+	XE::MetaAttributeCPtr FindAttribute( const XE::MetaClassCPtr & val ) const;
 
 	template< typename T > XE::SharedPtr< const T > FindAttributeT() const
 	{

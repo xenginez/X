@@ -40,17 +40,21 @@ private:
 
 END_XS_NAMESPACE
 
-#define DECLARE_WIDGET( SPACE, TYPE ) \
-struct _STATIC_REGISTRY__##SPACE##__##TYPE##_ \
-{ \
-	using Type = SPACE::TYPE; \
-	_STATIC_REGISTRY__##SPACE##__##TYPE##_() \
-	{ \
-		XS::Registry::Register( #SPACE"::"#TYPE, []( QWidget * parent ) { return new Type( parent ); } ); \
-	} \
-}; \
-static _STATIC_REGISTRY__##SPACE##__##TYPE##_ ___STATIC_REGISTRY__##SPACE##__##TYPE##___ = {};
 
-#define XS_DECLARE_WIDGET( TYPE ) DECLARE_WIDGET( XS, TYPE )
+#define REG_WIDGET( TYPE ) \
+namespace XE \
+{ \
+	template<> struct MetaTypeCollector< TYPE > \
+	{ \
+		MetaTypeCollector() \
+		{ \
+			XS::Registry::Register( #TYPE, []( QWidget * parent ) { return new TYPE( parent ); } ); \
+		} \
+		static void Use() \
+		{ \
+			XE::ActiveSingleton< XE::MetaTypeCollector< TYPE > >::Register(); \
+		} \
+	}; \
+};
 
 #endif//REGISTRY_H__AAC4D951_0107_4D17_9798_51BA6F904E75

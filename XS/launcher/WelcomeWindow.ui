@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>972</width>
-    <height>535</height>
+    <width>1057</width>
+    <height>752</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -399,6 +399,9 @@
           </size>
          </property>
         </spacer>
+       </item>
+       <item>
+        <widget class="QWidget" name="billboard" native="true"/>
        </item>
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_4">

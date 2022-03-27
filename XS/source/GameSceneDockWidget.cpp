@@ -4,6 +4,8 @@
 
 #include <Skin.h>
 
+REG_WIDGET( XS::GameSceneDockWidget );
+
 XS::GameSceneDockWidget::GameSceneDockWidget( QWidget * parent /*= nullptr */ )
 	:DockWidget( parent ), ui( new Ui::GameSceneDockWidget )
 {

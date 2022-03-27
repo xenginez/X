@@ -9,6 +9,8 @@
 #ifndef GLOBAL_H__3384BD3C_6A3A_46A7_829C_38D1EB4DD8FE
 #define GLOBAL_H__3384BD3C_6A3A_46A7_829C_38D1EB4DD8FE
 
+#include <XE/XE.h>
+
 #include <QWidget>
 #include <QMetaType>
 

@@ -21,4 +21,4 @@ add_executable(XSLauncher ${SOURCE_FILES})
 
 target_include_directories(XSLauncher PRIVATE ${X_TARGET_DIR}/include)
 target_link_directories(XSLauncher PRIVATE ${X_TARGET_DIR}/lib/${X_CONFIG})
-target_link_libraries(XSLauncher PRIVATE XS Qt${QT_VERSION_MAJOR}::Widgets)
+target_link_libraries(XSLauncher PRIVATE XE XS Qt${QT_VERSION_MAJOR}::Widgets)

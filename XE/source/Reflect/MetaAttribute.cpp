@@ -13,9 +13,16 @@ XE::MetaClassPtr XE::MetaAttribute::GetMetaClass() const
 	return GetMetaClassStatic();
 }
 
-XE::Variant XE::MetaAttribute::Execute( const XE::Variant & val ) const
+
+XE::MetaClassPtr XE::FlagAttribute::GetMetaClassStatic()
 {
-	return val;
+	static auto p = XE::MakeShared< XE::CXXMetaClass< XE::FlagAttribute > >( "FlagAttribute", nullptr, nullptr, GetModule() );
+	return p;
+}
+
+XE::MetaClassPtr XE::FlagAttribute::GetMetaClass() const
+{
+	return GetMetaClassStatic();
 }
 
 
@@ -35,11 +42,15 @@ XE::MetaClassPtr XE::RangeAttribute::GetMetaClass() const
 	return GetMetaClassStatic();
 }
 
-XE::Variant XE::RangeAttribute::Execute( const XE::Variant & val ) const
+XE::float64 XE::RangeAttribute::GetMin() const
 {
-	return std::clamp( val.ToFloat64(), _Min, _Max );
+	return _Min;
 }
 
+XE::float64 XE::RangeAttribute::GetMax() const
+{
+	return _Max;
+}
 
 XE::MetaClassPtr XE::NonCloneAttribute::GetMetaClassStatic()
 {
@@ -62,6 +73,29 @@ XE::MetaClassPtr XE::NonEditorAttribute::GetMetaClassStatic()
 XE::MetaClassPtr XE::NonEditorAttribute::GetMetaClass() const
 {
 	return GetMetaClassStatic();
+}
+
+
+XE::MetaClassPtr XE::InspectorAttribute::GetMetaClassStatic()
+{
+	static auto p = XE::MakeShared< XE::CXXMetaClass< XE::InspectorAttribute > >( "InspectorAttribute", MetaAttribute::GetMetaClassStatic(), nullptr, GetModule() );
+	return p;
+}
+
+XE::MetaClassPtr XE::InspectorAttribute::GetMetaClass() const
+{
+	return GetMetaClassStatic();
+}
+
+XE::InspectorAttribute::InspectorAttribute( const XE::String & type )
+	:_Type( type )
+{
+
+}
+
+const XE::String & XE::InspectorAttribute::GetTypeName() const
+{
+	return _Type;
 }
 
 
