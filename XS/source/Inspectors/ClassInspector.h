@@ -28,6 +28,9 @@ public:
 	void Refresh() override;
 
 private:
+	void Merge( QTreeWidget * parent, QTreeWidgetItem * parent_item, QTreeWidget * child, QTreeWidgetItem * child_item );
+
+private:
 	QTreeWidget * _QTreeWidget;
 };
 

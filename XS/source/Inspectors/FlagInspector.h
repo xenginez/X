@@ -10,6 +10,7 @@
 #define FLAGINSPECTOR_H__1513F0F7_1D29_4627_86DA_D804E90866CF
 
 #include <QComboBox>
+#include <QLineEdit>
 
 #include "../Inspector.h"
 
@@ -27,8 +28,12 @@ public:
 public:
 	void Refresh() override;
 
+protected:
+	bool eventFilter( QObject * obj, QEvent * event ) override;
+
 private:
 	QComboBox * _QComboBox;
+	QLineEdit * _QLineEdit;
 };
 
 END_XS_NAMESPACE

@@ -1,6 +1,7 @@
 #include "Inspector.h"
 
 #include <QMap>
+#include <QVBoxLayout>
 
 #include "Inspectors/EnumInspector.h"
 #include "Inspectors/FlagInspector.h"
@@ -27,11 +28,11 @@ void XS::Inspector::Register( const XE::MetaTypeCPtr & type, const QString & nam
 	_Registers.insert( type, name );
 }
 
-XS::Inspector * XS::Inspector::Create( const XS::ObjectProxy & proxy, QWidget * parent /*= nullptr */ )
+XS::Inspector * XS::Inspector::Create( XS::ObjectProxy * proxy, QWidget * parent /*= nullptr */ )
 {
 	XS::Inspector * result = nullptr;
 
-	auto type = proxy.GetType();
+	auto type = proxy->GetType();
 	if ( auto attr = type->FindAttributeT< XE::InspectorAttribute >() )
 	{
 		result = XS::Registry::ConstructT< XS::Inspector >( attr->GetTypeName().c_str(), parent );
@@ -45,7 +46,7 @@ XS::Inspector * XS::Inspector::Create( const XS::ObjectProxy & proxy, QWidget * 
 		}
 		else if ( type->GetType() == XE::MetaInfoType::ENUM )
 		{
-			if ( type->FindAttributeT< XE::FlagAttribute >() != nullptr )
+			if ( proxy->FindAttributeT< XE::FlagAttribute >() != nullptr )
 			{
 				result = new XS::FlagInspector( parent );
 			}
@@ -60,15 +61,30 @@ XS::Inspector * XS::Inspector::Create( const XS::ObjectProxy & proxy, QWidget * 
 		}
 	}
 
+	result->SetObjecrProxy( proxy );
+
+	result->Refresh();
+
 	return result;
 }
 
-XS::ObjectProxy & XS::Inspector::GetObjectProxy()
+XS::ObjectProxy * XS::Inspector::GetObjectProxy()
 {
 	return _Proxy;
 }
 
-void XS::Inspector::SetObjecrProxy( const XS::ObjectProxy & proxy )
+void XS::Inspector::SetObjecrProxy( XS::ObjectProxy * proxy )
 {
 	_Proxy = proxy;
+}
+
+void XS::Inspector::SetContentWidget( QWidget * widget )
+{
+	QVBoxLayout * verticalLayout = new QVBoxLayout( this );
+
+	verticalLayout->setSpacing( 0 );
+	verticalLayout->setObjectName( QString::fromUtf8( "layout" ) );
+	verticalLayout->setContentsMargins( 0, 0, 0, 0 );
+
+	verticalLayout->addWidget( widget );
 }

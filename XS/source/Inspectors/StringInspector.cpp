@@ -8,11 +8,7 @@ XS::StringInspector::StringInspector( QWidget * parent /*= nullptr */ )
 	:Inspector( parent )
 {
 	_QLineEdit = new QLineEdit( this );
-
-	connect( _QLineEdit, &QLineEdit::textChanged, [this]( const QString & text )
-		{
-			GetObjectProxy().SetValue( XE::String( text.toStdString() ) );
-		} );
+	SetContentWidget( _QLineEdit );
 }
 
 XS::StringInspector::~StringInspector()
@@ -22,5 +18,12 @@ XS::StringInspector::~StringInspector()
 
 void XS::StringInspector::Refresh()
 {
-	_QLineEdit->setText( GetObjectProxy().GetValue().Value<XE::String>().c_str() );
+	disconnect( _QLineEdit, nullptr );
+
+	_QLineEdit->setText( GetObjectProxy()->GetValue().Value<XE::String>().c_str() );
+
+	connect( _QLineEdit, &QLineEdit::textChanged, [this]( const QString & text )
+		{
+			GetObjectProxy()->SetValue( XE::String( text.toStdString() ) );
+		} );
 }

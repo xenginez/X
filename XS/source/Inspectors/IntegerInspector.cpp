@@ -15,11 +15,7 @@ XS::IntegerInspector::IntegerInspector( QWidget * parent /*= nullptr */ )
 	:XS::Inspector( parent )
 {
 	_QSpinBox = new QSpinBox( this );
-
-	connect( _QSpinBox, QOverload< int >::of( &QSpinBox::valueChanged ), [this]( int val )
-		{
-			GetObjectProxy().SetValue( val );
-		} );
+	SetContentWidget( _QSpinBox );
 }
 
 XS::IntegerInspector::~IntegerInspector()
@@ -29,14 +25,16 @@ XS::IntegerInspector::~IntegerInspector()
 
 void XS::IntegerInspector::Refresh()
 {
-	if ( auto attr = GetObjectProxy().FindAttributeT< XE::RangeAttribute >() )
+	disconnect( _QSpinBox, nullptr );
+
+	if ( auto attr = GetObjectProxy()->FindAttributeT< XE::RangeAttribute >() )
 	{
 		_QSpinBox->setMinimum( attr->GetMin() );
 		_QSpinBox->setMaximum( attr->GetMax() );
 	}
 	else
 	{
-		auto type = GetObjectProxy().GetType();
+		auto type = GetObjectProxy()->GetType();
 		if ( type == TypeID< XE::int8 >::Get() )
 		{
 			_QSpinBox->setMinimum( std::numeric_limits< XE::int8 >::min() );
@@ -79,5 +77,10 @@ void XS::IntegerInspector::Refresh()
 		}
 	}
 
-	_QSpinBox->setValue( GetObjectProxy().GetValue().ToInt64() );
+	_QSpinBox->setValue( GetObjectProxy()->GetValue().ToInt64() );
+
+	connect( _QSpinBox, QOverload< int >::of( &QSpinBox::valueChanged ), [this]( int val )
+		{
+			GetObjectProxy()->SetValue( val );
+		} );
 }

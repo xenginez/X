@@ -13,8 +13,10 @@
 
 BEG_XS_NAMESPACE
 
-class XS_API ObjectProxy
+class XS_API ObjectProxy : public QObject
 {
+	Q_OBJECT
+
 public:
 	ObjectProxy();
 

@@ -2,9 +2,62 @@
 
 #include "ui_ObjectsDockWidget.h"
 
-#include <Skin.h>
+#include <QTimer>
+
+#include "Inspector.h"
 
 REG_WIDGET( XS::ObjectsDockWidget );
+
+namespace TestModule
+{
+	IMPLEMENT_META_MODULE( TestModule );
+
+	enum class ObjectsDockWidgetEnumTest
+	{
+		E_0 = 0,
+		E_1 = 1 << 1,
+		E_2 = 1 << 2,
+		E_4 = 1 << 3,
+		E_8 = 1 << 4,
+	};
+	DECL_META_ENUM( TestModule, ObjectsDockWidgetEnumTest );
+
+	class ObjectsDockWidgetClassTest1
+	{
+	public:
+		bool b;
+		int i;
+		float f;
+		ObjectsDockWidgetEnumTest e;
+	};
+	DECL_META_CLASS( TestModule, ObjectsDockWidgetClassTest1 );
+
+	class ObjectsDockWidgetClassTest2
+	{
+	public:
+		ObjectsDockWidgetClassTest1 c;
+		ObjectsDockWidgetEnumTest f;
+	};
+	DECL_META_CLASS( TestModule, ObjectsDockWidgetClassTest2 );
+}
+BEG_META( TestModule::ObjectsDockWidgetEnumTest )
+type->Value( "E_0", TestModule::ObjectsDockWidgetEnumTest::E_0 );
+type->Value( "E_1", TestModule::ObjectsDockWidgetEnumTest::E_1 );
+type->Value( "E_2", TestModule::ObjectsDockWidgetEnumTest::E_2 );
+type->Value( "E_4", TestModule::ObjectsDockWidgetEnumTest::E_4 );
+type->Value( "E_8", TestModule::ObjectsDockWidgetEnumTest::E_8 );
+END_META()
+BEG_META( TestModule::ObjectsDockWidgetClassTest1 )
+type->Property( "b", &TestModule::ObjectsDockWidgetClassTest1::b );
+type->Property( "i", &TestModule::ObjectsDockWidgetClassTest1::i );
+type->Property( "f", &TestModule::ObjectsDockWidgetClassTest1::f );
+type->Property( "e", &TestModule::ObjectsDockWidgetClassTest1::e );
+END_META()
+BEG_META( TestModule::ObjectsDockWidgetClassTest2 )
+type->Property( "c", &TestModule::ObjectsDockWidgetClassTest2::c );
+type->Property( "f", &TestModule::ObjectsDockWidgetClassTest2::f )->Attribute( XE::FlagAttribute() );
+END_META()
+
 
 XS::ObjectsDockWidget::ObjectsDockWidget( QWidget * parent /*= nullptr */ )
 	:DockWidget( parent ), ui( new Ui::ObjectsDockWidget )
@@ -36,6 +89,11 @@ XS::ObjectsDockWidget::ObjectsDockWidget( QWidget * parent /*= nullptr */ )
 
 	connect( ui->logic_tree, &QTreeWidget::itemClicked, this, &ObjectsDockWidget::OnLogicTreeWidgetItemClicked );
 	connect( ui->render_tree, &QTreeWidget::itemClicked, this, &ObjectsDockWidget::OnRenderTreeWidgetItemClicked );
+
+	QTimer::singleShot( 5000, [this]()
+		{
+			OnInspectorClicked();
+		} );
 }
 
 XS::ObjectsDockWidget::~ObjectsDockWidget()
@@ -83,5 +141,12 @@ void XS::ObjectsDockWidget::OnRenderTreeWidgetItemClicked( QTreeWidgetItem * ite
 
 void XS::ObjectsDockWidget::OnInspectorClicked()
 {
+	XE::Variant var = XE::MakeShared< TestModule::ObjectsDockWidgetClassTest2 >();
 
+	if ( ui->inspector_layout->count() != 0 )
+	{
+		ui->inspector_layout->removeItem( ui->inspector_layout->itemAt( 0 ) );
+	}
+
+	ui->inspector_layout->addWidget( XS::Inspector::Create( new XS::ObjectProxy( var ), this ) );
 }

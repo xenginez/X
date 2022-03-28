@@ -26,18 +26,21 @@ public:
 public:
 	static void Register( const XE::MetaTypeCPtr & type, const QString & name );
 
-	static Inspector * Create( const XS::ObjectProxy & proxy, QWidget * parent = nullptr );
+	static Inspector * Create( XS::ObjectProxy * proxy, QWidget * parent = nullptr );
 
 public:
 	virtual void Refresh() = 0;
 
 protected:
-	XS::ObjectProxy & GetObjectProxy();
+	XS::ObjectProxy * GetObjectProxy();
 
-	void SetObjecrProxy( const XS::ObjectProxy & proxy );
+	void SetObjecrProxy( XS::ObjectProxy * proxy );
+
+protected:
+	void SetContentWidget( QWidget * widget );
 
 private:
-	XS::ObjectProxy _Proxy;
+	XS::ObjectProxy * _Proxy = nullptr;
 };
 
 END_XS_NAMESPACE

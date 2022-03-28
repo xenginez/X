@@ -9,11 +9,7 @@ XS::FloatingInspector::FloatingInspector( QWidget * parent /*= nullptr */ )
 	:Inspector( parent )
 {
 	_QDoubleSpinBox = new QDoubleSpinBox( this );
-
-	connect( _QDoubleSpinBox, QOverload< double >::of( &QDoubleSpinBox::valueChanged ), [this]( double val )
-		{
-			GetObjectProxy().SetValue( val );
-		} );
+	SetContentWidget( _QDoubleSpinBox );
 }
 
 XS::FloatingInspector::~FloatingInspector()
@@ -23,14 +19,16 @@ XS::FloatingInspector::~FloatingInspector()
 
 void XS::FloatingInspector::Refresh()
 {
-	if ( auto attr = GetObjectProxy().FindAttributeT< XE::RangeAttribute >() )
+	disconnect( _QDoubleSpinBox, nullptr );
+
+	if ( auto attr = GetObjectProxy()->FindAttributeT< XE::RangeAttribute >() )
 	{
 		_QDoubleSpinBox->setMinimum( attr->GetMin() );
 		_QDoubleSpinBox->setMaximum( attr->GetMax() );
 	}
 	else
 	{
-		auto type = GetObjectProxy().GetType();
+		auto type = GetObjectProxy()->GetType();
 		if ( type == TypeID< XE::float32 >::Get() )
 		{
 			_QDoubleSpinBox->setMinimum( std::numeric_limits< XE::float32 >::min() );
@@ -43,5 +41,10 @@ void XS::FloatingInspector::Refresh()
 		}
 	}
 
-	_QDoubleSpinBox->setValue( GetObjectProxy().GetValue().ToFloat64() );
+	_QDoubleSpinBox->setValue( GetObjectProxy()->GetValue().ToFloat64() );
+
+	connect( _QDoubleSpinBox, QOverload< double >::of( &QDoubleSpinBox::valueChanged ), [this]( double val )
+		{
+			GetObjectProxy()->SetValue( val );
+		} );
 }
