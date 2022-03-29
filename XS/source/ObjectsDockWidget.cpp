@@ -4,8 +4,6 @@
 
 #include <QTimer>
 
-#include "Inspector.h"
-
 REG_WIDGET( XS::ObjectsDockWidget );
 
 namespace TestModule
@@ -28,6 +26,7 @@ namespace TestModule
 		bool b;
 		int i;
 		float f;
+		XE::String s;
 		ObjectsDockWidgetEnumTest e;
 	};
 	DECL_META_CLASS( TestModule, ObjectsDockWidgetClassTest1 );
@@ -52,6 +51,7 @@ type->Property( "b", &TestModule::ObjectsDockWidgetClassTest1::b );
 type->Property( "i", &TestModule::ObjectsDockWidgetClassTest1::i );
 type->Property( "f", &TestModule::ObjectsDockWidgetClassTest1::f );
 type->Property( "e", &TestModule::ObjectsDockWidgetClassTest1::e );
+type->Property( "s", &TestModule::ObjectsDockWidgetClassTest1::s );
 END_META()
 BEG_META( TestModule::ObjectsDockWidgetClassTest2 )
 type->Property( "c", &TestModule::ObjectsDockWidgetClassTest2::c );
@@ -83,14 +83,16 @@ XS::ObjectsDockWidget::ObjectsDockWidget( QWidget * parent /*= nullptr */ )
 	ui->render_search->addAction( QIcon( "SkinIcons:/images/objects/icon_objects_search.png" ), QLineEdit::ActionPosition::LeadingPosition );
 
 	ui->inspector_icon->setPixmap( QPixmap( "SkinIcons:/images/objects/icon_objects_inspector.png" ) );
-
-	ui->splitter_2->setStretchFactor( 0, 5 );
-	ui->splitter_2->setStretchFactor( 1, 5 );
+	ui->inspector_expand->setIcon( QIcon( "SkinIcons:/images/objects/icon_objects_expand.png" ) );
+	ui->inspector_collapse->setIcon( QIcon( "SkinIcons:/images/objects/icon_objects_collapse.png" ) );
 
 	connect( ui->logic_tree, &QTreeWidget::itemClicked, this, &ObjectsDockWidget::OnLogicTreeWidgetItemClicked );
 	connect( ui->render_tree, &QTreeWidget::itemClicked, this, &ObjectsDockWidget::OnRenderTreeWidgetItemClicked );
 
-	QTimer::singleShot( 5000, [this]()
+	connect( ui->inspector_expand, &QToolButton::clicked, [this]() { if ( _Inspector != nullptr ) _Inspector->Expand(); } );
+	connect( ui->inspector_collapse, &QToolButton::clicked, [this]() { if ( _Inspector != nullptr ) _Inspector->Collapse(); } );
+
+	QTimer::singleShot( 1000, [this]()
 		{
 			OnInspectorClicked();
 		} );
@@ -148,5 +150,6 @@ void XS::ObjectsDockWidget::OnInspectorClicked()
 		ui->inspector_layout->removeItem( ui->inspector_layout->itemAt( 0 ) );
 	}
 
-	ui->inspector_layout->addWidget( XS::Inspector::Create( new XS::ObjectProxy( var ), this ) );
+	_Inspector = XS::Inspector::Create( new XS::ObjectProxy( var ), this );
+	ui->inspector_layout->addWidget( _Inspector );
 }

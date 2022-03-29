@@ -201,7 +201,8 @@ void XS::FramelessWindow::Save( QSettings & settings )
 
 		settings.setValue( "docks", types );
 		settings.setValue( "names", names );
-		settings.setValue( "layouts", saveState() );
+		settings.setValue( "geometry", saveGeometry() );
+		settings.setValue( "state", saveState() );
 
 		for( XS::DockWidget * it : docks )
 		{
@@ -223,12 +224,12 @@ void XS::FramelessWindow::Load( QSettings & settings )
 		{
 			XS::DockWidget * dock = XS::Registry::ConstructT<XS::DockWidget>( types[i], this );
 			dock->setObjectName( names[i] );
+			dock->show();
 			docks.push_back( dock );
 		}
 
-		QByteArray layout = settings.value( "layouts" ).toByteArray();
-
-		restoreState( layout );
+		restoreGeometry( settings.value( "geometry" ).toByteArray() );
+		restoreState( settings.value( "state" ).toByteArray() );
 
 		for( XS::DockWidget * it : docks )
 		{

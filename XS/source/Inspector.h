@@ -29,6 +29,10 @@ public:
 	static Inspector * Create( XS::ObjectProxy * proxy, QWidget * parent = nullptr );
 
 public:
+	virtual void Expand();
+
+	virtual void Collapse();
+
 	virtual void Refresh() = 0;
 
 protected:

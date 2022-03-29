@@ -64,3 +64,13 @@ void XS::ObjectProxy::SetValue( const XE::Variant & val )
 
 	_Object = val;
 }
+
+const XE::String & XS::ObjectProxy::GetName() const
+{
+	if ( _Property )
+	{
+		return _Property->GetFullName();
+	}
+
+	return XE::String::empty_string;
+}

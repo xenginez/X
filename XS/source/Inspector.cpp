@@ -68,6 +68,16 @@ XS::Inspector * XS::Inspector::Create( XS::ObjectProxy * proxy, QWidget * parent
 	return result;
 }
 
+void XS::Inspector::Expand()
+{
+
+}
+
+void XS::Inspector::Collapse()
+{
+
+}
+
 XS::ObjectProxy * XS::Inspector::GetObjectProxy()
 {
 	return _Proxy;

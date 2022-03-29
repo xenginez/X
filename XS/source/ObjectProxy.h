@@ -29,6 +29,8 @@ public:
 public:
 	XE::MetaTypeCPtr GetType() const;
 
+	const XE::String & GetName() const;
+
 	XE::MetaAttributeCPtr FindAttribute( const XE::MetaClassCPtr & type ) const;
 
 	template< typename T > XE::SharedPtr< const T > FindAttributeT() const

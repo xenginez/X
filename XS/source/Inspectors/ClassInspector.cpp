@@ -29,8 +29,12 @@ void XS::ClassInspector::Refresh()
 			{
 				auto proxy = new XS::ObjectProxy( GetObjectProxy()->GetValue(), prop );
 
-				QTreeWidgetItem * item = new QTreeWidgetItem( QStringList() << tr( prop->GetName().c_str() ) );
-				item->setData( 0, Qt::UserRole + 1, QVariant::fromValue( proxy ) );
+				QTreeWidgetItem * item = new QTreeWidgetItem();
+				{
+					item->setText( 0, tr( prop->GetName().c_str() ) );
+					item->setData( 0, Qt::UserRole + 1, QVariant::fromValue( proxy ) );
+					item->setToolTip( 0, tr( prop->GetValueType()->GetFullName().c_str() ) );
+				}
 				_QTreeWidget->addTopLevelItem( item );
 
 				auto inspector = Inspector::Create( proxy, this );
@@ -57,6 +61,8 @@ void XS::ClassInspector::Merge( QTreeWidget * parent, QTreeWidgetItem * parent_i
 {
 	QTreeWidgetItem * item = new QTreeWidgetItem( QStringList() << child_item->text( 0 ) );
 	{
+		item->setText( 0, child_item->text( 0 ) );
+		item->setToolTip( 0, child_item->toolTip( 0 ) );
 		item->setData( 0, Qt::UserRole + 1, child_item->data( 0, Qt::UserRole + 1 ) );
 	}
 	parent_item->addChild( item );
@@ -71,4 +77,14 @@ void XS::ClassInspector::Merge( QTreeWidget * parent, QTreeWidgetItem * parent_i
 	{
 		Merge( parent, item, child, child_item->child( i ) );
 	}
+}
+
+void XS::ClassInspector::Expand()
+{
+	_QTreeWidget->expandAll();
+}
+
+void XS::ClassInspector::Collapse()
+{
+	_QTreeWidget->collapseAll();
 }

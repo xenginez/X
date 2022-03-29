@@ -11,6 +11,7 @@
 
 #include <QTreeWidget>
 
+#include "Inspector.h"
 #include "DockWidget.h"
 
 UI_DECL( ObjectsDockWidget );
@@ -41,6 +42,7 @@ private:
 
 private:
 	Ui::ObjectsDockWidget * ui;
+	XS::Inspector * _Inspector = nullptr;
 };
 
 END_XS_NAMESPACE

@@ -25,6 +25,10 @@ public:
 	~ClassInspector() override;
 
 public:
+	void Expand() override;
+
+	void Collapse() override;
+
 	void Refresh() override;
 
 private:

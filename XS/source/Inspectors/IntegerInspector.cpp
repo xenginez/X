@@ -15,6 +15,10 @@ XS::IntegerInspector::IntegerInspector( QWidget * parent /*= nullptr */ )
 	:XS::Inspector( parent )
 {
 	_QSpinBox = new QSpinBox( this );
+	{
+		_QSpinBox->setWrapping( true );
+		_QSpinBox->setSingleStep( 1 );
+	}
 	SetContentWidget( _QSpinBox );
 }
 

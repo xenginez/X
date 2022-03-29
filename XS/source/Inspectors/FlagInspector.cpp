@@ -1,40 +1,18 @@
 #include "FlagInspector.h"
 
-#include <QDebug>
 #include <QEvent>
-#include <QAction>
-#include <QVBoxLayout>
-#include <QResizeEvent>
+#include <QStylePainter>
 
 REG_WIDGET( XS::FlagInspector );
 
 XS::FlagInspector::FlagInspector( QWidget * parent /*= nullptr */ )
 	:Inspector( parent )
 {
-	QWidget * widget = new QWidget( this );
-	{
-		QVBoxLayout * verticalLayout = new QVBoxLayout( widget );
-		{
-			verticalLayout->setSpacing( 0 );
-			verticalLayout->setObjectName( QString::fromUtf8( "layout" ) );
-			verticalLayout->setContentsMargins( 0, 0, 0, 0 );
+	_QComboBox = new QComboBox( this );
 
-			{
-				_QComboBox = new QComboBox( this );
-				_QComboBox->hide();
+	_QComboBox->installEventFilter( this );
 
-				_QLineEdit = new QLineEdit( this );
-				_QLineEdit->setReadOnly( true );
-				_QLineEdit->installEventFilter( this );
-
-				connect( _QLineEdit->addAction( QIcon( "SkinIcons:/images/common/icon_branch_open.png" ), QLineEdit::TrailingPosition ), &QAction::triggered, [this]() { _QComboBox->showPopup(); } );
-			}
-
-			verticalLayout->addWidget( _QComboBox );
-			verticalLayout->addWidget( _QLineEdit );
-		}
-	}
-	SetContentWidget( widget );
+	SetContentWidget( _QComboBox );
 }
 
 XS::FlagInspector::~FlagInspector()
@@ -46,14 +24,17 @@ void XS::FlagInspector::Refresh()
 {
 	disconnect( _QComboBox, nullptr );
 
-	if ( auto enm = SP_CAST< const XE::MetaEnum >( GetObjectProxy()->GetType() ) )
+	if ( auto meta = SP_CAST< const XE::MetaEnum >( GetObjectProxy()->GetType() ) )
 	{
-		auto u64 = GetObjectProxy()->GetValue().ToUInt64();
-
 		_QComboBox->clear();
 
-		QString list; XE::uint64 all = 0;
-		enm->Visit( [&]( const XE::String & name, const XE::Variant & val )
+		auto value = GetObjectProxy()->GetValue().ToUInt64();
+
+		_QComboBox->addItem( tr( "NONE" ) );
+		_QComboBox->addItem( tr( "ALL" ) );
+
+		QString tool_tip; XE::uint64 all = 0;
+		meta->Visit( [&]( const XE::String & name, const XE::Variant & val )
 			{
 				if ( val.ToUInt64() == 0 )
 				{
@@ -62,10 +43,10 @@ void XS::FlagInspector::Refresh()
 
 				all |= val.ToUInt64();
 
-				if ( ( u64 & val.ToUInt64() ) != 0 )
+				if ( ( value & val.ToUInt64() ) != 0 )
 				{
-					list += name.c_str();
-					list += ";";
+					tool_tip += ( name + "\n" ).c_str();
+
 					_QComboBox->addItem( QIcon( "SkinIcons:/images/common/icon_checkbox_checked.png" ), tr( name.c_str() ), true );
 				}
 				else
@@ -73,71 +54,148 @@ void XS::FlagInspector::Refresh()
 					_QComboBox->addItem( QIcon( "SkinIcons:/images/common/icon_checkbox_unchecked.png" ), tr( name.c_str() ), false );
 				}
 			} );
-		if ( list.isEmpty() ) list = tr( "NONE;" );
-		else if ( all == u64 ) list = tr( "ALL;" );
+		if ( tool_tip.isEmpty() )
+		{
+			tool_tip = tr( "NONE" );
+		}
+		else if ( all == value )
+		{
+			tool_tip = tr( "ALL" );
+		}
+		else
+		{
+			tool_tip.remove( tool_tip.size() - 1, 1 );
+		}
 
-		list.remove( list.size() - 1, 1 );
-		_QLineEdit->setText( list );
-		_QLineEdit->setToolTip( list.replace( ';', '\n' ) );
+		_QComboBox->setToolTip( tool_tip );
 	}
 
 	connect( _QComboBox, QOverload<int>::of( &QComboBox::currentIndexChanged ), [this]( int index )
 		{
-			if ( auto enm = SP_CAST< const XE::MetaEnum >( GetObjectProxy()->GetType() ) )
+			QString tool_tip;
+
+			if ( index == 0 )
 			{
-				auto u64 = GetObjectProxy()->GetValue().ToUInt64();
+				for ( size_t i = 2; i < _QComboBox->count(); i++ )
+				{
+					_QComboBox->setItemData( i, false );
+					_QComboBox->setItemIcon( i, QIcon( "SkinIcons:/images/common/icon_checkbox_unchecked.png" ) );
+				}
+				tool_tip = "NONE";
+			}
+			else if ( index == 1 )
+			{
+				for ( size_t i = 2; i < _QComboBox->count(); i++ )
+				{
+					_QComboBox->setItemData( i, true );
+					_QComboBox->setItemIcon( i, QIcon( "SkinIcons:/images/common/icon_checkbox_checked.png" ) );
+				}
+				tool_tip = "ALL";
+			}
+			else
+			{
+				auto meta = SP_CAST< const XE::MetaEnum >( GetObjectProxy()->GetType() );
+				auto value = GetObjectProxy()->GetValue().ToUInt64();
 
 				if ( _QComboBox->itemData( index ).toBool() )
 				{
-					u64 &= ~enm->FindValue( _QComboBox->itemText( index ).toStdString() ).ToUInt64();
+					value &= ~meta->FindValue( _QComboBox->itemText( index ).toStdString() ).ToUInt64();
 
 					_QComboBox->setItemData( index, false );
 					_QComboBox->setItemIcon( index, QIcon( "SkinIcons:/images/common/icon_checkbox_unchecked.png" ) );
 				}
 				else
 				{
-					u64 |= enm->FindValue( _QComboBox->itemText( index ).toStdString() ).ToUInt64();
+					value |= meta->FindValue( _QComboBox->itemText( index ).toStdString() ).ToUInt64();
 
 					_QComboBox->setItemData( index, true );
 					_QComboBox->setItemIcon( index, QIcon( "SkinIcons:/images/common/icon_checkbox_checked.png" ) );
 				}
 
-				GetObjectProxy()->SetValue( XE::VariantData( XE::VariantEnumData( u64, GetObjectProxy()->GetValue().GetType() ) ) );
+				GetObjectProxy()->SetValue( XE::VariantData( XE::VariantEnumData( value, GetObjectProxy()->GetValue().GetType() ) ) );
 
-				QString list; XE::uint64 all = 0;
-				enm->Visit( [&]( const XE::String & name, const XE::Variant & val )
+				XE::uint64 all = 0;
+				meta->Visit( [&]( const XE::String & name, const XE::Variant & val )
 					{
 						all |= val.ToUInt64();
 
-						if ( ( u64 & val.ToUInt64() ) != 0 )
+						if ( ( value & val.ToUInt64() ) != 0 )
 						{
-							list += name.c_str();
-							list += ";";
+							tool_tip += ( name + "\n" ).c_str();
 						}
 					} );
-				if ( list.isEmpty() ) list = tr( "NONE;" );
-				else if ( all == u64 ) list = tr( "ALL;" );
 
-				list.remove( list.size() - 1, 1 );
-				_QLineEdit->setText( list );
-				_QLineEdit->setToolTip( list.replace( ';', '\n' ) );
+				if ( tool_tip.isEmpty() )
+				{
+					tool_tip = tr( "NONE" );
+				}
+				else if ( all == value )
+				{
+					tool_tip = tr( "ALL" );
+				}
+				else
+				{
+					tool_tip.remove( tool_tip.size() - 1, 1 );
+				}
 			}
+
+			_QComboBox->setToolTip( tool_tip );
 		} );
 }
 
-bool XS::FlagInspector::eventFilter( QObject * obj, QEvent * event )
+bool XS::FlagInspector::eventFilter( QObject * watched, QEvent * event )
 {
-	if ( obj == _QLineEdit )
+	if ( watched == _QComboBox && event->type() == QEvent::Paint )
 	{
-		if ( event->type() == QEvent::Resize )
+		QStylePainter painter( _QComboBox );
+		painter.setPen( palette().color( QPalette::Text ) );
+
+		QStyleOptionComboBox opt;
 		{
-			_QComboBox->resize( static_cast<QResizeEvent *>( event )->size() );
+			opt.initFrom( _QComboBox );
+			opt.editable = false;
+			opt.frame = _QComboBox->hasFrame();
+			if ( _QComboBox->hasFocus() && !opt.editable )
+			{
+				opt.state |= QStyle::State_Selected;
+			}
+
+			opt.subControls = QStyle::SC_All;
+			opt.activeSubControls = QStyle::SC_ComboBoxArrow;
+			opt.state |= QStyle::State_Sunken;
+
+			bool all = true;
+			for ( size_t i = 2; i < _QComboBox->count(); i++ )
+			{
+				if ( _QComboBox->itemData( i ).toBool() )
+				{
+					opt.currentText += _QComboBox->itemText( i ) + ";";
+				}
+				else
+				{
+					all = false;
+				}
+			}
+
+			if ( opt.currentText.isEmpty() )
+			{
+				opt.currentText = "NONE";
+			}
+			else if( all )
+			{
+				opt.currentText = "ALL";
+			}
+			else
+			{
+				opt.currentText.remove( opt.currentText.size() - 1, 1 );
+			}
 		}
-		else if ( event->type() == QEvent::MouseButtonRelease )
-		{
-			_QComboBox->showPopup();
-		}
+		painter.drawComplexControl( QStyle::CC_ComboBox, opt );
+
+		painter.drawControl( QStyle::CE_ComboBoxLabel, opt );
+
+		return true;
 	}
 
-	return Inspector::eventFilter( obj, event );
+	return Inspector::eventFilter( watched, event );
 }

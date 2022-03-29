@@ -160,6 +160,7 @@ void XS::DockWidget::Save( QSettings & settings )
 {
 	settings.beginGroup( objectName() );
 	{
+		settings.setValue( "geometry", saveGeometry() );
 		settings.setValue( "fixed", _FixedButton->isChecked() );
 	}
 	settings.endGroup();
@@ -169,6 +170,7 @@ void XS::DockWidget::Load( QSettings & settings )
 {
 	settings.beginGroup( objectName() );
 	{
+		restoreGeometry( settings.value( "geometry" ).toByteArray() );
 		_FixedButton->clicked( settings.value( "fixed" ).toBool() );
 	}
 	settings.endGroup();

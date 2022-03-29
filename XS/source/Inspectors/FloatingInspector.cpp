@@ -2,6 +2,7 @@
 
 REG_WIDGET( XS::FloatingInspector );
 
+REG_INSPECTOR( XE::float16, XS::FloatingInspector );
 REG_INSPECTOR( XE::float32, XS::FloatingInspector );
 REG_INSPECTOR( XE::float64, XS::FloatingInspector );
 
@@ -9,6 +10,10 @@ XS::FloatingInspector::FloatingInspector( QWidget * parent /*= nullptr */ )
 	:Inspector( parent )
 {
 	_QDoubleSpinBox = new QDoubleSpinBox( this );
+	{
+		_QDoubleSpinBox->setWrapping( true );
+		_QDoubleSpinBox->setSingleStep( 1.0 );
+	}
 	SetContentWidget( _QDoubleSpinBox );
 }
 
@@ -29,7 +34,12 @@ void XS::FloatingInspector::Refresh()
 	else
 	{
 		auto type = GetObjectProxy()->GetType();
-		if ( type == TypeID< XE::float32 >::Get() )
+		if ( type == TypeID< XE::float16 >::Get() )
+		{
+			_QDoubleSpinBox->setMinimum( std::numeric_limits< XE::float32 >::min() );
+			_QDoubleSpinBox->setMaximum( std::numeric_limits< XE::float32 >::max() );
+		}
+		else if ( type == TypeID< XE::float32 >::Get() )
 		{
 			_QDoubleSpinBox->setMinimum( std::numeric_limits< XE::float32 >::min() );
 			_QDoubleSpinBox->setMaximum( std::numeric_limits< XE::float32 >::max() );
