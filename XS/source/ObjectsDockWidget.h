@@ -38,7 +38,7 @@ private slots:
 	void OnRenderTreeWidgetItemClicked( QTreeWidgetItem * item, int column );
 
 private:
-	void OnInspectorClicked();
+	void OnInspectorClicked( const XE::Variant & val );
 
 private:
 	Ui::ObjectsDockWidget * ui;

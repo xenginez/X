@@ -6,61 +6,6 @@
 
 REG_WIDGET( XS::ObjectsDockWidget );
 
-namespace TestModule
-{
-	IMPLEMENT_META_MODULE( TestModule );
-
-	enum class ObjectsDockWidgetEnumTest
-	{
-		E_0 = 0,
-		E_1 = 1 << 1,
-		E_2 = 1 << 2,
-		E_4 = 1 << 3,
-		E_8 = 1 << 4,
-	};
-	DECL_META_ENUM( TestModule, ObjectsDockWidgetEnumTest );
-
-	class ObjectsDockWidgetClassTest1
-	{
-	public:
-		bool b;
-		int i;
-		float f;
-		double d;
-		XE::String s;
-		ObjectsDockWidgetEnumTest e;
-	};
-	DECL_META_CLASS( TestModule, ObjectsDockWidgetClassTest1 );
-
-	class ObjectsDockWidgetClassTest2
-	{
-	public:
-		ObjectsDockWidgetClassTest1 c;
-		ObjectsDockWidgetEnumTest f;
-	};
-	DECL_META_CLASS( TestModule, ObjectsDockWidgetClassTest2 );
-}
-BEG_META( TestModule::ObjectsDockWidgetEnumTest )
-type->Value( "E_0", TestModule::ObjectsDockWidgetEnumTest::E_0 );
-type->Value( "E_1", TestModule::ObjectsDockWidgetEnumTest::E_1 );
-type->Value( "E_2", TestModule::ObjectsDockWidgetEnumTest::E_2 );
-type->Value( "E_4", TestModule::ObjectsDockWidgetEnumTest::E_4 );
-type->Value( "E_8", TestModule::ObjectsDockWidgetEnumTest::E_8 );
-END_META()
-BEG_META( TestModule::ObjectsDockWidgetClassTest1 )
-type->Property( "b", &TestModule::ObjectsDockWidgetClassTest1::b );
-type->Property( "i", &TestModule::ObjectsDockWidgetClassTest1::i );
-type->Property( "f", &TestModule::ObjectsDockWidgetClassTest1::f );
-type->Property( "d", &TestModule::ObjectsDockWidgetClassTest1::d );
-type->Property( "e", &TestModule::ObjectsDockWidgetClassTest1::e );
-type->Property( "s", &TestModule::ObjectsDockWidgetClassTest1::s );
-END_META()
-BEG_META( TestModule::ObjectsDockWidgetClassTest2 )
-type->Property( "c", &TestModule::ObjectsDockWidgetClassTest2::c );
-type->Property( "f", &TestModule::ObjectsDockWidgetClassTest2::f )->Attribute( XE::FlagAttribute() );
-END_META()
-
-
 XS::ObjectsDockWidget::ObjectsDockWidget( QWidget * parent /*= nullptr */ )
 	:DockWidget( parent ), ui( new Ui::ObjectsDockWidget )
 {
@@ -93,11 +38,6 @@ XS::ObjectsDockWidget::ObjectsDockWidget( QWidget * parent /*= nullptr */ )
 
 	connect( ui->inspector_expand, &QToolButton::clicked, [this]() { if ( _Inspector != nullptr ) _Inspector->Expand(); } );
 	connect( ui->inspector_collapse, &QToolButton::clicked, [this]() { if ( _Inspector != nullptr ) _Inspector->Collapse(); } );
-
-	QTimer::singleShot( 1000, [this]()
-		{
-			OnInspectorClicked();
-		} );
 }
 
 XS::ObjectsDockWidget::~ObjectsDockWidget()
@@ -108,11 +48,13 @@ XS::ObjectsDockWidget::~ObjectsDockWidget()
 void XS::ObjectsDockWidget::Save( QSettings & settings )
 {
 	DockWidget::Save( settings );
-
+	
 	settings.beginGroup( objectName() );
 	{
-		settings.setValue( "splitter_horizontal", ui->splitter->saveState() );
-		settings.setValue( "splitter_vertical", ui->splitter_2->saveState() );
+		settings.setValue( "splitter_horizontal_geometry", ui->splitter->saveGeometry() );
+		settings.setValue( "splitter_vertical_geometry", ui->splitter_2->saveGeometry() );
+		settings.setValue( "splitter_horizontal_state", ui->splitter->saveState() );
+		settings.setValue( "splitter_vertical_state", ui->splitter_2->saveState() );
 	}
 	settings.endGroup();
 }
@@ -120,11 +62,13 @@ void XS::ObjectsDockWidget::Save( QSettings & settings )
 void XS::ObjectsDockWidget::Load( QSettings & settings )
 {
 	DockWidget::Load( settings );
-
+	
 	settings.beginGroup( objectName() );
 	{
-		ui->splitter_2->restoreState( settings.value( "splitter_vertical" ).toByteArray() );
-		ui->splitter->restoreState( settings.value( "splitter_horizontal" ).toByteArray() );
+		ui->splitter->restoreGeometry( settings.value( "splitter_horizontal_geometry" ).toByteArray() );
+		ui->splitter_2->restoreGeometry( settings.value( "splitter_vertical_geometry" ).toByteArray() );
+		ui->splitter->restoreState( settings.value( "splitter_horizontal_state" ).toByteArray() );
+		ui->splitter_2->restoreState( settings.value( "splitter_vertical_state" ).toByteArray() );
 	}
 	settings.endGroup();
 }
@@ -143,16 +87,14 @@ void XS::ObjectsDockWidget::OnRenderTreeWidgetItemClicked( QTreeWidgetItem * ite
 
 }
 
-void XS::ObjectsDockWidget::OnInspectorClicked()
+void XS::ObjectsDockWidget::OnInspectorClicked( const XE::Variant & val )
 {
-	XE::Variant var = XE::MakeShared< TestModule::ObjectsDockWidgetClassTest2 >();
-
 	if ( ui->inspector_layout->count() != 0 )
 	{
 		ui->inspector_layout->removeItem( ui->inspector_layout->itemAt( 0 ) );
 	}
 
-	_Inspector = XS::Inspector::Create( XE::MakeShared< XS::ObjectProxy >( var ), this );
+	_Inspector = XS::Inspector::Create( XE::MakeShared< XS::ObjectProxy >( val ), this );
 
 	ui->inspector_layout->addWidget( _Inspector );
 }

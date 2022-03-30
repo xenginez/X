@@ -334,7 +334,7 @@
           <item>
            <widget class="QLabel" name="path">
             <property name="text">
-             <string>path</string>
+             <string/>
             </property>
            </widget>
           </item>

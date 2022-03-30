@@ -21,9 +21,6 @@ XS::AssetsDockWidget::AssetsDockWidget( QWidget * parent /*= nullptr */ )
 	ui->invisible->setIcon( QIcon( "SkinIcons:/images/assets/icon_assets_invisible.png" ) );
 	ui->icon->setPixmap( QPixmap( "SkinIcons:/images/assets/icon_assets_folder.png" ) );
 	ui->search->addAction( QIcon( "SkinIcons:/images/assets/icon_assets_search.png" ), QLineEdit::ActionPosition::LeadingPosition );
-
-	ui->splitter->setStretchFactor( 0, 2 );
-	ui->splitter->setStretchFactor( 1, 8 );
 }
 
 XS::AssetsDockWidget::~AssetsDockWidget()
@@ -37,7 +34,8 @@ void XS::AssetsDockWidget::Save( QSettings & settings )
 
 	settings.beginGroup( objectName() );
 	{
-		settings.setValue( "splitter", ui->splitter->saveState() );
+		settings.setValue( "splitter_geometry", ui->splitter->saveGeometry() );
+		settings.setValue( "splitter_state", ui->splitter->saveState() );
 	}
 	settings.endGroup();
 }
@@ -48,7 +46,8 @@ void XS::AssetsDockWidget::Load( QSettings & settings )
 
 	settings.beginGroup( objectName() );
 	{
-		ui->splitter->restoreState( settings.value( "splitter" ).toByteArray() );
+		ui->splitter->restoreGeometry( settings.value( "splitter_geometry" ).toByteArray() );
+		ui->splitter->restoreState( settings.value( "splitter_state" ).toByteArray() );
 	}
 	settings.endGroup();
 }
