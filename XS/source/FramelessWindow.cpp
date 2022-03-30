@@ -2,6 +2,8 @@
 
 #include "ui_FramelessWindow.h"
 
+#include <QApplication>
+
 #include "DockWidget.h"
 
 XS::FramelessWindow::FramelessWindow( QWidget * parent )
@@ -127,13 +129,13 @@ void XS::FramelessWindow::OnCloseButtonClicked()
 
 void XS::FramelessWindow::OnMenuBarDoubleClicked()
 {
-	if( windowState().testFlag( Qt::WindowNoState ) )
-	{
-		OnMaximizeButtonClicked();
-	}
-	else if( windowState().testFlag( Qt::WindowMaximized ) )
+	if ( QMainWindow::isMaximized() )
 	{
 		OnRestoreButtonClicked();
+	}
+	else
+	{
+		OnMaximizeButtonClicked();
 	}
 }
 
@@ -161,8 +163,6 @@ void XS::FramelessWindow::show()
 
 	ui->menuBar->hideRestoreButton();
 
-	setWindowState( Qt::WindowNoState );
-
 	QMainWindow::show();
 }
 
@@ -179,8 +179,6 @@ void XS::FramelessWindow::showMaximized()
 	}
 
 	ui->menuBar->hideMaximizeButton();
-
-	setWindowState( Qt::WindowMaximized );
 
 	QMainWindow::showMaximized();
 }
@@ -201,12 +199,13 @@ void XS::FramelessWindow::Save( QSettings & settings )
 
 		settings.setValue( "docks", types );
 		settings.setValue( "names", names );
-		settings.setValue( "geometry", saveGeometry() );
 		settings.setValue( "state", saveState() );
+		settings.setValue( "geometry", saveGeometry() );
 
 		for( XS::DockWidget * it : docks )
 		{
 			it->Save( settings );
+			settings.setValue( it->objectName() + "/size", it->size() );
 		}
 	}
 	settings.endGroup();
@@ -216,24 +215,39 @@ void XS::FramelessWindow::Load( QSettings & settings )
 {
 	settings.beginGroup( objectName() );
 	{
+		XS::DockWidget * docks[255];
+
 		auto types = settings.value( "docks" ).toStringList();
 		auto names = settings.value( "names" ).toStringList();
 
-		QList<XS::DockWidget *> docks;
-		for( int i = 0; i < types.count(); i++ )
+		for ( int i = 0; i < types.count(); i++ )
 		{
 			XS::DockWidget * dock = XS::Registry::ConstructT<XS::DockWidget>( types[i], this );
 			dock->setObjectName( names[i] );
-			docks.push_back( dock );
+			dock->Load( settings );
 			dock->show();
+
+			docks[i] = dock;
 		}
 
 		restoreGeometry( settings.value( "geometry" ).toByteArray() );
 		restoreState( settings.value( "state" ).toByteArray() );
 
-		for( XS::DockWidget * it : docks )
+		QApplication::processEvents();
+
+		for( int i = 0; i < types.count(); i++ )
 		{
-			it->Load( settings );
+			QSize size = settings.value( docks[i]->objectName() + "/size" ).toSize();
+			docks[i]->setMinimumSize( size );
+			docks[i]->setMaximumSize( size );
+		} 
+
+		QApplication::processEvents();
+
+		for ( int i = 0; i < types.count(); i++ )
+		{
+			docks[i]->setMinimumSize( QSize( 0, 0 ) );
+			docks[i]->setMaximumSize( QSize( 65536, 65536 ) );
 		}
 	}
 	settings.endGroup();

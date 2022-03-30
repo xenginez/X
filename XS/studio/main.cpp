@@ -1,4 +1,5 @@
 #include <QApplication>
+#include <QDesktopWidget>
 
 #include "EditorWindow.h"
 
@@ -21,7 +22,9 @@ int main( int argc, char * argv[] )
 
 	XStudio::EditorWindow EditorWindow( project );
 
-	EditorWindow.showMaximized();
+	EditorWindow.setGeometry( QApplication::desktop()->screenGeometry( 0 ) );
+
+	EditorWindow.show();
 
 	return a.exec();
 }

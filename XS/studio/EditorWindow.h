@@ -23,6 +23,8 @@ namespace XStudio
 		~EditorWindow();
 
 	protected:
+		void showEvent( QShowEvent * e ) override;
+
 		void closeEvent( QCloseEvent * e ) override;
 	};
 }
