@@ -3,6 +3,7 @@
 #include <QTimer>
 #include <QFileInfo>
 #include <QDataStream>
+#include <QApplication>
 
 XStudio::EditorWindow::EditorWindow( const QString & project, QWidget * parent /*= nullptr */ )
 	:XS::FramelessWindow( parent )
@@ -28,6 +29,7 @@ void XStudio::EditorWindow::showEvent( QShowEvent * e )
 		QSettings settings( "./layout.ini", QSettings::IniFormat );
 
 		Load( settings );
+		LoadShortcuts( QApplication::applicationDirPath() + "/shortcuts.json" );
 	}
 	else
 	{
@@ -63,6 +65,7 @@ void XStudio::EditorWindow::closeEvent( QCloseEvent * e )
 	QSettings settings( "./layout.ini", QSettings::IniFormat );
 
 	Save( settings );
+	SaveShortcuts( QApplication::applicationDirPath() + "/shortcuts.json" );
 
 	XS::FramelessWindow::closeEvent( e );
 }

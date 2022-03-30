@@ -1,5 +1,7 @@
 #include "BooleanInspector.h"
 
+#include <QDebug>
+
 REG_WIDGET( XS::BooleanInspector );
 
 REG_INSPECTOR( bool, XS::BooleanInspector );
@@ -24,6 +26,21 @@ void XS::BooleanInspector::Refresh()
 
 	connect( _CheckBox, &QCheckBox::clicked, [this]( bool clicked )
 		{
-			GetObjectProxy()->SetValue( clicked );
+			if ( GetObjectProxy()->GetValue().ToBool() != clicked )
+			{
+				PushUndoCommand( GetObjectProxy()->GetName().c_str(),
+					[this, proxy = GetObjectProxy(), value = clicked]()
+				{
+					qDebug() << "BooleanInspector.Redo" << value;
+					proxy->SetValue( value );
+					_CheckBox->setChecked( value );
+				},
+					[this, proxy = GetObjectProxy(), value = GetObjectProxy()->GetValue().ToBool()]()
+				{
+					qDebug() << "BooleanInspector.Undo" << value;
+					proxy->SetValue( value );
+					_CheckBox->setChecked( value );
+				} );
+			}
 		} );
 }

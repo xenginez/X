@@ -24,23 +24,23 @@ BEG_XS_NAMESPACE
 class UndoCommand : public QUndoCommand
 {
 public:
-	UndoCommand( const QString & text, const std::function<void()> & undo, const std::function<void()> & redo )
-		:QUndoCommand( text ), _Undo( undo ), _Redo( redo )
+	UndoCommand( const QString & text, const std::function<void()> & redo, const std::function<void()> & undo )
+		:QUndoCommand( text ), _Redo( redo ), _Undo( undo )
 	{}
-
-	void undo() override
-	{
-		_Undo();
-	}
 
 	void redo() override
 	{
 		_Redo();
 	}
 
+	void undo() override
+	{
+		_Undo();
+	}
+
 private:
-	std::function<void()> _Undo;
 	std::function<void()> _Redo;
+	std::function<void()> _Undo;
 };
 
 class XS_API DockWidget : public QDockWidget
@@ -58,12 +58,31 @@ public:
 	virtual void Load( QSettings & settings );
 
 public:
+	template< typename T > T * GetParent() const
+	{
+		QWidget * parent = parentWidget();
+		while ( parent != nullptr )
+		{
+			if ( parent->metaObject()->inherits( &T::staticMetaObject ) )
+			{
+				return dynamic_cast<T *>( parent );
+			}
+			else
+			{
+				parent = parent->parentWidget();
+			}
+		}
+		return nullptr;
+	}
+
 	void PushUndoCommand( QUndoCommand * command );
 
-	template< typename REDO, typename UNDO > void PushUndoCommand( const QString & text, UNDO && undo, REDO && redo )
+	template< typename REDO, typename UNDO > void PushUndoCommand( const QString & text, REDO && redo, UNDO && undo )
 	{
-		PushUndoCommand( new UndoCommand( text, undo, redo ) );
+		PushUndoCommand( new UndoCommand( text, std::forward<REDO>( redo ), std::forward<UNDO>( undo ) ) );
 	}
+
+	QShortcut * AddShortcuts( const QString & name, const QKeySequence & key );
 
 protected:
 	void setTitleBar( QWidget * title_bar );

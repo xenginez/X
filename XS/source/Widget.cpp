@@ -14,3 +14,8 @@ XS::Widget::~Widget()
 {
 
 }
+
+QShortcut * XS::Widget::AddShortcuts( const QString & name, const QKeySequence & key )
+{
+	return GetParent< XS::DockWidget >()->AddShortcuts( name, key );
+}

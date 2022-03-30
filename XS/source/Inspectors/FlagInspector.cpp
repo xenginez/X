@@ -73,6 +73,7 @@ void XS::FlagInspector::Refresh()
 	connect( _QComboBox, QOverload<int>::of( &QComboBox::currentIndexChanged ), [this]( int index )
 		{
 			QString tool_tip;
+			XE::VariantEnumData data;
 
 			if ( index == 0 )
 			{
@@ -112,7 +113,7 @@ void XS::FlagInspector::Refresh()
 					_QComboBox->setItemIcon( index, QIcon( "SkinIcons:/images/common/icon_checkbox_checked.png" ) );
 				}
 
-				GetObjectProxy()->SetValue( XE::VariantEnumData( value, GetObjectProxy()->GetType() ) );
+				data = XE::VariantEnumData( value, GetObjectProxy()->GetType() );
 
 				XE::uint64 all = 0;
 				meta->Visit( [&]( const XE::String & name, const XE::Variant & val )
@@ -139,7 +140,17 @@ void XS::FlagInspector::Refresh()
 				}
 			}
 
-			_QComboBox->setToolTip( tool_tip );
+			PushUndoCommand( GetObjectProxy()->GetName().c_str(),
+				[this, proxy = GetObjectProxy(), value = data, tool_tip]()
+			{
+				proxy->SetValue( value );
+				_QComboBox->setToolTip( tool_tip );
+			},
+				[this, proxy = GetObjectProxy(), value = GetObjectProxy()->GetValue(), tool_tip = _QComboBox->toolTip()]()
+			{
+				proxy->SetValue( value );
+				_QComboBox->setToolTip( tool_tip );
+			} );
 		} );
 }
 

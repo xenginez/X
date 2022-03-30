@@ -4,36 +4,31 @@
 #include <QDebug>
 #include <QFrame>
 #include <QEvent>
+#include <QAction>
+#include <QShortcut>
 #include <QMainWindow>
 #include <QToolButton>
 #include <QSpacerItem>
 #include <QHBoxLayout>
 
-#include "Skin.h"
 #include "FramelessWindow.h"
 
 XS::DockWidget::DockWidget( QWidget * parent /*= nullptr */ )
 	:QDockWidget( parent )
 {
-	_UndoStack = new QUndoStack( this );
-	QString window_name( "XS::FramelessWindow" );
-	while ( parent != nullptr )
-	{
-		if (parent->metaObject()->className() == window_name )
-		{
-			dynamic_cast<XS::FramelessWindow *>( parent )->AddUndoStack( _UndoStack );
-			break;
-		}
-		else
-		{
-			parent = parent->parentWidget();
-		}
-	}
-
 	QDockWidget::setFeatures( AllDockWidgetFeatures );
 	QDockWidget::setAllowedAreas( Qt::AllDockWidgetAreas );
 
+	_UndoStack = new QUndoStack( this );
+	GetParent< XS::FramelessWindow >()->AddUndoStack( _UndoStack );
+
 	connect( this, &QDockWidget::topLevelChanged, this, &XS::DockWidget::OnTopLevelChanged );
+
+	QMetaObject::invokeMethod( this, [this]()
+		{
+			connect( AddShortcuts( "Redo", QKeySequence( "CTRL+Y" ) ), &QShortcut::activated, _UndoStack->createRedoAction( this, tr( "Redo" ) ), &QAction::trigger );
+			connect( AddShortcuts( "Undo", QKeySequence( "CTRL+Z" ) ), &QShortcut::activated, _UndoStack->createUndoAction( this, tr( "Undo" ) ), &QAction::trigger );
+		}, Qt::QueuedConnection );
 }
 
 XS::DockWidget::~DockWidget()
@@ -211,4 +206,9 @@ bool XS::DockWidget::eventFilter( QObject * watched, QEvent * event )
 void XS::DockWidget::PushUndoCommand( QUndoCommand * command )
 {
 	_UndoStack->push( command );
+}
+
+QShortcut * XS::DockWidget::AddShortcuts( const QString & name, const QKeySequence & key )
+{
+	return GetParent< XS::FramelessWindow >()->AddShortcuts( QString( metaObject()->className() ) + "." + name, key, this );
 }

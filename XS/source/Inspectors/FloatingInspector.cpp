@@ -55,6 +55,14 @@ void XS::FloatingInspector::Refresh()
 
 	connect( _QDoubleSpinBox, QOverload< double >::of( &QDoubleSpinBox::valueChanged ), [this]( double val )
 		{
-			GetObjectProxy()->SetValue( val );
+			PushUndoCommand( GetObjectProxy()->GetName().c_str(),
+				[this, proxy = GetObjectProxy(), value = val]()
+			{
+				proxy->SetValue( value );
+			},
+				[this, proxy = GetObjectProxy(), value = GetObjectProxy()->GetValue()]()
+			{
+				proxy->SetValue( value );
+			} );
 		} );
 }

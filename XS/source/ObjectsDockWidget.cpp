@@ -6,6 +6,22 @@
 
 REG_WIDGET( XS::ObjectsDockWidget );
 
+namespace TestModule
+{
+	IMPLEMENT_META_MODULE( TestModule );
+
+	class TestClass
+	{
+	public:
+		bool b;
+	};
+	DECL_META_CLASS( TestModule, TestClass );
+}
+
+BEG_META( TestModule::TestClass )
+type->Property( "b", &TestModule::TestClass::b );
+END_META()
+
 XS::ObjectsDockWidget::ObjectsDockWidget( QWidget * parent /*= nullptr */ )
 	:DockWidget( parent ), ui( new Ui::ObjectsDockWidget )
 {
@@ -38,6 +54,15 @@ XS::ObjectsDockWidget::ObjectsDockWidget( QWidget * parent /*= nullptr */ )
 
 	connect( ui->inspector_expand, &QToolButton::clicked, [this]() { if ( _Inspector != nullptr ) _Inspector->Expand(); } );
 	connect( ui->inspector_collapse, &QToolButton::clicked, [this]() { if ( _Inspector != nullptr ) _Inspector->Collapse(); } );
+
+	QTimer::singleShot( 1000, [this]()
+		{
+			TestModule::TestClass cls;
+
+			cls.b = true;
+
+			OnInspectorClicked( cls );
+		} );
 }
 
 XS::ObjectsDockWidget::~ObjectsDockWidget()

@@ -12,6 +12,7 @@
 #include <XE/XE.h>
 
 #include <QWidget>
+#include <QDialog>
 #include <QMetaType>
 
 #ifdef XS_EXPORT

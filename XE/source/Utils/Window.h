@@ -59,39 +59,39 @@ public:
 #endif
 
 public:
-	void ShowWindow();
+	virtual void ShowWindow();
 
-	void HideWindow();
+	virtual void HideWindow();
 
-	void MinimizeWindow();
+	virtual void MinimizeWindow();
 
-	void MaximizeWindow();
+	virtual void MaximizeWindow();
 
-	bool GetWindowFocus();
+	virtual bool GetWindowFocus();
 
-	void FullscreenWindow();
+	virtual void FullscreenWindow();
 
-	void SetWindowTitle( const XE::String & title );
+	virtual void SetWindowTitle( const XE::String & title );
 
-	XE::Pair< XE::uint32, XE::uint32 > GetWindowSize();
+	virtual XE::Pair< XE::uint32, XE::uint32 > GetWindowSize();
 
-	XE::Pair< XE::uint32, XE::uint32 > GetScreenSize();
+	virtual XE::Pair< XE::uint32, XE::uint32 > GetScreenSize();
 
-	void SetWindowRect( XE::uint32 x, XE::uint32 y, XE::uint32 w, XE::uint32 h, bool topmost = false );
-
-public:
-	bool IsShow() const;
-
-	bool IsHide() const;
-
-	bool IsMinimize() const;
-
-	bool IsMaximize() const;
-
-	bool IsFullscreen() const;
+	virtual void SetWindowRect( XE::uint32 x, XE::uint32 y, XE::uint32 w, XE::uint32 h, bool topmost = false );
 
 public:
-	void MessageLoop();
+	virtual bool IsShow() const;
+
+	virtual bool IsHide() const;
+
+	virtual bool IsMinimize() const;
+
+	virtual bool IsMaximize() const;
+
+	virtual bool IsFullscreen() const;
+
+public:
+	virtual void MessageLoop();
 
 public:
 	XE::WindowHandle GetHandle()

@@ -9,9 +9,12 @@
 #ifndef FRAMELESSWINDOW_H__60C1E323_2D82_4DE8_999B_76CEECE65608
 #define FRAMELESSWINDOW_H__60C1E323_2D82_4DE8_999B_76CEECE65608
 
+#include <QMap>
+#include <QShortcut>
 #include <QSettings>
 #include <QUndoGroup>
 #include <QMainWindow>
+#include <QKeySequence>
 
 #include "Global.h"
 
@@ -39,10 +42,13 @@ public:
 public:
 	virtual void Save( QSettings & settings );
 	virtual void Load( QSettings & settings );
+	void SaveShortcuts( const QString & path );
+	void LoadShortcuts( const QString & path );
 
 public:
 	void AddUndoStack( QUndoStack * val );
 	void RemoveUndoStack( QUndoStack * val );
+	QShortcut * AddShortcuts( const QString & name, const QKeySequence & key, QWidget * widget );
 
 public:
 	void enableWindowIcon();
@@ -75,7 +81,9 @@ private:
 
 private:
 	QUndoGroup * _UndoGroup = nullptr;
+	QMap< QString, QKeySequence > _Shortcuts;
 };
+
 END_XS_NAMESPACE
 
 #endif//FRAMELESSWINDOW_H__60C1E323_2D82_4DE8_999B_76CEECE65608

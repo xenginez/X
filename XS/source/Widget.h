@@ -9,7 +9,7 @@
 #ifndef WIDGET_H__C939D859_7363_4F66_A583_460EB05AAC48
 #define WIDGET_H__C939D859_7363_4F66_A583_460EB05AAC48
 
-#include "Registry.h"
+#include "DockWidget.h"
 
 BEG_XS_NAMESPACE
 
@@ -23,15 +23,31 @@ public:
 	~Widget() override;
 
 public:
-	template< typename REDO, typename UNDO > void PushUndoCommand( const QString & text, UNDO && undo, REDO && redo )
+	template< typename T > T * GetParent() const
 	{
-		QString dock_name( "XS::DockWidget" );
 		QWidget * parent = parentWidget();
 		while ( parent != nullptr )
 		{
-			if ( parent->metaObject()->className() == dock_name )
+			if ( parent->metaObject()->inherits( &T::staticMetaObject ) )
 			{
-				dynamic_cast<XS::DockWidget *>( parent )->PushUndoCommand( text, undo, redo );
+				return dynamic_cast<T *>( parent );
+			}
+			else
+			{
+				parent = parent->parentWidget();
+			}
+		}
+		return nullptr;
+	}
+
+	template< typename REDO, typename UNDO > void PushUndoCommand( const QString & text, REDO && redo, UNDO && undo )
+	{
+		QWidget * parent = parentWidget();
+		while ( parent != nullptr )
+		{
+			if ( parent->metaObject()->inherits( &XS::DockWidget::staticMetaObject ) )
+			{
+				dynamic_cast<XS::DockWidget *>( parent )->PushUndoCommand( text, redo, undo );
 				break;
 			}
 			else
@@ -40,6 +56,10 @@ public:
 			}
 		}
 	}
+
+public:
+	QShortcut * AddShortcuts( const QString & name, const QKeySequence & key );
+
 };
 
 END_XS_NAMESPACE

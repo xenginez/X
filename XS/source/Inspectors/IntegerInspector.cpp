@@ -85,6 +85,14 @@ void XS::IntegerInspector::Refresh()
 
 	connect( _QSpinBox, QOverload< int >::of( &QSpinBox::valueChanged ), [this]( int val )
 		{
-			GetObjectProxy()->SetValue( val );
+			PushUndoCommand( GetObjectProxy()->GetName().c_str(),
+				[this, proxy = GetObjectProxy(), value = val]()
+			{
+				proxy->SetValue( value );
+			},
+				[this, proxy = GetObjectProxy(), value = GetObjectProxy()->GetValue()]()
+			{
+				proxy->SetValue( value );
+			} );
 		} );
 }

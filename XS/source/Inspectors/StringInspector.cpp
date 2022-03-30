@@ -76,6 +76,14 @@ void XS::StringInspector::Refresh()
 
 	connect( _QLineEdit, &QLineEdit::textChanged, [this]( const QString & text )
 		{
-			GetObjectProxy()->SetValue( XE::String( text.toStdString() ) );
+			PushUndoCommand( GetObjectProxy()->GetName().c_str(),
+				[this, proxy = GetObjectProxy(), value = XE::String( text.toStdString() )]()
+			{
+				proxy->SetValue( value );
+			},
+				[this, proxy = GetObjectProxy(), value = GetObjectProxy()->GetValue()]()
+			{
+				proxy->SetValue( value );
+			} );
 		} );
 }

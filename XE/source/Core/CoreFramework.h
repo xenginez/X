@@ -25,7 +25,7 @@ private:
 public:
 	CoreFramework();
 
-	~CoreFramework();
+	virtual ~CoreFramework();
 
 public:
 	static CoreFrameworkPtr GetCurrentFramework();
@@ -72,7 +72,7 @@ public:
 	virtual void Reload();
 
 public:
-	int Exec( XE::WindowPtr window );
+	virtual int Exec( XE::WindowPtr window );
 
 protected:
 	virtual void Prepare();

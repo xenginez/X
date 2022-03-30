@@ -2,6 +2,10 @@
 
 #include "ui_FramelessWindow.h"
 
+#include <QFile>
+#include <QJsonArray>
+#include <QJsonObject>
+#include <QJsonDocument>
 #include <QApplication>
 
 #include "DockWidget.h"
@@ -251,4 +255,52 @@ void XS::FramelessWindow::Load( QSettings & settings )
 		}
 	}
 	settings.endGroup();
+}
+
+void XS::FramelessWindow::SaveShortcuts( const QString & path )
+{
+	QJsonObject obj;
+	{
+		for ( auto it = _Shortcuts.begin(); it != _Shortcuts.end(); ++it )
+		{
+			obj.insert( it.key(), it.value().toString() );
+		}
+	}
+	QJsonDocument doc( obj );
+
+	QFile file( path );
+	if ( file.open( QIODevice::WriteOnly | QIODevice::Text ) )
+	{
+		file.write( doc.toJson( QJsonDocument::Indented ) );
+	}
+}
+
+void XS::FramelessWindow::LoadShortcuts( const QString & path )
+{
+	QFile file( path );
+	if ( file.open( QIODevice::ReadOnly | QIODevice::Text ) )
+	{
+		QJsonDocument doc = QJsonDocument::fromJson( file.readAll() );
+
+		auto obj = doc.object();
+
+		for ( auto it = obj.begin(); it != obj.end(); ++it )
+		{
+			_Shortcuts.insert( it.key(), QKeySequence::fromString( it.value().toString() ) );
+		}
+	}
+}
+
+QShortcut * XS::FramelessWindow::AddShortcuts( const QString & name, const QKeySequence & key, QWidget * widget )
+{
+	auto it = _Shortcuts.find( name );
+	if ( it != _Shortcuts.end() )
+	{
+		return new QShortcut( it.value(), widget, nullptr, nullptr, Qt::ShortcutContext::WidgetWithChildrenShortcut );
+	}
+	else
+	{
+		_Shortcuts.insert( name, key );
+		return new QShortcut( key, widget, nullptr, nullptr, Qt::ShortcutContext::WidgetWithChildrenShortcut );
+	}
 }
