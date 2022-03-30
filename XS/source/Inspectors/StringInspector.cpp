@@ -76,14 +76,20 @@ void XS::StringInspector::Refresh()
 
 	connect( _QLineEdit, &QLineEdit::textChanged, [this]( const QString & text )
 		{
-			PushUndoCommand( GetObjectProxy()->GetName().c_str(),
-				[this, proxy = GetObjectProxy(), value = XE::String( text.toStdString() )]()
+			XE::String old = GetObjectProxy()->GetValue().Value<XE::String>();
+			if ( text != old.c_str() )
 			{
-				proxy->SetValue( value );
-			},
-				[this, proxy = GetObjectProxy(), value = GetObjectProxy()->GetValue()]()
-			{
-				proxy->SetValue( value );
-			} );
+				PushUndoCommand( GetObjectProxy()->GetName().c_str(),
+					[this, proxy = GetObjectProxy(), value = XE::String( text.toStdString() )]()
+				{
+					proxy->SetValue( value );
+					_QLineEdit->setText( value.c_str() );
+				},
+					[this, proxy = GetObjectProxy(), value = old]()
+				{
+					proxy->SetValue( value );
+					_QLineEdit->setText( value.c_str() );
+				} );
+			}
 		} );
 }

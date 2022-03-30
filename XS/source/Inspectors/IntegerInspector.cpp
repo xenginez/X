@@ -81,18 +81,23 @@ void XS::IntegerInspector::Refresh()
 		}
 	}
 
-	_QSpinBox->setValue( GetObjectProxy()->GetValue().ToInt64() );
+	_QSpinBox->setValue( GetObjectProxy()->GetValue().ToInt32() );
 
 	connect( _QSpinBox, QOverload< int >::of( &QSpinBox::valueChanged ), [this]( int val )
 		{
-			PushUndoCommand( GetObjectProxy()->GetName().c_str(),
-				[this, proxy = GetObjectProxy(), value = val]()
+			if ( val != GetObjectProxy()->GetValue().ToInt32() )
 			{
-				proxy->SetValue( value );
-			},
-				[this, proxy = GetObjectProxy(), value = GetObjectProxy()->GetValue()]()
-			{
-				proxy->SetValue( value );
-			} );
+				PushUndoCommand( GetObjectProxy()->GetName().c_str(),
+					[this, proxy = GetObjectProxy(), value = val]()
+				{
+					proxy->SetValue( value );
+					_QSpinBox->setValue( value );
+				},
+					[this, proxy = GetObjectProxy(), value = GetObjectProxy()->GetValue().ToInt32()]()
+				{
+					proxy->SetValue( value );
+					_QSpinBox->setValue( value );
+				} );
+			}
 		} );
 }

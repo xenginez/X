@@ -35,16 +35,21 @@ void XS::EnumInspector::Refresh()
 
 	connect( _QComboBox, QOverload<int>::of( &QComboBox::currentIndexChanged ), [this]( int val )
 		{
-			auto data = XE::VariantEnumData( _QComboBox->itemData( Qt::UserRole + 1 ).toULongLong(), GetObjectProxy()->GetType() );
+			if ( _QComboBox->itemData( val ).toULongLong() != GetObjectProxy()->GetValue().ToUInt64() )
+			{
+				auto data = XE::VariantEnumData( _QComboBox->itemData( val ).toULongLong(), GetObjectProxy()->GetType() );
 
-			PushUndoCommand( GetObjectProxy()->GetName().c_str(),
-				[this, proxy = GetObjectProxy(), value = data]()
-			{
-				proxy->SetValue( value );
-			},
-				[this, proxy = GetObjectProxy(), value = GetObjectProxy()->GetValue()]()
-			{
-				proxy->SetValue( value );
-			} );
+				PushUndoCommand( GetObjectProxy()->GetName().c_str(),
+					[this, proxy = GetObjectProxy(), value = data]()
+				{
+					proxy->SetValue( value );
+					_QComboBox->setCurrentIndex( _QComboBox->findText( SP_CAST< const XE::MetaEnum >( GetObjectProxy()->GetType() )->FindName( value ).c_str() ) );
+				},
+					[this, proxy = GetObjectProxy(), value = GetObjectProxy()->GetValue()]()
+				{
+					proxy->SetValue( value );
+					_QComboBox->setCurrentIndex( _QComboBox->findText( SP_CAST< const XE::MetaEnum >( GetObjectProxy()->GetType() )->FindName( value ).c_str() ) );
+				} );
+			}
 		} );
 }
