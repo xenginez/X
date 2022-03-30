@@ -33,7 +33,7 @@ struct XE_API VariantEnumData
 
 	VariantEnumData & operator = ( const VariantEnumData & ) = default;
 
-	VariantEnumData( XE::uint64 val, const XE::MetaTypePtr & type )
+	VariantEnumData( XE::uint64 val, const XE::MetaTypeCPtr & type )
 		:Value( val ), Type( type.get() )
 	{
 
@@ -78,7 +78,7 @@ struct XE_API VariantEnumData
 
 
 	XE::uint64 Value = 0;
-	XE::MetaType * Type = nullptr;
+	const XE::MetaType * Type = nullptr;
 };
 
 struct XE_API VariantSmallData
@@ -130,7 +130,7 @@ struct XE_API VariantSmallData
 	}
 
 	XE::uint64 Value = 0;
-	XE::MetaType * Type = nullptr;
+	const XE::MetaType * Type = nullptr;
 };
 
 struct XE_API VariantPointerData
@@ -151,7 +151,7 @@ struct XE_API VariantPointerData
 
 	}
 
-	VariantPointerData( const void * val, XE::MetaType * type )
+	VariantPointerData( const void * val, const XE::MetaType * type )
 		:Value( const_cast< void * >( val ) ), Type( type )
 	{
 
@@ -188,7 +188,7 @@ struct XE_API VariantPointerData
 	}
 
 	void * Value = nullptr;
-	XE::MetaType * Type = nullptr;
+	const XE::MetaType * Type = nullptr;
 };
 
 struct XE_API VariantInterfaceData : public XE::NonCopyable
@@ -203,7 +203,7 @@ public:
 
 	virtual bool IsSharedPtr() const = 0;
 
-	virtual XE::MetaType * GetMetaClass() const = 0;
+	virtual const XE::MetaType * GetMetaType() const = 0;
 
 public:
 	virtual void * ValuePointer() = 0;
@@ -235,9 +235,9 @@ public:
 		return std::is_shared_ptr_v< T >;
 	}
 
-	XE::MetaType * GetMetaClass() const override
+	const XE::MetaType * GetMetaType() const override
 	{
-		return SP_CAST< XE::MetaClass >( TypeID< T >::Get( &_Value ) ).get();
+		return TypeID< T >::Get( &_Value ).get();
 	}
 
 public:
@@ -283,9 +283,9 @@ public:
 		return true;
 	}
 
-	XE::MetaType * GetMetaClass() const override
+	const XE::MetaType * GetMetaType() const override
 	{
-		return SP_CAST< XE::MetaClass >( TypeID< T >::Get( _Value.get() ) ).get();
+		return TypeID< T >::Get( _Value.get() ).get();
 	}
 
 public:
@@ -314,7 +314,7 @@ struct VariantVoidSharedPtrData : public VariantInterfaceData
 public:
 	VariantVoidSharedPtrData() = default;
 
-	VariantVoidSharedPtrData( const XE::SharedPtr< void > & val, XE::MetaType * type )
+	VariantVoidSharedPtrData( const XE::SharedPtr< void > & val, const XE::MetaType * type )
 		: _Value( val ), _Type( type )
 	{
 
@@ -331,7 +331,7 @@ public:
 		return true;
 	}
 
-	XE::MetaType * GetMetaClass() const override
+	const XE::MetaType * GetMetaType() const override
 	{
 		return _Type;
 	}
@@ -354,7 +354,7 @@ public:
 	}
 
 private:
-	XE::MetaType * _Type;
+	const XE::MetaType * _Type;
 	XE::SharedPtr< void > _Value;
 };
 
@@ -383,7 +383,7 @@ public:
 
 	}
 
-	VariantWarpperData( const XE::SharedPtr< void > & val, XE::MetaType * type )
+	VariantWarpperData( const XE::SharedPtr< void > & val, const XE::MetaType * type )
 		: Pointer( XE::MakeShared< VariantVoidSharedPtrData >( val, type ) )
 	{
 
@@ -456,22 +456,22 @@ struct XE_API VariantDataIsNull
 
 struct XE_API VariantDataGetMetaType
 {
-	XE::MetaTypePtr operator()( const std::monostate & ) const;
-	XE::MetaTypePtr operator()( const bool & ) const;
-	XE::MetaTypePtr operator()( const XE::int8 & ) const;
-	XE::MetaTypePtr operator()( const XE::int16 & ) const;
-	XE::MetaTypePtr operator()( const XE::int32 & ) const;
-	XE::MetaTypePtr operator()( const XE::int64 & ) const;
-	XE::MetaTypePtr operator()( const XE::uint8 & ) const;
-	XE::MetaTypePtr operator()( const XE::uint16 & ) const;
-	XE::MetaTypePtr operator()( const XE::uint32 & ) const;
-	XE::MetaTypePtr operator()( const XE::uint64 & ) const;
-	XE::MetaTypePtr operator()( const XE::float32 & ) const;
-	XE::MetaTypePtr operator()( const XE::float64 & ) const;
-	XE::MetaTypePtr operator()( const XE::VariantEnumData & val ) const;
-	XE::MetaTypePtr operator()( const XE::VariantSmallData & val ) const;
-	XE::MetaTypePtr operator()( const XE::VariantPointerData & val ) const;
-	XE::MetaTypePtr operator()( const XE::VariantWarpperData & val ) const;
+	XE::MetaTypeCPtr operator()( const std::monostate & ) const;
+	XE::MetaTypeCPtr operator()( const bool & ) const;
+	XE::MetaTypeCPtr operator()( const XE::int8 & ) const;
+	XE::MetaTypeCPtr operator()( const XE::int16 & ) const;
+	XE::MetaTypeCPtr operator()( const XE::int32 & ) const;
+	XE::MetaTypeCPtr operator()( const XE::int64 & ) const;
+	XE::MetaTypeCPtr operator()( const XE::uint8 & ) const;
+	XE::MetaTypeCPtr operator()( const XE::uint16 & ) const;
+	XE::MetaTypeCPtr operator()( const XE::uint32 & ) const;
+	XE::MetaTypeCPtr operator()( const XE::uint64 & ) const;
+	XE::MetaTypeCPtr operator()( const XE::float32 & ) const;
+	XE::MetaTypeCPtr operator()( const XE::float64 & ) const;
+	XE::MetaTypeCPtr operator()( const XE::VariantEnumData & val ) const;
+	XE::MetaTypeCPtr operator()( const XE::VariantSmallData & val ) const;
+	XE::MetaTypeCPtr operator()( const XE::VariantPointerData & val ) const;
+	XE::MetaTypeCPtr operator()( const XE::VariantWarpperData & val ) const;
 };
 
 struct XE_API VariantDataIsContainer
@@ -627,7 +627,7 @@ template< typename T > struct VariantDataIsCanConvert
 	}
 	bool operator()( const VariantWarpperData & val ) const
 	{
-		return val.Pointer != nullptr && __VariantDataIsCanConvert( TypeID< T >::Get().get(), val.Pointer->GetMetaClass() );
+		return val.Pointer != nullptr && __VariantDataIsCanConvert( TypeID< T >::Get().get(), val.Pointer->GetMetaType() );
 	}
 };
 
@@ -778,7 +778,7 @@ template< typename ... T > struct VariantDataWarpperIsType
 	}
 	bool operator()( const VariantWarpperData & val ) const
 	{
-		return val.Pointer != nullptr ? IsSameType< T... >( val.Pointer->GetMetaClass() ) : false;
+		return val.Pointer != nullptr ? IsSameType< T... >( val.Pointer->GetMetaType() ) : false;
 	}
 };
 

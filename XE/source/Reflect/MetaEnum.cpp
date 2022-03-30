@@ -2,7 +2,7 @@
 
 
 
-XE::MetaEnum::MetaEnum( const String & Name, XE::uint64 Size, MetaInfoPtr Owner, MetaModulePtr Module )
+XE::MetaEnum::MetaEnum( const String & Name, XE::uint64 Size, MetaInfoCPtr Owner, MetaModuleCPtr Module )
 	:MetaType( Name, MetaInfoType::ENUM, Size, Owner, Module )
 {
 
@@ -11,6 +11,16 @@ XE::MetaEnum::MetaEnum( const String & Name, XE::uint64 Size, MetaInfoPtr Owner,
 XE::MetaEnum::~MetaEnum()
 {
 
+}
+
+XE::uint64 XE::MetaEnum::GetFlags() const
+{
+	XE::uint64 result = 0;
+	for ( const auto & it : _Values )
+	{
+		result |= it.second.ToUInt64();
+	}
+	return result;
 }
 
 XE::uint64 XE::MetaEnum::GetEnumCount() const

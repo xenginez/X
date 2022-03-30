@@ -20,9 +20,9 @@ class XE_API ReflectObject : public XE::EnableSharedFromThis< ReflectObject >
 	template< typename T > friend struct MetaTypeCollector;
 
 public:
-	static MetaClassPtr GetMetaClassStatic();
+	static MetaClassCPtr GetMetaClassStatic();
 
-	virtual MetaClassPtr GetMetaClass() const;
+	virtual MetaClassCPtr GetMetaClass() const;
 
 public:
 	ReflectObject();

@@ -47,6 +47,7 @@ private:
 	XE::Variant _Object;
 	XE::MetaPropertyCPtr _Property;
 };
+DECL_PTR( ObjectProxy );
 
 END_XS_NAMESPACE
 

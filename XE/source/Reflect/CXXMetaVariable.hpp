@@ -16,7 +16,7 @@ BEG_XE_NAMESPACE
 class XE_API MetaVariableImpl : public MetaVariable
 {
 public:
-	MetaVariableImpl( const String & Name, bool IsConst, bool IsObject, bool IsPointer, bool IsSharedPtr, bool IsReference, MetaTypePtr Value, MetaModulePtr Module )
+	MetaVariableImpl( const String & Name, bool IsConst, bool IsObject, bool IsPointer, bool IsSharedPtr, bool IsReference, MetaTypeCPtr Value, MetaModuleCPtr Module )
 		:MetaVariable( Name, IsConst, IsObject, IsPointer, IsSharedPtr, IsReference, Value, Module )
 	{
 
@@ -48,7 +48,7 @@ public:
 	using VariableType = ValueType;
 
 public:
-	CXXMetaVariable( const String & Name, VariableType * Value, MetaModulePtr Module )
+	CXXMetaVariable( const String & Name, VariableType * Value, MetaModuleCPtr Module )
 		:MetaVariableImpl( Name, true, !std::is_pointer_v< ValueType > && !std::is_reference_v< ValueType > && !std::is_weak_ptr_v< ValueType > && !std::is_shared_ptr_v< ValueType >, std::is_pointer_v< ValueType >, std::is_shared_ptr_v< ValueType > || std::is_weak_ptr_v< ValueType >, std::is_reference_v< ValueType >, TypeID< typename TypeTraits< ValueType >::raw_t >::Get(), Module ), _Value( Value )
 	{
 

@@ -2,10 +2,8 @@
 
 #include "MetaClass.h"
 
-
-
-XE::MetaMethod::MetaMethod( const String & Name, bool IsStatic, bool IsConst, MetaTypePtr Result, ParameterType && Parameter, MetaClassPtr Owner, MetaModulePtr Module )
-	:MetaInfo( Name, MetaInfoType::METHOD, SP_CAST< MetaInfo >( Owner ), Module ), _IsStatic( IsStatic ), _IsConst( IsConst ), _Result( Result ), _Parameter( Parameter )
+XE::MetaMethod::MetaMethod( const String & Name, bool IsStatic, bool IsConst, MetaTypeCPtr Result, ParameterType && Parameter, MetaClassCPtr Owner, MetaModuleCPtr Module )
+	:MetaInfo( Name, MetaInfoType::METHOD, Owner, Module ), _IsStatic( IsStatic ), _IsConst( IsConst ), _Result( Result ), _Parameter( Parameter )
 {
 
 }
@@ -25,7 +23,7 @@ bool XE::MetaMethod::IsStatic() const
 	return _IsStatic;
 }
 
-XE::MetaTypePtr XE::MetaMethod::GetResultType() const
+XE::MetaTypeCPtr XE::MetaMethod::GetResultType() const
 {
 	return _Result.lock();
 }

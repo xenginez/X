@@ -18,7 +18,7 @@ BEG_XE_NAMESPACE
 class XE_API MetaMethod : public MetaInfo
 {
 public:
-	MetaMethod( const String & Name, bool IsStatic, bool IsConst, MetaTypePtr Result, ParameterType && Parameter, MetaClassPtr Owner, MetaModulePtr Module );
+	MetaMethod( const String & Name, bool IsStatic, bool IsConst, MetaTypeCPtr Result, ParameterType && Parameter, MetaClassCPtr Owner, MetaModuleCPtr Module );
 
 	~MetaMethod();
 
@@ -28,7 +28,7 @@ public:
 	bool IsStatic() const;
 
 public:
-	XE::MetaTypePtr GetResultType() const;
+	XE::MetaTypeCPtr GetResultType() const;
 
 	const XE::ParameterType & GetParameterType() const;
 
@@ -47,7 +47,7 @@ public:
 private:
 	bool _IsConst;
 	bool _IsStatic;
-	XE::MetaTypeWPtr _Result;
+	XE::MetaTypeCWPtr _Result;
 	XE::ParameterType _Parameter;
 };
 

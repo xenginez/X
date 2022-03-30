@@ -19,7 +19,7 @@ public:
 	using FunctionType = void( * )( ParameterType... );
 
 public:
-	CXXMetaFunction( const String & Name, FunctionType Callback, MetaModulePtr Module )
+	CXXMetaFunction( const String & Name, FunctionType Callback, MetaModuleCPtr Module )
 		:MetaFunction( Name + XE::ToString( MakeParameterType< ParameterType... >() ), nullptr, MakeParameterType< ParameterType... >(), Module ), _Callback( Callback )
 	{
 	}
@@ -41,7 +41,7 @@ public:
 	using FunctionType = ResultType( * )( ParameterType... );
 
 public:
-	CXXMetaFunction( const String & Name, FunctionType Callback, MetaModulePtr Module )
+	CXXMetaFunction( const String & Name, FunctionType Callback, MetaModuleCPtr Module )
 		:MetaFunction( Name + XE::ToString( MakeParameterType< ParameterType... >() ), TypeID< ResultType >::Get(), MakeParameterType< ParameterType... >(), Module ), _Callback( Callback )
 	{
 	}

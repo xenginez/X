@@ -343,7 +343,7 @@ public:
 		}
 		else
 		{
-			ClassID< T >::Get( from )->VisitProperty( [&]( const XE::MetaPropertyPtr & prop )
+			ClassID< T >::Get( from )->VisitProperty( [&]( const XE::MetaPropertyCPtr & prop )
 													  {
 														  if( prop->FindAttributeT< XE::NonCloneAttribute >() == nullptr )
 														  {
@@ -396,7 +396,7 @@ public:
 		{
 			if( auto cls = ClassID< T >::Get( &val ) )
 			{
-				cls->VisitProperty( [&]( const XE::MetaPropertyPtr & prop )
+				cls->VisitProperty( [&]( const XE::MetaPropertyCPtr & prop )
 									{
 										if( !prop->IsStatic() && prop->FindAttributeT< XE::NonSerializeAttribute >() == nullptr )
 										{
@@ -421,7 +421,7 @@ public:
 		{
 			if( auto cls = ClassID< T >::Get( &val ) )
 			{
-				cls->VisitProperty( [&]( const XE::MetaPropertyPtr & prop )
+				cls->VisitProperty( [&]( const XE::MetaPropertyCPtr & prop )
 									{
 										if( !prop->IsStatic() && prop->FindAttributeT< XE::NonSerializeAttribute >() == nullptr )
 										{

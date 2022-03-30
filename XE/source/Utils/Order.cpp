@@ -7,7 +7,7 @@ struct OrderInfo
 	XE::uint64 id;
 	XE::String name;
 	XE::String desc;
-	XE::MetaInfoPtr info;
+	XE::MetaInfoCPtr info;
 };
 
 struct XE::Order::Private
@@ -59,7 +59,7 @@ XE::String XE::Order::FindOrderDesc( XE::uint64 id )
 	return XE::String();
 }
 
-XE::MetaInfoPtr XE::Order::FindOrderPatameter( XE::uint64 id )
+XE::MetaInfoCPtr XE::Order::FindOrderPatameter( XE::uint64 id )
 {
 	XE::uint64 group = id >> 56;
 
@@ -72,7 +72,7 @@ XE::MetaInfoPtr XE::Order::FindOrderPatameter( XE::uint64 id )
 	return nullptr;
 }
 
-XE::uint64 XE::Order::RegisterOrder( XE::uint8 group, const XE::String & name, const XE::String & desc, const XE::MetaInfoPtr & parameter )
+XE::uint64 XE::Order::RegisterOrder( XE::uint8 group, const XE::String & name, const XE::String & desc, const XE::MetaInfoCPtr & parameter )
 {
 	XE::uint64 hash = ( XE::uint64( group ) << 56 ) | ( XE::Hash( name ) >> 8 );
 
@@ -115,7 +115,7 @@ XE::uint64 XE::Order::FindOrderID( XE::uint8 group, const XE::String & name )
 	return Invalid;
 }
 
-void XE::Order::VisitOrder( XE::uint8 group, XE::Delegate< void( XE::uint64, XE::String, XE::String, const XE::MetaInfoPtr & ) > val )
+void XE::Order::VisitOrder( XE::uint8 group, XE::Delegate< void( XE::uint64, XE::String, XE::String, const XE::MetaInfoCPtr & ) > val )
 {
 	for( const auto & it : _p->Groups[group] )
 	{

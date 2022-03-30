@@ -2,7 +2,7 @@
 
 #include "Reflection.h"
 
-XE::MetaInfo::MetaInfo( const String & Name, MetaInfoType Type, MetaInfoPtr Owner, MetaModulePtr Module )
+XE::MetaInfo::MetaInfo( const String & Name, MetaInfoType Type, MetaInfoCPtr Owner, MetaModuleCPtr Module )
 	:_Type( Type ), _Name( Name ), _FullName( Name ), _Owner( Owner ), _Module( Module )
 {
 	if( Owner )
@@ -46,12 +46,12 @@ const XE::String& XE::MetaInfo::GetFullName() const
 	return _FullName;
 }
 
-XE::MetaInfoPtr XE::MetaInfo::GetOwner() const
+XE::MetaInfoCPtr XE::MetaInfo::GetOwner() const
 {
 	return _Owner.lock();
 }
 
-XE::MetaModulePtr XE::MetaInfo::GetModule() const
+XE::MetaModuleCPtr XE::MetaInfo::GetModule() const
 {
 	return _Module.lock();
 }
@@ -60,7 +60,7 @@ void XE::MetaInfo::Register()
 {
 	if( ( _Type == XE::MetaInfoType::ENUM || _Type == XE::MetaInfoType::CLASS ) && _Module.lock() )
 	{
-		_Module.lock()->RegisterMetaInfo( shared_from_this() );
+		CP_CAST< XE::MetaModule >( _Module.lock() )->RegisterMetaInfo( shared_from_this() );
 	}
 
 	XE::Reflection::RegisterMetaInfo( shared_from_this() );

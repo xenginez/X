@@ -16,7 +16,7 @@ BEG_XE_NAMESPACE
 class XE_API MetaInfo : public XE::EnableSharedFromThis< MetaInfo >
 {
 public:
-	MetaInfo( const String & Name, MetaInfoType Type, MetaInfoPtr Owner, MetaModulePtr Module );
+	MetaInfo( const String & Name, MetaInfoType Type, MetaInfoCPtr Owner, MetaModuleCPtr Module );
 
 	virtual ~MetaInfo();
 
@@ -30,9 +30,9 @@ public:
 	const String & GetFullName() const;
 
 public:
-	MetaInfoPtr GetOwner() const;
+	MetaInfoCPtr GetOwner() const;
 
-	MetaModulePtr GetModule() const;
+	MetaModuleCPtr GetModule() const;
 
 public:
 	template< typename T, typename ... Types > XE::SharedPtr< T > static NewMetaInfo( XE::uint64 code, Types &&... args )
@@ -62,8 +62,8 @@ private:
 	String _Name;
 	String _FullName;
 	XE::uint64 _HashCode;
-	MetaInfoWPtr _Owner;
-	MetaModuleWPtr _Module;
+	MetaInfoCWPtr _Owner;
+	MetaModuleCWPtr _Module;
 };
 
 END_XE_NAMESPACE

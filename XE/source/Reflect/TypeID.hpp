@@ -13,7 +13,7 @@
 
 template< typename T > struct EnumID
 {
-	static XE::MetaEnumPtr Get( const T * val = nullptr )
+	static XE::MetaEnumCPtr Get( const T * val = nullptr )
 	{
 		return nullptr;
 	}
@@ -21,7 +21,7 @@ template< typename T > struct EnumID
 
 template< typename T > struct ClassID
 {
-	static XE::MetaClassPtr Get( const T * val = nullptr )
+	static XE::MetaClassCPtr Get( const T * val = nullptr )
 	{
 		if( val )
 		{
@@ -36,7 +36,7 @@ template< typename T > struct ClassID
 
 template< typename T > struct ClassID< T * >
 {
-	static XE::MetaClassPtr Get( const T * val = nullptr )
+	static XE::MetaClassCPtr Get( const T * val = nullptr )
 	{
 		return ClassID< T >::Get( val );
 	}
@@ -44,7 +44,7 @@ template< typename T > struct ClassID< T * >
 
 template< typename T > struct ClassID< T & >
 {
-	static XE::MetaClassPtr Get( const T * val = nullptr )
+	static XE::MetaClassCPtr Get( const T * val = nullptr )
 	{
 		return ClassID< T >::Get( val );
 	}
@@ -52,7 +52,7 @@ template< typename T > struct ClassID< T & >
 
 template< typename T > struct ClassID< const T >
 {
-	static XE::MetaClassPtr Get( const T * val = nullptr )
+	static XE::MetaClassCPtr Get( const T * val = nullptr )
 	{
 		return ClassID< T >::Get( val );
 	}
@@ -60,7 +60,7 @@ template< typename T > struct ClassID< const T >
 
 template< typename T > struct ClassID< XE::SharedPtr< T > >
 {
-	static XE::MetaClassPtr Get( const XE::SharedPtr< T > & val = nullptr )
+	static XE::MetaClassCPtr Get( const XE::SharedPtr< T > & val = nullptr )
 	{
 		if( val != nullptr )
 		{
@@ -73,17 +73,17 @@ template< typename T > struct ClassID< XE::SharedPtr< T > >
 
 template< typename T > struct TypeID
 {
-	static XE::MetaTypePtr Get( const T * val = nullptr )
+	static XE::MetaTypeCPtr Get( const T * val = nullptr )
 	{
 		using raw_t = typename XE::TypeTraits< T >::raw_t;
 
-		return SP_CAST< XE::MetaType >( std::conditional_t< std::is_enum_v< raw_t >, EnumID< raw_t >, ClassID< raw_t > >::Get( val ) );
+		return SP_CAST< const XE::MetaType >( std::conditional_t< std::is_enum_v< raw_t >, EnumID< raw_t >, ClassID< raw_t > >::Get( val ) );
 	}
 };
 
 template< typename T > struct TypeID< XE::SharedPtr< T > >
 {
-	static XE::MetaTypePtr Get( const XE::SharedPtr< T > * val = nullptr )
+	static XE::MetaTypeCPtr Get( const XE::SharedPtr< T > * val = nullptr )
 	{
 		if( val != nullptr )
 		{

@@ -2,7 +2,7 @@
 
 #include "MetaAttribute.h"
 
-XE::MetaVariable::MetaVariable( const String & Name, bool IsConst, bool IsObject, bool IsPointer, bool IsSharedPtr, bool IsReference, MetaTypePtr Value, MetaModulePtr Module )
+XE::MetaVariable::MetaVariable( const String & Name, bool IsConst, bool IsObject, bool IsPointer, bool IsSharedPtr, bool IsReference, MetaTypeCPtr Value, MetaModuleCPtr Module )
 	:MetaInfo( Name, MetaInfoType::VARIABLE, nullptr, Module ), _IsConst( IsConst ), _IsObject( IsObject ), _IsPointer( IsPointer ), _IsSharedPtr( IsSharedPtr ), _IsReference( IsReference ), _Value( Value )
 {
 
@@ -38,7 +38,7 @@ bool XE::MetaVariable::IsReference() const
 	return _IsReference;
 }
 
-XE::MetaTypePtr XE::MetaVariable::GetValueType() const
+XE::MetaTypeCPtr XE::MetaVariable::GetValueType() const
 {
 	return _Value.lock();
 }

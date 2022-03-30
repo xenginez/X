@@ -26,7 +26,7 @@ public:
 public:
 	static void Register( const XE::MetaTypeCPtr & type, const QString & name );
 
-	static Inspector * Create( XS::ObjectProxy * proxy, QWidget * parent = nullptr );
+	static Inspector * Create( const XS::ObjectProxyPtr & proxy, QWidget * parent = nullptr );
 
 public:
 	virtual void Expand();
@@ -36,15 +36,15 @@ public:
 	virtual void Refresh() = 0;
 
 protected:
-	XS::ObjectProxy * GetObjectProxy();
+	const XS::ObjectProxyPtr & GetObjectProxy();
 
-	void SetObjecrProxy( XS::ObjectProxy * proxy );
+	void SetObjecrProxy( const XS::ObjectProxyPtr & proxy );
 
 protected:
 	void SetContentWidget( QWidget * widget );
 
 private:
-	XS::ObjectProxy * _Proxy = nullptr;
+	XS::ObjectProxyPtr _Proxy = nullptr;
 };
 
 END_XS_NAMESPACE

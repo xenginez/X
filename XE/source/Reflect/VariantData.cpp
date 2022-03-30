@@ -75,71 +75,70 @@ bool XE::VariantDataIsNull::operator()( const XE::VariantWarpperData & val ) con
 	return val.Pointer == nullptr || val.Pointer->ValuePointer() == nullptr;
 }
 
-XE::MetaTypePtr XE::VariantDataGetMetaType::operator()( const std::monostate & ) const
+XE::MetaTypeCPtr XE::VariantDataGetMetaType::operator()( const std::monostate & ) const
 {
 	return nullptr;
 }
-XE::MetaTypePtr XE::VariantDataGetMetaType::operator()( const bool & ) const
+XE::MetaTypeCPtr XE::VariantDataGetMetaType::operator()( const bool & ) const
 {
 	return TypeID< bool >::Get();
 }
-XE::MetaTypePtr XE::VariantDataGetMetaType::operator()( const XE::int8 & ) const
+XE::MetaTypeCPtr XE::VariantDataGetMetaType::operator()( const XE::int8 & ) const
 {
 	return TypeID< XE::int8 >::Get();
 }
-XE::MetaTypePtr XE::VariantDataGetMetaType::operator()( const XE::int16 & ) const
+XE::MetaTypeCPtr XE::VariantDataGetMetaType::operator()( const XE::int16 & ) const
 {
 	return TypeID< XE::int16 >::Get();
 }
-XE::MetaTypePtr XE::VariantDataGetMetaType::operator()( const XE::int32 & ) const
+XE::MetaTypeCPtr XE::VariantDataGetMetaType::operator()( const XE::int32 & ) const
 {
 	return TypeID< XE::int32 >::Get();
 }
-XE::MetaTypePtr XE::VariantDataGetMetaType::operator()( const XE::int64 & ) const
+XE::MetaTypeCPtr XE::VariantDataGetMetaType::operator()( const XE::int64 & ) const
 {
 	return TypeID< XE::int64 >::Get();
 }
-XE::MetaTypePtr XE::VariantDataGetMetaType::operator()( const XE::uint8 & ) const
+XE::MetaTypeCPtr XE::VariantDataGetMetaType::operator()( const XE::uint8 & ) const
 {
 	return TypeID< XE::uint8 >::Get();
 }
-XE::MetaTypePtr XE::VariantDataGetMetaType::operator()( const XE::uint16 & ) const
+XE::MetaTypeCPtr XE::VariantDataGetMetaType::operator()( const XE::uint16 & ) const
 {
 	return TypeID< XE::uint16 >::Get();
 }
-XE::MetaTypePtr XE::VariantDataGetMetaType::operator()( const XE::uint32 & ) const
+XE::MetaTypeCPtr XE::VariantDataGetMetaType::operator()( const XE::uint32 & ) const
 {
 	return TypeID< XE::uint32 >::Get();
 }
-XE::MetaTypePtr XE::VariantDataGetMetaType::operator()( const XE::uint64 & ) const
+XE::MetaTypeCPtr XE::VariantDataGetMetaType::operator()( const XE::uint64 & ) const
 {
 	return TypeID< XE::uint64 >::Get();
 }
-XE::MetaTypePtr XE::VariantDataGetMetaType::operator()( const XE::float32 & ) const
+XE::MetaTypeCPtr XE::VariantDataGetMetaType::operator()( const XE::float32 & ) const
 {
 	return TypeID< XE::float32 >::Get();
 }
-XE::MetaTypePtr XE::VariantDataGetMetaType::operator()( const XE::float64 & ) const
+XE::MetaTypeCPtr XE::VariantDataGetMetaType::operator()( const XE::float64 & ) const
 {
 	return TypeID< XE::float64 >::Get();
 }
-XE::MetaTypePtr XE::VariantDataGetMetaType::operator()( const XE::VariantEnumData & val ) const
+XE::MetaTypeCPtr XE::VariantDataGetMetaType::operator()( const XE::VariantEnumData & val ) const
 {
-	return SP_CAST< XE::MetaType >( val.Type->shared_from_this() );
+	return SP_CAST< const XE::MetaType >( val.Type->shared_from_this() );
 }
-XE::MetaTypePtr XE::VariantDataGetMetaType::operator()( const XE::VariantSmallData & val ) const
+XE::MetaTypeCPtr XE::VariantDataGetMetaType::operator()( const XE::VariantSmallData & val ) const
 {
-	return SP_CAST< XE::MetaType >( val.Type->shared_from_this() );
+	return SP_CAST< const XE::MetaType >( val.Type->shared_from_this() );
 }
-XE::MetaTypePtr XE::VariantDataGetMetaType::operator()( const XE::VariantPointerData & val ) const
+XE::MetaTypeCPtr XE::VariantDataGetMetaType::operator()( const XE::VariantPointerData & val ) const
 {
-	return SP_CAST< XE::MetaType >( val.Type->shared_from_this() );
+	return SP_CAST< const XE::MetaType >( val.Type->shared_from_this() );
 }
-XE::MetaTypePtr XE::VariantDataGetMetaType::operator()( const XE::VariantWarpperData & val ) const
+XE::MetaTypeCPtr XE::VariantDataGetMetaType::operator()( const XE::VariantWarpperData & val ) const
 {
-	return val.Pointer != nullptr ? SP_CAST< XE::MetaType >( val.Pointer->GetMetaClass()->shared_from_this() ) : nullptr;
+	return val.Pointer != nullptr ? SP_CAST< const XE::MetaType >( val.Pointer->GetMetaType()->shared_from_this() ) : nullptr;
 }
-
 
 bool XE::VariantDataIsContainer::operator()( const std::monostate & ) const
 {

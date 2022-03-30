@@ -26,8 +26,8 @@ XE::MetaClassPtr XE::FlagAttribute::GetMetaClass() const
 }
 
 
-XE::RangeAttribute::RangeAttribute( XE::float64 min, XE::float64 max )
-	:_Min( min ), _Max( max )
+XE::RangeAttribute::RangeAttribute( XE::float64 min, XE::float64 max, XE::float64 step /*= 1.0 */ )
+	:_Min( min ), _Max( max ), _Step( step )
 {
 }
 
@@ -51,6 +51,12 @@ XE::float64 XE::RangeAttribute::GetMax() const
 {
 	return _Max;
 }
+
+XE::float64 XE::RangeAttribute::GetStep() const
+{
+	return _Step;
+}
+
 
 XE::MetaClassPtr XE::NonCloneAttribute::GetMetaClassStatic()
 {

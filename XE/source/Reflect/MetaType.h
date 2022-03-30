@@ -18,7 +18,7 @@ BEG_XE_NAMESPACE
 class XE_API MetaType : public MetaInfo
 {
 public:
-	MetaType( const String& Name, MetaInfoType Type, XE::uint64 Size, MetaInfoPtr Owner, MetaModulePtr Module );
+	MetaType( const String& Name, MetaInfoType Type, XE::uint64 Size, MetaInfoCPtr Owner, MetaModuleCPtr Module );
 
 	~MetaType();
 

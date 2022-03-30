@@ -17,13 +17,16 @@ BEG_XE_NAMESPACE
 class XE_API MetaEnum : public MetaType
 {
 public:
-	MetaEnum( const String& Name, XE::uint64 Size, MetaInfoPtr Owner, MetaModulePtr Module );
+	MetaEnum( const String& Name, XE::uint64 Size, MetaInfoCPtr Owner, MetaModuleCPtr Module );
 
 	~MetaEnum();
 
 public:
+	XE::uint64 GetFlags() const;
+
 	XE::uint64 GetEnumCount() const;
 
+public:
 	String FindName( XE::Variant val ) const;
 
 	XE::Variant FindValue( const String& val ) const;

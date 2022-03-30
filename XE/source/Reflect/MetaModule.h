@@ -20,25 +20,25 @@ class XE_API MetaModule : public XE::MetaInfo
 	friend class MetaInfo;
 
 public:
-	MetaModule( const String & Name, MetaInfoPtr Owner );
+	MetaModule( const String & Name, MetaInfoCPtr Owner );
 
 	~MetaModule();
 
 public:
-	const XE::Array< XE::MetaInfoPtr > & GetMetaInfos() const;
+	const XE::Array< XE::MetaInfoCPtr > & GetMetaInfos() const;
 
 public:
-	XE::MetaInfoPtr FindMetaInfo( XE::uint64 hash ) const;
+	XE::MetaInfoCPtr FindMetaInfo( XE::uint64 hash ) const;
 
-	XE::MetaInfoPtr FindMetaInfo( const String & FullName ) const;
+	XE::MetaInfoCPtr FindMetaInfo( const String & FullName ) const;
 
-	void Visit( const XE::Delegate< void( const  XE::MetaInfoPtr & ) > & val ) const;
+	void Visit( const XE::Delegate< void( const XE::MetaInfoCPtr & ) > & val ) const;
 
 private:
 	void RegisterMetaInfo( MetaInfoPtr val );
 
 private:
-	XE::Array< XE::MetaInfoPtr > _MetaInfos;
+	XE::Array< XE::MetaInfoCPtr > _MetaInfos;
 };
 
 END_XE_NAMESPACE

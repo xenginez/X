@@ -16,7 +16,7 @@ BEG_XE_NAMESPACE
 class XE_API MetaVariable : public MetaInfo
 {
 public:
-	MetaVariable( const String & Name, bool IsConst, bool IsObject, bool IsPointer, bool IsSharedPtr, bool IsReference, MetaTypePtr Value, MetaModulePtr Module );
+	MetaVariable( const String & Name, bool IsConst, bool IsObject, bool IsPointer, bool IsSharedPtr, bool IsReference, MetaTypeCPtr Value, MetaModuleCPtr Module );
 
 	~MetaVariable();
 
@@ -32,7 +32,7 @@ public:
 	bool IsReference() const;
 
 public:
-	MetaTypePtr GetValueType() const;
+	MetaTypeCPtr GetValueType() const;
 
 	const XE::Array< XE::MetaAttributeCPtr > & GetAttributes() const;
 
@@ -60,7 +60,7 @@ private:
 	bool _IsPointer;
 	bool _IsSharedPtr;
 	bool _IsReference;
-	XE::MetaTypeWPtr _Value;
+	XE::MetaTypeCWPtr _Value;
 
 protected:
 	XE::Array< XE::MetaAttributeCPtr > _Attributes;

@@ -19,7 +19,7 @@ public:
 	using EnumType = T;
 
 public:
-	CXXMetaEnum( const String& Name, MetaInfoPtr Owner, MetaModulePtr Module )
+	CXXMetaEnum( const String& Name, MetaInfoCPtr Owner, MetaModuleCPtr Module )
 		:MetaEnum( Name, sizeof( EnumType ), Owner, Module )
 	{
 
@@ -48,7 +48,7 @@ END_XE_NAMESPACE
 #define DECL_META_ENUM( _MODULE, _ENUM ) \
 template< > struct ::EnumID< _MODULE::_ENUM > \
 { \
-	static XE::MetaEnumPtr Get( const _MODULE::_ENUM * val = nullptr ) \
+	static XE::MetaEnumCPtr Get( const _MODULE::_ENUM * val = nullptr ) \
 	{ \
 		static constexpr char __xe__sig__[] = __FUNCTION__; \
 		static auto meta = XE::MetaInfo::NewMetaInfo< XE::CXXMetaEnum< _MODULE::_ENUM > >( XE::Hash( __xe__sig__ ), #_ENUM, nullptr, _MODULE##::GetModule() ); \

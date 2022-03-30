@@ -2,7 +2,7 @@
 
 #include "MetaAttribute.h"
 
-XE::MetaType::MetaType( const String & Name, MetaInfoType Type, XE::uint64 Size, MetaInfoPtr Owner, MetaModulePtr Module )
+XE::MetaType::MetaType( const String & Name, MetaInfoType Type, XE::uint64 Size, MetaInfoCPtr Owner, MetaModuleCPtr Module )
 	:MetaInfo( Name, Type, Owner, Module ), _Size( Size )
 {
 

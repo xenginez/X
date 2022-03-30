@@ -18,7 +18,7 @@ BEG_XE_NAMESPACE
 class XE_API MetaClass : public MetaType
 {
 public:
-	MetaClass( const String& Name, XE::uint64 Size, bool IsAbs, MetaClassPtr Super, MetaInfoPtr Owner, MetaModulePtr Module, const XE::TemplateType & temps );
+	MetaClass( const String& Name, XE::uint64 Size, bool IsAbs, MetaClassCPtr Super, MetaInfoCPtr Owner, MetaModuleCPtr Module, const XE::TemplateType & temps );
 
 	~MetaClass();
 
@@ -28,7 +28,7 @@ public:
 	bool IsTemplate() const;
 
 public:
-	XE::MetaClassPtr GetSuper() const;
+	XE::MetaClassCPtr GetSuper() const;
 
 	XE::uint64 GetMethodSize() const;
 
@@ -38,33 +38,33 @@ public:
 
 	const XE::TemplateType & GetTemplateTypes() const;
 
-	const XE::Array< XE::MetaMethodPtr > & GetMethods() const;
+	const XE::Array< XE::MetaMethodCPtr > & GetMethods() const;
 
-	const XE::Array< XE::MetaPropertyPtr > & GetPropertys() const;
+	const XE::Array< XE::MetaPropertyCPtr > & GetPropertys() const;
 
 public:
 	bool CanConvert( const XE::MetaClass * val ) const;
 
-	bool CanConvert( const XE::MetaClassPtr & val ) const;
+	bool CanConvert( const XE::MetaClassCPtr & val ) const;
 
 public:
-	void VisitMethod( const XE::Delegate< void( const XE::MetaMethodPtr & ) > & val ) const;
+	void VisitMethod( const XE::Delegate< void( const XE::MetaMethodCPtr & ) > & val ) const;
 
-	void VisitProperty( const XE::Delegate< void( const XE::MetaPropertyPtr & ) > & val ) const;
+	void VisitProperty( const XE::Delegate< void( const XE::MetaPropertyCPtr & ) > & val ) const;
 
-	void VisitDerivedClass( const  XE::Delegate< void( const XE::MetaClassPtr & ) > & val ) const;
-
-public:
-	XE::MetaMethodPtr FindMethod( XE::uint64 hash ) const;
-
-	XE::MetaPropertyPtr FindProperty( XE::uint64 hash ) const;
+	void VisitDerivedClass( const  XE::Delegate< void( const XE::MetaClassCPtr & ) > & val ) const;
 
 public:
-	XE::MetaMethodPtr FindMethod( const XE::String& Name ) const;
+	XE::MetaMethodCPtr FindMethod( XE::uint64 hash ) const;
 
-	XE::MetaPropertyPtr FindProperty( const XE::String& Name ) const;
+	XE::MetaPropertyCPtr FindProperty( XE::uint64 hash ) const;
 
-	XE::MetaMethodPtr FindMethod( const XE::String & Name, const XE::ParameterType & Types ) const;
+public:
+	XE::MetaMethodCPtr FindMethod( const XE::String& Name ) const;
+
+	XE::MetaPropertyCPtr FindProperty( const XE::String& Name ) const;
+
+	XE::MetaMethodCPtr FindMethod( const XE::String & Name, const XE::ParameterType & Types ) const;
 
 public:
 	virtual void Destructor( void * ptr ) const = 0;
@@ -82,11 +82,11 @@ protected:
 
 private:
 	bool _IsAbstract;
-	XE::MetaClassWPtr _Super;
+	XE::MetaClassCWPtr _Super;
 	XE::TemplateType _Templates;
-	XE::Array< XE::MetaMethodPtr > _Methods;
-	XE::Array< XE::MetaPropertyPtr > _Propertys;
-	XE::Array< XE::MetaClass * > _DerivedClasses;
+	XE::Array< XE::MetaMethodCPtr > _Methods;
+	XE::Array< XE::MetaPropertyCPtr > _Propertys;
+	XE::Array< const XE::MetaClass * > _DerivedClasses;
 };
 
 END_XE_NAMESPACE

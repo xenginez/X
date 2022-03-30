@@ -2,7 +2,7 @@
 
 #include "Reflection.h"
 
-XE::MetaModule::MetaModule( const String & Name, MetaInfoPtr Owner )
+XE::MetaModule::MetaModule( const String & Name, MetaInfoCPtr Owner )
 	:MetaInfo( Name, MetaInfoType::MODULE, Owner, nullptr )
 {
 
@@ -13,12 +13,12 @@ XE::MetaModule::~MetaModule()
 
 }
 
-const XE::Array< XE::MetaInfoPtr > & XE::MetaModule::GetMetaInfos() const
+const XE::Array< XE::MetaInfoCPtr > & XE::MetaModule::GetMetaInfos() const
 {
 	return _MetaInfos;
 }
 
-XE::MetaInfoPtr XE::MetaModule::FindMetaInfo( XE::uint64 hash ) const
+XE::MetaInfoCPtr XE::MetaModule::FindMetaInfo( XE::uint64 hash ) const
 {
 	for( const auto & it : _MetaInfos )
 	{
@@ -31,7 +31,7 @@ XE::MetaInfoPtr XE::MetaModule::FindMetaInfo( XE::uint64 hash ) const
 	return nullptr;
 }
 
-XE::MetaInfoPtr XE::MetaModule::FindMetaInfo( const String & val ) const
+XE::MetaInfoCPtr XE::MetaModule::FindMetaInfo( const String & val ) const
 {
 	for( const auto & it : _MetaInfos )
 	{
@@ -48,7 +48,7 @@ XE::MetaInfoPtr XE::MetaModule::FindMetaInfo( const String & val ) const
 	return nullptr;
 }
 
-void XE::MetaModule::Visit( const XE::Delegate< void( const  XE::MetaInfoPtr & ) > & val ) const
+void XE::MetaModule::Visit( const XE::Delegate< void( const  XE::MetaInfoCPtr & ) > & val ) const
 {
 	for( const auto & it : _MetaInfos )
 	{

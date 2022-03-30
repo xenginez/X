@@ -32,61 +32,61 @@ private:
 	static void RegisterMetaInfo( XE::MetaInfoPtr val );
 
 public:
-	static void VisitMeta( const XE::Delegate< void( const XE::MetaInfoPtr & ) > & val );
+	static void VisitMeta( const XE::Delegate< void( const XE::MetaInfoCPtr & ) > & val );
 
-	static void VisitType( const XE::Delegate< void( const XE::MetaTypePtr & ) > & val );
+	static void VisitType( const XE::Delegate< void( const XE::MetaTypeCPtr & ) > & val );
 
-	static void VisitEnum( const XE::Delegate< void( const XE::MetaEnumPtr & ) > & val );
+	static void VisitEnum( const XE::Delegate< void( const XE::MetaEnumCPtr & ) > & val );
 
-	static void VisitClass( const XE::Delegate< void( const XE::MetaClassPtr & ) > & val );
+	static void VisitClass( const XE::Delegate< void( const XE::MetaClassCPtr & ) > & val );
 
-	static void VisitModule( const XE::Delegate< void( const XE::MetaModulePtr & ) > & val );
+	static void VisitModule( const XE::Delegate< void( const XE::MetaModuleCPtr & ) > & val );
 
-	static void VisitMethod( const  XE::Delegate< void( const XE::MetaMethodPtr & ) > & val );
+	static void VisitMethod( const  XE::Delegate< void( const XE::MetaMethodCPtr & ) > & val );
 
-	static void VisitProperty( const XE::Delegate< void( const  XE::MetaPropertyPtr & ) > & val );
+	static void VisitProperty( const XE::Delegate< void( const  XE::MetaPropertyCPtr & ) > & val );
 
-	static void VisitFunction( const XE::Delegate< void( const  XE::MetaFunctionPtr & ) > & val );
+	static void VisitFunction( const XE::Delegate< void( const  XE::MetaFunctionCPtr & ) > & val );
 
-	static void VisitVariable( const XE::Delegate< void( const  XE::MetaVariablePtr & ) > & val );
-
-public:
-	static XE::MetaInfoPtr FindMeta( XE::uint64 HashCode );
-
-	static XE::MetaTypePtr FindType( XE::uint64 HashCode );
-
-	static XE::MetaEnumPtr FindEnum( XE::uint64 HashCode );
-
-	static XE::MetaClassPtr FindClass( XE::uint64 HashCode );
-
-	static XE::MetaModulePtr FindModule( XE::uint64 HashCode );
-
-	static XE::MetaMethodPtr FindMethod( XE::uint64 HashCode );
-
-	static XE::MetaPropertyPtr FindProperty( XE::uint64 HashCode );
-
-	static XE::MetaFunctionPtr FindFunction( XE::uint64 HashCode );
-
-	static XE::MetaVariablePtr FindVariable( XE::uint64 HashCode );
+	static void VisitVariable( const XE::Delegate< void( const  XE::MetaVariableCPtr & ) > & val );
 
 public:
-	static XE::MetaInfoPtr FindMeta( const XE::String & FullName );
+	static XE::MetaInfoCPtr FindMeta( XE::uint64 HashCode );
 
-	static XE::MetaTypePtr FindType( const XE::String & FullName );
+	static XE::MetaTypeCPtr FindType( XE::uint64 HashCode );
 
-	static XE::MetaEnumPtr FindEnum( const XE::String & FullName );
+	static XE::MetaEnumCPtr FindEnum( XE::uint64 HashCode );
 
-	static XE::MetaClassPtr FindClass( const XE::String & FullName );
+	static XE::MetaClassCPtr FindClass( XE::uint64 HashCode );
 
-	static XE::MetaModulePtr FindModule( const XE::String & FullName );
+	static XE::MetaModuleCPtr FindModule( XE::uint64 HashCode );
 
-	static XE::MetaMethodPtr FindMethod( const XE::String & FullName );
+	static XE::MetaMethodCPtr FindMethod( XE::uint64 HashCode );
 
-	static XE::MetaPropertyPtr FindProperty( const XE::String & FullName );
+	static XE::MetaPropertyCPtr FindProperty( XE::uint64 HashCode );
 
-	static XE::MetaFunctionPtr FindFunction( const XE::String & FullName );
+	static XE::MetaFunctionCPtr FindFunction( XE::uint64 HashCode );
 
-	static XE::MetaVariablePtr FindVariable( const XE::String & FullName );
+	static XE::MetaVariableCPtr FindVariable( XE::uint64 HashCode );
+
+public:
+	static XE::MetaInfoCPtr FindMeta( const XE::String & FullName );
+
+	static XE::MetaTypeCPtr FindType( const XE::String & FullName );
+
+	static XE::MetaEnumCPtr FindEnum( const XE::String & FullName );
+
+	static XE::MetaClassCPtr FindClass( const XE::String & FullName );
+
+	static XE::MetaModuleCPtr FindModule( const XE::String & FullName );
+
+	static XE::MetaMethodCPtr FindMethod( const XE::String & FullName );
+
+	static XE::MetaPropertyCPtr FindProperty( const XE::String & FullName );
+
+	static XE::MetaFunctionCPtr FindFunction( const XE::String & FullName );
+
+	static XE::MetaVariableCPtr FindVariable( const XE::String & FullName );
 
 private:
 	Private * _p;
@@ -104,14 +104,14 @@ namespace XE \
 		{ \
 			static XE::SharedPtr< CXXMetaEnum< T > > Get() \
 			{ \
-				return SP_CAST< CXXMetaEnum< T > >( EnumID< T >::Get() ); \
+				return SP_CAST< CXXMetaEnum< T > >( CP_CAST< XE::MetaEnum >( EnumID< T >::Get() ) ); \
 			} \
 		}; \
 		template< typename T > struct Class \
 		{ \
 			static XE::SharedPtr< CXXMetaClass< T > > Get() \
 			{ \
-				return SP_CAST< CXXMetaClass< T > >( ClassID< T >::Get() ); \
+				return SP_CAST< CXXMetaClass< T > >( CP_CAST< XE::MetaClass >( ClassID< T >::Get() ) ); \
 			} \
 		}; \
 		MetaTypeCollector() \
@@ -137,13 +137,13 @@ namespace XE \
 	template< typename T > friend struct XE::MetaTypeCollector; \
 public: \
     typedef _SUPER Super; \
-	static XE::MetaClassPtr GetMetaClassStatic() \
+	static XE::MetaClassCPtr GetMetaClassStatic() \
 	{ \
 		static constexpr char __xe__sig__[] = __FUNCTION__; \
 		static auto meta = XE::MetaInfo::NewMetaInfo< XE::CXXMetaClass< _CLASS > >( XE::Hash( __xe__sig__ ), #_CLASS, ClassID< _SUPER >::Get(), nullptr, GetModule() ); \
 		return meta; \
 	} \
-	virtual XE::MetaClassPtr GetMetaClass() const \
+	virtual XE::MetaClassCPtr GetMetaClass() const \
 	{ \
 		return GetMetaClassStatic(); \
 	} \
@@ -151,13 +151,13 @@ private:
 #define OBJECT_1( _CLASS ) \
 	template< typename T > friend struct XE::MetaTypeCollector; \
 public: \
-	static XE::MetaClassPtr GetMetaClassStatic() \
+	static XE::MetaClassCPtr GetMetaClassStatic() \
 	{ \
 		static constexpr char __xe__sig__[] = __FUNCTION__; \
 		static auto meta = XE::MetaInfo::NewMetaInfo< XE::CXXMetaClass< _CLASS > >( XE::Hash( __xe__sig__ ), #_CLASS, nullptr, nullptr, GetModule() ); \
 		return meta; \
 	} \
-	virtual XE::MetaClassPtr GetMetaClass() const \
+	virtual XE::MetaClassCPtr GetMetaClass() const \
 	{ \
 		return GetMetaClassStatic(); \
 	} \

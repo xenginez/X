@@ -10,14 +10,13 @@
 
 struct XE::Reflection::Private
 {
-	XE::Array< XE::MetaEnumPtr >		_Enums;
-	XE::Array< XE::MetaClassPtr >		_Classs;
-	XE::Array< XE::MetaModulePtr >		_Modules;
-	XE::Array< XE::MetaMethodPtr >		_Methods;
-	XE::Array< XE::MetaPropertyPtr >	_Propertys;
-	XE::Array< XE::MetaFunctionPtr >	_Functions;
-	XE::Array< XE::MetaVariablePtr >	_Variables;
-
+	XE::Array< XE::MetaEnumCPtr >		_Enums;
+	XE::Array< XE::MetaClassCPtr >		_Classs;
+	XE::Array< XE::MetaModuleCPtr >		_Modules;
+	XE::Array< XE::MetaMethodCPtr >		_Methods;
+	XE::Array< XE::MetaPropertyCPtr >	_Propertys;
+	XE::Array< XE::MetaFunctionCPtr >	_Functions;
+	XE::Array< XE::MetaVariableCPtr >	_Variables;
 
 	XE::UnorderedMap< XE::uint64, XE::uint64 > _HashEnum;
 	XE::UnorderedMap< XE::uint64, XE::uint64 > _HashClass;
@@ -120,48 +119,48 @@ void XE::Reflection::RegisterMetaInfo( XE::MetaInfoPtr val )
 	}
 }
 
-void XE::Reflection::VisitMeta( const XE::Delegate< void( const XE::MetaInfoPtr & ) > & val )
+void XE::Reflection::VisitMeta( const XE::Delegate< void( const XE::MetaInfoCPtr & ) > & val )
 {
-	VisitEnum( [&]( const XE::MetaEnumPtr & it )
+	VisitEnum( [&]( const XE::MetaEnumCPtr & it )
 			   {
 				   val( it );
 			   } );
 
-	VisitClass( [&]( const XE::MetaClassPtr & it )
+	VisitClass( [&]( const XE::MetaClassCPtr & it )
 				{
 					val( it );
 				} );
 
-	VisitModule( [&]( const XE::MetaModulePtr & it )
+	VisitModule( [&]( const XE::MetaModuleCPtr & it )
 				 {
 					 val( it );
 				 } );
 
-	VisitMethod( [&]( const XE::MetaMethodPtr & it )
+	VisitMethod( [&]( const XE::MetaMethodCPtr & it )
 				 {
 					 val( it );
 				 } );
 
-	VisitProperty( [&]( const XE::MetaPropertyPtr & it )
+	VisitProperty( [&]( const XE::MetaPropertyCPtr & it )
 				   {
 					   val( it );
 				   } );
 }
 
-void XE::Reflection::VisitType( const XE::Delegate< void( const XE::MetaTypePtr & ) > & val )
+void XE::Reflection::VisitType( const XE::Delegate< void( const XE::MetaTypeCPtr & ) > & val )
 {
-	VisitEnum( [&]( const XE::MetaEnumPtr & enm )
+	VisitEnum( [&]( const XE::MetaEnumCPtr & enm )
 			   {
 				   val( enm );
 			   } );
 
-	VisitClass( [&]( const XE::MetaClassPtr & cls )
+	VisitClass( [&]( const XE::MetaClassCPtr & cls )
 				{
 					val( cls );
 				} );
 }
 
-void XE::Reflection::VisitEnum( const XE::Delegate< void( const XE::MetaEnumPtr & ) > & val )
+void XE::Reflection::VisitEnum( const XE::Delegate< void( const XE::MetaEnumCPtr & ) > & val )
 {
 	for( auto it : _p->_Enums )
 	{
@@ -169,7 +168,7 @@ void XE::Reflection::VisitEnum( const XE::Delegate< void( const XE::MetaEnumPtr 
 	}
 }
 
-void XE::Reflection::VisitClass( const XE::Delegate< void( const XE::MetaClassPtr & ) > & val )
+void XE::Reflection::VisitClass( const XE::Delegate< void( const XE::MetaClassCPtr & ) > & val )
 {
 	for( auto it : _p->_Classs )
 	{
@@ -177,7 +176,7 @@ void XE::Reflection::VisitClass( const XE::Delegate< void( const XE::MetaClassPt
 	}
 }
 
-void XE::Reflection::VisitModule( const XE::Delegate< void( const XE::MetaModulePtr & ) > & val )
+void XE::Reflection::VisitModule( const XE::Delegate< void( const XE::MetaModuleCPtr & ) > & val )
 {
 	for( auto it : _p->_Modules )
 	{
@@ -185,7 +184,7 @@ void XE::Reflection::VisitModule( const XE::Delegate< void( const XE::MetaModule
 	}
 }
 
-void XE::Reflection::VisitMethod( const XE::Delegate< void( const XE::MetaMethodPtr & ) > & val )
+void XE::Reflection::VisitMethod( const XE::Delegate< void( const XE::MetaMethodCPtr & ) > & val )
 {
 	for( auto it : _p->_Methods )
 	{
@@ -193,7 +192,7 @@ void XE::Reflection::VisitMethod( const XE::Delegate< void( const XE::MetaMethod
 	}
 }
 
-void XE::Reflection::VisitProperty( const XE::Delegate< void( const  XE::MetaPropertyPtr & ) > & val )
+void XE::Reflection::VisitProperty( const XE::Delegate< void( const  XE::MetaPropertyCPtr & ) > & val )
 {
 	for( auto it : _p->_Propertys )
 	{
@@ -201,7 +200,7 @@ void XE::Reflection::VisitProperty( const XE::Delegate< void( const  XE::MetaPro
 	}
 }
 
-void XE::Reflection::VisitFunction( const XE::Delegate< void( const XE::MetaFunctionPtr & ) > & val )
+void XE::Reflection::VisitFunction( const XE::Delegate< void( const XE::MetaFunctionCPtr & ) > & val )
 {
 	for( auto it : _p->_Functions )
 	{
@@ -209,7 +208,7 @@ void XE::Reflection::VisitFunction( const XE::Delegate< void( const XE::MetaFunc
 	}
 }
 
-void XE::Reflection::VisitVariable( const XE::Delegate< void( const XE::MetaVariablePtr & ) > & val )
+void XE::Reflection::VisitVariable( const XE::Delegate< void( const XE::MetaVariableCPtr & ) > & val )
 {
 	for( auto it : _p->_Variables )
 	{
@@ -217,7 +216,7 @@ void XE::Reflection::VisitVariable( const XE::Delegate< void( const XE::MetaVari
 	}
 }
 
-XE::MetaInfoPtr XE::Reflection::FindMeta( XE::uint64 HashCode )
+XE::MetaInfoCPtr XE::Reflection::FindMeta( XE::uint64 HashCode )
 {
 	if( auto result = FindEnum( HashCode ) )
 	{
@@ -242,7 +241,7 @@ XE::MetaInfoPtr XE::Reflection::FindMeta( XE::uint64 HashCode )
 	return nullptr;
 }
 
-XE::MetaTypePtr XE::Reflection::FindType( XE::uint64 HashCode )
+XE::MetaTypeCPtr XE::Reflection::FindType( XE::uint64 HashCode )
 {
 	if( auto result = FindEnum( HashCode ) )
 	{
@@ -257,7 +256,7 @@ XE::MetaTypePtr XE::Reflection::FindType( XE::uint64 HashCode )
 	return nullptr;
 }
 
-XE::MetaEnumPtr XE::Reflection::FindEnum( XE::uint64 HashCode )
+XE::MetaEnumCPtr XE::Reflection::FindEnum( XE::uint64 HashCode )
 {
 	auto it = _p->_HashEnum.find( HashCode );
 
@@ -269,7 +268,7 @@ XE::MetaEnumPtr XE::Reflection::FindEnum( XE::uint64 HashCode )
 	return nullptr;
 }
 
-XE::MetaClassPtr XE::Reflection::FindClass( XE::uint64 HashCode )
+XE::MetaClassCPtr XE::Reflection::FindClass( XE::uint64 HashCode )
 {
 	auto it = _p->_HashClass.find( HashCode );
 
@@ -281,7 +280,7 @@ XE::MetaClassPtr XE::Reflection::FindClass( XE::uint64 HashCode )
 	return nullptr;
 }
 
-XE::MetaModulePtr XE::Reflection::FindModule( XE::uint64 HashCode )
+XE::MetaModuleCPtr XE::Reflection::FindModule( XE::uint64 HashCode )
 {
 	auto it = _p->_HashModule.find( HashCode );
 
@@ -293,7 +292,7 @@ XE::MetaModulePtr XE::Reflection::FindModule( XE::uint64 HashCode )
 	return nullptr;
 }
 
-XE::MetaMethodPtr XE::Reflection::FindMethod( XE::uint64 HashCode )
+XE::MetaMethodCPtr XE::Reflection::FindMethod( XE::uint64 HashCode )
 {
 	auto it = _p->_HashMethod.find( HashCode );
 
@@ -305,7 +304,7 @@ XE::MetaMethodPtr XE::Reflection::FindMethod( XE::uint64 HashCode )
 	return nullptr;
 }
 
-XE::MetaPropertyPtr XE::Reflection::FindProperty( XE::uint64 HashCode )
+XE::MetaPropertyCPtr XE::Reflection::FindProperty( XE::uint64 HashCode )
 {
 	auto it = _p->_HashProperty.find( HashCode );
 
@@ -317,7 +316,7 @@ XE::MetaPropertyPtr XE::Reflection::FindProperty( XE::uint64 HashCode )
 	return nullptr;
 }
 
-XE::MetaFunctionPtr XE::Reflection::FindFunction( XE::uint64 HashCode )
+XE::MetaFunctionCPtr XE::Reflection::FindFunction( XE::uint64 HashCode )
 {
 	auto it = _p->_HashFunction.find( HashCode );
 
@@ -329,7 +328,7 @@ XE::MetaFunctionPtr XE::Reflection::FindFunction( XE::uint64 HashCode )
 	return nullptr;
 }
 
-XE::MetaVariablePtr XE::Reflection::FindVariable( XE::uint64 HashCode )
+XE::MetaVariableCPtr XE::Reflection::FindVariable( XE::uint64 HashCode )
 {
 	auto it = _p->_HashVariable.find( HashCode );
 
@@ -342,7 +341,7 @@ XE::MetaVariablePtr XE::Reflection::FindVariable( XE::uint64 HashCode )
 }
 
 
-XE::MetaInfoPtr XE::Reflection::FindMeta( const XE::String & FullName )
+XE::MetaInfoCPtr XE::Reflection::FindMeta( const XE::String & FullName )
 {
 	if( auto ret = FindEnum( FullName ) )
 	{
@@ -367,7 +366,7 @@ XE::MetaInfoPtr XE::Reflection::FindMeta( const XE::String & FullName )
 	return nullptr;
 }
 
-XE::MetaTypePtr XE::Reflection::FindType( const XE::String & FullName )
+XE::MetaTypeCPtr XE::Reflection::FindType( const XE::String & FullName )
 {
 	if( auto ret = FindEnum( FullName ) )
 	{
@@ -382,7 +381,7 @@ XE::MetaTypePtr XE::Reflection::FindType( const XE::String & FullName )
 	return nullptr;
 }
 
-XE::MetaEnumPtr XE::Reflection::FindEnum( const XE::String & FullName )
+XE::MetaEnumCPtr XE::Reflection::FindEnum( const XE::String & FullName )
 {
 	auto it = _p->_NameEnum.find( FullName );
 
@@ -394,7 +393,7 @@ XE::MetaEnumPtr XE::Reflection::FindEnum( const XE::String & FullName )
 	return nullptr;
 }
 
-XE::MetaClassPtr XE::Reflection::FindClass( const XE::String & FullName )
+XE::MetaClassCPtr XE::Reflection::FindClass( const XE::String & FullName )
 {
 	auto it = _p->_NameClass.find( FullName );
 
@@ -406,7 +405,7 @@ XE::MetaClassPtr XE::Reflection::FindClass( const XE::String & FullName )
 	return nullptr;
 }
 
-XE::MetaModulePtr XE::Reflection::FindModule( const XE::String & FullName )
+XE::MetaModuleCPtr XE::Reflection::FindModule( const XE::String & FullName )
 {
 	auto it = _p->_NameModule.find( FullName );
 
@@ -418,7 +417,7 @@ XE::MetaModulePtr XE::Reflection::FindModule( const XE::String & FullName )
 	return nullptr;
 }
 
-XE::MetaMethodPtr XE::Reflection::FindMethod( const XE::String & FullName )
+XE::MetaMethodCPtr XE::Reflection::FindMethod( const XE::String & FullName )
 {
 	auto it = _p->_NameMethod.find( FullName );
 
@@ -430,7 +429,7 @@ XE::MetaMethodPtr XE::Reflection::FindMethod( const XE::String & FullName )
 	return nullptr;
 }
 
-XE::MetaPropertyPtr XE::Reflection::FindProperty( const XE::String & FullName )
+XE::MetaPropertyCPtr XE::Reflection::FindProperty( const XE::String & FullName )
 {
 	auto it = _p->_NameProperty.find( FullName );
 
@@ -442,7 +441,7 @@ XE::MetaPropertyPtr XE::Reflection::FindProperty( const XE::String & FullName )
 	return nullptr;
 }
 
-XE::MetaFunctionPtr XE::Reflection::FindFunction( const XE::String & FullName )
+XE::MetaFunctionCPtr XE::Reflection::FindFunction( const XE::String & FullName )
 {
 	auto it = _p->_NameFunction.find( FullName );
 
@@ -454,7 +453,7 @@ XE::MetaFunctionPtr XE::Reflection::FindFunction( const XE::String & FullName )
 	return nullptr;
 }
 
-XE::MetaVariablePtr XE::Reflection::FindVariable( const XE::String & FullName )
+XE::MetaVariableCPtr XE::Reflection::FindVariable( const XE::String & FullName )
 {
 	auto it = _p->_NameVariable.find( FullName );
 

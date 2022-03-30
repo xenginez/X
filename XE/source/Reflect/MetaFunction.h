@@ -18,12 +18,12 @@ BEG_XE_NAMESPACE
 class XE_API MetaFunction : public MetaInfo
 {
 public:
-	MetaFunction( const String & Name, MetaInfoPtr Result, ParameterType && Parameter, MetaModulePtr Module );
+	MetaFunction( const String & Name, MetaInfoCPtr Result, ParameterType && Parameter, MetaModuleCPtr Module );
 
 	~MetaFunction();
 
 public:
-	MetaInfoPtr GetResultType() const;
+	MetaInfoCPtr GetResultType() const;
 
 	const ParameterType & GetParameterType() const;
 
@@ -41,7 +41,7 @@ public:
 	virtual Variant Invoke( InvokeStack * params ) const = 0;
 
 private:
-	MetaInfoWPtr _Result;
+	MetaInfoCWPtr _Result;
 	ParameterType _Parameter;
 };
 

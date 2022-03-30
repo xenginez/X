@@ -15,7 +15,7 @@ BEG_XE_NAMESPACE
 
 template< typename T, typename ... Types > struct TypeList< T, Types... >
 {
-	static void Make( XE::Array< XE::MetaTypePtr > * args )
+	static void Make( XE::Array< XE::MetaTypeCPtr > * args )
 	{
 		args->push_back( TypeID< typename TypeTraits< T >::raw_t >::Get() );
 
@@ -25,7 +25,7 @@ template< typename T, typename ... Types > struct TypeList< T, Types... >
 
 template< typename T > struct TypeList< T >
 {
-	static void Make( XE::Array< XE::MetaTypePtr > * args )
+	static void Make( XE::Array< XE::MetaTypeCPtr > * args )
 	{
 		args->push_back( TypeID< typename TypeTraits< T >::raw_t >::Get() );
 	}
@@ -33,21 +33,21 @@ template< typename T > struct TypeList< T >
 
 template< > struct TypeList< >
 {
-	static void Make( XE::Array< XE::MetaTypePtr > * args )
+	static void Make( XE::Array< XE::MetaTypeCPtr > * args )
 	{
 	}
 };
 
 
-class XE_API TemplateType : public XE::Array< XE::MetaTypePtr >
+class XE_API TemplateType : public XE::Array< XE::MetaTypeCPtr >
 {
 public:
-	using XE::Array< XE::MetaTypePtr >::operator[];
+	using XE::Array< XE::MetaTypeCPtr >::operator[];
 };
-class XE_API ParameterType : public XE::Array< XE::MetaTypePtr >
+class XE_API ParameterType : public XE::Array< XE::MetaTypeCPtr >
 {
 public:
-	using XE::Array< XE::MetaTypePtr >::operator[];
+	using XE::Array< XE::MetaTypeCPtr >::operator[];
 };
 
 

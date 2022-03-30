@@ -21,7 +21,7 @@ public:
 	using MethodType = void( *)( ParameterType... );
 
 public:
-	CXXMetaMethod( const String& Name, MethodType Callback, MetaClassPtr Owner, MetaModulePtr Module )
+	CXXMetaMethod( const String& Name, MethodType Callback, MetaClassCPtr Owner, MetaModuleCPtr Module )
 		:MetaMethod( Name + XE::ToString( MakeParameterType< ParameterType... >() ), true, false, nullptr, MakeParameterType< ParameterType... >(), Owner, Module ), _Callback( Callback )
 	{
 	}
@@ -43,7 +43,7 @@ public:
 	using MethodType = ResultType( *)( ParameterType... );
 
 public:
-	CXXMetaMethod( const String& Name, MethodType Callback, MetaClassPtr Owner )
+	CXXMetaMethod( const String& Name, MethodType Callback, MetaClassCPtr Owner )
 		:MetaMethod( Name + XE::ToString( MakeParameterType< ParameterType... >() ), true, false, TypeID< typename TypeTraits< ResultType >::raw_t >::Get(), MakeParameterType< ParameterType... >(), Owner ), _Callback( Callback )
 	{
 	}
@@ -64,7 +64,7 @@ public:
 	using MethodType = void( ClassType::* )( ParameterType... );
 
 public:
-	CXXMetaMethod( const String& Name, MethodType Callback, MetaClassPtr Owner, MetaModulePtr Module )
+	CXXMetaMethod( const String& Name, MethodType Callback, MetaClassCPtr Owner, MetaModuleCPtr Module )
 		:MetaMethod( Name + XE::ToString( MakeParameterType< ParameterType... >() ), false, false, nullptr, MakeParameterType< ParameterType... >(), Owner, Module ), _Callback( Callback )
 	{
 	}
@@ -86,7 +86,7 @@ public:
 	using MethodType = void( ClassType::* )( ParameterType... ) const;
 
 public:
-	CXXMetaMethod( const String& Name, MethodType Callback, MetaClassPtr Owner, MetaModulePtr Module )
+	CXXMetaMethod( const String& Name, MethodType Callback, MetaClassCPtr Owner, MetaModuleCPtr Module )
 		:MetaMethod( Name + XE::ToString( MakeParameterType< ParameterType... >() ), false, true, nullptr, MakeParameterType< ParameterType... >(), Owner, Module ), _Callback( Callback )
 	{
 	}
@@ -108,7 +108,7 @@ public:
 	using MethodType = ResultType( ClassType::* )( ParameterType... );
 
 public:
-	CXXMetaMethod( const String& Name, MethodType Callback, MetaClassPtr Owner, MetaModulePtr Module )
+	CXXMetaMethod( const String& Name, MethodType Callback, MetaClassCPtr Owner, MetaModuleCPtr Module )
 		:MetaMethod( Name + XE::ToString( MakeParameterType< ParameterType... >() ), false, false, TypeID< typename TypeTraits< ResultType >::raw_t >::Get(), MakeParameterType< ParameterType... >(), Owner, Module ), _Callback( Callback )
 	{
 	}
@@ -129,7 +129,7 @@ public:
 	using MethodType = ResultType( ClassType::* )( ParameterType... ) const;
 
 public:
-	CXXMetaMethod( const String& Name, MethodType Callback, MetaClassPtr Owner, MetaModulePtr Module )
+	CXXMetaMethod( const String& Name, MethodType Callback, MetaClassCPtr Owner, MetaModuleCPtr Module )
 		:MetaMethod( Name + XE::ToString( MakeParameterType< ParameterType... >() ), false, true, TypeID< typename TypeTraits< ResultType >::raw_t >::Get(), MakeParameterType< ParameterType... >(), Owner, Module ), _Callback( Callback )
 	{
 	}

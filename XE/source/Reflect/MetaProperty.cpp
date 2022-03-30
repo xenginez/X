@@ -3,8 +3,8 @@
 #include "MetaClass.h"
 #include "MetaAttribute.h"
 
-XE::MetaProperty::MetaProperty( const String & Name, bool IsStatic, bool IsConst, bool IsObject, bool IsPointer, bool IsSharedPtr, bool IsReference, MetaTypePtr Value, MetaClassPtr Owner, MetaModulePtr Module )
-	:MetaInfo( Name, MetaInfoType::PROPERTY, SP_CAST< MetaInfo >( Owner ), Module ), _IsStatic( IsStatic ), _IsConst( IsConst ), _IsObject( IsObject ), _IsPointer( IsPointer ), _IsSharedPtr( IsSharedPtr ), _IsReference( IsReference ), _Value( Value )
+XE::MetaProperty::MetaProperty( const String & Name, bool IsStatic, bool IsConst, bool IsObject, bool IsPointer, bool IsSharedPtr, bool IsReference, MetaTypeCPtr Value, MetaClassCPtr Owner, MetaModuleCPtr Module )
+	:MetaInfo( Name, MetaInfoType::PROPERTY, Owner, Module ), _IsStatic( IsStatic ), _IsConst( IsConst ), _IsObject( IsObject ), _IsPointer( IsPointer ), _IsSharedPtr( IsSharedPtr ), _IsReference( IsReference ), _Value( Value )
 {
 
 }
@@ -44,7 +44,7 @@ bool XE::MetaProperty::IsReference() const
 	return _IsReference;
 }
 
-XE::MetaTypePtr XE::MetaProperty::GetValueType() const
+XE::MetaTypeCPtr XE::MetaProperty::GetValueType() const
 {
 	return _Value.lock();
 }

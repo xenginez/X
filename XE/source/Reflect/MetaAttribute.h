@@ -42,14 +42,17 @@ public:
 	virtual XE::MetaClassPtr GetMetaClass() const;
 
 public:
-	RangeAttribute( XE::float64 min, XE::float64 max );
+	RangeAttribute( XE::float64 min, XE::float64 max, XE::float64 step = 1.0 );
 
 public:
 	XE::float64 GetMin() const;
 
 	XE::float64 GetMax() const;
 
+	XE::float64 GetStep() const;
+
 private:
+	XE::float64 _Step = 1.0;
 	XE::float64 _Min = std::numeric_limits< XE::float64 >::min();
 	XE::float64 _Max = std::numeric_limits< XE::float64 >::max();
 };

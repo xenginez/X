@@ -36,18 +36,18 @@ void XS::FloatingInspector::Refresh()
 		auto type = GetObjectProxy()->GetType();
 		if ( type == TypeID< XE::float16 >::Get() )
 		{
-			_QDoubleSpinBox->setMinimum( std::numeric_limits< XE::float32 >::min() );
-			_QDoubleSpinBox->setMaximum( std::numeric_limits< XE::float32 >::max() );
+			_QDoubleSpinBox->setMinimum( -32768.0f );
+			_QDoubleSpinBox->setMaximum( +32767.0f );
 		}
 		else if ( type == TypeID< XE::float32 >::Get() )
 		{
-			_QDoubleSpinBox->setMinimum( std::numeric_limits< XE::float32 >::min() );
-			_QDoubleSpinBox->setMaximum( std::numeric_limits< XE::float32 >::max() );
+			_QDoubleSpinBox->setMinimum( -2147483648.0f );
+			_QDoubleSpinBox->setMaximum( +2147483647.0f );
 		}
 		else if ( type == TypeID< XE::float64 >::Get() )
 		{
-			_QDoubleSpinBox->setMinimum( std::numeric_limits< XE::float64 >::min() );
-			_QDoubleSpinBox->setMaximum( std::numeric_limits< XE::float64 >::max() );
+			_QDoubleSpinBox->setMinimum( -9223372036854775808.0 );
+			_QDoubleSpinBox->setMaximum( +9223372036854775807.0 );
 		}
 	}
 

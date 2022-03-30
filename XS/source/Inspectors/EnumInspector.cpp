@@ -35,6 +35,6 @@ void XS::EnumInspector::Refresh()
 
 	connect( _QComboBox, QOverload<int>::of( &QComboBox::currentIndexChanged ), [this]( int val )
 		{
-			GetObjectProxy()->SetValue( XE::VariantData( XE::VariantEnumData( _QComboBox->itemData( Qt::UserRole + 1 ).toULongLong(), GetObjectProxy()->GetValue().GetType() ) ) );
+			GetObjectProxy()->SetValue( XE::VariantEnumData( _QComboBox->itemData( Qt::UserRole + 1 ).toULongLong(), GetObjectProxy()->GetType() ) );
 		} );
 }

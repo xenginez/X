@@ -49,9 +49,17 @@ public:
 
 	Variant( const XE::VariantData & val );
 
-	Variant( const void * ptr, XE::MetaType * meta );
+	Variant( const XE::VariantEnumData & val );
 
-	Variant( const XE::SharedPtr< void > & ptr, XE::MetaType * meta );
+	Variant( const XE::VariantSmallData & val );
+
+	Variant( const XE::VariantPointerData & val );
+
+	Variant( const XE::VariantWarpperData & val );
+
+	Variant( const void * ptr, const XE::MetaType * meta );
+
+	Variant( const XE::SharedPtr< void > & ptr, const XE::MetaType * meta );
 
 	template< typename T > Variant( const T & val )
 		:_Data( XE::VariantCreate< typename XE::TypeTraits< T >::remove_const_volatile_reference_t >::Create( val ) )
@@ -91,6 +99,14 @@ public:
 
 	XE::Variant & operator=( const XE::VariantData & val );
 
+	XE::Variant & operator=( const XE::VariantEnumData & val );
+
+	XE::Variant & operator=( const XE::VariantSmallData & val );
+
+	XE::Variant & operator=( const XE::VariantPointerData & val );
+
+	XE::Variant & operator=( const XE::VariantWarpperData & val );
+
 	template< typename T > Variant & operator=( const T & val )
 	{
 		_Data = XE::VariantCreate< typename XE::TypeTraits< T >::remove_const_volatile_reference_t >::Create( val );
@@ -126,7 +142,7 @@ public:
 
 	bool IsFundamental() const;
 
-	bool IsCanConvert( XE::MetaClassPtr val ) const;
+	bool IsCanConvert( const XE::MetaClassCPtr & val ) const;
 
 public:
 	bool ToBool() const;
@@ -156,7 +172,7 @@ public:
 	XE::Array< XE::Variant > ToArray() const;
 
 public:
-	XE::MetaTypePtr GetType() const;
+	XE::MetaTypeCPtr GetType() const;
 
 	const XE::VariantData & GetData() const;
 
@@ -241,9 +257,9 @@ public: \
 	{ \
 		return false; \
 	} \
-	XE::MetaType * GetMetaClass() const override \
+	const XE::MetaType * GetMetaType() const override \
 	{ \
-		return SP_CAST< XE::MetaClass >( TypeID< ContainerType >::Get() ).get(); \
+		return TypeID< ContainerType >::Get().get(); \
 	} \
 	void * ValuePointer() override \
 	{ \

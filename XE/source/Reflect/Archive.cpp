@@ -216,7 +216,7 @@ void XE::JsonOArchive::Serialize( const XE::Variant & val )
 			rapidjson::Value type, value;
 
 			type.SetString( val.GetType()->GetFullName().c_str(), _p->_Document.GetAllocator() );
-			value.SetString( SP_CAST< XE::MetaEnum >( val.GetType() )->FindName( val ).c_str(), _p->_Document.GetAllocator() );
+			value.SetString( SP_CAST< const XE::MetaEnum >( val.GetType() )->FindName( val ).c_str(), _p->_Document.GetAllocator() );
 
 			_p->_Stack.back()->AddMember( "type", type, _p->_Document.GetAllocator() );
 			_p->_Stack.back()->AddMember( "value", value, _p->_Document.GetAllocator() );
@@ -415,12 +415,12 @@ XE::Variant XE::JsonIArchive::Deserialize( const XE::String & name /*= ""*/ )
 		{
 			result = XE::String( _p->_Stack.back()->GetString() );
 		}
-		else if( XE::MetaTypePtr type = XE::Reflection::FindType( _p->_Stack.back()->FindMember( "type" )->value.GetString() ) )
+		else if( XE::MetaTypeCPtr type = XE::Reflection::FindType( _p->_Stack.back()->FindMember( "type" )->value.GetString() ) )
 		{
 			if( type->GetType() == XE::MetaInfoType::ENUM )
 			{
 				auto & value = _p->_Stack.back()->FindMember( "value" )->value;
-				result = SP_CAST< XE::MetaEnum >( type )->FindValue( value.GetString() );
+				result = SP_CAST< const XE::MetaEnum >( type )->FindValue( value.GetString() );
 			}
 			else
 			{
@@ -428,7 +428,7 @@ XE::Variant XE::JsonIArchive::Deserialize( const XE::String & name /*= ""*/ )
 
 				auto flag = _p->_Stack.back()->FindMember( "flag" )->value.GetUint();
 
-				if( XE::MetaClassPtr cls = SP_CAST< XE::MetaClass >( type ) )
+				if( XE::MetaClassCPtr cls = SP_CAST< const XE::MetaClass >( type ) )
 				{
 					if( flag == is_null )
 					{
@@ -678,9 +678,9 @@ XE::Variant XE::BinaryIArchive::Deserialize( const XE::String & name /*= ""*/ )
 			{
 				XE::uint64 val = 0;
 				read( _p->_Stream, val );
-				return { XE::VariantData( XE::VariantEnumData( val, SP_CAST< XE::MetaEnum >( type ) ) ) };
+				return { XE::VariantData( XE::VariantEnumData( val, SP_CAST< const XE::MetaEnum >( type ) ) ) };
 			}
-			else if( auto cls = SP_CAST< XE::MetaClass >( type ) )
+			else if( auto cls = SP_CAST< const XE::MetaClass >( type ) )
 			{
 				XE::uint8 flag = 0;
 				read( _p->_Stream, flag );

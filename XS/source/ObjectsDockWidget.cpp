@@ -26,6 +26,7 @@ namespace TestModule
 		bool b;
 		int i;
 		float f;
+		double d;
 		XE::String s;
 		ObjectsDockWidgetEnumTest e;
 	};
@@ -50,6 +51,7 @@ BEG_META( TestModule::ObjectsDockWidgetClassTest1 )
 type->Property( "b", &TestModule::ObjectsDockWidgetClassTest1::b );
 type->Property( "i", &TestModule::ObjectsDockWidgetClassTest1::i );
 type->Property( "f", &TestModule::ObjectsDockWidgetClassTest1::f );
+type->Property( "d", &TestModule::ObjectsDockWidgetClassTest1::d );
 type->Property( "e", &TestModule::ObjectsDockWidgetClassTest1::e );
 type->Property( "s", &TestModule::ObjectsDockWidgetClassTest1::s );
 END_META()
@@ -150,6 +152,7 @@ void XS::ObjectsDockWidget::OnInspectorClicked()
 		ui->inspector_layout->removeItem( ui->inspector_layout->itemAt( 0 ) );
 	}
 
-	_Inspector = XS::Inspector::Create( new XS::ObjectProxy( var ), this );
+	_Inspector = XS::Inspector::Create( XE::MakeShared< XS::ObjectProxy >( var ), this );
+
 	ui->inspector_layout->addWidget( _Inspector );
 }

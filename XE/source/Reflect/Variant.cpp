@@ -98,13 +98,37 @@ XE::Variant::Variant( const XE::VariantData & val )
 
 }
 
-XE::Variant::Variant( const void * ptr, XE::MetaType * meta )
+XE::Variant::Variant( const XE::VariantEnumData & val )
+	: _Data( val )
+{
+
+}
+
+XE::Variant::Variant( const XE::VariantSmallData & val )
+	: _Data( val )
+{
+
+}
+
+XE::Variant::Variant( const XE::VariantPointerData & val )
+	: _Data( val )
+{
+
+}
+
+XE::Variant::Variant( const XE::VariantWarpperData & val )
+	: _Data( val )
+{
+
+}
+
+XE::Variant::Variant( const void * ptr, const XE::MetaType * meta )
 	: _Data( XE::VariantPointerData( ptr, meta ) )
 {
 
 }
 
-XE::Variant::Variant( const XE::SharedPtr< void > & ptr, XE::MetaType * meta )
+XE::Variant::Variant( const XE::SharedPtr< void > & ptr, const XE::MetaType * meta )
 	: _Data( XE::VariantWarpperData( ptr, meta ) )
 {
 
@@ -215,6 +239,34 @@ XE::Variant & XE::Variant::operator=( const XE::VariantData & val )
 	return *this;
 }
 
+XE::Variant & XE::Variant::operator=( const XE::VariantEnumData & val )
+{
+	_Data = val;
+
+	return *this;
+}
+
+XE::Variant & XE::Variant::operator=( const XE::VariantSmallData & val )
+{
+	_Data = val;
+
+	return *this;
+}
+
+XE::Variant & XE::Variant::operator=( const XE::VariantPointerData & val )
+{
+	_Data = val;
+
+	return *this;
+}
+
+XE::Variant & XE::Variant::operator=( const XE::VariantWarpperData & val )
+{
+	_Data = val;
+
+	return *this;
+}
+
 bool XE::Variant::operator< ( const XE::Variant & val ) const
 {
 	return _Data < val._Data;
@@ -282,12 +334,12 @@ bool XE::Variant::IsFundamental() const
 		_Data );
 }
 
-bool XE::Variant::IsCanConvert( XE::MetaClassPtr val ) const
+bool XE::Variant::IsCanConvert( const XE::MetaClassCPtr & val ) const
 {
 	auto type = std::visit( XE::VariantDataGetMetaType(), _Data );
 	if( type && type->GetType() == XE::MetaInfoType::CLASS )
 	{
-		return SP_CAST< XE::MetaClass >( type )->CanConvert( val );
+		return SP_CAST< const XE::MetaClass >( type )->CanConvert( val );
 	}
 
 	return false;
@@ -358,7 +410,7 @@ XE::Array< XE::Variant > XE::Variant::ToArray() const
 	return std::visit( XE::VariantDataToArray(), _Data );
 }
 
-XE::MetaTypePtr XE::Variant::GetType() const
+XE::MetaTypeCPtr XE::Variant::GetType() const
 {
 	return std::visit( XE::VariantDataGetMetaType(), _Data );
 }

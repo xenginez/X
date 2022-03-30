@@ -25,7 +25,7 @@ BEG_XE_NAMESPACE
 template< typename ClassType > class CXXMetaClass : public MetaClass
 {
 public:
-	CXXMetaClass( const XE::String & Name, XE::MetaClassPtr Super, XE::MetaInfoPtr Owner, XE::MetaModulePtr Module, const XE::TemplateType temps = {} )
+	CXXMetaClass( const XE::String & Name, XE::MetaClassCPtr Super, XE::MetaInfoCPtr Owner, XE::MetaModuleCPtr Module, const XE::TemplateType temps = {} )
 		:MetaClass( Name, sizeof( ClassType ), std::is_abstract_v< ClassType >, Super, Owner, Module, temps )
 	{
 	}
@@ -229,7 +229,7 @@ public:
 template< typename ClassType, typename ... Types > class CXXTplMetaClass : public CXXMetaClass< ClassType >
 {
 public:
-	CXXTplMetaClass( const XE::String & Name, XE::MetaClassPtr Super, XE::MetaInfoPtr Owner, XE::MetaModulePtr Module )
+	CXXTplMetaClass( const XE::String & Name, XE::MetaClassCPtr Super, XE::MetaInfoCPtr Owner, XE::MetaModuleCPtr Module )
 		:CXXMetaClass< ClassType >( Name + XE::ToString( XE::MakeTemplateType< Types... >() ), Super, Owner, Module, XE::MakeTemplateType< Types... >() )
 	{
 	}
@@ -239,7 +239,7 @@ public:
 
 template<> struct ::ClassID< void >
 {
-	static XE::MetaClassPtr Get( const void * val = nullptr )
+	static XE::MetaClassCPtr Get( const void * val = nullptr )
 	{
 		return nullptr;
 	}
@@ -247,7 +247,7 @@ template<> struct ::ClassID< void >
 
 template<> struct ::ClassID< std::nullptr_t >
 {
-	static XE::MetaClassPtr Get( const std::nullptr_t * val = nullptr )
+	static XE::MetaClassCPtr Get( const std::nullptr_t * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
 		
@@ -258,7 +258,7 @@ template<> struct ::ClassID< std::nullptr_t >
 
 template<> struct ::ClassID< bool >
 {
-	static XE::MetaClassPtr Get( const bool * val = nullptr )
+	static XE::MetaClassCPtr Get( const bool * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
 		
@@ -269,7 +269,7 @@ template<> struct ::ClassID< bool >
 
 template<> struct ::ClassID< XE::int8 >
 {
-	static XE::MetaClassPtr Get( const XE::int8 * val = nullptr )
+	static XE::MetaClassCPtr Get( const XE::int8 * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
 		
@@ -280,7 +280,7 @@ template<> struct ::ClassID< XE::int8 >
 
 template<> struct ::ClassID< XE::int16 >
 {
-	static XE::MetaClassPtr Get( const XE::int16 * val = nullptr )
+	static XE::MetaClassCPtr Get( const XE::int16 * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
 		
@@ -291,7 +291,7 @@ template<> struct ::ClassID< XE::int16 >
 
 template<> struct ::ClassID< XE::int32 >
 {
-	static XE::MetaClassPtr Get( const XE::int32 * val = nullptr )
+	static XE::MetaClassCPtr Get( const XE::int32 * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
 		
@@ -302,7 +302,7 @@ template<> struct ::ClassID< XE::int32 >
 
 template<> struct ::ClassID< long >
 {
-	static XE::MetaClassPtr Get( const long * val = nullptr )
+	static XE::MetaClassCPtr Get( const long * val = nullptr )
 	{
 		return ::ClassID< XE::int32 >::Get();
 	}
@@ -310,7 +310,7 @@ template<> struct ::ClassID< long >
 
 template<> struct ::ClassID< XE::int64 >
 {
-	static XE::MetaClassPtr Get( const XE::int64 * val = nullptr )
+	static XE::MetaClassCPtr Get( const XE::int64 * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
 		
@@ -321,7 +321,7 @@ template<> struct ::ClassID< XE::int64 >
 
 template<> struct ::ClassID< XE::uint8 >
 {
-	static XE::MetaClassPtr Get( const XE::uint8 * val = nullptr )
+	static XE::MetaClassCPtr Get( const XE::uint8 * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
 		
@@ -332,7 +332,7 @@ template<> struct ::ClassID< XE::uint8 >
 
 template<> struct ::ClassID< XE::uint16 >
 {
-	static XE::MetaClassPtr Get( const XE::uint16 * val = nullptr )
+	static XE::MetaClassCPtr Get( const XE::uint16 * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
 		
@@ -343,7 +343,7 @@ template<> struct ::ClassID< XE::uint16 >
 
 template<> struct ::ClassID< XE::uint32 >
 {
-	static XE::MetaClassPtr Get( const XE::uint32 * val = nullptr )
+	static XE::MetaClassCPtr Get( const XE::uint32 * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
 		
@@ -354,7 +354,7 @@ template<> struct ::ClassID< XE::uint32 >
 
 template<> struct ::ClassID< unsigned long >
 {
-	static XE::MetaClassPtr Get( const unsigned long * val = nullptr )
+	static XE::MetaClassCPtr Get( const unsigned long * val = nullptr )
 	{
 		return ::ClassID< XE::uint32 >::Get();
 	}
@@ -362,7 +362,7 @@ template<> struct ::ClassID< unsigned long >
 
 template<> struct ::ClassID< XE::uint64 >
 {
-	static XE::MetaClassPtr Get( const XE::uint64 * val = nullptr )
+	static XE::MetaClassCPtr Get( const XE::uint64 * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
 		
@@ -373,7 +373,7 @@ template<> struct ::ClassID< XE::uint64 >
 
 template<> struct ::ClassID< XE::float32 >
 {
-	static XE::MetaClassPtr Get( const XE::float32 * val = nullptr )
+	static XE::MetaClassCPtr Get( const XE::float32 * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
 		
@@ -384,7 +384,7 @@ template<> struct ::ClassID< XE::float32 >
 
 template<> struct ::ClassID< XE::float64 >
 {
-	static XE::MetaClassPtr Get( const XE::float64 * val = nullptr )
+	static XE::MetaClassCPtr Get( const XE::float64 * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
 		
@@ -395,7 +395,7 @@ template<> struct ::ClassID< XE::float64 >
 
 template<> struct ::ClassID< XE::String >
 {
-	static XE::MetaClassPtr Get( const XE::String * val = nullptr )
+	static XE::MetaClassCPtr Get( const XE::String * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
 		
@@ -406,7 +406,7 @@ template<> struct ::ClassID< XE::String >
 
 template<> struct ::ClassID< XE::WideString >
 {
-	static XE::MetaClassPtr Get( const XE::WideString * val = nullptr )
+	static XE::MetaClassCPtr Get( const XE::WideString * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
 		
@@ -417,7 +417,7 @@ template<> struct ::ClassID< XE::WideString >
 
 template<> struct ::ClassID< XE::Utf8String >
 {
-	static XE::MetaClassPtr Get( const XE::Utf8String * val = nullptr )
+	static XE::MetaClassCPtr Get( const XE::Utf8String * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
 		
@@ -428,7 +428,7 @@ template<> struct ::ClassID< XE::Utf8String >
 
 template<> struct ::ClassID< XE::Variant >
 {
-	static XE::MetaClassPtr Get( const XE::Variant * val = nullptr )
+	static XE::MetaClassCPtr Get( const XE::Variant * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
 		
@@ -439,7 +439,7 @@ template<> struct ::ClassID< XE::Variant >
 
 template< typename T > struct ::ClassID< XE::Hasher< T > >
 {
-	static XE::MetaClassPtr Get( const XE::Hasher< T > * val = nullptr )
+	static XE::MetaClassCPtr Get( const XE::Hasher< T > * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
 
@@ -450,7 +450,7 @@ template< typename T > struct ::ClassID< XE::Hasher< T > >
 
 template< typename ... Types > struct ::ClassID< XE::BasicMemoryView< Types... > >
 {
-	static XE::MetaClassPtr Get( const XE::BasicMemoryView< Types... > * val = nullptr )
+	static XE::MetaClassCPtr Get( const XE::BasicMemoryView< Types... > * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
 
@@ -463,7 +463,7 @@ template< typename ... Types > struct ::ClassID< XE::BasicMemoryView< Types... >
 
 template<> struct ::ClassID< XE::VariantList >
 {
-	static XE::MetaClassPtr Get( const XE::VariantList * val = nullptr )
+	static XE::MetaClassCPtr Get( const XE::VariantList * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
 		
@@ -474,7 +474,7 @@ template<> struct ::ClassID< XE::VariantList >
 
 template<> struct ::ClassID< XE::VariantDeque >
 {
-	static XE::MetaClassPtr Get( const XE::VariantDeque * val = nullptr )
+	static XE::MetaClassCPtr Get( const XE::VariantDeque * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
 		
@@ -485,7 +485,7 @@ template<> struct ::ClassID< XE::VariantDeque >
 
 template<> struct ::ClassID< XE::VariantStack >
 {
-	static XE::MetaClassPtr Get( const XE::VariantStack * val = nullptr )
+	static XE::MetaClassCPtr Get( const XE::VariantStack * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
 		
@@ -496,7 +496,7 @@ template<> struct ::ClassID< XE::VariantStack >
 
 template<> struct ::ClassID< XE::VariantQueue >
 {
-	static XE::MetaClassPtr Get( const XE::VariantQueue * val = nullptr )
+	static XE::MetaClassCPtr Get( const XE::VariantQueue * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
 		
@@ -507,7 +507,7 @@ template<> struct ::ClassID< XE::VariantQueue >
 
 template<> struct ::ClassID< XE::VariantArray >
 {
-	static XE::MetaClassPtr Get( const XE::VariantArray * val = nullptr )
+	static XE::MetaClassCPtr Get( const XE::VariantArray * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
 		
@@ -518,7 +518,7 @@ template<> struct ::ClassID< XE::VariantArray >
 
 template<> struct ::ClassID< XE::VariantPair >
 {
-	static XE::MetaClassPtr Get( const XE::VariantPair * val = nullptr )
+	static XE::MetaClassCPtr Get( const XE::VariantPair * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
 		
@@ -529,7 +529,7 @@ template<> struct ::ClassID< XE::VariantPair >
 
 template<> struct ::ClassID< XE::VariantSet >
 {
-	static XE::MetaClassPtr Get( const XE::VariantSet * val = nullptr )
+	static XE::MetaClassCPtr Get( const XE::VariantSet * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
 		
@@ -540,7 +540,7 @@ template<> struct ::ClassID< XE::VariantSet >
 
 template<> struct ::ClassID< XE::VariantMap >
 {
-	static XE::MetaClassPtr Get( const XE::VariantMap * val = nullptr )
+	static XE::MetaClassCPtr Get( const XE::VariantMap * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
 		
@@ -551,7 +551,7 @@ template<> struct ::ClassID< XE::VariantMap >
 
 template<> struct ::ClassID< XE::VariantMultiSet >
 {
-	static XE::MetaClassPtr Get( const XE::VariantMultiSet * val = nullptr )
+	static XE::MetaClassCPtr Get( const XE::VariantMultiSet * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
 		
@@ -562,7 +562,7 @@ template<> struct ::ClassID< XE::VariantMultiSet >
 
 template<> struct ::ClassID< XE::VariantMultiMap >
 {
-	static XE::MetaClassPtr Get( const XE::VariantMultiMap * val = nullptr )
+	static XE::MetaClassCPtr Get( const XE::VariantMultiMap * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
 		
@@ -573,7 +573,7 @@ template<> struct ::ClassID< XE::VariantMultiMap >
 
 template<> struct ::ClassID< XE::VariantUnorderedSet >
 {
-	static XE::MetaClassPtr Get( const XE::VariantUnorderedSet * val = nullptr )
+	static XE::MetaClassCPtr Get( const XE::VariantUnorderedSet * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
 		
@@ -584,7 +584,7 @@ template<> struct ::ClassID< XE::VariantUnorderedSet >
 
 template<> struct ::ClassID< XE::VariantUnorderedMap >
 {
-	static XE::MetaClassPtr Get( const XE::VariantUnorderedMap * val = nullptr )
+	static XE::MetaClassCPtr Get( const XE::VariantUnorderedMap * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
 		
@@ -595,7 +595,7 @@ template<> struct ::ClassID< XE::VariantUnorderedMap >
 
 template<> struct ::ClassID< XE::VariantUnorderedMultiSet >
 {
-	static XE::MetaClassPtr Get( const XE::VariantUnorderedMultiSet * val = nullptr )
+	static XE::MetaClassCPtr Get( const XE::VariantUnorderedMultiSet * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
 		
@@ -606,7 +606,7 @@ template<> struct ::ClassID< XE::VariantUnorderedMultiSet >
 
 template<> struct ::ClassID< XE::VariantUnorderedMultiMap >
 {
-	static XE::MetaClassPtr Get( const XE::VariantUnorderedMultiMap * val = nullptr )
+	static XE::MetaClassCPtr Get( const XE::VariantUnorderedMultiMap * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
 		
@@ -617,7 +617,7 @@ template<> struct ::ClassID< XE::VariantUnorderedMultiMap >
 
 template<> struct ::ClassID< XE::ArchiveNameVariant >
 {
-	static XE::MetaClassPtr Get( const XE::ArchiveNameVariant * val = nullptr )
+	static XE::MetaClassCPtr Get( const XE::ArchiveNameVariant * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
 		
@@ -630,7 +630,7 @@ template<> struct ::ClassID< XE::ArchiveNameVariant >
 
 template<> struct ::ClassID< std::filesystem::path >
 {
-	static XE::MetaClassPtr Get( const std::filesystem::path * val = nullptr )
+	static XE::MetaClassCPtr Get( const std::filesystem::path * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
 
@@ -641,7 +641,7 @@ template<> struct ::ClassID< std::filesystem::path >
 
 template< typename ... Types > struct ::ClassID< std::less< Types... > >
 {
-	static XE::MetaClassPtr Get( const std::less< Types... > * val = nullptr )
+	static XE::MetaClassCPtr Get( const std::less< Types... > * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
 		
@@ -652,7 +652,7 @@ template< typename ... Types > struct ::ClassID< std::less< Types... > >
 
 template< typename ... Types > struct ::ClassID< std::hash< Types... > >
 {
-	static XE::MetaClassPtr Get( const std::hash< Types... > * val = nullptr )
+	static XE::MetaClassCPtr Get( const std::hash< Types... > * val = nullptr )
 	{
 		return ::ClassID< XE::Hasher< Types... > >::Get( val );
 	}
@@ -660,7 +660,7 @@ template< typename ... Types > struct ::ClassID< std::hash< Types... > >
 
 template< typename ... Types > struct ::ClassID< std::equal_to< Types... > >
 {
-	static XE::MetaClassPtr Get( const std::equal_to< Types... > * val = nullptr )
+	static XE::MetaClassCPtr Get( const std::equal_to< Types... > * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
 		
@@ -671,7 +671,7 @@ template< typename ... Types > struct ::ClassID< std::equal_to< Types... > >
 
 template< typename ... Types > struct ::ClassID< std::allocator< Types... > >
 {
-	static XE::MetaClassPtr Get( const std::allocator< Types... > * val = nullptr )
+	static XE::MetaClassCPtr Get( const std::allocator< Types... > * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
 		
@@ -682,7 +682,7 @@ template< typename ... Types > struct ::ClassID< std::allocator< Types... > >
 
 template< typename ... Types > struct ::ClassID< std::pmr::polymorphic_allocator< Types... > >
 {
-	static XE::MetaClassPtr Get( const std::pmr::polymorphic_allocator< Types... > * val = nullptr )
+	static XE::MetaClassCPtr Get( const std::pmr::polymorphic_allocator< Types... > * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
 		
@@ -693,7 +693,7 @@ template< typename ... Types > struct ::ClassID< std::pmr::polymorphic_allocator
 
 template< typename ... Types > struct ::ClassID< std::list< Types... > >
 {
-	static XE::MetaClassPtr Get( const std::list< Types... > * val = nullptr )
+	static XE::MetaClassCPtr Get( const std::list< Types... > * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
 		
@@ -704,7 +704,7 @@ template< typename ... Types > struct ::ClassID< std::list< Types... > >
 
 template< typename ... Types > struct ::ClassID< std::deque< Types... > >
 {
-	static XE::MetaClassPtr Get( const std::deque< Types... > * val = nullptr )
+	static XE::MetaClassCPtr Get( const std::deque< Types... > * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
 		
@@ -715,7 +715,7 @@ template< typename ... Types > struct ::ClassID< std::deque< Types... > >
 
 template< typename ... Types > struct ::ClassID< std::stack< Types... > >
 {
-	static XE::MetaClassPtr Get( const std::stack< Types... > * val = nullptr )
+	static XE::MetaClassCPtr Get( const std::stack< Types... > * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
 		
@@ -726,7 +726,7 @@ template< typename ... Types > struct ::ClassID< std::stack< Types... > >
 
 template< typename ... Types > struct ::ClassID< std::queue< Types... > >
 {
-	static XE::MetaClassPtr Get( const std::queue< Types... > * val = nullptr )
+	static XE::MetaClassCPtr Get( const std::queue< Types... > * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
 		
@@ -737,7 +737,7 @@ template< typename ... Types > struct ::ClassID< std::queue< Types... > >
 
 template< typename ... Types > struct ::ClassID< std::vector< Types... > >
 {
-	static XE::MetaClassPtr Get( const std::vector< Types... > * val = nullptr )
+	static XE::MetaClassCPtr Get( const std::vector< Types... > * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
 		
@@ -748,7 +748,7 @@ template< typename ... Types > struct ::ClassID< std::vector< Types... > >
 
 template< typename K, typename V > struct ::ClassID< std::pair< K, V > >
 {
-	static XE::MetaClassPtr Get( const std::pair< K, V > * val = nullptr )
+	static XE::MetaClassCPtr Get( const std::pair< K, V > * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
 		
@@ -759,7 +759,7 @@ template< typename K, typename V > struct ::ClassID< std::pair< K, V > >
 
 template< typename K, typename V > struct ::ClassID< std::pair< const K, V > >
 {
-	static XE::MetaClassPtr Get( const std::pair< const K, V > * val = nullptr )
+	static XE::MetaClassCPtr Get( const std::pair< const K, V > * val = nullptr )
 	{
 		return ClassID< std::pair< K, V > >::Get();
 	}
@@ -767,7 +767,7 @@ template< typename K, typename V > struct ::ClassID< std::pair< const K, V > >
 
 template< typename ... Types > struct ::ClassID< std::set< Types... > >
 {
-	static XE::MetaClassPtr Get( const std::set< Types... > * val = nullptr )
+	static XE::MetaClassCPtr Get( const std::set< Types... > * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
 		
@@ -778,7 +778,7 @@ template< typename ... Types > struct ::ClassID< std::set< Types... > >
 
 template< typename ... Types > struct ::ClassID< std::map< Types... > >
 {
-	static XE::MetaClassPtr Get( const std::map< Types... > * val = nullptr )
+	static XE::MetaClassCPtr Get( const std::map< Types... > * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
 		
@@ -789,7 +789,7 @@ template< typename ... Types > struct ::ClassID< std::map< Types... > >
 
 template< typename ... Types > struct ::ClassID< std::multiset< Types... > >
 {
-	static XE::MetaClassPtr Get( const std::multiset< Types... > * val = nullptr )
+	static XE::MetaClassCPtr Get( const std::multiset< Types... > * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
 		
@@ -800,7 +800,7 @@ template< typename ... Types > struct ::ClassID< std::multiset< Types... > >
 
 template< typename ... Types > struct ::ClassID< std::multimap< Types... > >
 {
-	static XE::MetaClassPtr Get( const std::multimap< Types... > * val = nullptr )
+	static XE::MetaClassCPtr Get( const std::multimap< Types... > * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
 		
@@ -811,7 +811,7 @@ template< typename ... Types > struct ::ClassID< std::multimap< Types... > >
 
 template< typename ... Types > struct ::ClassID< std::unordered_set< Types... > >
 {
-	static XE::MetaClassPtr Get( const std::unordered_set< Types... > * val = nullptr )
+	static XE::MetaClassCPtr Get( const std::unordered_set< Types... > * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
 		
@@ -822,7 +822,7 @@ template< typename ... Types > struct ::ClassID< std::unordered_set< Types... > 
 
 template< typename ... Types > struct ::ClassID< std::unordered_map< Types... > >
 {
-	static XE::MetaClassPtr Get( const std::unordered_map< Types... > * val = nullptr )
+	static XE::MetaClassCPtr Get( const std::unordered_map< Types... > * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
 		
@@ -833,7 +833,7 @@ template< typename ... Types > struct ::ClassID< std::unordered_map< Types... > 
 
 template< typename ... Types > struct ::ClassID< std::unordered_multiset< Types... > >
 {
-	static XE::MetaClassPtr Get( const std::unordered_multiset< Types... > * val = nullptr )
+	static XE::MetaClassCPtr Get( const std::unordered_multiset< Types... > * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
 		
@@ -844,7 +844,7 @@ template< typename ... Types > struct ::ClassID< std::unordered_multiset< Types.
 
 template< typename ... Types > struct ::ClassID< std::unordered_multimap< Types... > >
 {
-	static XE::MetaClassPtr Get( const std::unordered_multimap< Types... > * val = nullptr )
+	static XE::MetaClassCPtr Get( const std::unordered_multimap< Types... > * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
 		
@@ -857,7 +857,7 @@ template< typename ... Types > struct ::ClassID< std::unordered_multimap< Types.
 
 template<> struct ::TypeID< XE::Variant >
 {
-	static XE::MetaTypePtr Get( const XE::Variant * val = nullptr )
+	static XE::MetaTypeCPtr Get( const XE::Variant * val = nullptr )
 	{
 		if( val != nullptr && val->IsInvalid() == false )
 		{
@@ -873,7 +873,7 @@ END_XE_NAMESPACE
 #define DECL_META_CLASS_3( _MODULE, _CLASS, _SUPPER ) \
 template<> struct ::ClassID< _MODULE::_CLASS > \
 { \
-	static XE::MetaClassPtr Get( const _MODULE::_CLASS * val = nullptr ) \
+	static XE::MetaClassCPtr Get( const _MODULE::_CLASS * val = nullptr ) \
 	{ \
 		static constexpr char __xe__sig__[] = __FUNCTION__; \
 		static auto meta = XE::MetaInfo::NewMetaInfo< XE::CXXMetaClass< _MODULE::_CLASS > >( XE::Hash( __xe__sig__ ), #_CLASS, ::ClassID< _SUPPER >::Get(), nullptr, _MODULE##::GetModule() ); \
@@ -883,7 +883,7 @@ template<> struct ::ClassID< _MODULE::_CLASS > \
 #define DECL_META_CLASS_2( _MODULE, _CLASS ) \
 template<> struct ::ClassID< _MODULE::_CLASS > \
 { \
-	static XE::MetaClassPtr Get( const _MODULE::_CLASS * val = nullptr ) \
+	static XE::MetaClassCPtr Get( const _MODULE::_CLASS * val = nullptr ) \
 	{ \
 		static constexpr char __xe__sig__[] = __FUNCTION__; \
 		static auto meta = XE::MetaInfo::NewMetaInfo< XE::CXXMetaClass< _MODULE::_CLASS > >( XE::Hash( __xe__sig__ ), #_CLASS, nullptr, nullptr, _MODULE##::GetModule() ); \
@@ -898,7 +898,7 @@ template<> struct ::ClassID< _MODULE::_CLASS > \
 #define BEG_META_TEMPLATE_CLASS_3( _MODULE, _CLASS, _SUPPER ) \
 template< typename ... Types > struct ::ClassID< _MODULE::_CLASS< Types... > > \
 { \
-static XE::MetaClassPtr Get( const _MODULE::_CLASS< Types... > * val = nullptr ) \
+static XE::MetaClassCPtr Get( const _MODULE::_CLASS< Types... > * val = nullptr ) \
 { \
 		static constexpr char __xe__sig__[] = __FUNCTION__; \
 		static auto meta = [](){ \
@@ -908,7 +908,7 @@ static XE::MetaClassPtr Get( const _MODULE::_CLASS< Types... > * val = nullptr )
 #define BEG_META_TEMPLATE_CLASS_2( _MODULE, _CLASS ) \
 template< typename ... Types > struct ::ClassID< _MODULE::_CLASS< Types... > > \
 { \
-static XE::MetaClassPtr Get( const _MODULE::_CLASS< Types... > * val = nullptr ) \
+static XE::MetaClassCPtr Get( const _MODULE::_CLASS< Types... > * val = nullptr ) \
 { \
 		static constexpr char __xe__sig__[] = __FUNCTION__; \
 		static auto meta = [](){ \

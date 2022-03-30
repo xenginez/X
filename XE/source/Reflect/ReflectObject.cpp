@@ -10,13 +10,13 @@ XE::ReflectObject::~ReflectObject()
 {
 }
 
-XE::MetaClassPtr XE::ReflectObject::GetMetaClassStatic()
+XE::MetaClassCPtr XE::ReflectObject::GetMetaClassStatic()
 {
 	static auto p = XE::MakeShared< XE::CXXMetaClass< XE::ReflectObject > >( "ReflectObject", nullptr, nullptr, GetModule() );
 	return p;
 }
 
-XE::MetaClassPtr XE::ReflectObject::GetMetaClass() const
+XE::MetaClassCPtr XE::ReflectObject::GetMetaClass() const
 {
 	return GetMetaClassStatic();
 }
@@ -43,7 +43,7 @@ XE::Variant XE::ReflectObject::Invoke( const String & name, InvokeStack * params
 
 void XE::ReflectObject::Serialize( XE::OArchive & archive ) const
 {
-	GetMetaClass()->VisitProperty( [&]( const XE::MetaPropertyPtr & prop )
+	GetMetaClass()->VisitProperty( [&]( const XE::MetaPropertyCPtr & prop )
 						{
 							if( !prop->IsStatic() && prop->FindAttributeT< XE::NonSerializeAttribute >() == nullptr )
 							{
@@ -54,7 +54,7 @@ void XE::ReflectObject::Serialize( XE::OArchive & archive ) const
 
 void XE::ReflectObject::Deserialize( XE::IArchive & archive )
 {
-	GetMetaClass()->VisitProperty( [&]( const XE::MetaPropertyPtr & prop )
+	GetMetaClass()->VisitProperty( [&]( const XE::MetaPropertyCPtr & prop )
 						{
 							if( !prop->IsStatic() && prop->FindAttributeT< XE::NonSerializeAttribute >() == nullptr )
 							{

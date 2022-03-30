@@ -112,7 +112,7 @@ void XS::FlagInspector::Refresh()
 					_QComboBox->setItemIcon( index, QIcon( "SkinIcons:/images/common/icon_checkbox_checked.png" ) );
 				}
 
-				GetObjectProxy()->SetValue( XE::VariantData( XE::VariantEnumData( value, GetObjectProxy()->GetValue().GetType() ) ) );
+				GetObjectProxy()->SetValue( XE::VariantEnumData( value, GetObjectProxy()->GetType() ) );
 
 				XE::uint64 all = 0;
 				meta->Visit( [&]( const XE::String & name, const XE::Variant & val )

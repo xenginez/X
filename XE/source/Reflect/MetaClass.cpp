@@ -4,12 +4,12 @@
 #include "MetaProperty.h"
 #include "MetaAttribute.h"
 
-XE::MetaClass::MetaClass( const String & Name, XE::uint64 Size, bool IsAbs, MetaClassPtr Super, MetaInfoPtr Owner, MetaModulePtr Module, const XE::TemplateType & temps )
+XE::MetaClass::MetaClass( const String & Name, XE::uint64 Size, bool IsAbs, MetaClassCPtr Super, MetaInfoCPtr Owner, MetaModuleCPtr Module, const XE::TemplateType & temps )
 	:MetaType( Name, MetaInfoType::CLASS, Size, Owner, Module ), _IsAbstract( IsAbs ), _Super( Super )
 {
 	if( Super )
 	{
-		Super->_DerivedClasses.push_back( this );
+		CP_CAST< XE::MetaClass >( Super )->_DerivedClasses.push_back( this );
 	}
 }
 
@@ -66,7 +66,7 @@ bool XE::MetaClass::CanConvert( const XE::MetaClass * val ) const
 	return false;
 }
 
-bool XE::MetaClass::CanConvert( const XE::MetaClassPtr & val ) const
+bool XE::MetaClass::CanConvert( const XE::MetaClassCPtr & val ) const
 {
 	auto cls = SP_CAST< const MetaClass >( shared_from_this() );
 
@@ -84,22 +84,22 @@ bool XE::MetaClass::CanConvert( const XE::MetaClassPtr & val ) const
 	return false;
 }
 
-XE::MetaClassPtr XE::MetaClass::GetSuper() const
+XE::MetaClassCPtr XE::MetaClass::GetSuper() const
 {
 	return _Super.lock();
 }
 
-const XE::Array< XE::MetaMethodPtr > & XE::MetaClass::GetMethods() const
+const XE::Array< XE::MetaMethodCPtr > & XE::MetaClass::GetMethods() const
 {
 	return _Methods;
 }
 
-const XE::Array< XE::MetaPropertyPtr > & XE::MetaClass::GetPropertys() const
+const XE::Array< XE::MetaPropertyCPtr > & XE::MetaClass::GetPropertys() const
 {
 	return _Propertys;
 }
 
-void XE::MetaClass::VisitMethod( const XE::Delegate< void( const MetaMethodPtr & ) > & val ) const
+void XE::MetaClass::VisitMethod( const XE::Delegate< void( const MetaMethodCPtr & ) > & val ) const
 {
 	for ( auto var : _Methods )
 	{
@@ -111,7 +111,7 @@ void XE::MetaClass::VisitMethod( const XE::Delegate< void( const MetaMethodPtr &
 	}
 }
 
-void XE::MetaClass::VisitProperty( const XE::Delegate< void( const  MetaPropertyPtr & ) > & val ) const
+void XE::MetaClass::VisitProperty( const XE::Delegate< void( const  MetaPropertyCPtr & ) > & val ) const
 {
 	for ( auto var : _Propertys )
 	{
@@ -123,15 +123,15 @@ void XE::MetaClass::VisitProperty( const XE::Delegate< void( const  MetaProperty
 	}
 }
 
-void XE::MetaClass::VisitDerivedClass( const XE::Delegate< void( const  MetaClassPtr & ) > & val ) const
+void XE::MetaClass::VisitDerivedClass( const XE::Delegate< void( const  MetaClassCPtr & ) > & val ) const
 {
 	for ( const auto& var : _DerivedClasses )
 	{
-		val(std::static_pointer_cast< MetaClass >(var->shared_from_this()));
+		val( SP_CAST< const XE::MetaClass>( var->shared_from_this() ) );
 	}
 }
 
-XE::MetaMethodPtr XE::MetaClass::FindMethod( XE::uint64 hash ) const
+XE::MetaMethodCPtr XE::MetaClass::FindMethod( XE::uint64 hash ) const
 {
 	for( auto var : _Methods )
 	{
@@ -149,7 +149,7 @@ XE::MetaMethodPtr XE::MetaClass::FindMethod( XE::uint64 hash ) const
 	return nullptr;
 }
 
-XE::MetaPropertyPtr XE::MetaClass::FindProperty( XE::uint64 hash ) const
+XE::MetaPropertyCPtr XE::MetaClass::FindProperty( XE::uint64 hash ) const
 {
 	for( auto var : _Propertys )
 	{
@@ -167,7 +167,7 @@ XE::MetaPropertyPtr XE::MetaClass::FindProperty( XE::uint64 hash ) const
 	return nullptr;
 }
 
-XE::MetaMethodPtr XE::MetaClass::FindMethod( const String & Name ) const
+XE::MetaMethodCPtr XE::MetaClass::FindMethod( const String & Name ) const
 {
 	for( auto var : _Methods )
 	{
@@ -185,12 +185,12 @@ XE::MetaMethodPtr XE::MetaClass::FindMethod( const String & Name ) const
 	return nullptr;
 }
 
-XE::MetaMethodPtr XE::MetaClass::FindMethod( const String& Name, const ParameterType& Types /*= MakeParameterType() */ ) const
+XE::MetaMethodCPtr XE::MetaClass::FindMethod( const String& Name, const ParameterType& Types /*= MakeParameterType() */ ) const
 {
 	return FindMethod( Name + XE::ToString( Types ) );
 }
 
-XE::MetaPropertyPtr XE::MetaClass::FindProperty( const String& Name ) const
+XE::MetaPropertyCPtr XE::MetaClass::FindProperty( const String& Name ) const
 {
 	for ( auto var : _Propertys )
 	{

@@ -16,7 +16,7 @@ BEG_XE_NAMESPACE
 class XE_API MetaPropertyImpl : public MetaProperty
 {
 public:
-	MetaPropertyImpl( const String & Name, bool IsStatic, bool IsConst, bool IsObject, bool IsPointer, bool IsSharedPtr, bool IsReference, MetaTypePtr Value, MetaClassPtr Owner, MetaModulePtr Module )
+	MetaPropertyImpl( const String & Name, bool IsStatic, bool IsConst, bool IsObject, bool IsPointer, bool IsSharedPtr, bool IsReference, MetaTypeCPtr Value, MetaClassCPtr Owner, MetaModuleCPtr Module )
 		:MetaProperty( Name, IsStatic, IsConst, IsObject, IsPointer, IsSharedPtr, IsReference, Value, Owner, Module )
 	{
 
@@ -53,7 +53,7 @@ public:
 	using PropertyType = ValueType;
 
 public:
-	CXXMetaProperty( const String & Name, PropertyType * Value, MetaClassPtr Owner, MetaModulePtr Module )
+	CXXMetaProperty( const String & Name, PropertyType * Value, MetaClassCPtr Owner, MetaModuleCPtr Module )
 		:MetaPropertyImpl( Name, true, std::is_const_v< ValueType >, !std::is_pointer_v< ValueType > && !std::is_reference_v< ValueType > && !std::is_weak_ptr_v< ValueType > && !std::is_shared_ptr_v< ValueType >, std::is_pointer_v< ValueType >, std::is_shared_ptr_v< ValueType > || std::is_weak_ptr_v< ValueType >, std::is_reference_v< ValueType >, TypeID< typename TypeTraits< ValueType >::raw_t >::Get(), Owner, Module ), _Value( Value )
 	{
 
@@ -94,7 +94,7 @@ public:
 	using PropertyType = ValueType( ClassType:: * );
 
 public:
-	CXXMetaProperty( const String & Name, PropertyType Value, MetaClassPtr Owner, MetaModulePtr Module )
+	CXXMetaProperty( const String & Name, PropertyType Value, MetaClassCPtr Owner, MetaModuleCPtr Module )
 		:MetaPropertyImpl( Name, false, std::is_const_v< ValueType >, !std::is_pointer_v< ValueType > && !std::is_reference_v< ValueType > && !std::is_weak_ptr_v< ValueType > && !std::is_shared_ptr_v< ValueType >, std::is_pointer_v< ValueType >, std::is_shared_ptr_v< ValueType > || std::is_weak_ptr_v< ValueType >, std::is_reference_v< ValueType >, TypeID< typename XE::TypeTraits< ValueType >::raw_t >::Get(), Owner, Module ), _Value( Value )
 	{
 
@@ -137,7 +137,7 @@ public:
 	using SetFuncType = void( * )( _SetType );
 
 public:
-	CXXMetaProperty( const String & Name, GetFuncType get, SetFuncType set, MetaClassPtr Owner, MetaModulePtr Module )
+	CXXMetaProperty( const String & Name, GetFuncType get, SetFuncType set, MetaClassCPtr Owner, MetaModuleCPtr Module )
 		:MetaPropertyImpl( Name, false, false, !std::is_pointer_v< ValueType > && !std::is_reference_v< ValueType > && !std::is_weak_ptr_v< ValueType > && !std::is_shared_ptr_v< ValueType >, std::is_pointer_v< ValueType >, std::is_shared_ptr_v< ValueType > || std::is_weak_ptr_v< ValueType >, std::is_reference_v< ValueType >, TypeID< typename XE::TypeTraits< ValueType >::raw_t >::Get(), Owner, Module ), _GetFunc( get ), _SetFunc( set )
 	{
 
@@ -174,7 +174,7 @@ public:
 	using SetFuncType = void( ClassType:: * )( _SetType );
 
 public:
-	CXXMetaProperty( const String & Name, GetFuncType get, SetFuncType set, MetaClassPtr Owner, MetaModulePtr Module )
+	CXXMetaProperty( const String & Name, GetFuncType get, SetFuncType set, MetaClassCPtr Owner, MetaModuleCPtr Module )
 		:MetaPropertyImpl( Name, false, false, !std::is_pointer_v< ValueType > && !std::is_reference_v< ValueType > && !std::is_weak_ptr_v< ValueType > && !std::is_shared_ptr_v< ValueType >, std::is_pointer_v< ValueType >, std::is_shared_ptr_v< ValueType > || std::is_weak_ptr_v< ValueType >, std::is_reference_v< ValueType >, TypeID< typename XE::TypeTraits< ValueType >::raw_t >::Get(), Owner, Module ), _GetFunc( get ), _SetFunc( set )
 	{
 
@@ -211,7 +211,7 @@ public:
 	using SetFuncType = void( ClassType:: * )( _SetType );
 
 public:
-	CXXMetaProperty( const String & Name, GetFuncType get, SetFuncType set, MetaClassPtr Owner, MetaModulePtr Module )
+	CXXMetaProperty( const String & Name, GetFuncType get, SetFuncType set, MetaClassCPtr Owner, MetaModuleCPtr Module )
 		:MetaPropertyImpl( Name, false, false, !std::is_pointer_v< ValueType > && !std::is_reference_v< ValueType > && !std::is_weak_ptr_v< ValueType > && !std::is_shared_ptr_v< ValueType >, std::is_pointer_v< ValueType >, std::is_shared_ptr_v< ValueType > || std::is_weak_ptr_v< ValueType >, std::is_reference_v< ValueType >, TypeID< typename XE::TypeTraits< ValueType >::raw_t >::Get(), Owner, Module ), _GetFunc( get ), _SetFunc( set )
 	{
 
@@ -247,7 +247,7 @@ public:
 	using GetFuncType = _GetType( * )( );
 
 public:
-	CXXMetaProperty( const String & Name, GetFuncType get, MetaClassPtr Owner, MetaModulePtr Module )
+	CXXMetaProperty( const String & Name, GetFuncType get, MetaClassCPtr Owner, MetaModuleCPtr Module )
 		:MetaPropertyImpl( Name, false, false, !std::is_pointer_v< ValueType > && !std::is_reference_v< ValueType > && !std::is_weak_ptr_v< ValueType > && !std::is_shared_ptr_v< ValueType >, std::is_pointer_v< ValueType >, std::is_shared_ptr_v< ValueType > || std::is_weak_ptr_v< ValueType >, std::is_reference_v< ValueType >, TypeID< typename XE::TypeTraits< ValueType >::raw_t >::Get(), Owner, Module ), _GetFunc( get )
 	{
 
@@ -282,7 +282,7 @@ public:
 	using GetFuncType = _GetType( ClassType:: * )( );
 
 public:
-	CXXMetaProperty( const String & Name, GetFuncType get, MetaClassPtr Owner, MetaModulePtr Module )
+	CXXMetaProperty( const String & Name, GetFuncType get, MetaClassCPtr Owner, MetaModuleCPtr Module )
 		:MetaPropertyImpl( Name, false, false, !std::is_pointer_v< ValueType > && !std::is_reference_v< ValueType > && !std::is_weak_ptr_v< ValueType > && !std::is_shared_ptr_v< ValueType >, std::is_pointer_v< ValueType >, std::is_shared_ptr_v< ValueType > || std::is_weak_ptr_v< ValueType >, std::is_reference_v< ValueType >, TypeID< typename XE::TypeTraits< ValueType >::raw_t >::Get(), Owner, Module ), _GetFunc( get )
 	{
 
@@ -317,7 +317,7 @@ public:
 	using GetFuncType = _GetType( ClassType:: * )( ) const;
 
 public:
-	CXXMetaProperty( const String & Name, GetFuncType get, MetaClassPtr Owner, MetaModulePtr Module )
+	CXXMetaProperty( const String & Name, GetFuncType get, MetaClassCPtr Owner, MetaModuleCPtr Module )
 		:MetaPropertyImpl( Name, false, false, !std::is_pointer_v< ValueType > && !std::is_reference_v< ValueType > && !std::is_weak_ptr_v< ValueType > && !std::is_shared_ptr_v< ValueType >, std::is_pointer_v< ValueType >, std::is_shared_ptr_v< ValueType > || std::is_weak_ptr_v< ValueType >, std::is_reference_v< ValueType >, TypeID< typename XE::TypeTraits< ValueType >::raw_t >::Get(), Owner, Module ), _GetFunc( get )
 	{
 
@@ -352,7 +352,7 @@ public:
 	using SetFuncType = void( * )( _SetType );
 
 public:
-	CXXMetaProperty( const String & Name, SetFuncType set, MetaClassPtr Owner, MetaModulePtr Module )
+	CXXMetaProperty( const String & Name, SetFuncType set, MetaClassCPtr Owner, MetaModuleCPtr Module )
 		:MetaPropertyImpl( Name, false, false, !std::is_pointer_v< ValueType > && !std::is_reference_v< ValueType > && !std::is_weak_ptr_v< ValueType > && !std::is_shared_ptr_v< ValueType >, std::is_pointer_v< ValueType >, std::is_shared_ptr_v< ValueType > || std::is_weak_ptr_v< ValueType >, std::is_reference_v< ValueType >, TypeID< typename XE::TypeTraits< ValueType >::raw_t >::Get(), Owner, Module ), _SetFunc( set )
 	{
 
@@ -381,7 +381,7 @@ public:
 	using SetFuncType = void( ClassType:: * )( _SetType );
 
 public:
-	CXXMetaProperty( const String & Name, SetFuncType set, MetaClassPtr Owner, MetaModulePtr Module )
+	CXXMetaProperty( const String & Name, SetFuncType set, MetaClassCPtr Owner, MetaModuleCPtr Module )
 		:MetaPropertyImpl( Name, false, false, !std::is_pointer_v< ValueType > && !std::is_reference_v< ValueType > && !std::is_weak_ptr_v< ValueType > && !std::is_shared_ptr_v< ValueType >, std::is_pointer_v< ValueType >, std::is_shared_ptr_v< ValueType > || std::is_weak_ptr_v< ValueType >, std::is_reference_v< ValueType >, TypeID< typename XE::TypeTraits< ValueType >::raw_t >::Get(), Owner, Module ), _SetFunc( set )
 	{
 
@@ -410,7 +410,7 @@ public:
 	using SetFuncType = void( ClassType:: * )( _SetType ) const;
 
 public:
-	CXXMetaProperty( const String & Name, SetFuncType set, MetaClassPtr Owner, MetaModulePtr Module )
+	CXXMetaProperty( const String & Name, SetFuncType set, MetaClassCPtr Owner, MetaModuleCPtr Module )
 		:MetaPropertyImpl( Name, false, false, !std::is_pointer_v< ValueType > && !std::is_reference_v< ValueType > && !std::is_weak_ptr_v< ValueType > && !std::is_shared_ptr_v< ValueType >, std::is_pointer_v< ValueType >, std::is_shared_ptr_v< ValueType > || std::is_weak_ptr_v< ValueType >, std::is_reference_v< ValueType >, TypeID< typename XE::TypeTraits< ValueType >::raw_t >::Get(), Owner, Module ), _SetFunc( set )
 	{
 
