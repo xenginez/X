@@ -23,7 +23,8 @@ XS::StringInspector::StringInspector( QWidget * parent /*= nullptr */ )
 
 	_QLineEdit = new QLineEdit( this );
 	QToolButton * button = new QToolButton( this );
-	button->setText( "..." );
+	button->setMaximumWidth( 15 );
+	button->setIcon( QIcon( "SkinIcons:/images/common/icon_radiobutton_checked.png" ) );
 
 	verticalLayout->addWidget( _QLineEdit );
 	verticalLayout->addWidget( button );

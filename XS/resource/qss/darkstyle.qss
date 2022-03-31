@@ -273,7 +273,7 @@ QTreeView, QTableView{
   alternate-background-color:palette(window);
   background:palette(base);
 }
-QTreeView QHeaderView::section, QTableView QHeaderView::section{
+QHeaderView::section, QTableView QHeaderView::section{
   background-color:qlineargradient(x1:0,y1:1,x2:0,y2:0,stop:0 rgba(25,25,25,127),stop:1 rgba(53,53,53,75));
   border-style:none;
   border-bottom:1px solid palette(dark);
@@ -282,28 +282,6 @@ QTreeView QHeaderView::section, QTableView QHeaderView::section{
 }
 QTreeView::item:selected:disabled, QTableView::item:selected:disabled{
   background:rgb(80,80,80);
-}
-QTreeView::branch{
-  background-color:palette(base);
-}
-QTreeView::branch:has-siblings:!adjoins-item{
-  border-image:url(SkinIcons:/images/common/icon_vline.png) 0;
-}
-QTreeView::branch:has-siblings:adjoins-item{
-  border-image:url(SkinIcons:/images/common/icon_branch_more.png) 0;
-}
-QTreeView::branch:!has-children:!has-siblings:adjoins-item{
-  border-image:url(SkinIcons:/images/common/icon_branch_end.png) 0;
-}
-QTreeView::branch:has-children:!has-siblings:closed,
-QTreeView::branch:closed:has-children:has-siblings{
-  border-image:none;
-  image:url(SkinIcons:/images/common/icon_branch_closed.png);
-}
-QTreeView::branch:open:has-children:!has-siblings,
-QTreeView::branch:open:has-children:has-siblings{
-  border-image:none;
-  image:url(SkinIcons:/images/common/icon_branch_open.png);
 }
 QScrollBar:vertical{
   background:palette(base);

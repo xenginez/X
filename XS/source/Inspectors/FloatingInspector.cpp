@@ -30,22 +30,26 @@ void XS::FloatingInspector::Refresh()
 	{
 		_QDoubleSpinBox->setMinimum( attr->GetMin() );
 		_QDoubleSpinBox->setMaximum( attr->GetMax() );
+		_QDoubleSpinBox->setSingleStep( attr->GetStep() );
 	}
 	else
 	{
 		auto type = GetObjectProxy()->GetType();
 		if ( type == TypeID< XE::float16 >::Get() )
 		{
+			_QDoubleSpinBox->setDecimals( 2 );
 			_QDoubleSpinBox->setMinimum( -32768.0f );
 			_QDoubleSpinBox->setMaximum( +32767.0f );
 		}
 		else if ( type == TypeID< XE::float32 >::Get() )
 		{
+			_QDoubleSpinBox->setDecimals( 2 );
 			_QDoubleSpinBox->setMinimum( -2147483648.0f );
 			_QDoubleSpinBox->setMaximum( +2147483647.0f );
 		}
 		else if ( type == TypeID< XE::float64 >::Get() )
 		{
+			_QDoubleSpinBox->setDecimals( 4 );
 			_QDoubleSpinBox->setMinimum( -9223372036854775808.0 );
 			_QDoubleSpinBox->setMaximum( +9223372036854775807.0 );
 		}

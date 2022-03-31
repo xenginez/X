@@ -38,6 +38,7 @@ void XS::ClassInspector::Refresh()
 
 				QTreeWidgetItem * item = new QTreeWidgetItem();
 				{
+					item->setFlags( Qt::NoItemFlags );
 					item->setText( 0, tr( prop->GetName().c_str() ) );
 					item->setData( 0, Qt::UserRole + 1, QVariant::fromValue( proxy ) );
 					item->setToolTip( 0, tr( prop->GetValueType()->GetFullName().c_str() ) );
@@ -46,7 +47,13 @@ void XS::ClassInspector::Refresh()
 
 				auto inspector = Inspector::Create( proxy, this );
 
-				if ( inspector->metaObject()->className() == metaObject()->className() )
+				if ( inspector->metaObject()->inherits( &XS::GroupInspector::staticMetaObject ) )
+				{
+					QTreeWidgetItem * child = new QTreeWidgetItem( item );
+					child->setFlags( Qt::NoItemFlags );
+					_QTreeWidget->setItemWidget( child, 1, inspector );
+				}
+				else if ( inspector->metaObject()->className() == XS::ClassInspector::staticMetaObject.className() )
 				{
 					QTreeWidget * child = dynamic_cast<XS::ClassInspector *>( inspector )->_QTreeWidget;
 					for ( size_t i = 0; i < child->topLevelItemCount(); i++ )
@@ -68,6 +75,7 @@ void XS::ClassInspector::Merge( QTreeWidget * parent, QTreeWidgetItem * parent_i
 {
 	QTreeWidgetItem * item = new QTreeWidgetItem( QStringList() << child_item->text( 0 ) );
 	{
+		item->setFlags( Qt::NoItemFlags );
 		item->setText( 0, child_item->text( 0 ) );
 		item->setToolTip( 0, child_item->toolTip( 0 ) );
 		item->setData( 0, Qt::UserRole + 1, child_item->data( 0, Qt::UserRole + 1 ) );

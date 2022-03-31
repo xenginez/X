@@ -15,7 +15,7 @@
 
 BEG_XS_NAMESPACE
 
-class XS_API ClassInspector : public Inspector
+class XS_API ClassInspector : public XS::Inspector
 {
 	Q_OBJECT
 

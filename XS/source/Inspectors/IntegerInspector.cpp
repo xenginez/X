@@ -35,6 +35,7 @@ void XS::IntegerInspector::Refresh()
 	{
 		_QSpinBox->setMinimum( attr->GetMin() );
 		_QSpinBox->setMaximum( attr->GetMax() );
+		_QSpinBox->setSingleStep( attr->GetStep() );
 	}
 	else
 	{

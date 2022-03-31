@@ -98,3 +98,14 @@ void XS::Inspector::SetContentWidget( QWidget * widget )
 
 	verticalLayout->addWidget( widget );
 }
+
+XS::GroupInspector::GroupInspector( QWidget * parent /*= nullptr */ )
+	:Inspector( parent )
+{
+
+}
+
+XS::GroupInspector::~GroupInspector()
+{
+
+}

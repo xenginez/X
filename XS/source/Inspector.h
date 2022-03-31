@@ -47,6 +47,16 @@ private:
 	XS::ObjectProxyPtr _Proxy = nullptr;
 };
 
+class XS_API GroupInspector : public Inspector
+{
+	Q_OBJECT
+
+public:
+	GroupInspector( QWidget * parent = nullptr );
+
+	~GroupInspector() override;
+};
+
 END_XS_NAMESPACE
 
 #define REG_INSPECTOR( TYPE, NAME ) \
