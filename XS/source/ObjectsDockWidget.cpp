@@ -6,49 +6,6 @@
 
 REG_WIDGET( XS::ObjectsDockWidget );
 
-namespace TestModule
-{
-	IMPLEMENT_META_MODULE( TestModule );
-
-	class TestClass
-	{
-	public:
-		bool b = false;
-		int i = 1;
-		float f = 1.2f;
-		double d = 2.43;
-		XE::String s = "aabbcc";
-	};
-	class TestClass2
-	{
-	public:
-		bool b;
-		TestClass c;
-		float f;
-		XE::Vec2f v2;
-		XE::Vec3f v3;
-		XE::Vec4f v4;
-	};
-	DECL_META_CLASS( TestModule, TestClass );
-	DECL_META_CLASS( TestModule, TestClass2 );
-}
-
-BEG_META( TestModule::TestClass )
-type->Property( "b", &TestModule::TestClass::b );
-type->Property( "i", &TestModule::TestClass::i );
-type->Property( "f", &TestModule::TestClass::f );
-type->Property( "d", &TestModule::TestClass::d );
-type->Property( "s", &TestModule::TestClass::s );
-END_META()
-BEG_META( TestModule::TestClass2 )
-type->Property( "b", &TestModule::TestClass2::b );
-type->Property( "c", &TestModule::TestClass2::c );
-type->Property( "f", &TestModule::TestClass2::f );
-type->Property( "v2", &TestModule::TestClass2::v2 );
-type->Property( "v3", &TestModule::TestClass2::v3 );
-type->Property( "v4", &TestModule::TestClass2::v4 );
-END_META()
-
 XS::ObjectsDockWidget::ObjectsDockWidget( QWidget * parent /*= nullptr */ )
 	:DockWidget( parent ), ui( new Ui::ObjectsDockWidget )
 {
@@ -81,15 +38,6 @@ XS::ObjectsDockWidget::ObjectsDockWidget( QWidget * parent /*= nullptr */ )
 
 	connect( ui->inspector_expand, &QToolButton::clicked, [this]() { if ( _Inspector != nullptr ) _Inspector->Expand(); } );
 	connect( ui->inspector_collapse, &QToolButton::clicked, [this]() { if ( _Inspector != nullptr ) _Inspector->Collapse(); } );
-
-	QTimer::singleShot( 1000, [this]()
-		{
-			TestModule::TestClass2 cls;
-
-			cls.b = true;
-
-			OnInspectorClicked( cls );
-		} );
 }
 
 XS::ObjectsDockWidget::~ObjectsDockWidget()
