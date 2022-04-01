@@ -31,6 +31,9 @@ protected:
 	bool eventFilter( QObject * watched, QEvent * event ) override;
 
 private:
+	void RefreshComboBox( XE::uint64 flag );
+
+private:
 	QComboBox * _QComboBox;
 };
 

@@ -28,12 +28,9 @@ void XS::FlagInspector::Refresh()
 	{
 		_QComboBox->clear();
 
-		auto value = GetObjectProxy()->GetValue().ToUInt64();
-
 		_QComboBox->addItem( tr( "NONE" ) );
 		_QComboBox->addItem( tr( "ALL" ) );
 
-		QString tool_tip; XE::uint64 all = 0;
 		meta->Visit( [&]( const XE::String & name, const XE::Variant & val )
 			{
 				if ( val.ToUInt64() == 0 )
@@ -41,116 +38,53 @@ void XS::FlagInspector::Refresh()
 					return;
 				}
 
-				all |= val.ToUInt64();
-
-				if ( ( value & val.ToUInt64() ) != 0 )
-				{
-					tool_tip += ( name + "\n" ).c_str();
-
-					_QComboBox->addItem( QIcon( "SkinIcons:/images/common/icon_checkbox_checked.png" ), tr( name.c_str() ), true );
-				}
-				else
-				{
-					_QComboBox->addItem( QIcon( "SkinIcons:/images/common/icon_checkbox_unchecked.png" ), tr( name.c_str() ), false );
-				}
+				_QComboBox->addItem( tr( name.c_str() ) );
 			} );
-		if ( tool_tip.isEmpty() )
-		{
-			tool_tip = tr( "NONE" );
-		}
-		else if ( all == value )
-		{
-			tool_tip = tr( "ALL" );
-		}
-		else
-		{
-			tool_tip.remove( tool_tip.size() - 1, 1 );
-		}
-
-		_QComboBox->setToolTip( tool_tip );
 	}
+
+	RefreshComboBox( GetObjectProxy()->GetValue().ToUInt64() );
 
 	connect( _QComboBox, QOverload<int>::of( &QComboBox::currentIndexChanged ), [this]( int index )
 		{
-			QString tool_tip;
-			XE::VariantEnumData data;
-
-			if ( index == 0 )
+			if ( auto meta = SP_CAST< const XE::MetaEnum >( GetObjectProxy()->GetType() ) )
 			{
-				for ( size_t i = 2; i < _QComboBox->count(); i++ )
-				{
-					_QComboBox->setItemData( i, false );
-					_QComboBox->setItemIcon( i, QIcon( "SkinIcons:/images/common/icon_checkbox_unchecked.png" ) );
-				}
-				tool_tip = "NONE";
-			}
-			else if ( index == 1 )
-			{
-				for ( size_t i = 2; i < _QComboBox->count(); i++ )
-				{
-					_QComboBox->setItemData( i, true );
-					_QComboBox->setItemIcon( i, QIcon( "SkinIcons:/images/common/icon_checkbox_checked.png" ) );
-				}
-				tool_tip = "ALL";
-			}
-			else
-			{
-				auto meta = SP_CAST< const XE::MetaEnum >( GetObjectProxy()->GetType() );
-				auto value = GetObjectProxy()->GetValue().ToUInt64();
+				XE::VariantEnumData data( GetObjectProxy()->GetValue().ToUInt64(), meta );
 
-				if ( _QComboBox->itemData( index ).toBool() )
+				// NONE
+				if ( index == 0 )
 				{
-					value &= ~meta->FindValue( _QComboBox->itemText( index ).toStdString() ).ToUInt64();
-
-					_QComboBox->setItemData( index, false );
-					_QComboBox->setItemIcon( index, QIcon( "SkinIcons:/images/common/icon_checkbox_unchecked.png" ) );
+					data.Value = 0;
 				}
+				// ALL
+				else if ( index == 1 )
+				{
+					data.Value = meta->GetFlags();
+				}
+				// OTHER
 				else
 				{
-					value |= meta->FindValue( _QComboBox->itemText( index ).toStdString() ).ToUInt64();
-
-					_QComboBox->setItemData( index, true );
-					_QComboBox->setItemIcon( index, QIcon( "SkinIcons:/images/common/icon_checkbox_checked.png" ) );
-				}
-
-				data = XE::VariantEnumData( value, GetObjectProxy()->GetType() );
-
-				XE::uint64 all = 0;
-				meta->Visit( [&]( const XE::String & name, const XE::Variant & val )
+					if ( _QComboBox->itemData( index ).toBool() )
 					{
-						all |= val.ToUInt64();
+						data.Value &= ~meta->FindValue( _QComboBox->itemText( index ).toStdString() ).ToUInt64();
+					}
+					else
+					{
+						data.Value |= meta->FindValue( _QComboBox->itemText( index ).toStdString() ).ToUInt64();
+					}
+				}
 
-						if ( ( value & val.ToUInt64() ) != 0 )
-						{
-							tool_tip += ( name + "\n" ).c_str();
-						}
-					} );
-
-				if ( tool_tip.isEmpty() )
+				PushUndoCommand( GetObjectProxy()->GetName().c_str(),
+					[this, proxy = GetObjectProxy(), value = data]()
 				{
-					tool_tip = tr( "NONE" );
-				}
-				else if ( all == value )
+					proxy->SetValue( value );
+					RefreshComboBox( value.Value );
+				},
+					[this, proxy = GetObjectProxy(), value = GetObjectProxy()->GetValue()]()
 				{
-					tool_tip = tr( "ALL" );
-				}
-				else
-				{
-					tool_tip.remove( tool_tip.size() - 1, 1 );
-				}
+					proxy->SetValue( value );
+					RefreshComboBox( value.ToUInt64() );
+				} );
 			}
-
-			PushUndoCommand( GetObjectProxy()->GetName().c_str(),
-				[this, proxy = GetObjectProxy(), value = data, tool_tip]()
-			{
-				proxy->SetValue( value );
-				_QComboBox->setToolTip( tool_tip );
-			},
-				[this, proxy = GetObjectProxy(), value = GetObjectProxy()->GetValue(), tool_tip = _QComboBox->toolTip()]()
-			{
-				proxy->SetValue( value );
-				_QComboBox->setToolTip( tool_tip );
-			} );
 		} );
 }
 
@@ -209,4 +143,49 @@ bool XS::FlagInspector::eventFilter( QObject * watched, QEvent * event )
 	}
 
 	return Inspector::eventFilter( watched, event );
+}
+
+void XS::FlagInspector::RefreshComboBox( XE::uint64 flag )
+{
+	auto meta = SP_CAST< const XE::MetaEnum >( GetObjectProxy()->GetType() );
+
+	if ( flag == 0 ) // NONE
+	{
+		for ( size_t i = 2; i < _QComboBox->count(); i++ )
+		{
+			_QComboBox->setItemData( i, false );
+			_QComboBox->setItemIcon( i, QIcon( "SkinIcons:/images/common/icon_checkbox_unchecked.png" ) );
+		}
+		_QComboBox->setToolTip( tr( "NONE" ) );
+	}
+	else if( flag == meta->GetFlags() ) // ALL
+	{
+		for ( size_t i = 2; i < _QComboBox->count(); i++ )
+		{
+			_QComboBox->setItemData( i, true );
+			_QComboBox->setItemIcon( i, QIcon( "SkinIcons:/images/common/icon_checkbox_checked.png" ) );
+		}
+		_QComboBox->setToolTip( tr( "ALL" ) );
+	}
+	else
+	{
+		QString tool_tip;
+		for ( size_t i = 2; i < _QComboBox->count(); i++ )
+		{
+			if ( ( flag & meta->FindValue( _QComboBox->itemText( i ).toStdString() ).ToUInt64() ) != 0 )
+			{
+				tool_tip += ( _QComboBox->itemText( i ) + "\n" );
+
+				_QComboBox->setItemData( i, true );
+				_QComboBox->setItemIcon( i, QIcon( "SkinIcons:/images/common/icon_checkbox_checked.png" ) );
+			}
+			else
+			{
+				_QComboBox->setItemData( i, false );
+				_QComboBox->setItemIcon( i, QIcon( "SkinIcons:/images/common/icon_checkbox_unchecked.png" ) );
+			}
+		}
+		tool_tip.remove( tool_tip.size() - 1, 1 );
+		_QComboBox->setToolTip( tool_tip );
+	}
 }

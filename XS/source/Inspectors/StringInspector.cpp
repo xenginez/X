@@ -1,10 +1,12 @@
 #include "StringInspector.h"
 
 #include <QDialog>
+#include <QTextEdit>
 #include <QToolButton>
 #include <QHBoxLayout>
-
-#include "ui_TextDialog.h"
+#include <QApplication>
+#include <QDesktopWidget>
+#include <QDialogButtonBox>
 
 REG_WIDGET( XS::StringInspector );
 
@@ -35,18 +37,33 @@ XS::StringInspector::StringInspector( QWidget * parent /*= nullptr */ )
 		{
 			QDialog * dialog = new QDialog( this );
 			{
-				Ui::TextDialog ui;
-				ui.setupUi( dialog );
+				auto desktop_rect = QApplication::desktop()->screenGeometry( 0 );
+
+				dialog->resize( desktop_rect.width() * 0.3f, desktop_rect.height() * 0.6f );
+
+				auto verticalLayout = new QVBoxLayout( dialog );
+				auto textEdit = new QTextEdit( dialog );
+				textEdit->setText( _QLineEdit->text() );
+				auto cursor = textEdit->textCursor();
+				cursor.movePosition( QTextCursor::End );
+				textEdit->setTextCursor( cursor );
+
+				verticalLayout->addWidget( textEdit );
+
+				auto buttonBox = new QDialogButtonBox( dialog );
+				buttonBox->setOrientation( Qt::Horizontal );
+				buttonBox->setStandardButtons( QDialogButtonBox::Cancel | QDialogButtonBox::Ok );
+
+				verticalLayout->addWidget( buttonBox );
+
+				QObject::connect( buttonBox, SIGNAL( accepted() ), dialog, SLOT( accept() ) );
+				QObject::connect( buttonBox, SIGNAL( rejected() ), dialog, SLOT( reject() ) );
 
 				dialog->setWindowTitle( GetObjectProxy()->GetName().c_str() );
 				dialog->setWindowFlags( Qt::Dialog | Qt::WindowCloseButtonHint );
 
-				ui.textEdit->setText( _QLineEdit->text() );
-				auto cursor = ui.textEdit->textCursor();
-				cursor.movePosition( QTextCursor::End );
-				ui.textEdit->setTextCursor( cursor );
 
-				auto callback = [this, dialog, text = ui.textEdit]( bool accept )
+				auto callback = [this, dialog, text = textEdit]( bool accept )
 				{
 					if ( accept )
 					{
@@ -56,9 +73,8 @@ XS::StringInspector::StringInspector( QWidget * parent /*= nullptr */ )
 					dialog->deleteLater();
 				};
 
+				connect( dialog, &QDialog::accepted, [callback]() { callback( true ); } );
 				connect( dialog, &QDialog::rejected, [callback]() { callback( false ); } );
-				connect( ui.buttonBox, &QDialogButtonBox::accepted, [callback]() { callback( true ); } );
-				connect( ui.buttonBox, &QDialogButtonBox::rejected, [callback]() { callback( false ); } );
 			}
 			dialog->show();
 		} );
