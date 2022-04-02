@@ -4,15 +4,31 @@
 #include <QFileInfo>
 #include <QDataStream>
 #include <QApplication>
+#include <QDesktopWidget>
+
 
 XStudio::EditorWindow::EditorWindow( const QString & project, QWidget * parent /*= nullptr */ )
-	:XS::FramelessWindow( parent )
+	:XS::MainWindow( parent )
 {
 	setObjectName( "XStudio" );
 
-	setWindowTitle( project );
+	SetWindowTitle( project );
 
-	removeCentralwidget();
+	QMenu * e_file = new QMenu( tr( "&File" ) );
+	QAction * a_file = new QAction( "&11111" ); a_file->setShortcut( QKeySequence( "ALT + F" ) );
+	e_file->addAction( a_file );
+	QMenu * e_edit = new QMenu( tr( "&Edit" ) ); e_edit->addAction( new QAction( "11111" ) );
+	QMenu * e_view = new QMenu( tr( "&View" ) ); e_view->addAction( new QAction( "11111" ) );
+	QMenu * e_plug = new QMenu( tr( "&Plugin" ) ); e_plug->addAction( new QAction( "11111" ) );
+	QMenu * e_help = new QMenu( tr( "&Help" ) ); e_help->addAction( new QAction( "11111" ) );
+
+	menuBar()->addMenu( e_file );
+	menuBar()->addMenu( e_edit );
+	menuBar()->addMenu( e_view );
+	menuBar()->addMenu( e_plug );
+	menuBar()->addMenu( e_help );
+
+	RemoveCentralwidget();
 }
 
 XStudio::EditorWindow::~EditorWindow()
@@ -22,7 +38,7 @@ XStudio::EditorWindow::~EditorWindow()
 
 void XStudio::EditorWindow::showEvent( QShowEvent * e )
 {
-	XS::FramelessWindow::showEvent( e );
+	XS::MainWindow::showEvent( e );
 
 	if ( QFileInfo::exists( "./layout.ini" ) )
 	{
@@ -33,6 +49,8 @@ void XStudio::EditorWindow::showEvent( QShowEvent * e )
 	}
 	else
 	{
+		setGeometry( QApplication::desktop()->screenGeometry( 0 ) );
+
 		auto objects = new XS::ObjectsDockWidget( this ); objects->show();
 		auto assets = new XS::AssetsDockWidget( this ); assets->show();
 		auto edit = new XS::EditSceneDockWidget( this ); edit->show();
@@ -67,5 +85,5 @@ void XStudio::EditorWindow::closeEvent( QCloseEvent * e )
 	Save( settings );
 	SaveShortcuts( QApplication::applicationDirPath() + "/shortcuts.json" );
 
-	XS::FramelessWindow::closeEvent( e );
+	XS::MainWindow::closeEvent( e );
 }

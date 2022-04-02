@@ -1,5 +1,4 @@
 #include <QApplication>
-#include <QDesktopWidget>
 
 #include "EditorWindow.h"
 
@@ -20,11 +19,9 @@ int main( int argc, char * argv[] )
 
 	a.setStyle( new XS::Skin( QApplication::applicationDirPath() + "/resource/qss/darkstyle.qss" ) );
 
-	XStudio::EditorWindow EditorWindow( project );
+	XStudio::EditorWindow window( project );
 
-	EditorWindow.setGeometry( QApplication::desktop()->screenGeometry( 0 ) );
-
-	EditorWindow.show();
+	window.show();
 
 	return a.exec();
 }

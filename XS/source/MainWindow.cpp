@@ -1,6 +1,6 @@
-#include "FramelessWindow.h"
+#include "MainWindow.h"
 
-#include "ui_FramelessWindow.h"
+#include "ui_MainWindow.h"
 
 #include <QFile>
 #include <QJsonArray>
@@ -10,8 +10,8 @@
 
 #include "DockWidget.h"
 
-XS::FramelessWindow::FramelessWindow( QWidget * parent )
-	: QMainWindow( parent, Qt::FramelessWindowHint | Qt::WindowSystemMenuHint ), ui( new Ui::FramelessWindow )
+XS::MainWindow::MainWindow( QWidget * parent )
+	: QMainWindow( parent, Qt::FramelessWindowHint | Qt::WindowSystemMenuHint ), ui( new Ui::MainWindow )
 {
 	ui->setupUi( this );
 
@@ -20,29 +20,29 @@ XS::FramelessWindow::FramelessWindow( QWidget * parent )
 	ui->menuBar->hideRestoreButton();
 	ui->icon->setPixmap( QPixmap( "SkinIcons:/images/common/icon_title.png" ) );
 
-	connect( ui->menuBar, &MenuBar::CloseButtonClicked, this, &FramelessWindow::OnCloseButtonClicked );
-	connect( ui->menuBar, &MenuBar::MenuBarDoubleClicked, this, &FramelessWindow::OnMenuBarDoubleClicked );
-	connect( ui->menuBar, &MenuBar::RestoreButtonClicked, this, &FramelessWindow::OnRestoreButtonClicked );
-	connect( ui->menuBar, &MenuBar::MinimizeButtonClicked, this, &FramelessWindow::OnMinimizeButtonClicked );
-	connect( ui->menuBar, &MenuBar::MaximizeButtonClicked, this, &FramelessWindow::OnMaximizeButtonClicked );
+	connect( ui->menuBar, &MenuBar::CloseButtonClicked, this, &MainWindow::OnCloseButtonClicked );
+	connect( ui->menuBar, &MenuBar::MenuBarDoubleClicked, this, &MainWindow::OnMenuBarDoubleClicked );
+	connect( ui->menuBar, &MenuBar::RestoreButtonClicked, this, &MainWindow::OnRestoreButtonClicked );
+	connect( ui->menuBar, &MenuBar::MinimizeButtonClicked, this, &MainWindow::OnMinimizeButtonClicked );
+	connect( ui->menuBar, &MenuBar::MaximizeButtonClicked, this, &MainWindow::OnMaximizeButtonClicked );
 }
 
-XS::FramelessWindow::~FramelessWindow()
+XS::MainWindow::~MainWindow()
 {
 	delete ui;
 }
 
-void XS::FramelessWindow::AddUndoStack( QUndoStack * val )
+void XS::MainWindow::AddUndoStack( QUndoStack * val )
 {
 	_UndoGroup->addStack( val );
 }
 
-void XS::FramelessWindow::RemoveUndoStack( QUndoStack * val )
+void XS::MainWindow::RemoveUndoStack( QUndoStack * val )
 {
 	_UndoGroup->removeStack( val );
 }
 
-bool XS::FramelessWindow::setContent( QWidget * w )
+bool XS::MainWindow::SetContent( QWidget * w )
 {
 	if ( ui->centralwidget == nullptr )
 	{
@@ -62,76 +62,68 @@ bool XS::FramelessWindow::setContent( QWidget * w )
 	return true;
 }
 
-void XS::FramelessWindow::removeCentralwidget()
+void XS::MainWindow::SetWindowIcon( const QIcon & ico )
+{
+	QMainWindow::setWindowIcon( ico );
+
+	ui->menuBar->setWindowIcon( ico );
+}
+
+void XS::MainWindow::SetWindowTitle( const QString & text )
+{
+	QMainWindow::setWindowTitle( text );
+
+	ui->menuBar->setWindowTitle( text );
+}
+
+void XS::MainWindow::RemoveCentralwidget()
 {
 	ui->centralwidget->deleteLater();
 	ui->centralwidget = nullptr;
 }
 
-void XS::FramelessWindow::setWindowIcon( const QIcon & ico )
-{
-	ui->menuBar->setIcon( ico.pixmap( 16, 16 ) );
-}
-
-void XS::FramelessWindow::setWindowTitle( const QString & text )
-{
-	ui->menuBar->setTitle( text );
-}
-
-void XS::FramelessWindow::enableWindowIcon()
-{
-	ui->menuBar->setIconVisable( true );
-	ui->menuBar->showIcon();
-}
-
-void XS::FramelessWindow::disableWindowIcon()
-{
-	ui->menuBar->setIconVisable( false );
-	ui->menuBar->hideIcon();
-}
-
-void XS::FramelessWindow::enableRestoreButton()
+void XS::MainWindow::enableRestoreButton()
 {
 	ui->menuBar->setRestoreButtonVisable( true );
 	ui->menuBar->showRestoreButton();
 }
 
-void XS::FramelessWindow::disableRestoreButton()
+void XS::MainWindow::disableRestoreButton()
 {
 	ui->menuBar->setRestoreButtonVisable( false );
 	ui->menuBar->hideRestoreButton();
 }
 
-void XS::FramelessWindow::enableMinimizeButton()
+void XS::MainWindow::enableMinimizeButton()
 {
 	ui->menuBar->setMinimizeButtonVisable( true );
 	ui->menuBar->showMinimizeButton();
 }
 
-void XS::FramelessWindow::disableMinimizeButton()
+void XS::MainWindow::disableMinimizeButton()
 {
 	ui->menuBar->setMinimizeButtonVisable( false );
 	ui->menuBar->hideMinimizeButton();
 }
 
-void XS::FramelessWindow::enableMaximizeButton()
+void XS::MainWindow::enableMaximizeButton()
 {
 	ui->menuBar->setMaximizeButtonVisable( true );
 	ui->menuBar->showMaximizeButton();
 }
 
-void XS::FramelessWindow::disableMaximizeButton()
+void XS::MainWindow::disableMaximizeButton()
 {
 	ui->menuBar->setMaximizeButtonVisable( false );
 	ui->menuBar->hideMaximizeButton();
 }
 
-void XS::FramelessWindow::OnCloseButtonClicked()
+void XS::MainWindow::OnCloseButtonClicked()
 {
 	close();
 }
 
-void XS::FramelessWindow::OnMenuBarDoubleClicked()
+void XS::MainWindow::OnMenuBarDoubleClicked()
 {
 	if ( QMainWindow::isMaximized() )
 	{
@@ -143,22 +135,22 @@ void XS::FramelessWindow::OnMenuBarDoubleClicked()
 	}
 }
 
-void XS::FramelessWindow::OnRestoreButtonClicked()
+void XS::MainWindow::OnRestoreButtonClicked()
 {
 	show();
 }
 
-void XS::FramelessWindow::OnMinimizeButtonClicked()
+void XS::MainWindow::OnMinimizeButtonClicked()
 {
 	showMinimized();
 }
 
-void XS::FramelessWindow::OnMaximizeButtonClicked()
+void XS::MainWindow::OnMaximizeButtonClicked()
 {
 	showMaximized();
 }
 
-void XS::FramelessWindow::show()
+void XS::MainWindow::show()
 {
 	if( ui->menuBar->MaximizeButtonVisable() )
 	{
@@ -167,15 +159,15 @@ void XS::FramelessWindow::show()
 
 	ui->menuBar->hideRestoreButton();
 
-	QMainWindow::show();
+	QMainWindow::showNormal();
 }
 
-void XS::FramelessWindow::showMinimized()
+void XS::MainWindow::showMinimized()
 {
 	QMainWindow::showMinimized();
 }
 
-void XS::FramelessWindow::showMaximized()
+void XS::MainWindow::showMaximized()
 {
 	if( ui->menuBar->RestoreButtonVisable() )
 	{
@@ -187,7 +179,7 @@ void XS::FramelessWindow::showMaximized()
 	QMainWindow::showMaximized();
 }
 
-void XS::FramelessWindow::Save( QSettings & settings )
+void XS::MainWindow::Save( QSettings & settings )
 {
 	settings.beginGroup( objectName() );
 	{
@@ -215,7 +207,7 @@ void XS::FramelessWindow::Save( QSettings & settings )
 	settings.endGroup();
 }
 
-void XS::FramelessWindow::Load( QSettings & settings )
+void XS::MainWindow::Load( QSettings & settings )
 {
 	settings.beginGroup( objectName() );
 	{
@@ -253,11 +245,30 @@ void XS::FramelessWindow::Load( QSettings & settings )
 			docks[i]->setMinimumSize( QSize( 0, 0 ) );
 			docks[i]->setMaximumSize( QSize( 65536, 65536 ) );
 		}
+
+		QApplication::processEvents();
+
+		if ( QMainWindow::isMaximized() )
+		{
+			if ( ui->menuBar->RestoreButtonVisable() )
+			{
+				ui->menuBar->showRestoreButton();
+			}
+			ui->menuBar->hideMaximizeButton();
+		}
+		else
+		{
+			if ( ui->menuBar->MaximizeButtonVisable() )
+			{
+				ui->menuBar->showMaximizeButton();
+			}
+			ui->menuBar->hideRestoreButton();
+		}
 	}
 	settings.endGroup();
 }
 
-void XS::FramelessWindow::SaveShortcuts( const QString & path )
+void XS::MainWindow::SaveShortcuts( const QString & path )
 {
 	QJsonObject obj;
 	{
@@ -275,7 +286,7 @@ void XS::FramelessWindow::SaveShortcuts( const QString & path )
 	}
 }
 
-void XS::FramelessWindow::LoadShortcuts( const QString & path )
+void XS::MainWindow::LoadShortcuts( const QString & path )
 {
 	QFile file( path );
 	if ( file.open( QIODevice::ReadOnly | QIODevice::Text ) )
@@ -291,7 +302,7 @@ void XS::FramelessWindow::LoadShortcuts( const QString & path )
 	}
 }
 
-QShortcut * XS::FramelessWindow::AddShortcuts( const QString & name, const QKeySequence & key, QWidget * widget )
+QShortcut * XS::MainWindow::AddShortcuts( const QString & name, const QKeySequence & key, QWidget * widget )
 {
 	auto it = _Shortcuts.find( name );
 	if ( it != _Shortcuts.end() )

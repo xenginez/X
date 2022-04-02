@@ -13,7 +13,7 @@
 
 namespace XStudio
 {
-	class EditorWindow : public XS::FramelessWindow
+	class EditorWindow : public XS::MainWindow
 	{
 		Q_OBJECT
 

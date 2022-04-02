@@ -27,18 +27,6 @@ public:
 	~MenuBar();
 
 public:
-	QPixmap icon() const;
-	void setIcon( const QPixmap & val );
-
-	QString title() const;
-	void setTitle( const QString & val );
-
-public:
-	void showIcon();
-	void hideIcon();
-	bool IconVisable() const;
-	void setIconVisable( bool val );
-
 	void showRestoreButton();
 	void hideRestoreButton();
 	bool RestoreButtonVisable() const;
@@ -66,23 +54,17 @@ protected:
 	void mousePressEvent( QMouseEvent * event ) override;
 	void mouseMoveEvent( QMouseEvent * event ) override;
 	void mouseReleaseEvent( QMouseEvent * event ) override;
-	bool eventFilter( QObject * obj, QEvent * event ) override;
+	void mouseDoubleClickEvent( QMouseEvent * event ) override;
 
 private:
-	QRect actionRect( QAction * action ) const;
-	QAction * actionAt( const QPoint & val ) const;
-
-private:
-	QPoint _Pos, _WPos;
 	bool _MoveFlag = false;
+	QPoint _MovePos = QPoint( 0, 0 );
 
-	QLabel * _Icon = nullptr;
 	QLabel * _Title = nullptr;
 	QToolButton * _Close = nullptr;
 	QToolButton * _Restore = nullptr;
 	QToolButton * _Minimize = nullptr;
 	QToolButton * _Maximize = nullptr;
-	QList< QToolButton * > _Actions;
 };
 
 END_XS_NAMESPACE

@@ -10,40 +10,9 @@
 
 #include "Skin.h"
 
-#define ICON_SIZE ( 16 )
-#define SPACE_SIZE ( 10 )
-#define TITLE_SPACE_SIZE ( 10 )
-
 XS::MenuBar::MenuBar( QWidget * parent /*= nullptr */ )
 	:QMenuBar( parent )
 {
-	// icon
-	{
-		_Icon = new QLabel( this );
-		_Icon->setObjectName( QString::fromUtf8( "icon" ) );
-		_Icon->setMinimumSize( QSize( ICON_SIZE, ICON_SIZE ) );
-		_Icon->setMaximumSize( QSize( ICON_SIZE, ICON_SIZE ) );
-		_Icon->setContextMenuPolicy( Qt::NoContextMenu );
-		_Icon->setStyleSheet( QString::fromUtf8( "#icon {background-color:palette(shadow);}" ) );
-		_Icon->setPixmap( QApplication::style()->standardIcon( QStyle::SP_DesktopIcon ).pixmap( ICON_SIZE, ICON_SIZE ) );
-		setIconVisable( true );
-	}
-
-	// title
-	{
-		_Title = new QLabel( this );
-		_Title->setObjectName( QString::fromUtf8( "title" ) );
-		QFont font;
-		font.setBold( true );
-		font.setWeight( 75 );
-		_Title->setFont( font );
-		_Title->setText( "Welcome X Studio" );
-		_Title->setAlignment( Qt::AlignLeading | Qt::AlignLeft | Qt::AlignVCenter );
-		_Title->setStyleSheet( QString::fromUtf8( "padding-left:5px;" ) );
-
-		_Title->installEventFilter( this );
-	}
-
 	// close
 	{
 		_Close = new QToolButton( this );
@@ -124,71 +93,18 @@ XS::MenuBar::MenuBar( QWidget * parent /*= nullptr */ )
 		connect( _Maximize, &QToolButton::clicked, this, &MenuBar::MaximizeButtonClicked );
 	}
 
-	// actions list
+	// title
 	{
-		for( int i = 0; i < 10; i++ )
-		{
-			auto tool = new QToolButton( this );
-			tool->setObjectName( QString::fromUtf8( "toolButton_%0" ).arg( i + 2 ) );
-			tool->setStyleSheet( QString::fromUtf8( "#%0{ background-color:none; border:none; } #%0:hover{ background-color:palette(alternate-base); }" )
-								 .arg( tool->objectName() ) );
-			_Actions.push_back( tool );
-		}
+		_Title = new QLabel( this );
+		_Title->setObjectName( QString::fromUtf8( "Title" ) );
 	}
 }
 
 XS::MenuBar::~MenuBar()
 {
-	setIconVisable( false );
 	setRestoreButtonVisable( false );
 	setMinimizeButtonVisable( false );
 	setMaximizeButtonVisable( false );
-
-	for( auto & it : _Actions )
-	{
-		it->setUserData( 0, nullptr );
-	}
-	_Actions.clear();
-}
-
-QPixmap XS::MenuBar::icon() const
-{
-	return *_Icon->pixmap();
-}
-
-void XS::MenuBar::setIcon( const QPixmap & val )
-{
-	_Icon->setPixmap( val );
-}
-
-QString XS::MenuBar::title() const
-{
-	return _Title->text();
-}
-
-void XS::MenuBar::setTitle( const QString & val )
-{
-	_Title->setText( val );
-}
-
-void XS::MenuBar::showIcon()
-{
-	_Icon->show();
-}
-
-void XS::MenuBar::hideIcon()
-{
-	_Icon->hide();
-}
-
-bool XS::MenuBar::IconVisable() const
-{
-	return _Icon->userData( Qt::UserRole + 101 ) != nullptr;
-}
-
-void XS::MenuBar::setIconVisable( bool val )
-{
-	_Icon->setUserData( Qt::UserRole + 101, val ? (QObjectUserData *)0xFFFFFFFFFFFFFFFF : nullptr );
 }
 
 void XS::MenuBar::showRestoreButton()
@@ -253,228 +169,113 @@ void XS::MenuBar::setMaximizeButtonVisable( bool val )
 
 void XS::MenuBar::paintEvent( QPaintEvent * event )
 {
-	const QRect & rrect = rect();
-	int left = 0;
+	QMenuBar::paintEvent( event );
+
+	QRect rrect = rect();
 	int right = rrect.width();
 
-	if( !_Icon->isHidden() )
+	if ( !_Close->isHidden() )
 	{
-		left += SPACE_SIZE;
-		_Icon->move( left, ( rrect.height() - _Icon->width() ) / 2 );
-		left += _Icon->width() + SPACE_SIZE;
+		_Close->move( right - rrect.height(), 0 );
+		_Close->resize( rrect.height(), rrect.height() );
+		right -= rrect.height();
 	}
-	if( !_Close->isHidden() )
+	if ( !_Restore->isHidden() )
 	{
-		_Close->move( right - rect().height(), 0 );
-		_Close->resize( rect().height(), rect().height() );
-		right -= rect().height();
+		_Restore->move( right - rrect.height(), 0 );
+		_Restore->resize( rrect.height(), rrect.height() );
+		right -= rrect.height();
 	}
-	if( !_Restore->isHidden() )
+	if ( !_Maximize->isHidden() )
 	{
-		_Restore->move( right - rect().height(), 0 );
-		_Restore->resize( rect().height(), rect().height() );
-		right -= rect().height();
+		_Maximize->move( right - rrect.height(), 0 );
+		_Maximize->resize( rrect.height(), rrect.height() );
+		right -= rrect.height();
 	}
-	if( !_Maximize->isHidden() )
+	if ( !_Minimize->isHidden() )
 	{
-		_Maximize->move( right - rect().height(), 0 );
-		_Maximize->resize( rect().height(), rect().height() );
-		right -= rect().height();
-	}
-	if( !_Minimize->isHidden() )
-	{
-		_Minimize->move( right - rect().height(), 0 );
-		_Minimize->resize( rect().height(), rect().height() );
-		right -= rect().height();
+		_Minimize->move( right - rrect.height(), 0 );
+		_Minimize->resize( rrect.height(), rrect.height() );
+		right -= rrect.height();
 	}
 
 	{
-		int i = 0;
-		auto list = actions();
-
-		for( ; i < list.count(); i++ )
+		int left = 0;
+		auto fm = fontMetrics();
+		int itemSpacing = style()->pixelMetric( QStyle::PM_MenuBarItemSpacing, 0, this );
+		for ( const auto & it : actions() )
 		{
-			if( _Actions.count() <= i )
+			if ( it->isVisible() )
 			{
-				QToolButton * tool = new QToolButton( this );
-				_Actions.push_back( tool );
-			}
-
-			_Actions[i]->show();
-
-			auto action = (QAction *)_Actions[i]->userData( 0 );
-
-			if( action == nullptr || action != list[i] )
-			{
-				auto tool = _Actions[i];
-
-				if( action != nullptr )
+				if ( !it->isSeparator() )
 				{
-					tool->disconnect();
+					QStyleOptionMenuItem opt;
+					initStyleOption( &opt, it );
+					left += style()->sizeFromContents( QStyle::CT_MenuBarItem, &opt, fm.size( Qt::TextShowMnemonic, it->text() ), this ).width();
 				}
 
-				tool->setText( list[i]->text() );
-				tool->setIcon( list[i]->icon() );
-				tool->setUserData( 0, (QObjectUserData *)list[i] );
-				connect( tool, &QToolButton::clicked, list[i], [this, i]()
-				{ 
-					auto action = (QAction *)_Actions[i]->userData( 0 );
-
-					if( activeAction() != action )
-					{
-						setActiveAction( action );
-					}
-				} );
+				left += itemSpacing;
 			}
-
-			auto rect = actionRect( list[i] );
-			_Actions[i]->move( rect.left(), 0 );
-			_Actions[i]->resize( rect.width(), rect.height() );
-
-			if( list[i]->menu() != nullptr )
-			{
-				auto p = mapToGlobal( { rect.left(), rect.bottom() } );
-				list[i]->menu()->move( p );
-			}
-
-			left = rect.left() + rect.width();
 		}
 
-		for( int j = i; j < _Actions.count(); j++ )
-		{
-			_Actions[j]->hide();
-		}
-	}
-
-	{
 		QPainter p( this );
-		QRegion emptyArea( rect() );
-
-		//draw border
-		if( int fw = style()->pixelMetric( QStyle::PM_MenuBarPanelWidth, 0, this ) )
+		QRect r( left + ( itemSpacing * 2 ), 0, fm.size( Qt::TextShowMnemonic, windowTitle() ).width(), rrect.height() );
+		QStyleOptionMenuItem opt;
 		{
-			QRegion borderReg;
-			borderReg += QRect( 0, 0, fw, height() ); //left
-			borderReg += QRect( width() - fw, 0, fw, height() ); //right
-			borderReg += QRect( 0, 0, width(), fw ); //top
-			borderReg += QRect( 0, height() - fw, width(), fw ); //bottom
-			p.setClipRegion( borderReg );
-			emptyArea -= borderReg;
-			QStyleOptionFrame frame;
-			frame.rect = rect();
-			frame.palette = palette();
-			frame.state = QStyle::State_None;
-			frame.lineWidth = style()->pixelMetric( QStyle::PM_MenuBarPanelWidth );
-			frame.midLineWidth = 0;
-			style()->drawPrimitive( QStyle::PE_PanelMenuBar, &frame, &p, this );
+			opt.palette = palette();
+			opt.palette.setColor( QPalette::ButtonText, opt.palette.color( QPalette::Disabled, QPalette::ButtonText ) );
+			opt.state = QStyle::State_None;
+			opt.state |= QStyle::State_Enabled;
+			opt.fontMetrics = fontMetrics();
+			opt.menuRect = rect();
+			opt.menuItemType = QStyleOptionMenuItem::Normal;
+			opt.checkType = QStyleOptionMenuItem::NotCheckable;
+			opt.text = windowTitle();
+			opt.rect = r;
 		}
-		p.setClipRegion( emptyArea );
-		QStyleOptionMenuItem menuOpt;
-		menuOpt.palette = palette();
-		menuOpt.state = QStyle::State_None;
-		menuOpt.menuItemType = QStyleOptionMenuItem::EmptyArea;
-		menuOpt.checkType = QStyleOptionMenuItem::NotCheckable;
-		menuOpt.rect = rect();
-		menuOpt.menuRect = rect();
-		style()->drawControl( QStyle::CE_MenuBarEmptyArea, &menuOpt, &p, this );
-	}
-
-	if( !_Title->text().isEmpty() )
-	{
-		left += SPACE_SIZE;
-		_Title->setToolTip( toolTip() );
-		_Title->move( left, 0 );
-		_Title->resize( right - left, rrect.height() );
+		p.setClipRect( r );
+		style()->drawControl( QStyle::CE_MenuBarItem, &opt, &p, this );
 	}
 }
 
 void XS::MenuBar::mousePressEvent( QMouseEvent * event )
 {
-	setActiveAction( actionAt( event->pos() ) );
-
-	QWidget::mousePressEvent( event );
+	if ( !window()->isMaximized() && actionAt( event->pos() ) == nullptr )
+	{
+		_MoveFlag = true;
+		_MovePos = event->globalPos();
+	}
+	else
+	{
+		_MoveFlag = false;
+		QMenuBar::mousePressEvent( event );
+	}
 }
 
 void XS::MenuBar::mouseMoveEvent( QMouseEvent * event )
 {
-	auto active = activeAction();
-
-	if( active != nullptr )
+	if ( !window()->isMaximized() && actionAt( event->pos() ) == nullptr && _MoveFlag )
 	{
-		auto action = actionAt( event->pos() );
-
-		if( active != action )
-		{
-			setActiveAction( action );
-		}
-
-		update();
+		window()->move( window()->pos() + ( event->globalPos() - _MovePos ) );
+		_MovePos = event->globalPos();
 	}
-
-	QWidget::mouseMoveEvent( event );
+	else
+	{
+		_MoveFlag = false;
+		QMenuBar::mousePressEvent( event );
+	}
 }
 
 void XS::MenuBar::mouseReleaseEvent( QMouseEvent * event )
 {
-	setActiveAction( nullptr );
-
-	QWidget::mouseReleaseEvent( event );
+	_MoveFlag = false;
+	QMenuBar::mousePressEvent( event );
 }
 
-QRect XS::MenuBar::actionRect( QAction * action ) const
+void XS::MenuBar::mouseDoubleClickEvent( QMouseEvent * event )
 {
-	auto rect = actionGeometry( action );
-
-	int offset = 0;
-
-	if( !_Icon->isHidden() )
+	if ( actionAt( event->pos() ) == nullptr && ( !_Maximize->isHidden() || !_Restore->isHidden() ) )
 	{
-		offset += _Icon->width() + SPACE_SIZE;
+		emit MenuBarDoubleClicked();
 	}
-
-	return { rect.left() + SPACE_SIZE + offset, rect.top(), rect.width(), rect.height() };
-}
-
-QAction * XS::MenuBar::actionAt( const QPoint & val ) const
-{
-	int offset = 0;
-
-	if( !_Icon->isHidden() )
-	{
-		offset += _Icon->width() + SPACE_SIZE;
-	}
-
-	return QMenuBar::actionAt( QPoint( val.x() - SPACE_SIZE - offset, val.y() ) );
-}
-
-bool XS::MenuBar::eventFilter( QObject * obj, QEvent * event )
-{
-	if( obj == _Title )
-	{
-		if( parentWidget()->windowState().testFlag( Qt::WindowMaximized ) )
-		{
-			_MoveFlag = false;
-		}
-		else if( event->type() == QEvent::MouseButtonPress )
-		{
-			_MoveFlag = true;
-			_Pos = ( (QMouseEvent *)( event ) )->globalPos();
-			_WPos = parentWidget()->pos();
-		}
-		else if( event->type() == QEvent::MouseMove && _MoveFlag )
-		{
-			parentWidget()->move( _WPos + ( ( (QMouseEvent *)( event ) )->globalPos() - _Pos ) );
-		}
-		else if( event->type() == QEvent::MouseButtonRelease && _MoveFlag )
-		{
-			_MoveFlag = false;
-		}
-		
-		if( event->type() == QEvent::MouseButtonDblClick && ( !_Maximize->isHidden() || !_Restore->isHidden() ) )
-		{
-			emit MenuBarDoubleClicked();
-		}
-	}
-
-	return QMenuBar::eventFilter( obj, event );
 }

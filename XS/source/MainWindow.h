@@ -20,24 +20,25 @@
 
 namespace Ui
 {
-	class FramelessWindow;
+	class MainWindow;
 }
 
 BEG_XS_NAMESPACE
 
-class XS_API FramelessWindow : public QMainWindow
+class XS_API MainWindow : public QMainWindow
 {
 	Q_OBJECT
 
 public:
-	explicit FramelessWindow( QWidget * parent = Q_NULLPTR );
+	explicit MainWindow( QWidget * parent = Q_NULLPTR );
 
-	virtual ~FramelessWindow();
+	virtual ~MainWindow();
 
 public:
-	bool setContent( QWidget * w );
-
-	void removeCentralwidget();
+	bool SetContent( QWidget * w );
+	void SetWindowIcon( const QIcon & ico );
+	void SetWindowTitle( const QString & text );
+	void RemoveCentralwidget();
 
 public:
 	virtual void Save( QSettings & settings );
@@ -51,8 +52,6 @@ public:
 	QShortcut * AddShortcuts( const QString & name, const QKeySequence & key, QWidget * widget );
 
 public:
-	void enableWindowIcon();
-	void disableWindowIcon();
 	void enableRestoreButton();
 	void disableRestoreButton();
 	void enableMinimizeButton();
@@ -65,10 +64,6 @@ public:
 	void showMinimized();
 	void showMaximized();
 
-public slots:
-	void setWindowIcon( const QIcon & ico );
-	void setWindowTitle( const QString & text );
-
 private slots:
 	void OnCloseButtonClicked();
 	void OnMenuBarDoubleClicked();
@@ -77,7 +72,7 @@ private slots:
 	void OnMaximizeButtonClicked();
 
 private:
-	Ui::FramelessWindow * ui;
+	Ui::MainWindow * ui;
 
 private:
 	QUndoGroup * _UndoGroup = nullptr;

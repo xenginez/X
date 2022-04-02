@@ -14,7 +14,7 @@
 #include "MenuBar.h"
 #include "Registry.h"
 #include "DockWidget.h"
-#include "FramelessWindow.h"
+#include "MainWindow.h"
 
 #include "LoggerDockWidget.h"
 #include "AssetsDockWidget.h"

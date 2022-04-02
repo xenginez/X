@@ -11,7 +11,7 @@
 #include <QSpacerItem>
 #include <QHBoxLayout>
 
-#include "FramelessWindow.h"
+#include "MainWindow.h"
 
 XS::DockWidget::DockWidget( QWidget * parent /*= nullptr */ )
 	:QDockWidget( parent )
@@ -20,7 +20,7 @@ XS::DockWidget::DockWidget( QWidget * parent /*= nullptr */ )
 	QDockWidget::setAllowedAreas( Qt::AllDockWidgetAreas );
 
 	_UndoStack = new QUndoStack( this );
-	GetParent< XS::FramelessWindow >()->AddUndoStack( _UndoStack );
+	GetParent< XS::MainWindow >()->AddUndoStack( _UndoStack );
 
 	connect( this, &QDockWidget::topLevelChanged, this, &XS::DockWidget::OnTopLevelChanged );
 
@@ -39,7 +39,7 @@ XS::DockWidget::~DockWidget()
 	{
 		if ( parent->metaObject()->className() == window_name )
 		{
-			dynamic_cast<XS::FramelessWindow *>( parent )->RemoveUndoStack( _UndoStack );
+			dynamic_cast<XS::MainWindow *>( parent )->RemoveUndoStack( _UndoStack );
 			break;
 		}
 		else
@@ -210,5 +210,5 @@ void XS::DockWidget::PushUndoCommand( QUndoCommand * command )
 
 QShortcut * XS::DockWidget::AddShortcuts( const QString & name, const QKeySequence & key )
 {
-	return GetParent< XS::FramelessWindow >()->AddShortcuts( QString( metaObject()->className() ) + "." + name, key, this );
+	return GetParent< XS::MainWindow >()->AddShortcuts( QString( metaObject()->className() ) + "." + name, key, this );
 }
