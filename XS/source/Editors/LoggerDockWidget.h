@@ -9,7 +9,7 @@
 #ifndef LOGGERDOCKWIDGET_H__D7F0249E_2F0C_4385_8D68_B12BF0596FF2
 #define LOGGERDOCKWIDGET_H__D7F0249E_2F0C_4385_8D68_B12BF0596FF2
 
-#include "DockWidget.h"
+#include "../DockWidget.h"
 
 UI_DECL( LoggerDockWidget );
 
@@ -24,6 +24,11 @@ public:
 
 	~LoggerDockWidget();
 
+public:
+	void Save( QSettings & settings ) override;
+
+	void Load( QSettings & settings ) override;
+
 private slots:
 	void OnErrorButtonClicked( bool checked );
 	void OnWarningButtonClicked( bool checked );
@@ -33,6 +38,10 @@ private slots:
 	void OnSearchEditingFinished();
 
 private:
+	void OnLoggerListener( std::chrono::system_clock::time_point time, const char * file, XE::uint32 line, XE::LoggerLevel level, XE::String msg );
+
+private:
+	XE::Disposable _Logger;
 	Ui::LoggerDockWidget * ui;
 };
 

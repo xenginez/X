@@ -9,7 +9,7 @@
 #ifndef ASSETSDOCKWIDGET_H__583A67AC_F146_4C5C_8692_1DE921DD72A4
 #define ASSETSDOCKWIDGET_H__583A67AC_F146_4C5C_8692_1DE921DD72A4
 
-#include "DockWidget.h"
+#include "../DockWidget.h"
 
 UI_DECL( AssetsDockWidget );
 

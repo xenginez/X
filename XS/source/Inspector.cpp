@@ -28,7 +28,7 @@ void XS::Inspector::Register( const XE::MetaTypeCPtr & type, const QString & nam
 	_Registers.insert( type, name );
 }
 
-XS::Inspector * XS::Inspector::Create( const XS::ObjectProxyPtr & proxy, QWidget * parent /*= nullptr */ )
+XS::Inspector * XS::Inspector::Create( XS::ObjectProxy * proxy, QWidget * parent /*= nullptr */ )
 {
 	XS::Inspector * result = nullptr;
 
@@ -78,12 +78,12 @@ void XS::Inspector::Collapse()
 
 }
 
-const XS::ObjectProxyPtr & XS::Inspector::GetObjectProxy()
+XS::ObjectProxy * XS::Inspector::GetObjectProxy()
 {
 	return _Proxy;
 }
 
-void XS::Inspector::SetObjecrProxy( const XS::ObjectProxyPtr & proxy )
+void XS::Inspector::SetObjecrProxy( XS::ObjectProxy * proxy )
 {
 	_Proxy = proxy;
 }

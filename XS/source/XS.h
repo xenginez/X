@@ -16,10 +16,4 @@
 #include "DockWidget.h"
 #include "MainWindow.h"
 
-#include "LoggerDockWidget.h"
-#include "AssetsDockWidget.h"
-#include "ObjectsDockWidget.h"
-#include "EditSceneDockWidget.h"
-#include "GameSceneDockWidget.h"
-
 #endif//XS_H__841996AE_C7A0_4FAA_BE5C_0DA1CD20AB42

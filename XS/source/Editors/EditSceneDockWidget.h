@@ -9,7 +9,7 @@
 #ifndef EDITSCENEDOCKWIDGET_H__B1A324D4_9A9B_402B_B82A_FBE8CAFA1600
 #define EDITSCENEDOCKWIDGET_H__B1A324D4_9A9B_402B_B82A_FBE8CAFA1600
 
-#include "DockWidget.h"
+#include "../DockWidget.h"
 
 UI_DECL( EditSceneDockWidget );
 

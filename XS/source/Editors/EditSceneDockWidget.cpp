@@ -2,8 +2,6 @@
 
 #include "ui_EditSceneDockWidget.h"
 
-#include <Skin.h>
-
 REG_WIDGET( XS::EditSceneDockWidget );
 
 XS::EditSceneDockWidget::EditSceneDockWidget( QWidget * parent /*= nullptr */ )

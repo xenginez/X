@@ -4,8 +4,6 @@
 
 REG_WIDGET( XS::ClassInspector );
 
-Q_DECLARE_METATYPE( XS::ObjectProxyPtr );
-
 XS::ClassInspector::ClassInspector( QWidget * parent /* = nullptr */ )
 	: Inspector( parent )
 {
@@ -29,7 +27,7 @@ void XS::ClassInspector::Refresh()
 	{
 		cls->VisitProperty( [this]( const XE::MetaPropertyCPtr & prop )
 			{
-				auto proxy = XE::MakeShared< XS::ObjectProxy >( GetObjectProxy()->GetValue(), prop );
+				auto proxy = new XS::ObjectProxy( GetObjectProxy()->GetValue(), prop, this );
 
 				if ( proxy->FindAttributeT< XE::NonEditorAttribute >() )
 				{

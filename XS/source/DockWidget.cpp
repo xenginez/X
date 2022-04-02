@@ -73,14 +73,17 @@ void XS::DockWidget::setTitleBar( QWidget * title_bar )
 	fixed->setCheckable( true );
 	fixed->setFixedSize( 20, 20 );
 	fixed->setIcon( QIcon( "SkinIcons:/images/window/icon_window_fixed.png" ) );
+	fixed->setToolTip( tr( "pin the current window" ) );
 
-	QToolButton * flaot = new QToolButton( bar );
-	flaot->setFixedSize( 20, 20 );
-	flaot->setIcon( QIcon( "SkinIcons:/images/window/icon_window_restore.png" ) );
+	QToolButton * floating = new QToolButton( bar );
+	floating->setFixedSize( 20, 20 );
+	floating->setIcon( QIcon( "SkinIcons:/images/window/icon_window_restore.png" ) );
+	floating->setToolTip( tr( "floating the current window" ) );
 
 	QToolButton * close = new QToolButton( bar );
 	close->setFixedSize( 20, 20 );
 	close->setIcon( QIcon( "SkinIcons:/images/window/icon_window_close.png" ) );
+	close->setToolTip( tr( "close the current window" ) );
 
 	QHBoxLayout * layout = new QHBoxLayout( bar );
 	layout->setContentsMargins( 0, 0, 0, 0 );
@@ -92,7 +95,7 @@ void XS::DockWidget::setTitleBar( QWidget * title_bar )
 	layout->addWidget( title_bar );
 	layout->addSpacerItem( space );
 	layout->addWidget( fixed );
-	layout->addWidget( flaot );
+	layout->addWidget( floating );
 	layout->addWidget( close );
 	bar->setLayout( layout );
 
@@ -102,9 +105,9 @@ void XS::DockWidget::setTitleBar( QWidget * title_bar )
 
 	_IconLabel = icon;
 	_FixedButton = fixed;
-	_FloatButton = flaot;
+	_FloatButton = floating;
 	connect( fixed, &QToolButton::clicked, this, &DockWidget::OnFixedClicked );
-	connect( flaot, &QToolButton::clicked, this, &DockWidget::OnFloatClicked );
+	connect( floating, &QToolButton::clicked, this, &DockWidget::OnFloatClicked );
 	connect( close, &QToolButton::clicked, this, &DockWidget::OnCloseClicked );
 
 	bar->installEventFilter( this );

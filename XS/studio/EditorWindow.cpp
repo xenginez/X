@@ -51,11 +51,11 @@ void XStudio::EditorWindow::showEvent( QShowEvent * e )
 	{
 		setGeometry( QApplication::desktop()->screenGeometry( 0 ) );
 
-		auto objects = new XS::ObjectsDockWidget( this ); objects->show();
-		auto assets = new XS::AssetsDockWidget( this ); assets->show();
-		auto edit = new XS::EditSceneDockWidget( this ); edit->show();
-		auto game = new XS::GameSceneDockWidget( this ); game->show();
-		auto log = new XS::LoggerDockWidget( this ); log->show();
+		auto objects = XS::Registry::ConstructT<XS::DockWidget>( "XS::ObjectsDockWidget", this ); objects->show();
+		auto assets = XS::Registry::ConstructT<XS::DockWidget>( "XS::AssetsDockWidget", this ); assets->show();
+		auto edit = XS::Registry::ConstructT<XS::DockWidget>( "XS::EditSceneDockWidget", this ); edit->show();
+		auto game = XS::Registry::ConstructT<XS::DockWidget>( "XS::GameSceneDockWidget", this ); game->show();
+		auto log = XS::Registry::ConstructT<XS::DockWidget>( "XS::LoggerDockWidget", this ); log->show();
 
 		addDockWidget( Qt::LeftDockWidgetArea, edit );
 		addDockWidget( Qt::RightDockWidgetArea, objects );

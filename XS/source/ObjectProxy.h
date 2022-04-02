@@ -18,13 +18,13 @@ class XS_API ObjectProxy : public QObject
 	Q_OBJECT
 
 public:
-	ObjectProxy();
+	ObjectProxy( QObject * parent = nullptr );
 
-	ObjectProxy( const ObjectProxy & val );
+	ObjectProxy( const ObjectProxy & val, QObject * parent = nullptr );
 
-	ObjectProxy & operator= ( const ObjectProxy & val );
+	ObjectProxy( const XE::Variant & obj, QObject * parent = nullptr );
 
-	ObjectProxy( const XE::Variant & obj, const XE::MetaPropertyCPtr & prop = nullptr );
+	ObjectProxy( const XE::Variant & obj, const XE::MetaPropertyCPtr & prop, QObject * parent = nullptr );
 
 public:
 	XE::MetaTypeCPtr GetType() const;
@@ -47,7 +47,6 @@ private:
 	XE::Variant _Object;
 	XE::MetaPropertyCPtr _Property;
 };
-DECL_PTR( ObjectProxy );
 
 END_XS_NAMESPACE
 

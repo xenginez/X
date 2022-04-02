@@ -26,7 +26,7 @@ public:
 public:
 	static void Register( const XE::MetaTypeCPtr & type, const QString & name );
 
-	static Inspector * Create( const XS::ObjectProxyPtr & proxy, QWidget * parent = nullptr );
+	static Inspector * Create( XS::ObjectProxy * proxy, QWidget * parent = nullptr );
 
 public:
 	virtual void Expand();
@@ -36,15 +36,15 @@ public:
 	virtual void Refresh() = 0;
 
 protected:
-	const XS::ObjectProxyPtr & GetObjectProxy();
+	XS::ObjectProxy * GetObjectProxy();
 
-	void SetObjecrProxy( const XS::ObjectProxyPtr & proxy );
+	void SetObjecrProxy( XS::ObjectProxy * proxy );
 
 protected:
 	void SetContentWidget( QWidget * widget );
 
 private:
-	XS::ObjectProxyPtr _Proxy = nullptr;
+	XS::ObjectProxy * _Proxy = nullptr;
 };
 
 class XS_API GroupInspector : public Inspector

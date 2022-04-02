@@ -2,8 +2,6 @@
 
 #include "ui_AssetsDockWidget.h"
 
-#include <Skin.h>
-
 REG_WIDGET( XS::AssetsDockWidget );
 
 XS::AssetsDockWidget::AssetsDockWidget( QWidget * parent /*= nullptr */ )

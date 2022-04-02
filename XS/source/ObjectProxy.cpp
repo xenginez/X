@@ -1,28 +1,27 @@
 #include "ObjectProxy.h"
 
-XS::ObjectProxy::ObjectProxy()
+XS::ObjectProxy::ObjectProxy( QObject * parent /*= nullptr */ )
+	: QObject( parent )
 {
 
 }
 
-XS::ObjectProxy::ObjectProxy( const ObjectProxy & val )
-	:_Object( val._Object ), _Property( val._Property )
+XS::ObjectProxy::ObjectProxy( const ObjectProxy & val, QObject * parent /*= nullptr */ )
+	: QObject( parent ), _Object( val._Object ), _Property( val._Property )
 {
 
 }
 
-XS::ObjectProxy::ObjectProxy( const XE::Variant & obj, const XE::MetaPropertyCPtr & prop /*= nullptr */ )
-	: _Object( obj ), _Property( prop )
+XS::ObjectProxy::ObjectProxy( const XE::Variant & obj, QObject * parent /*= nullptr */ )
+	: QObject( parent ), _Object( obj )
 {
 
 }
 
-XS::ObjectProxy & XS::ObjectProxy::operator=( const ObjectProxy & val )
+XS::ObjectProxy::ObjectProxy( const XE::Variant & obj, const XE::MetaPropertyCPtr & prop, QObject * parent /*= nullptr */ )
+	: QObject( parent ), _Object( obj ), _Property( prop )
 {
-	_Object = val._Object;
-	_Property = val._Property;
 
-	return *this;
 }
 
 XE::MetaTypeCPtr XS::ObjectProxy::GetType() const

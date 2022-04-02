@@ -9,7 +9,7 @@
 #ifndef GAMESCENEDOCKWIDGET_H__0DE254A8_4B79_43D4_8DA5_EA35B0AB4F17
 #define GAMESCENEDOCKWIDGET_H__0DE254A8_4B79_43D4_8DA5_EA35B0AB4F17
 
-#include "DockWidget.h"
+#include "../DockWidget.h"
 
 UI_DECL( GameSceneDockWidget );
 

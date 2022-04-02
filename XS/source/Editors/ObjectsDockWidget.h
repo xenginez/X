@@ -9,10 +9,10 @@
 #ifndef SCENEDOCKWIDGET_H__17295ACA_C889_4EA8_B419_18E18B7BD0B8
 #define SCENEDOCKWIDGET_H__17295ACA_C889_4EA8_B419_18E18B7BD0B8
 
-#include <QTreeWidget>
+#include "../Inspector.h"
+#include "../DockWidget.h"
 
-#include "Inspector.h"
-#include "DockWidget.h"
+class QTreeWidgetItem;
 
 UI_DECL( ObjectsDockWidget );
 

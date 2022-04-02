@@ -94,7 +94,7 @@ void XS::ObjectsDockWidget::OnInspectorClicked( const XE::Variant & val )
 		ui->inspector_layout->removeItem( ui->inspector_layout->itemAt( 0 ) );
 	}
 
-	_Inspector = XS::Inspector::Create( XE::MakeShared< XS::ObjectProxy >( val ), this );
+	_Inspector = XS::Inspector::Create( new XS::ObjectProxy( val, this ), this );
 
 	ui->inspector_layout->addWidget( _Inspector );
 }
