@@ -25,6 +25,8 @@ public:
 
 	~CoreFramework() override;
 
+	static XS::CoreFramework * GetCurrentFramework();
+
 public:
 	bool RegisterService( const XE::MetaClassPtr & val ) override;
 
@@ -63,6 +65,8 @@ public:
 public:
 	int Exec( XE::WindowPtr window ) override;
 
+	void Exec( XE::WindowPtr window, const XE::String & project_path );
+
 protected:
 	void Prepare() override;
 
@@ -80,6 +84,7 @@ protected:
 private:
 	Private * _p;
 };
+DECL_PTR( CoreFramework );
 
 END_XS_NAMESPACE
 

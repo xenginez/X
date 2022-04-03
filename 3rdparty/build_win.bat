@@ -353,6 +353,12 @@ cd %RD3_PATH%
 xcopy %cd%\kcp\ikcp.* %RD3_PATH%\..\depends\include\kcp\ /s /y
 
 
+:BUILD_WEBGPU
+echo "copy webgpu head file to depends"
+cd %RD3_PATH%
+xcopy %cd%\webgpu-headers\webgpu.h %RD3_PATH%\..\depends\include\webgpu\ /s /y
+
+
 
 
 :EXIT

@@ -11,6 +11,9 @@
 
 #include "../DockWidget.h"
 
+#include <QSqlDatabase>
+#include <QFileSystemWatcher>
+
 UI_DECL( AssetsEditor );
 
 BEG_XS_NAMESPACE
@@ -29,8 +32,16 @@ public:
 
 	void Load( QSettings & settings ) override;
 
+private slots:
+	void OnWatcherFileChanged( const QString & path );
+
+	void OnWatcherDirectoryChanged( const QString & path );
+
 private:
 	Ui::AssetsEditor * ui;
+	QSqlDatabase _LocalDB;
+	QSqlDatabase _RemoteDB;
+	QFileSystemWatcher _Watcher;
 };
 
 END_XS_NAMESPACE

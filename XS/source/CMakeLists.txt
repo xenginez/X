@@ -14,6 +14,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_PREFIX_PATH $ENV{QT_DIR})
 
 find_package(QT NAMES Qt6 Qt5 COMPONENTS Widgets REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Sql REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets REQUIRED)
 
 FILE(GLOB_RECURSE SOURCE_FILES *.*)
@@ -22,7 +23,7 @@ add_library(XS ${X_LIB_TYPE} ${SOURCE_FILES})
 target_compile_definitions(XS PRIVATE -DXS_EXPORT)
 target_link_directories(XS PRIVATE ${CMAKE_SOURCE_DIR}/depends/lib/${X_PLATFORM}/${X_CONFIG} ${X_TARGET_DIR}/lib/${X_CONFIG})
 target_include_directories(XS PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/depends/include ${X_TARGET_DIR}/include)
-target_link_libraries(XS PRIVATE XE Qt${QT_VERSION_MAJOR}::Widgets)
+target_link_libraries(XS PRIVATE XE Qt${QT_VERSION_MAJOR}::Sql Qt${QT_VERSION_MAJOR}::Widgets)
 
 install(TARGETS XS
         EXPORT XSTargets

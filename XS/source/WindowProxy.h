@@ -56,6 +56,7 @@ public:
 	virtual void MessageLoop();
 
 };
+DECL_PTR( WindowProxy );
 
 END_XS_NAMESPACE
 

@@ -4,18 +4,28 @@ IMPLEMENT_META( XS::CoreFramework );
 
 struct XS::CoreFramework::Private
 {
-
+	static XS::CoreFramework * _Framework;
 };
+XS::CoreFramework * XS::CoreFramework::Private::_Framework = nullptr;
 
 XS::CoreFramework::CoreFramework()
 	:_p( XE::New<Private>() )
 {
-
+	Private::_Framework = this;
 }
 
 XS::CoreFramework::~CoreFramework()
 {
+	WaitExit();
+
 	XE::Delete( _p );
+
+	Private::_Framework = nullptr;
+}
+
+XS::CoreFramework * XS::CoreFramework::GetCurrentFramework()
+{
+	return Private::_Framework;
 }
 
 bool XS::CoreFramework::RegisterService( const XE::MetaClassPtr & val )
@@ -96,6 +106,12 @@ void XS::CoreFramework::Reload()
 int XS::CoreFramework::Exec( XE::WindowPtr window )
 {
 	return 0;
+}
+
+void XS::CoreFramework::Exec( XE::WindowPtr window, const XE::String & project_path )
+{
+	std::thread th( [this, window]() { Exec( window ); } );
+	th.detach();
 }
 
 void XS::CoreFramework::Prepare()

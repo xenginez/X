@@ -1,11 +1,12 @@
 #include "EditorWindow.h"
 
-#include <QTimer>
+#include <QMenu>
+#include <QAction>
+#include <QMenuBar>
 #include <QFileInfo>
 #include <QDataStream>
 #include <QApplication>
 #include <QDesktopWidget>
-
 
 XStudio::EditorWindow::EditorWindow( const QString & project, QWidget * parent /*= nullptr */ )
 	:XS::MainWindow( parent )

@@ -5,7 +5,7 @@
 
 int main( int argc, char * argv[] )
 {
-	QString project;
+	const char * project = nullptr;
 
 	if( argc < 2 )
 	{
@@ -20,9 +20,11 @@ int main( int argc, char * argv[] )
 
 	a.setStyle( new XS::Skin( QApplication::applicationDirPath() + "/resource/qss/darkstyle.qss" ) );
 
+	XS::CoreFramework framework;
 	XStudio::EditorWindow window( project );
-
+	
 	window.show();
+	framework.Exec( XE::MakeShared< XS::WindowProxy >( &window ), project );
 
 	return a.exec();
 }

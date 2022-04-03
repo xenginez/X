@@ -137,21 +137,6 @@
           <string>16:10</string>
          </property>
         </item>
-        <item>
-         <property name="text">
-          <string>1024x768</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>1080x960</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>1920x1080</string>
-         </property>
-        </item>
        </widget>
       </item>
       <item>
