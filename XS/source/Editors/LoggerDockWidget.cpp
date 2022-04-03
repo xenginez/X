@@ -59,18 +59,13 @@ XS::LoggerDockWidget::LoggerDockWidget( QWidget * parent /*= nullptr */ )
 
 	connect( ui->clear, &QToolButton::clicked, this, &XS::LoggerDockWidget::OnClearButtonClicked );
 	connect( ui->merge, &QToolButton::clicked, this, &XS::LoggerDockWidget::OnMergeButtonClicked );
+	connect( ui->info, &QToolButton::clicked, this, &XS::LoggerDockWidget::OnInfoButtonClicked );
 	connect( ui->error, &QToolButton::clicked, this, &XS::LoggerDockWidget::OnErrorButtonClicked );
 	connect( ui->warning, &QToolButton::clicked, this, &XS::LoggerDockWidget::OnWarningButtonClicked );
-	connect( ui->info, &QToolButton::clicked, this, &XS::LoggerDockWidget::OnInfoButtonClicked );
 	connect( ui->search, &QLineEdit::editingFinished, this, &XS::LoggerDockWidget::OnSearchEditingFinished );
 	connect( ui->list, &QListView::doubleClicked, this, &XS::LoggerDockWidget::OnListViewItemDoubleClicked );
 
 	_Logger = XE::Logger::RegisterListener( { &XS::LoggerDockWidget::OnLoggerListener, this } );
-
-	QTimer::singleShot( 1000, [this]()
-		{
-			OnLoggerListener( std::chrono::system_clock::now(), __FILE__, __LINE__, XE::LoggerLevel::Error, "sadsad" );
-		} );
 }
 
 XS::LoggerDockWidget::~LoggerDockWidget()
@@ -204,7 +199,24 @@ void XS::LoggerDockWidget::OnMergeButtonClicked( bool checked )
 
 void XS::LoggerDockWidget::OnSearchEditingFinished()
 {
-
+	QString search = ui->search->text();
+	for ( size_t i = 0; i < _Model->rowCount(); i++ )
+	{
+		QWidget * widget = ui->list->indexWidget( _Model->index( i, 0 ) );
+		if ( widget != nullptr )
+		{
+			QLabel * message = widget->findChild<QLabel *>( "message" );
+			if ( message != nullptr )
+			{
+				if ( message->text().contains( search ) )
+				{
+					ui->list->setCurrentIndex( _Model->index( i, 0 ) );
+					return;
+				}
+			}
+		}
+	}
+	ui->list->setCurrentIndex( QModelIndex() );
 }
 
 void XS::LoggerDockWidget::OnListViewItemDoubleClicked( const QModelIndex & index )
