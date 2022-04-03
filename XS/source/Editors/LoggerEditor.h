@@ -1,30 +1,30 @@
 /*!
- * \file	LoggerDockWidget.h
+ * \file	LoggerEditor.h
  *
  * \author	ZhengYuanQing
- * \date	2022/02/19
+ * \date	2022/04/03
  * \email	zhengyuanqing.95@gmail.com
  *
  */
-#ifndef LOGGERDOCKWIDGET_H__D7F0249E_2F0C_4385_8D68_B12BF0596FF2
-#define LOGGERDOCKWIDGET_H__D7F0249E_2F0C_4385_8D68_B12BF0596FF2
+#ifndef LOGGEREDITOR_H__2E487B5E_13F2_48E6_99A3_8A273A3A0695
+#define LOGGEREDITOR_H__2E487B5E_13F2_48E6_99A3_8A273A3A0695
 
 #include <QStandardItemModel>
 
 #include "../DockWidget.h"
 
-UI_DECL( LoggerDockWidget );
+UI_DECL( LoggerEditor );
 
 BEG_XS_NAMESPACE
 
-class XS_API LoggerDockWidget : public XS::DockWidget
+class XS_API LoggerEditor : public XS::DockWidget
 {
 	Q_OBJECT
 
 public:
-	LoggerDockWidget( QWidget * parent = nullptr );
+	LoggerEditor( QWidget * parent = nullptr );
 
-	~LoggerDockWidget();
+	~LoggerEditor();
 
 public:
 	void Save( QSettings & settings ) override;
@@ -44,11 +44,11 @@ private:
 	void OnLoggerListener( std::chrono::system_clock::time_point time, const char * file, XE::uint32 line, XE::LoggerLevel level, XE::String msg );
 
 private:
+	Ui::LoggerEditor * ui;
 	XE::Disposable _Logger;
-	Ui::LoggerDockWidget * ui;
 	QStandardItemModel * _Model = nullptr;
 };
 
 END_XS_NAMESPACE
 
-#endif//LOGGERDOCKWIDGET_H__D7F0249E_2F0C_4385_8D68_B12BF0596FF2
+#endif//LOGGEREDITOR_H__2E487B5E_13F2_48E6_99A3_8A273A3A0695

@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>EditSceneDockWidget</class>
- <widget class="QWidget" name="EditSceneDockWidget">
+ <class>LoggerEditor</class>
+ <widget class="QWidget" name="LoggerEditor">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>972</width>
-    <height>655</height>
+    <width>807</width>
+    <height>376</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>EditScene</string>
+   <string>Logger</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <property name="spacing">
@@ -31,27 +31,9 @@
    </property>
    <item>
     <widget class="QWidget" name="title_bar" native="true">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>20</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>16777215</width>
-       <height>20</height>
-      </size>
-     </property>
      <layout class="QHBoxLayout" name="horizontalLayout">
       <property name="spacing">
-       <number>3</number>
+       <number>0</number>
       </property>
       <property name="leftMargin">
        <number>0</number>
@@ -66,7 +48,7 @@
        <number>0</number>
       </property>
       <item>
-       <widget class="QToolButton" name="d23">
+       <widget class="QToolButton" name="clear">
         <property name="minimumSize">
          <size>
           <width>20</width>
@@ -79,27 +61,57 @@
           <height>20</height>
          </size>
         </property>
-        <property name="font">
-         <font>
-          <pointsize>10</pointsize>
-          <weight>75</weight>
-          <bold>true</bold>
-         </font>
+        <property name="toolTip">
+         <string>clear all messages</string>
         </property>
         <property name="text">
-         <string>2D</string>
+         <string/>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="Line" name="line_2">
+       <widget class="QToolButton" name="merge">
+        <property name="minimumSize">
+         <size>
+          <width>20</width>
+          <height>20</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>20</width>
+          <height>20</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>merge the same messages</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_2">
         <property name="orientation">
-         <enum>Qt::Vertical</enum>
+         <enum>Qt::Horizontal</enum>
         </property>
-       </widget>
+        <property name="sizeType">
+         <enum>QSizePolicy::Fixed</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>10</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
       </item>
       <item>
-       <widget class="QToolButton" name="move">
+       <widget class="QToolButton" name="error">
         <property name="minimumSize">
          <size>
           <width>20</width>
@@ -112,13 +124,22 @@
           <height>20</height>
          </size>
         </property>
+        <property name="toolTip">
+         <string>error message is displayed</string>
+        </property>
         <property name="text">
          <string/>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QToolButton" name="rotate">
+       <widget class="QToolButton" name="warning">
         <property name="minimumSize">
          <size>
           <width>20</width>
@@ -131,13 +152,22 @@
           <height>20</height>
          </size>
         </property>
+        <property name="toolTip">
+         <string>warning message is displayed</string>
+        </property>
         <property name="text">
          <string/>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QToolButton" name="scale">
+       <widget class="QToolButton" name="info">
         <property name="minimumSize">
          <size>
           <width>20</width>
@@ -150,110 +180,17 @@
           <height>20</height>
          </size>
         </property>
-        <property name="text">
-         <string/>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="Line" name="line">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QToolButton" name="audio">
-        <property name="minimumSize">
-         <size>
-          <width>20</width>
-          <height>20</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>20</width>
-          <height>20</height>
-         </size>
+        <property name="toolTip">
+         <string>info message is displayed</string>
         </property>
         <property name="text">
          <string/>
         </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QToolButton" name="light">
-        <property name="minimumSize">
-         <size>
-          <width>20</width>
-          <height>20</height>
-         </size>
+        <property name="checkable">
+         <bool>true</bool>
         </property>
-        <property name="maximumSize">
-         <size>
-          <width>20</width>
-          <height>20</height>
-         </size>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QToolButton" name="grid">
-        <property name="minimumSize">
-         <size>
-          <width>20</width>
-          <height>20</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>20</width>
-          <height>20</height>
-         </size>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QToolButton" name="camera">
-        <property name="minimumSize">
-         <size>
-          <width>20</width>
-          <height>20</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>20</width>
-          <height>20</height>
-         </size>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QToolButton" name="icons">
-        <property name="minimumSize">
-         <size>
-          <width>20</width>
-          <height>20</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>20</width>
-          <height>20</height>
-         </size>
-        </property>
-        <property name="text">
-         <string/>
+        <property name="checked">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
@@ -268,14 +205,17 @@
         <property name="minimumSize">
          <size>
           <width>200</width>
-          <height>18</height>
+          <height>20</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
           <width>200</width>
-          <height>18</height>
+          <height>20</height>
          </size>
+        </property>
+        <property name="toolTip">
+         <string>search for messages</string>
         </property>
         <property name="clearButtonEnabled">
          <bool>true</bool>
@@ -289,7 +229,7 @@
         </property>
         <property name="sizeHint" stdset="0">
          <size>
-          <width>528</width>
+          <width>494</width>
           <height>20</height>
          </size>
         </property>
@@ -299,7 +239,26 @@
     </widget>
    </item>
    <item>
-    <widget class="QWidget" name="display" native="true"/>
+    <widget class="QListView" name="list">
+     <property name="autoScrollMargin">
+      <number>20</number>
+     </property>
+     <property name="editTriggers">
+      <set>QAbstractItemView::NoEditTriggers</set>
+     </property>
+     <property name="iconSize">
+      <size>
+       <width>0</width>
+       <height>20</height>
+      </size>
+     </property>
+     <property name="resizeMode">
+      <enum>QListView::Fixed</enum>
+     </property>
+     <property name="spacing">
+      <number>2</number>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>

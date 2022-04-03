@@ -49,13 +49,11 @@ void XStudio::EditorWindow::showEvent( QShowEvent * e )
 	}
 	else
 	{
-		setGeometry( QApplication::desktop()->screenGeometry( 0 ) );
-
-		auto objects = XS::Registry::ConstructT<XS::DockWidget>( "XS::ObjectsDockWidget", this ); objects->show();
-		auto assets = XS::Registry::ConstructT<XS::DockWidget>( "XS::AssetsDockWidget", this ); assets->show();
-		auto edit = XS::Registry::ConstructT<XS::DockWidget>( "XS::EditSceneDockWidget", this ); edit->show();
-		auto game = XS::Registry::ConstructT<XS::DockWidget>( "XS::GameSceneDockWidget", this ); game->show();
-		auto log = XS::Registry::ConstructT<XS::DockWidget>( "XS::LoggerDockWidget", this ); log->show();
+		auto objects = XS::Registry::ConstructT<XS::DockWidget>( "XS::ObjectsEditor", this ); objects->show();
+		auto assets = XS::Registry::ConstructT<XS::DockWidget>( "XS::AssetsEditor", this ); assets->show();
+		auto edit = XS::Registry::ConstructT<XS::DockWidget>( "XS::EditSceneEditor", this ); edit->show();
+		auto game = XS::Registry::ConstructT<XS::DockWidget>( "XS::GameSceneEditor", this ); game->show();
+		auto log = XS::Registry::ConstructT<XS::DockWidget>( "XS::LoggerEditor", this ); log->show();
 
 		addDockWidget( Qt::LeftDockWidgetArea, edit );
 		addDockWidget( Qt::RightDockWidgetArea, objects );

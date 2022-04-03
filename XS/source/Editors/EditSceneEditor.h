@@ -1,28 +1,28 @@
 /*!
- * \file	EditSceneDockWidget.h
+ * \file	EditSceneEditor.h
  *
  * \author	ZhengYuanQing
- * \date	2022/02/18
+ * \date	2022/04/03
  * \email	zhengyuanqing.95@gmail.com
  *
  */
-#ifndef EDITSCENEDOCKWIDGET_H__B1A324D4_9A9B_402B_B82A_FBE8CAFA1600
-#define EDITSCENEDOCKWIDGET_H__B1A324D4_9A9B_402B_B82A_FBE8CAFA1600
+#ifndef EDITSCENEEDITOR_H__2C2FB7BC_1E8B_4ADF_9296_1F4802B4CADB
+#define EDITSCENEEDITOR_H__2C2FB7BC_1E8B_4ADF_9296_1F4802B4CADB
 
 #include "../DockWidget.h"
 
-UI_DECL( EditSceneDockWidget );
+UI_DECL( EditSceneEditor );
 
 BEG_XS_NAMESPACE
 
-class XS_API EditSceneDockWidget : public XS::DockWidget
+class XS_API EditSceneEditor : public XS::DockWidget
 {
 	Q_OBJECT
 
 public:
-	EditSceneDockWidget( QWidget * parent = nullptr );
+	EditSceneEditor( QWidget * parent = nullptr );
 
-	~EditSceneDockWidget();
+	~EditSceneEditor();
 
 public:
 	WId display() const;
@@ -39,9 +39,9 @@ private slots:
 	void OnSearchFinished();
 
 private:
-	Ui::EditSceneDockWidget * ui;
+	Ui::EditSceneEditor * ui;
 };
 
 END_XS_NAMESPACE
 
-#endif//EDITSCENEDOCKWIDGET_H__B1A324D4_9A9B_402B_B82A_FBE8CAFA1600
+#endif//EDITSCENEEDITOR_H__2C2FB7BC_1E8B_4ADF_9296_1F4802B4CADB

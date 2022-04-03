@@ -1,13 +1,13 @@
-#include "ObjectsDockWidget.h"
+#include "ObjectsEditor.h"
 
-#include "ui_ObjectsDockWidget.h"
+#include "ui_ObjectsEditor.h"
 
 #include <QTimer>
 
-REG_WIDGET( XS::ObjectsDockWidget );
+REG_WIDGET( XS::ObjectsEditor );
 
-XS::ObjectsDockWidget::ObjectsDockWidget( QWidget * parent /*= nullptr */ )
-	:DockWidget( parent ), ui( new Ui::ObjectsDockWidget )
+XS::ObjectsEditor::ObjectsEditor( QWidget * parent /*= nullptr */ )
+	:DockWidget( parent ), ui( new Ui::ObjectsEditor )
 {
 	setupUi( ui );
 
@@ -33,19 +33,19 @@ XS::ObjectsDockWidget::ObjectsDockWidget( QWidget * parent /*= nullptr */ )
 	ui->inspector_expand->setIcon( QIcon( "SkinIcons:/images/objects/icon_objects_expand.png" ) );
 	ui->inspector_collapse->setIcon( QIcon( "SkinIcons:/images/objects/icon_objects_collapse.png" ) );
 
-	connect( ui->logic_tree, &QTreeWidget::itemClicked, this, &ObjectsDockWidget::OnLogicTreeWidgetItemClicked );
-	connect( ui->render_tree, &QTreeWidget::itemClicked, this, &ObjectsDockWidget::OnRenderTreeWidgetItemClicked );
+	connect( ui->logic_tree, &QTreeWidget::itemClicked, this, &ObjectsEditor::OnLogicTreeWidgetItemClicked );
+	connect( ui->render_tree, &QTreeWidget::itemClicked, this, &ObjectsEditor::OnRenderTreeWidgetItemClicked );
 
 	connect( ui->inspector_expand, &QToolButton::clicked, [this]() { if ( _Inspector != nullptr ) _Inspector->Expand(); } );
 	connect( ui->inspector_collapse, &QToolButton::clicked, [this]() { if ( _Inspector != nullptr ) _Inspector->Collapse(); } );
 }
 
-XS::ObjectsDockWidget::~ObjectsDockWidget()
+XS::ObjectsEditor::~ObjectsEditor()
 {
 	delete ui;
 }
 
-void XS::ObjectsDockWidget::Save( QSettings & settings )
+void XS::ObjectsEditor::Save( QSettings & settings )
 {
 	DockWidget::Save( settings );
 	
@@ -59,7 +59,7 @@ void XS::ObjectsDockWidget::Save( QSettings & settings )
 	settings.endGroup();
 }
 
-void XS::ObjectsDockWidget::Load( QSettings & settings )
+void XS::ObjectsEditor::Load( QSettings & settings )
 {
 	DockWidget::Load( settings );
 	
@@ -73,21 +73,21 @@ void XS::ObjectsDockWidget::Load( QSettings & settings )
 	settings.endGroup();
 }
 
-void XS::ObjectsDockWidget::OnLogicTreeWidgetItemClicked( QTreeWidgetItem * item, int column )
+void XS::ObjectsEditor::OnLogicTreeWidgetItemClicked( QTreeWidgetItem * item, int column )
 {
 	ui->render_tree->setCurrentItem( nullptr );
 	ui->inspector_name->setText( item->text( 0 ) );
 
 }
 
-void XS::ObjectsDockWidget::OnRenderTreeWidgetItemClicked( QTreeWidgetItem * item, int column )
+void XS::ObjectsEditor::OnRenderTreeWidgetItemClicked( QTreeWidgetItem * item, int column )
 {
 	ui->logic_tree->setCurrentItem( nullptr );
 	ui->inspector_name->setText( item->text( 0 ) );
 
 }
 
-void XS::ObjectsDockWidget::OnInspectorClicked( const XE::Variant & val )
+void XS::ObjectsEditor::OnInspectorClicked( const XE::Variant & val )
 {
 	if ( ui->inspector_layout->count() != 0 )
 	{

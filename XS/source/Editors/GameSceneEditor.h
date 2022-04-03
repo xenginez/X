@@ -1,28 +1,28 @@
 /*!
- * \file	GameSceneDockWidget.h
+ * \file	GameSceneEditor.h
  *
  * \author	ZhengYuanQing
- * \date	2022/02/18
+ * \date	2022/04/03
  * \email	zhengyuanqing.95@gmail.com
  *
  */
-#ifndef GAMESCENEDOCKWIDGET_H__0DE254A8_4B79_43D4_8DA5_EA35B0AB4F17
-#define GAMESCENEDOCKWIDGET_H__0DE254A8_4B79_43D4_8DA5_EA35B0AB4F17
+#ifndef GAMESCENEEDITOR_H__391B86FC_35F4_4404_B14D_AB5418BE3285
+#define GAMESCENEEDITOR_H__391B86FC_35F4_4404_B14D_AB5418BE3285
 
 #include "../DockWidget.h"
 
-UI_DECL( GameSceneDockWidget );
+UI_DECL( GameSceneEditor );
 
 BEG_XS_NAMESPACE
 
-class XS_API GameSceneDockWidget : public XS::DockWidget
+class XS_API GameSceneEditor : public XS::DockWidget
 {
 	Q_OBJECT
 
 public:
-	GameSceneDockWidget( QWidget * parent = nullptr );
+	GameSceneEditor( QWidget * parent = nullptr );
 
-	~GameSceneDockWidget();
+	~GameSceneEditor();
 
 public:
 	WId display() const;
@@ -35,9 +35,9 @@ private slots:
 	void OnCameraCurrentIndexChanged( int index );
 
 private:
-	Ui::GameSceneDockWidget * ui;
+	Ui::GameSceneEditor * ui;
 };
 
 END_XS_NAMESPACE
 
-#endif//GAMESCENEDOCKWIDGET_H__0DE254A8_4B79_43D4_8DA5_EA35B0AB4F17
+#endif//GAMESCENEEDITOR_H__391B86FC_35F4_4404_B14D_AB5418BE3285

@@ -1,11 +1,11 @@
-#include "AssetsDockWidget.h"
+#include "AssetsEditor.h"
 
-#include "ui_AssetsDockWidget.h"
+#include "ui_AssetsEditor.h"
 
-REG_WIDGET( XS::AssetsDockWidget );
+REG_WIDGET( XS::AssetsEditor );
 
-XS::AssetsDockWidget::AssetsDockWidget( QWidget * parent /*= nullptr */ )
-	:DockWidget( parent ), ui( new Ui::AssetsDockWidget )
+XS::AssetsEditor::AssetsEditor( QWidget * parent /*= nullptr */ )
+	:DockWidget( parent ), ui( new Ui::AssetsEditor )
 {
 	setupUi( ui );
 
@@ -21,12 +21,12 @@ XS::AssetsDockWidget::AssetsDockWidget( QWidget * parent /*= nullptr */ )
 	ui->search->addAction( QIcon( "SkinIcons:/images/assets/icon_assets_search.png" ), QLineEdit::ActionPosition::LeadingPosition );
 }
 
-XS::AssetsDockWidget::~AssetsDockWidget()
+XS::AssetsEditor::~AssetsEditor()
 {
 	delete ui;
 }
 
-void XS::AssetsDockWidget::Save( QSettings & settings )
+void XS::AssetsEditor::Save( QSettings & settings )
 {
 	DockWidget::Save( settings );
 
@@ -38,7 +38,7 @@ void XS::AssetsDockWidget::Save( QSettings & settings )
 	settings.endGroup();
 }
 
-void XS::AssetsDockWidget::Load( QSettings & settings )
+void XS::AssetsEditor::Load( QSettings & settings )
 {
 	DockWidget::Load( settings );
 

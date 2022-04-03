@@ -1,5 +1,6 @@
-#include "LoggerDockWidget.h"
-#include "ui_LoggerDockWidget.h"
+#include "LoggerEditor.h"
+
+#include "ui_LoggerEditor.h"
 
 #include <QUrl>
 #include <QDir>
@@ -33,10 +34,10 @@ namespace
 
 Q_DECLARE_METATYPE( XE::LoggerLevel );
 
-REG_WIDGET( XS::LoggerDockWidget );
+REG_WIDGET( XS::LoggerEditor );
 
-XS::LoggerDockWidget::LoggerDockWidget( QWidget * parent /*= nullptr */ )
-	:XS::DockWidget( parent ), ui( new Ui::LoggerDockWidget )
+XS::LoggerEditor::LoggerEditor( QWidget * parent /*= nullptr */ )
+	:XS::DockWidget( parent ), ui( new Ui::LoggerEditor )
 {
 	setupUi( ui );
 
@@ -57,23 +58,23 @@ XS::LoggerDockWidget::LoggerDockWidget( QWidget * parent /*= nullptr */ )
 	ui->list->setModel( _Model );
 	ui->list->setItemDelegate( new ListViewItemDelegate( this ) );
 
-	connect( ui->clear, &QToolButton::clicked, this, &XS::LoggerDockWidget::OnClearButtonClicked );
-	connect( ui->merge, &QToolButton::clicked, this, &XS::LoggerDockWidget::OnMergeButtonClicked );
-	connect( ui->info, &QToolButton::clicked, this, &XS::LoggerDockWidget::OnInfoButtonClicked );
-	connect( ui->error, &QToolButton::clicked, this, &XS::LoggerDockWidget::OnErrorButtonClicked );
-	connect( ui->warning, &QToolButton::clicked, this, &XS::LoggerDockWidget::OnWarningButtonClicked );
-	connect( ui->search, &QLineEdit::editingFinished, this, &XS::LoggerDockWidget::OnSearchEditingFinished );
-	connect( ui->list, &QListView::doubleClicked, this, &XS::LoggerDockWidget::OnListViewItemDoubleClicked );
+	connect( ui->clear, &QToolButton::clicked, this, &XS::LoggerEditor::OnClearButtonClicked );
+	connect( ui->merge, &QToolButton::clicked, this, &XS::LoggerEditor::OnMergeButtonClicked );
+	connect( ui->info, &QToolButton::clicked, this, &XS::LoggerEditor::OnInfoButtonClicked );
+	connect( ui->error, &QToolButton::clicked, this, &XS::LoggerEditor::OnErrorButtonClicked );
+	connect( ui->warning, &QToolButton::clicked, this, &XS::LoggerEditor::OnWarningButtonClicked );
+	connect( ui->search, &QLineEdit::editingFinished, this, &XS::LoggerEditor::OnSearchEditingFinished );
+	connect( ui->list, &QListView::doubleClicked, this, &XS::LoggerEditor::OnListViewItemDoubleClicked );
 
-	_Logger = XE::Logger::RegisterListener( { &XS::LoggerDockWidget::OnLoggerListener, this } );
+	_Logger = XE::Logger::RegisterListener( { &XS::LoggerEditor::OnLoggerListener, this } );
 }
 
-XS::LoggerDockWidget::~LoggerDockWidget()
+XS::LoggerEditor::~LoggerEditor()
 {
 	delete ui;
 }
 
-void XS::LoggerDockWidget::Save( QSettings & settings )
+void XS::LoggerEditor::Save( QSettings & settings )
 {
 	settings.beginGroup( objectName() );
 	{
@@ -85,7 +86,7 @@ void XS::LoggerDockWidget::Save( QSettings & settings )
 	settings.endGroup();
 }
 
-void XS::LoggerDockWidget::Load( QSettings & settings )
+void XS::LoggerEditor::Load( QSettings & settings )
 {
 	settings.beginGroup( objectName() );
 	{
@@ -97,7 +98,7 @@ void XS::LoggerDockWidget::Load( QSettings & settings )
 	settings.endGroup();
 }
 
-void XS::LoggerDockWidget::OnErrorButtonClicked( bool checked )
+void XS::LoggerEditor::OnErrorButtonClicked( bool checked )
 {
 	if ( checked == false )
 	{
@@ -115,7 +116,7 @@ void XS::LoggerDockWidget::OnErrorButtonClicked( bool checked )
 	}
 }
 
-void XS::LoggerDockWidget::OnWarningButtonClicked( bool checked )
+void XS::LoggerEditor::OnWarningButtonClicked( bool checked )
 {
 	if ( checked == false )
 	{
@@ -133,7 +134,7 @@ void XS::LoggerDockWidget::OnWarningButtonClicked( bool checked )
 	}
 }
 
-void XS::LoggerDockWidget::OnInfoButtonClicked( bool checked )
+void XS::LoggerEditor::OnInfoButtonClicked( bool checked )
 {
 	if ( checked == false )
 	{
@@ -151,12 +152,12 @@ void XS::LoggerDockWidget::OnInfoButtonClicked( bool checked )
 	}
 }
 
-void XS::LoggerDockWidget::OnClearButtonClicked( bool checked )
+void XS::LoggerEditor::OnClearButtonClicked( bool checked )
 {
 	_Model->clear();
 }
 
-void XS::LoggerDockWidget::OnMergeButtonClicked( bool checked )
+void XS::LoggerEditor::OnMergeButtonClicked( bool checked )
 {
 	if ( checked )
 	{
@@ -197,7 +198,7 @@ void XS::LoggerDockWidget::OnMergeButtonClicked( bool checked )
 	}
 }
 
-void XS::LoggerDockWidget::OnSearchEditingFinished()
+void XS::LoggerEditor::OnSearchEditingFinished()
 {
 	QString search = ui->search->text();
 	for ( size_t i = 0; i < _Model->rowCount(); i++ )
@@ -219,7 +220,7 @@ void XS::LoggerDockWidget::OnSearchEditingFinished()
 	ui->list->setCurrentIndex( QModelIndex() );
 }
 
-void XS::LoggerDockWidget::OnListViewItemDoubleClicked( const QModelIndex & index )
+void XS::LoggerEditor::OnListViewItemDoubleClicked( const QModelIndex & index )
 {
 	auto item = _Model->itemFromIndex( index );
 
@@ -254,7 +255,7 @@ void XS::LoggerDockWidget::OnListViewItemDoubleClicked( const QModelIndex & inde
 	}
 }
 
-void XS::LoggerDockWidget::OnLoggerListener( std::chrono::system_clock::time_point time, const char * file, XE::uint32 line, XE::LoggerLevel level, XE::String msg )
+void XS::LoggerEditor::OnLoggerListener( std::chrono::system_clock::time_point time, const char * file, XE::uint32 line, XE::LoggerLevel level, XE::String msg )
 {
 	switch ( level )
 	{

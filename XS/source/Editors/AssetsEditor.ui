@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>AssetsDockWidget</class>
- <widget class="QWidget" name="AssetsDockWidget">
+ <class>AssetsEditor</class>
+ <widget class="QWidget" name="AssetsEditor">
   <property name="geometry">
    <rect>
     <x>0</x>

@@ -1,4 +1,5 @@
 #include <QApplication>
+#include <QDesktopWidget>
 
 #include "EditorWindow.h"
 

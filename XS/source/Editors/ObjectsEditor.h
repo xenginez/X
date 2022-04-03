@@ -1,31 +1,31 @@
 /*!
- * \file	SceneDockWidget.h
+ * \file	ObjectsEditor.h
  *
  * \author	ZhengYuanQing
- * \date	2022/02/18
+ * \date	2022/04/03
  * \email	zhengyuanqing.95@gmail.com
  *
  */
-#ifndef SCENEDOCKWIDGET_H__17295ACA_C889_4EA8_B419_18E18B7BD0B8
-#define SCENEDOCKWIDGET_H__17295ACA_C889_4EA8_B419_18E18B7BD0B8
+#ifndef OBJECTSEDITOR_H__7B7C0B22_7F47_4FB6_9D83_949A00BD8BD6
+#define OBJECTSEDITOR_H__7B7C0B22_7F47_4FB6_9D83_949A00BD8BD6
 
 #include "../Inspector.h"
 #include "../DockWidget.h"
 
 class QTreeWidgetItem;
 
-UI_DECL( ObjectsDockWidget );
+UI_DECL( ObjectsEditor );
 
 BEG_XS_NAMESPACE
 
-class XS_API ObjectsDockWidget : public XS::DockWidget
+class XS_API ObjectsEditor : public XS::DockWidget
 {
 	Q_OBJECT
 
 public:
-	ObjectsDockWidget( QWidget * parent = nullptr );
+	ObjectsEditor( QWidget * parent = nullptr );
 
-	~ObjectsDockWidget();
+	~ObjectsEditor();
 
 public:
 	void Save( QSettings & settings ) override;
@@ -41,10 +41,10 @@ private:
 	void OnInspectorClicked( const XE::Variant & val );
 
 private:
-	Ui::ObjectsDockWidget * ui;
+	Ui::ObjectsEditor * ui;
 	XS::Inspector * _Inspector = nullptr;
 };
 
 END_XS_NAMESPACE
 
-#endif//SCENEDOCKWIDGET_H__17295ACA_C889_4EA8_B419_18E18B7BD0B8
+#endif//OBJECTSEDITOR_H__7B7C0B22_7F47_4FB6_9D83_949A00BD8BD6
