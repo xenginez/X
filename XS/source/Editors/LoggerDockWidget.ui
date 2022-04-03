@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>807</width>
-    <height>261</height>
+    <height>376</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -240,11 +240,23 @@
    </item>
    <item>
     <widget class="QListView" name="list">
+     <property name="autoScrollMargin">
+      <number>20</number>
+     </property>
      <property name="editTriggers">
       <set>QAbstractItemView::NoEditTriggers</set>
      </property>
-     <property name="selectionBehavior">
-      <enum>QAbstractItemView::SelectRows</enum>
+     <property name="iconSize">
+      <size>
+       <width>0</width>
+       <height>20</height>
+      </size>
+     </property>
+     <property name="resizeMode">
+      <enum>QListView::Fixed</enum>
+     </property>
+     <property name="spacing">
+      <number>2</number>
      </property>
     </widget>
    </item>

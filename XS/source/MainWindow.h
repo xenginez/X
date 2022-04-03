@@ -35,6 +35,9 @@ public:
 	virtual ~MainWindow();
 
 public:
+	std::thread::id GetMainThreadId() const;
+
+public:
 	bool SetContent( QWidget * w );
 	void SetWindowIcon( const QIcon & ico );
 	void SetWindowTitle( const QString & text );
@@ -75,6 +78,7 @@ private:
 	Ui::MainWindow * ui;
 
 private:
+	std::thread::id _MainThreadID;
 	QUndoGroup * _UndoGroup = nullptr;
 	QMap< QString, QKeySequence > _Shortcuts;
 };

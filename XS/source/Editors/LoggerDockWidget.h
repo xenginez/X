@@ -9,6 +9,8 @@
 #ifndef LOGGERDOCKWIDGET_H__D7F0249E_2F0C_4385_8D68_B12BF0596FF2
 #define LOGGERDOCKWIDGET_H__D7F0249E_2F0C_4385_8D68_B12BF0596FF2
 
+#include <QStandardItemModel>
+
 #include "../DockWidget.h"
 
 UI_DECL( LoggerDockWidget );
@@ -36,6 +38,7 @@ private slots:
 	void OnClearButtonClicked( bool checked );
 	void OnMergeButtonClicked( bool checked );
 	void OnSearchEditingFinished();
+	void OnListViewItemDoubleClicked( const QModelIndex & index );
 
 private:
 	void OnLoggerListener( std::chrono::system_clock::time_point time, const char * file, XE::uint32 line, XE::LoggerLevel level, XE::String msg );
@@ -43,6 +46,7 @@ private:
 private:
 	XE::Disposable _Logger;
 	Ui::LoggerDockWidget * ui;
+	QStandardItemModel * _Model = nullptr;
 };
 
 END_XS_NAMESPACE

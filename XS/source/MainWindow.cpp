@@ -11,7 +11,7 @@
 #include "DockWidget.h"
 
 XS::MainWindow::MainWindow( QWidget * parent )
-	: QMainWindow( parent, Qt::FramelessWindowHint | Qt::WindowSystemMenuHint ), ui( new Ui::MainWindow )
+	: QMainWindow( parent, Qt::FramelessWindowHint | Qt::WindowSystemMenuHint ), ui( new Ui::MainWindow ), _MainThreadID( std::this_thread::get_id() )
 {
 	ui->setupUi( this );
 
@@ -30,6 +30,11 @@ XS::MainWindow::MainWindow( QWidget * parent )
 XS::MainWindow::~MainWindow()
 {
 	delete ui;
+}
+
+std::thread::id XS::MainWindow::GetMainThreadId() const
+{
+	return _MainThreadID;
 }
 
 void XS::MainWindow::AddUndoStack( QUndoStack * val )

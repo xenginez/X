@@ -11,6 +11,7 @@
 
 #include <XE/XE.h>
 
+#include <QDebug>
 #include <QWidget>
 #include <QDialog>
 #include <QMetaType>
