@@ -35,7 +35,7 @@ public:
 	virtual ~MainWindow();
 
 public:
-	std::thread::id GetMainThreadId() const;
+	std::thread::id GetEditorThreadId() const;
 
 public:
 	bool SetContent( QWidget * w );

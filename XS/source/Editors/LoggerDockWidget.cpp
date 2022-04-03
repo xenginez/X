@@ -283,7 +283,7 @@ void XS::LoggerDockWidget::OnLoggerListener( std::chrono::system_clock::time_poi
 	info.line = line;
 	info.level = level;
 	info.message = msg.c_str();
-	if ( GetParent< XS::MainWindow >()->GetMainThreadId() == std::this_thread::get_id() )
+	if ( GetParent< XS::MainWindow >()->GetEditorThreadId() == std::this_thread::get_id() )
 	{
 		info.thread = "EDITOR";
 	}

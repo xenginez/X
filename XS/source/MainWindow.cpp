@@ -32,7 +32,7 @@ XS::MainWindow::~MainWindow()
 	delete ui;
 }
 
-std::thread::id XS::MainWindow::GetMainThreadId() const
+std::thread::id XS::MainWindow::GetEditorThreadId() const
 {
 	return _MainThreadID;
 }
