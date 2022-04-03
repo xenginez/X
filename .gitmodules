@@ -55,3 +55,6 @@
 [submodule "3rdparty/kcp"]
 	path = 3rdparty/kcp
 	url = https://github.com/skywind3000/kcp.git
+[submodule "3rdparty/webgpu-headers"]
+	path = 3rdparty/webgpu-headers
+	url = https://github.com/webgpu-native/webgpu-headers.git
