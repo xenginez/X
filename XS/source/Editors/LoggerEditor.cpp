@@ -74,7 +74,7 @@ XS::LoggerEditor::~LoggerEditor()
 	delete ui;
 }
 
-void XS::LoggerEditor::Save( QSettings & settings )
+void XS::LoggerEditor::SaveLayout( QSettings & settings )
 {
 	settings.beginGroup( objectName() );
 	{
@@ -86,7 +86,7 @@ void XS::LoggerEditor::Save( QSettings & settings )
 	settings.endGroup();
 }
 
-void XS::LoggerEditor::Load( QSettings & settings )
+void XS::LoggerEditor::LoadLayout( QSettings & settings )
 {
 	settings.beginGroup( objectName() );
 	{

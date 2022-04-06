@@ -154,7 +154,7 @@ void XS::DockWidget::OnCloseClicked( bool checked )
 	close();
 }
 
-void XS::DockWidget::Save( QSettings & settings )
+void XS::DockWidget::SaveLayout( QSettings & settings )
 {
 	settings.beginGroup( objectName() );
 	{
@@ -164,7 +164,7 @@ void XS::DockWidget::Save( QSettings & settings )
 	settings.endGroup();
 }
 
-void XS::DockWidget::Load( QSettings & settings )
+void XS::DockWidget::LoadLayout( QSettings & settings )
 {
 	settings.beginGroup( objectName() );
 	{

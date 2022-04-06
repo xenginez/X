@@ -4,6 +4,7 @@ IMPLEMENT_META( XS::CoreFramework );
 
 struct XS::CoreFramework::Private
 {
+	std::filesystem::path _ProjectPath;
 	static XS::CoreFramework * _Framework;
 };
 XS::CoreFramework * XS::CoreFramework::Private::_Framework = nullptr;
@@ -16,8 +17,6 @@ XS::CoreFramework::CoreFramework()
 
 XS::CoreFramework::~CoreFramework()
 {
-	WaitExit();
-
 	XE::Delete( _p );
 
 	Private::_Framework = nullptr;
@@ -60,32 +59,32 @@ XE::Language XS::CoreFramework::GetSystemLanguage() const
 
 std::filesystem::path XS::CoreFramework::GetModulePath() const
 {
-	return "";
+	return GetApplicationPath() / XE::MODULES_DIRECTORY;
 }
 
 std::filesystem::path XS::CoreFramework::GetAssetsPath() const
 {
-	return "";
+	return _p->_ProjectPath / XE::ASSETS_DIRECTORY;
 }
 
 std::filesystem::path XS::CoreFramework::GetCachesPath() const
 {
-	return "";
+	return _p->_ProjectPath / XE::CACHES_DIRECTORY;
 }
 
 std::filesystem::path XS::CoreFramework::GetProjectPath() const
 {
-	return "";
+	return _p->_ProjectPath;
 }
 
 std::filesystem::path XS::CoreFramework::GetUserDataPath() const
 {
-	return "";
+	return _p->_ProjectPath / XE::USERDATAS_DIRECTORY;
 }
 
 std::filesystem::path XS::CoreFramework::GetApplicationPath() const
 {
-	return "";
+	return Super::GetApplicationPath();
 }
 
 XE::WindowPtr XS::CoreFramework::GetMainWindow() const
@@ -110,8 +109,9 @@ int XS::CoreFramework::Exec( XE::WindowPtr window )
 
 void XS::CoreFramework::Exec( XE::WindowPtr window, const XE::String & project_path )
 {
-	std::thread th( [this, window]() { Exec( window ); } );
-	th.detach();
+	_p->_ProjectPath = project_path.std_str();
+
+	std::thread( [this, window]() { Exec( window ); } ).detach();
 }
 
 void XS::CoreFramework::Prepare()

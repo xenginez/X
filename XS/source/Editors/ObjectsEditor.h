@@ -28,9 +28,9 @@ public:
 	~ObjectsEditor();
 
 public:
-	void Save( QSettings & settings ) override;
+	void SaveLayout( QSettings & settings ) override;
 
-	void Load( QSettings & settings ) override;
+	void LoadLayout( QSettings & settings ) override;
 
 private slots:
 	void OnLogicTreeWidgetItemClicked( QTreeWidgetItem * item, int column );

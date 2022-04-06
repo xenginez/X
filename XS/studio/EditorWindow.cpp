@@ -43,10 +43,7 @@ void XStudio::EditorWindow::showEvent( QShowEvent * e )
 
 	if ( QFileInfo::exists( "./layout.ini" ) )
 	{
-		QSettings settings( "./layout.ini", QSettings::IniFormat );
-
-		Load( settings );
-		LoadShortcuts( QApplication::applicationDirPath() + "/shortcuts.json" );
+		Load();
 	}
 	else
 	{
@@ -79,10 +76,7 @@ void XStudio::EditorWindow::showEvent( QShowEvent * e )
 
 void XStudio::EditorWindow::closeEvent( QCloseEvent * e )
 {
-	QSettings settings( "./layout.ini", QSettings::IniFormat );
-
-	Save( settings );
-	SaveShortcuts( QApplication::applicationDirPath() + "/shortcuts.json" );
+	Save();
 
 	XS::MainWindow::closeEvent( e );
 }

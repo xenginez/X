@@ -59,6 +59,10 @@ public:
 #endif
 
 public:
+	virtual void ShowCursor();
+
+	virtual void HideCursor();
+
 	virtual void ShowWindow();
 
 	virtual void HideWindow();

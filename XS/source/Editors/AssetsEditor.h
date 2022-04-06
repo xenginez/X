@@ -12,11 +12,12 @@
 #include "../DockWidget.h"
 
 #include <QSqlDatabase>
-#include <QFileSystemWatcher>
 
 UI_DECL( AssetsEditor );
 
 BEG_XS_NAMESPACE
+
+class AssetsItemModel;
 
 class XS_API AssetsEditor : public XS::DockWidget
 {
@@ -28,20 +29,21 @@ public:
 	~AssetsEditor();
 
 public:
-	void Save( QSettings & settings ) override;
+	void SaveLayout( QSettings & settings ) override;
 
-	void Load( QSettings & settings ) override;
+	void LoadLayout( QSettings & settings ) override;
 
 private slots:
 	void OnWatcherFileChanged( const QString & path );
 
 	void OnWatcherDirectoryChanged( const QString & path );
 
+	void OnTreeViewCustomContextMenuRequested( const QPoint & pos );
+
 private:
 	Ui::AssetsEditor * ui;
 	QSqlDatabase _LocalDB;
-	QSqlDatabase _RemoteDB;
-	QFileSystemWatcher _Watcher;
+	AssetsItemModel * _Module;
 };
 
 END_XS_NAMESPACE

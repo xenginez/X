@@ -53,9 +53,9 @@ public:
 	~DockWidget();
 
 public:
-	virtual void Save( QSettings & settings );
+	virtual void SaveLayout( QSettings & settings );
 
-	virtual void Load( QSettings & settings );
+	virtual void LoadLayout( QSettings & settings );
 
 public:
 	template< typename T > T * GetParent() const

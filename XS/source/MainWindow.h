@@ -44,10 +44,8 @@ public:
 	void RemoveCentralwidget();
 
 public:
-	virtual void Save( QSettings & settings );
-	virtual void Load( QSettings & settings );
-	void SaveShortcuts( const QString & path );
-	void LoadShortcuts( const QString & path );
+	void Save();
+	void Load();
 
 public:
 	void AddUndoStack( QUndoStack * val );
@@ -73,6 +71,12 @@ private slots:
 	void OnRestoreButtonClicked();
 	void OnMinimizeButtonClicked();
 	void OnMaximizeButtonClicked();
+
+private:
+	void SaveLayout();
+	void LoadLayout();
+	void SaveShortcuts();
+	void LoadShortcuts();
 
 private:
 	Ui::MainWindow * ui;

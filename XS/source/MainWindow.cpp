@@ -184,15 +184,29 @@ void XS::MainWindow::showMaximized()
 	QMainWindow::showMaximized();
 }
 
-void XS::MainWindow::Save( QSettings & settings )
+void XS::MainWindow::Save()
 {
+	SaveLayout();
+	SaveShortcuts();
+}
+
+void XS::MainWindow::Load()
+{
+	LoadLayout();
+	LoadShortcuts();
+}
+
+void XS::MainWindow::SaveLayout()
+{
+	QSettings settings( QApplication::applicationDirPath() + "/layout.ini", QSettings::IniFormat );
+
 	settings.beginGroup( objectName() );
 	{
 		QStringList types;
 		QStringList names;
 		QList<XS::DockWidget *> docks = QWidget::findChildren<XS::DockWidget *>();
 
-		for( XS::DockWidget * it : docks )
+		for ( XS::DockWidget * it : docks )
 		{
 			types.push_back( it->metaObject()->className() );
 			names.push_back( it->objectName() );
@@ -203,17 +217,20 @@ void XS::MainWindow::Save( QSettings & settings )
 		settings.setValue( "state", saveState() );
 		settings.setValue( "geometry", saveGeometry() );
 
-		for( XS::DockWidget * it : docks )
+		for ( XS::DockWidget * it : docks )
 		{
-			it->Save( settings );
+			it->SaveLayout( settings );
 			settings.setValue( it->objectName() + "/size", it->size() );
 		}
 	}
 	settings.endGroup();
+
 }
 
-void XS::MainWindow::Load( QSettings & settings )
+void XS::MainWindow::LoadLayout()
 {
+	QSettings settings( QApplication::applicationDirPath() + "/layout.ini", QSettings::IniFormat );
+
 	settings.beginGroup( objectName() );
 	{
 		XS::DockWidget * docks[255];
@@ -225,7 +242,7 @@ void XS::MainWindow::Load( QSettings & settings )
 		{
 			XS::DockWidget * dock = XS::Registry::ConstructT<XS::DockWidget>( types[i], this );
 			dock->setObjectName( names[i] );
-			dock->Load( settings );
+			dock->LoadLayout( settings );
 			dock->show();
 
 			docks[i] = dock;
@@ -236,12 +253,12 @@ void XS::MainWindow::Load( QSettings & settings )
 
 		QApplication::processEvents();
 
-		for( int i = 0; i < types.count(); i++ )
+		for ( int i = 0; i < types.count(); i++ )
 		{
 			QSize size = settings.value( docks[i]->objectName() + "/size" ).toSize();
 			docks[i]->setMinimumSize( size );
 			docks[i]->setMaximumSize( size );
-		} 
+		}
 
 		QApplication::processEvents();
 
@@ -271,10 +288,13 @@ void XS::MainWindow::Load( QSettings & settings )
 		}
 	}
 	settings.endGroup();
+
 }
 
-void XS::MainWindow::SaveShortcuts( const QString & path )
+void XS::MainWindow::SaveShortcuts()
 {
+	auto path = QApplication::applicationDirPath() + "/shortcuts.json";
+
 	QJsonObject obj;
 	{
 		for ( auto it = _Shortcuts.begin(); it != _Shortcuts.end(); ++it )
@@ -291,8 +311,10 @@ void XS::MainWindow::SaveShortcuts( const QString & path )
 	}
 }
 
-void XS::MainWindow::LoadShortcuts( const QString & path )
+void XS::MainWindow::LoadShortcuts()
 {
+	auto path = QApplication::applicationDirPath() + "/shortcuts.json";
+
 	QFile file( path );
 	if ( file.open( QIODevice::ReadOnly | QIODevice::Text ) )
 	{

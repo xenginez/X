@@ -12,8 +12,17 @@
 XE::Window::Window( XE::WindowHandle window )
 	:_Window( window )
 {
+
+}
+
+void XE::Window::ShowCursor()
+{
+	::ShowCursor( true );
+}
+
+void XE::Window::HideCursor()
+{
 	::ShowCursor( false );
-	::SetWindowLong( reinterpret_cast<HWND>( _Window.GetValue() ), GWL_STYLE, WS_OVERLAPPEDWINDOW );
 }
 
 void XE::Window::ShowWindow()

@@ -45,9 +45,9 @@ XS::ObjectsEditor::~ObjectsEditor()
 	delete ui;
 }
 
-void XS::ObjectsEditor::Save( QSettings & settings )
+void XS::ObjectsEditor::SaveLayout( QSettings & settings )
 {
-	DockWidget::Save( settings );
+	DockWidget::SaveLayout( settings );
 	
 	settings.beginGroup( objectName() );
 	{
@@ -59,9 +59,9 @@ void XS::ObjectsEditor::Save( QSettings & settings )
 	settings.endGroup();
 }
 
-void XS::ObjectsEditor::Load( QSettings & settings )
+void XS::ObjectsEditor::LoadLayout( QSettings & settings )
 {
-	DockWidget::Load( settings );
+	DockWidget::LoadLayout( settings );
 	
 	settings.beginGroup( objectName() );
 	{

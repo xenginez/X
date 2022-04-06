@@ -22,9 +22,13 @@ int main( int argc, char * argv[] )
 
 	XS::CoreFramework framework;
 	XStudio::EditorWindow window( project );
-	
-	window.show();
-	framework.Exec( XE::MakeShared< XS::WindowProxy >( &window ), project );
 
-	return a.exec();
+	framework.Exec( XE::MakeShared< XS::WindowProxy >( &window ), project );
+	window.show();
+
+	int result = a.exec();
+
+	framework.WaitExit();
+
+	return result;
 }
