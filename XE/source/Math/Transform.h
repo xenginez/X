@@ -100,8 +100,6 @@ private:
 };
 DECL_XE_CLASS( Transform );
 
-XE::Transform operator *( const XE::Transform & left, const XE::Transform & right );
-
 END_XE_NAMESPACE
 
 #endif // TRANSFORM_H__595570D6_1829_4393_B7E9_1D7CC38EAB1B

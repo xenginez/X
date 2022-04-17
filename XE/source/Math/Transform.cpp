@@ -20,7 +20,7 @@ REG_PROPERTY( "RelativeScale", &XE::Transform::GetRelativeScale, &XE::Transform:
 REG_PROPERTY( "RelativeTransform", &XE::Transform::GetRelativeTransform, &XE::Transform::SetRelativeTransform );
 END_META()
 
-XE::Transform const XE::Transform::Identity = XE::Transform();
+XE::Transform const XE::Transform::Identity = {};
 
 XE::Transform::Transform( Transform * parent /*= nullptr */ )
 	: _Position( XE::Vec3f::Zero )
@@ -218,9 +218,4 @@ void XE::Transform::SetRelativeTransform( const XE::Mat4x4f & val )
 	_Transform = val;
 
 	XE::Mathf::TRS( _Transform, _Position, _Rotation, _Scale );
-}
-
-XE::Transform XE::operator*( const Transform & left, const Transform & right )
-{
-	return { left.GetWorldTransform() * right.GetWorldTransform() };
 }
