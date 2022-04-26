@@ -46,7 +46,7 @@ install(TARGETS XE
         ARCHIVE DESTINATION lib
         )
 
-set(PUBLIC_HEADER_DIRS Base Core Inputs Math Memory Network Reflect Utils)
+set(PUBLIC_HEADER_DIRS Base Core Inputs Math Memory Network Reflect Utils Scene)
 foreach(PUBLIC_HEADER_DIR ${PUBLIC_HEADER_DIRS})
 
 	FILE(GLOB_RECURSE PUBLIC_HEADER_FILES ${PUBLIC_HEADER_DIR}/*.h ${PUBLIC_HEADER_DIR}/*.hpp ${PUBLIC_HEADER_DIR}/*.inc)
