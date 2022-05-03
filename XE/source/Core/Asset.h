@@ -11,8 +11,6 @@
 
 #include "Utils/UUID.h"
 
-#include "Object.h"
-
 BEG_XE_NAMESPACE
 
 class XE_API Asset

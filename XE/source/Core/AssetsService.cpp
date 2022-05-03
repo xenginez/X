@@ -134,8 +134,6 @@ XE::ObjectPtr XE::AssetsService::LoadObject( const XE::UUID & uuid, const XE::St
 
 		load & obj;
 
-		obj->AssetLoad();
-
 		_p->_ObjectCache.insert( { uuid, obj } );
 
 		GetFramework()->GetServiceT< XE::TimerService >()->StartUnscaleTimer

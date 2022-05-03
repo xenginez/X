@@ -26,9 +26,9 @@ DECL_PTR( MetaMethod );
 DECL_PTR( MetaProperty );
 DECL_PTR( MetaFunction );
 DECL_PTR( MetaVariable );
-
-DECL_PTR( ReflectObject );
 DECL_PTR( MetaAttribute );
+
+DECL_PTR( Object );
 
 enum class MetaInfoType
 {

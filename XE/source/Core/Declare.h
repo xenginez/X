@@ -16,7 +16,6 @@
 BEG_XE_NAMESPACE
 
 class Asset;
-class Object;
 
 class CoreFramework;
 

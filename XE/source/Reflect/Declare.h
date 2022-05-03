@@ -34,8 +34,8 @@ class MetaProperty;
 class MetaFunction;
 class MetaVariable;
 
+class Object;
 class Reflection;
-class ReflectObject;
 
 class InvokeStack;
 class TemplateType;

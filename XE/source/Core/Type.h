@@ -36,8 +36,6 @@ DECL_PTR( PhysicsService );
 DECL_PTR( LocalizationService );
 class CoreFramework;  using CoreFrameworkPtr = CoreFramework * ;
 
-DECL_PTR( Object );
-
 static constexpr char CONFIG_FILE_NAME[] = "Config.json";
 static constexpr char LANGUAGE_FILE_NAME[] = "Language.csv";
 static constexpr char CACHEDATA_FILE_NAME[] = "Cache.cache";

@@ -1,37 +1,37 @@
-#include "ReflectObject.h"
+#include "Object.h"
 
 #include "CXXMetaClass.hpp"
 
-XE::ReflectObject::ReflectObject()
+XE::Object::Object()
 {
 }
 
-XE::ReflectObject::~ReflectObject()
+XE::Object::~Object()
 {
 }
 
-XE::MetaClassCPtr XE::ReflectObject::GetMetaClassStatic()
+XE::MetaClassCPtr XE::Object::GetMetaClassStatic()
 {
-	static auto p = XE::MakeShared< XE::CXXMetaClass< XE::ReflectObject > >( "ReflectObject", nullptr, nullptr, GetModule() );
+	static auto p = XE::MakeShared< XE::CXXMetaClass< XE::Object > >( "ReflectObject", nullptr, nullptr, GetModule() );
 	return p;
 }
 
-XE::MetaClassCPtr XE::ReflectObject::GetMetaClass() const
+XE::MetaClassCPtr XE::Object::GetMetaClass() const
 {
 	return GetMetaClassStatic();
 }
 
-XE::Variant XE::ReflectObject::Get( const String & name )
+XE::Variant XE::Object::Get( const String & name )
 {
 	return GetMetaClass()->FindProperty( name )->Get( this );
 }
 
-void XE::ReflectObject::Set( const String & name, const Variant & val )
+void XE::Object::Set( const String & name, const Variant & val )
 {
 	GetMetaClass()->FindProperty( name )->Set( this, val );
 }
 
-XE::Variant XE::ReflectObject::Invoke( const String & name, InvokeStack * params )
+XE::Variant XE::Object::Invoke( const String & name, InvokeStack * params )
 {
 	if( auto method = GetMetaClass()->FindMethod( name, params->GetTypes() ) )
 	{
@@ -41,7 +41,7 @@ XE::Variant XE::ReflectObject::Invoke( const String & name, InvokeStack * params
 	return {};
 }
 
-void XE::ReflectObject::Serialize( XE::OArchive & archive ) const
+void XE::Object::Serialize( XE::OArchive & archive ) const
 {
 	GetMetaClass()->VisitProperty( [&]( const XE::MetaPropertyCPtr & prop )
 						{
@@ -52,7 +52,7 @@ void XE::ReflectObject::Serialize( XE::OArchive & archive ) const
 						} );
 }
 
-void XE::ReflectObject::Deserialize( XE::IArchive & archive )
+void XE::Object::Deserialize( XE::IArchive & archive )
 {
 	GetMetaClass()->VisitProperty( [&]( const XE::MetaPropertyCPtr & prop )
 						{

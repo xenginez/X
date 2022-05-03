@@ -1,13 +1,13 @@
 /*!
- * \file	ReflectObject.h
+ * \file   Object.h
  *
- * \author	ZhengYuanQing
- * \date	2019/09/03
- * \email	zhengyuanqing.95@gmail.com
+ * \author ZhengYuanQing
+ * \date   2022/05/04
+ * \email  zhengyuanqing.95@gmail.com
  *
  */
-#ifndef REFLECTOBJECT_H__080637A5_D1CD_4182_81E3_57D5D2025E0D
-#define REFLECTOBJECT_H__080637A5_D1CD_4182_81E3_57D5D2025E0D
+#ifndef OBJECT_H__3E588A66_5DD3_46BE_B734_9218C812D828
+#define OBJECT_H__3E588A66_5DD3_46BE_B734_9218C812D828
 
 #include "Variant.h"
 #include "InvokeStack.h"
@@ -15,7 +15,7 @@
 
 BEG_XE_NAMESPACE
 
-class XE_API ReflectObject : public XE::EnableSharedFromThis< ReflectObject >
+class XE_API Object : public XE::EnableSharedFromThis< Object >
 {
 	template< typename T > friend struct MetaTypeCollector;
 
@@ -25,9 +25,9 @@ public:
 	virtual MetaClassCPtr GetMetaClass() const;
 
 public:
-	ReflectObject();
+	Object();
 
-	virtual ~ReflectObject();
+	virtual ~Object();
 
 public:
 	virtual XE::Variant Get( const XE::String & name );
@@ -39,7 +39,7 @@ public:
 	template< typename ... Types > XE::Variant Invoke( const String & name, Types && ...args )
 	{
 		XE::InvokeStack stack;
-		
+
 		stack.Push( this, std::forward< Types >( args )... );
 
 		return Invoke( name, &stack );
@@ -54,4 +54,4 @@ public:
 
 END_XE_NAMESPACE
 
-#endif // REFLECTOBJECT_H__080637A5_D1CD_4182_81E3_57D5D2025E0D
+#endif // OBJECT_H__3E588A66_5DD3_46BE_B734_9218C812D828

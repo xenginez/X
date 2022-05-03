@@ -33,9 +33,9 @@
 #include "MetaTypeList.hpp"
 #include "VariantOperation.hpp"
 
+#include "Object.h"
 #include "Archive.h"
 #include "Reflection.h"
-#include "ReflectObject.h"
 #include "MetaAttribute.h"
 
 #endif // REFLECT_H__DB8AE6CB_8BEE_4A58_B0E8_02BA454A5BF3
