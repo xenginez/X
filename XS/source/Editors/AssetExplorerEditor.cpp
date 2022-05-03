@@ -1,6 +1,6 @@
-#include "AssetsEditor.h"
+#include "AssetExplorerEditor.h"
 
-#include "ui_AssetsEditor.h"
+#include "ui_AssetExplorerEditor.h"
 
 #include <QMenu>
 #include <QFileInfo>
@@ -11,7 +11,7 @@
 
 #include "CoreFramework.h"
 
-REG_WIDGET( XS::AssetsEditor );
+REG_WIDGET( XS::AssetExplorerEditor );
 
 class XS::AssetsItemModel : public QAbstractItemModel
 {
@@ -337,8 +337,8 @@ private:
 	QList< QString > _Favorites;
 };
 
-XS::AssetsEditor::AssetsEditor( QWidget * parent /*= nullptr */ )
-	:DockWidget( parent ), ui( new Ui::AssetsEditor )
+XS::AssetExplorerEditor::AssetExplorerEditor( QWidget * parent /*= nullptr */ )
+	:DockWidget( parent ), ui( new Ui::AssetExplorerEditor )
 {
 	setupUi( ui );
 
@@ -354,30 +354,30 @@ XS::AssetsEditor::AssetsEditor( QWidget * parent /*= nullptr */ )
 	ui->search->addAction( QIcon( "SkinIcons:/images/assets/icon_assets_search.png" ), QLineEdit::ActionPosition::LeadingPosition );
 
 	auto project_path = QDir::toNativeSeparators( QString::fromStdString( XS::CoreFramework::GetCurrentFramework()->GetProjectPath().string() ) );
-	auto watchdb_file = QDir::toNativeSeparators( QString::fromStdString( ( XS::CoreFramework::GetCurrentFramework()->GetProjectPath() / "FileWatcher.db" ).string() ) );
+	auto watchdb_file = QDir::toNativeSeparators( QString::fromStdString( ( XS::CoreFramework::GetCurrentFramework()->GetProjectPath() / ASSET_DB_NAME / ".db" ).string() ) );
 
 	_Module = new XS::AssetsItemModel( project_path, this );
 	ui->tree->setModel( _Module );
 	ui->tree->setRootIndex( _Module->rootIndex() );
 
-// 	_LocalDB = QSqlDatabase::addDatabase( "QSQLITE" );
-// 	_LocalDB.setHostName( watchdb_file );
-// 	_LocalDB.open();
+	_AssetDB = QSqlDatabase::addDatabase( "QSQLITE", ASSET_DB_NAME );
+	_AssetDB.setHostName( watchdb_file );
+	_AssetDB.open();
 
-	connect( ui->tree, &QTreeView::customContextMenuRequested, this, &AssetsEditor::OnTreeViewCustomContextMenuRequested );
+	connect( ui->tree, &QTreeView::customContextMenuRequested, this, &AssetExplorerEditor::OnTreeViewCustomContextMenuRequested );
 }
 
-XS::AssetsEditor::~AssetsEditor()
+XS::AssetExplorerEditor::~AssetExplorerEditor()
 {
-	if ( _LocalDB.isOpen() )
+	if ( _AssetDB.isOpen() )
 	{
-		_LocalDB.close();
+		_AssetDB.close();
 	}
 
 	delete ui;
 }
 
-void XS::AssetsEditor::SaveLayout( QSettings & settings )
+void XS::AssetExplorerEditor::SaveLayout( QSettings & settings )
 {
 	DockWidget::SaveLayout( settings );
 
@@ -389,7 +389,7 @@ void XS::AssetsEditor::SaveLayout( QSettings & settings )
 	settings.endGroup();
 }
 
-void XS::AssetsEditor::LoadLayout( QSettings & settings )
+void XS::AssetExplorerEditor::LoadLayout( QSettings & settings )
 {
 	DockWidget::LoadLayout( settings );
 
@@ -401,17 +401,17 @@ void XS::AssetsEditor::LoadLayout( QSettings & settings )
 	settings.endGroup();
 }
 
-void XS::AssetsEditor::OnWatcherFileChanged( const QString & path )
+void XS::AssetExplorerEditor::OnWatcherFileChanged( const QString & path )
 {
 
 }
 
-void XS::AssetsEditor::OnWatcherDirectoryChanged( const QString & path )
+void XS::AssetExplorerEditor::OnWatcherDirectoryChanged( const QString & path )
 {
 
 }
 
-void XS::AssetsEditor::OnTreeViewCustomContextMenuRequested( const QPoint & pos )
+void XS::AssetExplorerEditor::OnTreeViewCustomContextMenuRequested( const QPoint & pos )
 {
 	QModelIndex index = ui->tree->indexAt( ui->tree->viewport()->mapFromGlobal( QCursor::pos() ) );
 	

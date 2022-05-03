@@ -66,7 +66,7 @@
     </item>
    </layout>
   </widget>
-  <widget class="QStatusBar" name="statusBar">
+  <widget class="XS::StatusBar" name="statusBar">
    <property name="styleSheet">
     <string notr="true">#statusBar
 {
@@ -205,6 +205,11 @@
    <class>XS::MenuBar</class>
    <extends>QMenuBar</extends>
    <header>Menubar.h</header>
+  </customwidget>
+  <customwidget>
+   <class>XS::StatusBar</class>
+   <extends>QStatusBar</extends>
+   <header>StatusBar.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

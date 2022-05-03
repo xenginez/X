@@ -14,18 +14,18 @@
 
 class QTreeWidgetItem;
 
-UI_DECL( ObjectsEditor );
+UI_DECL( WorldEditor );
 
 BEG_XS_NAMESPACE
 
-class XS_API ObjectsEditor : public XS::DockWidget
+class XS_API WorldEditor : public XS::DockWidget
 {
 	Q_OBJECT
 
 public:
-	ObjectsEditor( QWidget * parent = nullptr );
+	WorldEditor( QWidget * parent = nullptr );
 
-	~ObjectsEditor();
+	~WorldEditor();
 
 public:
 	void SaveLayout( QSettings & settings ) override;
@@ -41,7 +41,7 @@ private:
 	void OnInspectorClicked( const XE::Variant & val );
 
 private:
-	Ui::ObjectsEditor * ui;
+	Ui::WorldEditor * ui;
 	XS::Inspector * _Inspector = nullptr;
 };
 

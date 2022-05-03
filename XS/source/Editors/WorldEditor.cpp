@@ -1,13 +1,13 @@
-#include "ObjectsEditor.h"
+#include "WorldEditor.h"
 
-#include "ui_ObjectsEditor.h"
+#include "ui_WorldEditor.h"
 
 #include <QTimer>
 
-REG_WIDGET( XS::ObjectsEditor );
+REG_WIDGET( XS::WorldEditor );
 
-XS::ObjectsEditor::ObjectsEditor( QWidget * parent /*= nullptr */ )
-	:DockWidget( parent ), ui( new Ui::ObjectsEditor )
+XS::WorldEditor::WorldEditor( QWidget * parent /*= nullptr */ )
+	:DockWidget( parent ), ui( new Ui::WorldEditor )
 {
 	setupUi( ui );
 
@@ -33,19 +33,19 @@ XS::ObjectsEditor::ObjectsEditor( QWidget * parent /*= nullptr */ )
 	ui->inspector_expand->setIcon( QIcon( "SkinIcons:/images/objects/icon_objects_expand.png" ) );
 	ui->inspector_collapse->setIcon( QIcon( "SkinIcons:/images/objects/icon_objects_collapse.png" ) );
 
-	connect( ui->logic_tree, &QTreeWidget::itemClicked, this, &ObjectsEditor::OnLogicTreeWidgetItemClicked );
-	connect( ui->render_tree, &QTreeWidget::itemClicked, this, &ObjectsEditor::OnRenderTreeWidgetItemClicked );
+	connect( ui->logic_tree, &QTreeWidget::itemClicked, this, &WorldEditor::OnLogicTreeWidgetItemClicked );
+	connect( ui->render_tree, &QTreeWidget::itemClicked, this, &WorldEditor::OnRenderTreeWidgetItemClicked );
 
 	connect( ui->inspector_expand, &QToolButton::clicked, [this]() { if ( _Inspector != nullptr ) _Inspector->Expand(); } );
 	connect( ui->inspector_collapse, &QToolButton::clicked, [this]() { if ( _Inspector != nullptr ) _Inspector->Collapse(); } );
 }
 
-XS::ObjectsEditor::~ObjectsEditor()
+XS::WorldEditor::~WorldEditor()
 {
 	delete ui;
 }
 
-void XS::ObjectsEditor::SaveLayout( QSettings & settings )
+void XS::WorldEditor::SaveLayout( QSettings & settings )
 {
 	DockWidget::SaveLayout( settings );
 	
@@ -59,7 +59,7 @@ void XS::ObjectsEditor::SaveLayout( QSettings & settings )
 	settings.endGroup();
 }
 
-void XS::ObjectsEditor::LoadLayout( QSettings & settings )
+void XS::WorldEditor::LoadLayout( QSettings & settings )
 {
 	DockWidget::LoadLayout( settings );
 	
@@ -73,21 +73,21 @@ void XS::ObjectsEditor::LoadLayout( QSettings & settings )
 	settings.endGroup();
 }
 
-void XS::ObjectsEditor::OnLogicTreeWidgetItemClicked( QTreeWidgetItem * item, int column )
+void XS::WorldEditor::OnLogicTreeWidgetItemClicked( QTreeWidgetItem * item, int column )
 {
 	ui->render_tree->setCurrentItem( nullptr );
 	ui->inspector_name->setText( item->text( 0 ) );
 
 }
 
-void XS::ObjectsEditor::OnRenderTreeWidgetItemClicked( QTreeWidgetItem * item, int column )
+void XS::WorldEditor::OnRenderTreeWidgetItemClicked( QTreeWidgetItem * item, int column )
 {
 	ui->logic_tree->setCurrentItem( nullptr );
 	ui->inspector_name->setText( item->text( 0 ) );
 
 }
 
-void XS::ObjectsEditor::OnInspectorClicked( const XE::Variant & val )
+void XS::WorldEditor::OnInspectorClicked( const XE::Variant & val )
 {
 	if ( ui->inspector_layout->count() != 0 )
 	{

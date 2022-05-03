@@ -47,30 +47,30 @@ void XStudio::EditorWindow::showEvent( QShowEvent * e )
 	}
 	else
 	{
-		auto objects = XS::Registry::ConstructT<XS::DockWidget>( "XS::ObjectsEditor", this ); objects->show();
-		auto assets = XS::Registry::ConstructT<XS::DockWidget>( "XS::AssetsEditor", this ); assets->show();
+		auto asset = XS::Registry::ConstructT<XS::DockWidget>( "XS::AssetExplorerEditor", this ); asset->show();
+		auto world = XS::Registry::ConstructT<XS::DockWidget>( "XS::WorldEditor", this ); world->show();
 		auto edit = XS::Registry::ConstructT<XS::DockWidget>( "XS::EditSceneEditor", this ); edit->show();
 		auto game = XS::Registry::ConstructT<XS::DockWidget>( "XS::GameSceneEditor", this ); game->show();
 		auto log = XS::Registry::ConstructT<XS::DockWidget>( "XS::LoggerEditor", this ); log->show();
 
 		addDockWidget( Qt::LeftDockWidgetArea, edit );
-		addDockWidget( Qt::RightDockWidgetArea, objects );
-		QMainWindow::resizeDocks( { edit, objects }, { int( width() * 0.7f ), int( width() * 0.3f ) }, Qt::Horizontal );
+		addDockWidget( Qt::RightDockWidgetArea, world );
+		QMainWindow::resizeDocks( { edit, world }, { int( width() * 0.7f ), int( width() * 0.3f ) }, Qt::Horizontal );
 
-		addDockWidget( Qt::LeftDockWidgetArea, assets );
-		QMainWindow::splitDockWidget( edit, assets, Qt::Vertical );
-		QMainWindow::resizeDocks( { edit, assets }, { int( height() * 0.7f ), int( height() * 0.3f ) }, Qt::Vertical );
+		addDockWidget( Qt::LeftDockWidgetArea, asset );
+		QMainWindow::splitDockWidget( edit, asset, Qt::Vertical );
+		QMainWindow::resizeDocks( { edit, asset }, { int( height() * 0.7f ), int( height() * 0.3f ) }, Qt::Vertical );
 
 		addDockWidget( Qt::LeftDockWidgetArea, game );
 		QMainWindow::tabifyDockWidget( edit, game );
 		QMainWindow::setTabPosition( Qt::LeftDockWidgetArea, QTabWidget::South );
 
 		addDockWidget( Qt::LeftDockWidgetArea, log );
-		QMainWindow::tabifyDockWidget( assets, log );
+		QMainWindow::tabifyDockWidget( asset, log );
 		QMainWindow::setTabPosition( Qt::LeftDockWidgetArea, QTabWidget::South );
 
 		edit->raise();
-		assets->raise();
+		asset->raise();
 	}
 }
 

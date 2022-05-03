@@ -12,21 +12,22 @@
 #include "../DockWidget.h"
 
 #include <QSqlDatabase>
+#include <QMimeDatabase>
 
-UI_DECL( AssetsEditor );
+UI_DECL( AssetExplorerEditor );
 
 BEG_XS_NAMESPACE
 
 class AssetsItemModel;
 
-class XS_API AssetsEditor : public XS::DockWidget
+class XS_API AssetExplorerEditor : public XS::DockWidget
 {
 	Q_OBJECT
 
 public:
-	AssetsEditor( QWidget * parent = nullptr );
+	AssetExplorerEditor( QWidget * parent = nullptr );
 
-	~AssetsEditor();
+	~AssetExplorerEditor();
 
 public:
 	void SaveLayout( QSettings & settings ) override;
@@ -38,11 +39,20 @@ private slots:
 
 	void OnWatcherDirectoryChanged( const QString & path );
 
+private slots:
+	void OnTreeViewIndexClicked( const QModelIndex & index );
+
 	void OnTreeViewCustomContextMenuRequested( const QPoint & pos );
 
+private slots:
+	void OnListViewIndexClicked( const QModelIndex & index );
+
+	void OnListViewIndexDoubleClicked( const QModelIndex & index );
+
 private:
-	Ui::AssetsEditor * ui;
-	QSqlDatabase _LocalDB;
+	Ui::AssetExplorerEditor * ui;
+	QSqlDatabase _AssetDB;
+	QMimeDatabase _MimeDB;
 	AssetsItemModel * _Module;
 };
 
