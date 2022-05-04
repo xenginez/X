@@ -19,10 +19,6 @@ class Level;
 class Entity;
 class GameObject;
 
-class LevelManager;
-class EntityManager;
-class ObjectManager;
-
 END_XE_NAMESPACE
 
 #endif // DECLARE_H__5CF70235_A6C2_4E42_89ED_5D453F005819

@@ -10,7 +10,6 @@
 #define WORLD_H__224B6B99_EA71_429B_BF6E_AB949AB38C2D
 
 #include "Type.h"
-#include "Core/Object.h"
 
 BEG_XE_NAMESPACE
 
@@ -24,10 +23,20 @@ public:
 	~World() override;
 
 public:
+	void Prepare();
+
+	void Startup();
+
+	void Update( XE::float32 dt );
+
+	void Clearup();
+
+public:
+	bool IsPrepare() const;
 
 private:
-	XE::String _Name;
-	XE::LevelManager _LevelManager;
+	bool _IsPrepare = false;
+	XE::Array< XE::LevelPtr > _Levels;
 };
 
 END_XE_NAMESPACE

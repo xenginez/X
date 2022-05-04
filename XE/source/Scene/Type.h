@@ -18,9 +18,8 @@ DECL_HANDLE( Level );
 DECL_HANDLE( Entity );
 DECL_HANDLE( GameObject );
 
-DECL_PTR( LevelManager );
-DECL_PTR( EntityManager );
-DECL_PTR( ObjectManager );
+DECL_PTR( Level );
+DECL_PTR( GameObject );
 
 END_XE_NAMESPACE
 
