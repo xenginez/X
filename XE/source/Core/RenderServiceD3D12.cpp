@@ -12,6 +12,7 @@
 
 #include <tbb/concurrent_queue.h>
 #include <D3D12MemAlloc/D3D12MemAlloc.h>
+#include <D3D12MemAlloc/D3D12MemAlloc.cpp>
 
 #include "Utils/Logger.h"
 #include "Utils/Window.h"
@@ -1089,6 +1090,7 @@ public:
 	XE::RenderVirtualBufferHandle _Handle;
 
 	XE::uint64 _Address;
+	D3D12MA::VirtualAllocation _Allocation;
 };
 
 class D3D12RenderContext
@@ -2171,9 +2173,9 @@ XE::RenderVirtualBufferHandle XE::RenderService::Create( XE::RenderContextHandle
 		D3D12MA::VIRTUAL_ALLOCATION_DESC desc;
 		desc.Alignment = 1;
 		desc.Size = data.size();
-		desc.pUserData = (void *)data.data();
+		desc.pPrivateData = (void *)data.data();
 
-		_p->_Contexts[context]->_VirtualAllocator->Allocate( &desc, &buffer._Address );
+		_p->_Contexts[context]->_VirtualAllocator->Allocate( &desc, &buffer._Allocation, &buffer._Address );
 	}
 	return handle;
 }
@@ -2471,14 +2473,15 @@ void XE::RenderService::Destroy( XE::RenderContextHandle context, XE::RenderVirt
 	if( buf.Dec() == 0 )
 	{
 		XE::uint64 addr = buf._Address;
+		D3D12MA::VirtualAllocation allocation = buf._Allocation;
 
 		buf._Address = 0;
 		buf._Handle.Reset();
 		buf.Reset();
 
-		ctx->_WaitCallbacks.push( [this, context, addr]()
+		ctx->_WaitCallbacks.push( [this, context, addr, allocation]()
 		{
-			_p->_Contexts[context.GetValue()]->_VirtualAllocator->FreeAllocation( addr );
+			_p->_Contexts[context.GetValue()]->_VirtualAllocator->FreeAllocation( allocation );
 		} );
 
 		ctx->_RenderVirtualBufferHandleAllocator.Free( handle );

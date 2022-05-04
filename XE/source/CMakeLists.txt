@@ -10,11 +10,10 @@ endif ()
 
 set(LINK_LIBS 
 		clog
-		bundle
 		cpuinfo)
 		
 if(X_PLATFORM MATCHES "win")
-	set(LINK_LIBS ${LINK_LIBS} xinput D3D12MemAlloc)
+	set(LINK_LIBS ${LINK_LIBS} xinput)
 endif()
 
 if (X_CONFIG MATCHES "debug")

@@ -411,6 +411,11 @@ void XS::AssetExplorerEditor::OnWatcherDirectoryChanged( const QString & path )
 
 }
 
+void XS::AssetExplorerEditor::OnTreeViewIndexClicked( const QModelIndex & index )
+{
+
+}
+
 void XS::AssetExplorerEditor::OnTreeViewCustomContextMenuRequested( const QPoint & pos )
 {
 	QModelIndex index = ui->tree->indexAt( ui->tree->viewport()->mapFromGlobal( QCursor::pos() ) );
@@ -428,4 +433,14 @@ void XS::AssetExplorerEditor::OnTreeViewCustomContextMenuRequested( const QPoint
 		menu.addAction( favorite );
 	}
 	menu.exec( QCursor::pos() );
+}
+
+void XS::AssetExplorerEditor::OnListViewIndexClicked( const QModelIndex & index )
+{
+
+}
+
+void XS::AssetExplorerEditor::OnListViewIndexDoubleClicked( const QModelIndex & index )
+{
+
 }

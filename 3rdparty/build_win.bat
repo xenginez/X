@@ -31,39 +31,6 @@ git submodule update --init --recursive
 
 
 
-
-:BUILD_OZZ
-cd %RD3_PATH%
-echo "build ozz-animation debug"
-mkdir .\ozz-animation\build
-cd .\ozz-animation\build
-cmake -Dozz_build_msvc_rt_dll=ON -Dozz_build_fbx=OFF -Dozz_build_gltf=OFF -Dozz_build_howtos=OFF -Dozz_build_postfix=OFF -Dozz_build_samples=OFF -Dozz_build_simd_ref=ON -Dozz_build_tests=OFF -Dozz_build_tools=OFF -Dozz_run_tests_headless=OFF -DCMAKE_INSTALL_PREFIX=.\install\ .. -G "Visual Studio 16 2019" 
-msbuild.exe ".\INSTALL.vcxproj"  /m /nr:true ^
-    /p:Configuration=Debug ^
-    /p:Platform=x64 ^
-    /p:AppxBundlePlatforms=x64 ^
-    /p:UseSubFolderForOutputDirDuringMultiPlatformBuild=false
-echo "copy ozz-animation debug file to depends"
-xcopy %cd%\install\lib\ozz_animation.lib %RD3_PATH%\..\depends\lib\win\debug\ /y
-xcopy %cd%\install\lib\ozz_base.lib %RD3_PATH%\..\depends\lib\win\debug\ /y
-xcopy %cd%\install\lib\ozz_geometry.lib %RD3_PATH%\..\depends\lib\win\debug\ /y
-xcopy %cd%\install\lib\ozz_options.lib %RD3_PATH%\..\depends\lib\win\debug\ /y
-del %cd%\install\ /f /s /q
-echo "build ozz-animation release"
-msbuild.exe ".\INSTALL.vcxproj"  /m /nr:true ^
-    /p:Configuration=Release ^
-    /p:Platform=x64 ^
-    /p:AppxBundlePlatforms=x64 ^
-    /p:UseSubFolderForOutputDirDuringMultiPlatformBuild=false
-echo "copy ozz-animation release file to depends"
-xcopy %cd%\install\lib\ozz_animation.lib %RD3_PATH%\..\depends\lib\win\release\ /y
-xcopy %cd%\install\lib\ozz_base.lib %RD3_PATH%\..\depends\lib\win\release\ /y
-xcopy %cd%\install\lib\ozz_geometry.lib %RD3_PATH%\..\depends\lib\win\release\ /y
-xcopy %cd%\install\lib\ozz_options.lib %RD3_PATH%\..\depends\lib\win\release\ /y
-xcopy %cd%\install\include\ %RD3_PATH%\..\depends\include\ /s /y
-git clean -fx -d
-
-
 :BUILD_TBB
 echo "build tbb debug"
 cd %RD3_PATH%
@@ -89,7 +56,7 @@ echo "copy tbb release file to depends"
 xcopy %cd%\install\lib\*.* %RD3_PATH%\..\depends\lib\win\release\ /y
 xcopy %cd%\install\bin\*.* %RD3_PATH%\..\depends\bin\win\release\ /y
 xcopy %cd%\install\include\ %RD3_PATH%\..\depends\include\ /s /y
-git clean -fx -d
+
 
 
 :BUILD_GOOGLETEST
@@ -104,7 +71,7 @@ msbuild.exe ".\INSTALL.vcxproj"  /m /nr:true ^
     /p:Platform=x64 ^
     /p:AppxBundlePlatforms=x64 ^
     /p:UseSubFolderForOutputDirDuringMultiPlatformBuild=false
-echo "copy gtest release file to depends"
+echo "copy gtest debug file to depends"
 xcopy %cd%\install\bin\gtestd.dll %RD3_PATH%\..\depends\bin\win\debug\ /y
 xcopy %cd%\install\lib\gtestd.lib %RD3_PATH%\..\depends\lib\win\debug\ /y
 echo "build gtest release"
@@ -119,38 +86,7 @@ echo "copy gtest release file to depends"
 xcopy %cd%\install\bin\gtest.dll %RD3_PATH%\..\depends\bin\win\release\ /y
 xcopy %cd%\install\lib\gtest.lib %RD3_PATH%\..\depends\lib\win\release\ /y
 xcopy %cd%\install\include\ %RD3_PATH%\..\depends\include\ /s /y
-git clean -fx -d
 
-
-:BUILD_GAINPUT
-cd %RD3_PATH%
-mkdir .\gainput\build
-echo "build gainput debug"
-cd %RD3_PATH%
-cd .\gainput\build
-cmake -DGAINPUT_SAMPLES=OFF -DGAINPUT_TESTS=OFF -DCMAKE_INSTALL_PREFIX=.\install\ .. -G "Visual Studio 16 2019"
-msbuild.exe ".\INSTALL.vcxproj"  /m /nr:true ^
-    /p:Configuration=Debug ^
-    /p:Platform=x64 ^
-    /p:AppxBundlePlatforms=x64 ^
-    /p:UseSubFolderForOutputDirDuringMultiPlatformBuild=false
-echo "copy gainput release file to depends"
-xcopy %cd%\install\bin\*.dll %RD3_PATH%\..\depends\bin\win\debug\ /y
-xcopy %cd%\install\lib\*.lib %RD3_PATH%\..\depends\lib\win\debug\ /y
-del %cd%\install\ /f /s /q
-echo "build gainput release"
-cd %RD3_PATH%
-cd .\gainput\build
-msbuild.exe ".\INSTALL.vcxproj"  /m /nr:true ^
-    /p:Configuration=Release ^
-    /p:Platform=x64 ^
-    /p:AppxBundlePlatforms=x64 ^
-    /p:UseSubFolderForOutputDirDuringMultiPlatformBuild=false
-echo "copy gainput release file to depends"
-xcopy %cd%\install\bin\*.dll %RD3_PATH%\..\depends\bin\win\release\ /y
-xcopy %cd%\install\lib\*.lib %RD3_PATH%\..\depends\lib\win\release\ /y
-xcopy %cd%\install\include\ %RD3_PATH%\..\depends\include\ /s /y
-git clean -fx -d
 
 
 :BUILD_CPUINFO
@@ -181,7 +117,7 @@ echo "copy cpuinfo release file to depends"
 xcopy %cd%\install\bin\*.dll %RD3_PATH%\..\depends\bin\win\release\ /y
 xcopy %cd%\install\lib\*.lib %RD3_PATH%\..\depends\lib\win\release\ /y
 xcopy %cd%\install\include\ %RD3_PATH%\..\depends\include\cpuinfo\ /s /y
-git clean -fx -d
+
 
 
 :BUILD_OPENAL
@@ -212,82 +148,25 @@ echo "copy openal-soft release file to depends"
 xcopy %cd%\install\bin\*.dll %RD3_PATH%\..\depends\bin\win\release\ /y
 xcopy %cd%\install\lib\*.lib %RD3_PATH%\..\depends\lib\win\release\ /y
 xcopy %cd%\install\include\ %RD3_PATH%\..\depends\include\openal-soft\ /s /y
-git clean -fx -d
 
 
-:BUILD_BOX2D
-cd %RD3_PATH%
-mkdir .\box2d\build
-echo "build box2d debug"
-cd %RD3_PATH%
-cd .\box2d\build
-cmake -DBOX2D_BUILD_TESTBED=OFF -DBOX2D_BUILD_UNIT_TESTS=OFF -DCMAKE_INSTALL_PREFIX=.\install\ .. -G "Visual Studio 16 2019"
-msbuild.exe ".\INSTALL.vcxproj"  /m /nr:true ^
-    /p:Configuration=Debug ^
-    /p:Platform=x64 ^
-    /p:AppxBundlePlatforms=x64 ^
-    /p:UseSubFolderForOutputDirDuringMultiPlatformBuild=false
-echo "copy box2d release file to depends"
-xcopy %cd%\install\bin\*.dll %RD3_PATH%\..\depends\bin\win\debug\ /y
-xcopy %cd%\install\lib\*.lib %RD3_PATH%\..\depends\lib\win\debug\ /y
-xcopy %cd%\install\lib\*.pdb %RD3_PATH%\..\depends\lib\win\debug\ /y
-del %cd%\install\ /f /s /q
-echo "build box2d release"
-cd %RD3_PATH%
-cd .\box2d\build
-msbuild.exe ".\INSTALL.vcxproj"  /m /nr:true ^
-    /p:Configuration=Release ^
-    /p:Platform=x64 ^
-    /p:AppxBundlePlatforms=x64 ^
-    /p:UseSubFolderForOutputDirDuringMultiPlatformBuild=false
-echo "copy box2d release file to depends"
-xcopy %cd%\install\bin\*.dll %RD3_PATH%\..\depends\bin\win\release\ /y
-xcopy %cd%\install\lib\*.lib %RD3_PATH%\..\depends\lib\win\release\ /y
-xcopy %cd%\install\include\ %RD3_PATH%\..\depends\include\ /s /y
-git clean -fx -d
+
+
 
 
 
 
 :BUILD_BUNDLE
-echo "build bundle debug"
+echo "copy bundle head file to depends"
 cd %RD3_PATH%
-cd .\bundle
-cl /c /Zi /Od /D WIN32 /D _DEBUG /D _CONSOLE /EHsc /Fd"bundle.pdb" /MDd bundle.cpp
-lib bundle.obj
-echo "copy bundle debug file to depends"
-xcopy %cd%\bundle.lib %RD3_PATH%\..\depends\lib\win\debug\ /y
-xcopy %cd%\bundle.pdb %RD3_PATH%\..\depends\lib\win\debug\ /y
-echo "build bundle release"
-cd %RD3_PATH%
-cd .\bundle
-cl /c /EHsc /MDd bundle.cpp
-lib bundle.obj
-xcopy %cd%\bundle.lib %RD3_PATH%\..\depends\lib\win\release\ /y
-xcopy %cd%\bundle.h %RD3_PATH%\..\depends\include\bundle\ /s /y
-git clean -fx -d
-
+xcopy %cd%\bundle\bundle.h %RD3_PATH%\..\depends\include\bundle\ /y
+xcopy %cd%\bundle\bundle.cpp %RD3_PATH%\..\depends\include\bundle\ /y
 
 :BUILD_D3D12ALLOCATOR
-echo "build D3D12MemoryAllocator debug"
+echo "copy D3D12MemoryAllocator head file to depends"
 cd %RD3_PATH%
-cd .\D3D12MemoryAllocator\src
-cl /c /Zi /Od /D WIN32 /D _DEBUG /D _CONSOLE /EHsc /Fd"D3D12MemAlloc.pdb" /MDd D3D12MemAlloc.cpp
-lib D3D12MemAlloc.obj
-echo "copy D3D12MemoryAllocator debug file to depends"
-xcopy %cd%\D3D12MemAlloc.lib %RD3_PATH%\..\depends\lib\win\debug\ /y
-xcopy %cd%\D3D12MemAlloc.pdb %RD3_PATH%\..\depends\lib\win\debug\ /y
-echo "build D3D12MemoryAllocator release"
-cd %RD3_PATH%
-cd .\D3D12MemoryAllocator\src
-cl /c /EHsc /MDd D3D12MemAlloc.cpp
-lib D3D12MemAlloc.obj
-echo "copy D3D12MemoryAllocator release file to depends"
-xcopy %cd%\D3D12MemAlloc.lib %RD3_PATH%\..\depends\lib\win\release\ /y
-xcopy %cd%\D3D12MemAlloc.h %RD3_PATH%\..\depends\include\D3D12MemAlloc\ /s /y
-git clean -fx -d
-
-
+xcopy %cd%\D3D12MemoryAllocator\include\D3D12MemAlloc.h %RD3_PATH%\..\depends\include\D3D12MemAlloc\ /s /y
+xcopy %cd%\D3D12MemoryAllocator\src\D3D12MemAlloc.cpp %RD3_PATH%\..\depends\include\D3D12MemAlloc\ /s /y
 
 :BUILD_STB
 echo "copy stb head file to depends"

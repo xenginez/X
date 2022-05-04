@@ -53,25 +53,25 @@ QIcon XS::TextAssetPipeline::AssetIcon( QSqlDatabase & db, const QMimeData & dat
 
 bool XS::TextAssetPipeline::CreateAsset( QSqlDatabase & db, const QMimeData & data ) const
 {
-
+	return false;
 }
 
 bool XS::TextAssetPipeline::ImportAsset( QSqlDatabase & db, const QMimeData & data ) const
 {
-
+	return false;
 }
 
 bool XS::TextAssetPipeline::EditorAsset( QSqlDatabase & db, const QMimeData & data ) const
 {
-
+	return false;
 }
 
 bool XS::TextAssetPipeline::ChangeAsset( QSqlDatabase & db, const QMimeData & data ) const
 {
-
+	return false;
 }
 
 bool XS::TextAssetPipeline::DeleteAsset( QSqlDatabase & db, const QMimeData & data ) const
 {
-
+	return false;
 }

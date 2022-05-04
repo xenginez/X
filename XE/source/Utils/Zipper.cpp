@@ -1,8 +1,25 @@
-#include "Zipper.h"
+#undef OS_LINUX
+#undef _HAS_OLD_IOSTREAMS_MEMBERS
+
+#if COMPILER == COMPILER_MSVC
+#	pragma warning(disable : 4267)
+#	pragma warning(disable : 4834)
+#	pragma warning(disable : 5033)
+#elif COMPILER == COMPILER_CLANG
+#	pragma clang diagnostic ignored"-Winconsistent-missing-override"
+#else
+#endif
+
+#define _CRT_SECURE_NO_WARNINGS 1
+#define _HAS_OLD_IOSTREAMS_MEMBERS 1
+#include <bundle/bundle.cpp>
+#include <bundle/bundle.h>
+#undef BYTE
+#undef check
 
 #include <fstream>
 
-#include <bundle/bundle.h>
+#include "Zipper.h"
 
 #define ZIP_MAX_SIZE GBYTE(4)
 #define SECTION_MAX_SIZE KBYTE(64)

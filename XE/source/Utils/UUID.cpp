@@ -1,10 +1,6 @@
 #include "UUID.h"
 
-#if PLATFORM_OS == OS_WINDOWS
-#include <objbase.h>
-#else
-#include <uuid/uuid.h>
-#endif
+#include <random>
 
 BEG_META( XE::UUID )
 END_META()
@@ -29,15 +25,11 @@ XE::UUID XE::UUID::Create()
 {
 	XE::UUID result;
 
-	::uuid_t uuid;
+	auto count = std::chrono::utc_clock::now().time_since_epoch().count();
+	std::copy( reinterpret_cast< XE::uint8 * >( &count ), reinterpret_cast< XE::uint8 * >( &count ) + sizeof( count ), result._Datas );
 
-#if defined(_WIN32)
-	CoCreateGuid( &uuid );
-#else
-	uuid_generate( uuid );
-#endif
-
-	std::memcpy( result._Datas, ( void * )&uuid, 16 );
+	auto random = std::mt19937_64( std::random_device{}( ) )( );
+	std::copy( reinterpret_cast< XE::uint8 * >( &random ), reinterpret_cast< XE::uint8 * >( &random ) + sizeof( count ), result._Datas + sizeof( count ) );
 
 	return result;
 }

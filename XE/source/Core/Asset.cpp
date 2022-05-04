@@ -1,6 +1,5 @@
 #include "Asset.h"
 
-#include "Object.h"
 #include "CoreFramework.h"
 #include "AssetsService.h"
 
