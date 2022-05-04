@@ -247,6 +247,40 @@ protected:
 	virtual XE::Variant Deserialize( const XE::String & name = "" ) = 0;
 };
 
+class XE_API XmlOArchive : public OArchive
+{
+private:
+	struct Private;
+
+public:
+	XmlOArchive( std::ostream & stream );
+
+	~XmlOArchive() override;
+
+protected:
+	void Serialize( const XE::Variant & val ) override;
+
+private:
+	Private * _p;
+};
+
+class XE_API XmlIArchive : public IArchive
+{
+private:
+	struct Private;
+
+public:
+	XmlIArchive( std::istream & val );
+
+	~XmlIArchive() override;
+
+protected:
+	XE::Variant Deserialize( const XE::String & name = "" ) override;
+
+private:
+	Private * _p;
+};
+
 class XE_API JsonOArchive : public OArchive
 {
 private:

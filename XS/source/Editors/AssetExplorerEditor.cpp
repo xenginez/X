@@ -118,7 +118,7 @@ public:
 		}
 		else if ( item->info.isDir() )
 		{
-			auto list = QDir( item->info.filePath() ).entryInfoList( QDir::AllEntries | QDir::NoDotAndDotDot );
+			auto list = QDir( item->info.filePath() ).entryInfoList( QDir::Dirs | QDir::NoDotAndDotDot );
 			if ( row < list.size() )
 			{
 				AssetsItem * child = new AssetsItem( row, column, list[row], item );
@@ -169,7 +169,7 @@ public:
 		}
 		else if ( item->info.isDir() )
 		{
-			return QDir( item->info.filePath() ).entryInfoList( QDir::AllEntries | QDir::NoDotAndDotDot ).size();
+			return QDir( item->info.filePath() ).entryInfoList( QDir::Dirs | QDir::NoDotAndDotDot ).size();
 		}
 
 		return 0;

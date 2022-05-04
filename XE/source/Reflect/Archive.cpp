@@ -158,6 +158,48 @@ template< typename T > void write( std::ostream & stream, const T & val )
 }
 
 
+struct XE::XmlOArchive::Private
+{
+};
+
+XE::XmlOArchive::XmlOArchive( std::ostream & stream )
+	:_p( XE::New< Private >( stream ) )
+{
+
+}
+
+XE::XmlOArchive::~XmlOArchive()
+{
+	XE::Delete( _p );
+}
+
+void XE::XmlOArchive::Serialize( const XE::Variant & val )
+{
+
+}
+
+
+struct XE::XmlIArchive::Private
+{
+};
+
+XE::XmlIArchive::XmlIArchive( std::istream & stream )
+	:_p( XE::New< Private >( stream ) )
+{
+
+}
+
+XE::XmlIArchive::~XmlIArchive()
+{
+	XE::Delete( _p );
+}
+
+XE::Variant XE::XmlIArchive::Deserialize( const XE::String & name /*= "" */ )
+{
+
+}
+
+
 struct XE::JsonOArchive::Private
 {
 	Private( std::ostream & stream )
@@ -320,16 +362,20 @@ void XE::JsonOArchive::Serialize( const XE::Variant & val )
 
 struct XE::JsonIArchive::Private
 {
+	Private( std::istream & stream )
+	{
+		rapidjson::IStreamWrapper wrapper( stream );
+		_Document.ParseStream( wrapper );
+	}
+
 	bool _Init = false;
 	rapidjson::Document _Document;
 	std::deque< rapidjson::Value * > _Stack;
 };
 
-XE::JsonIArchive::JsonIArchive( std::istream & val )
-	:_p( XE::New< Private >() )
+XE::JsonIArchive::JsonIArchive( std::istream & stream )
+	:_p( XE::New< Private >( stream ) )
 {
-	rapidjson::IStreamWrapper wrapper( val );
-	_p->_Document.ParseStream( wrapper );
 }
 
 XE::JsonIArchive::~JsonIArchive()
@@ -574,8 +620,8 @@ struct XE::BinaryIArchive::Private
 	std::istream & _Stream;
 };
 
-XE::BinaryIArchive::BinaryIArchive( std::istream & val )
-	: _p( XE::New< Private >( val ) )
+XE::BinaryIArchive::BinaryIArchive( std::istream & stream )
+	: _p( XE::New< Private >( stream ) )
 {
 
 }
