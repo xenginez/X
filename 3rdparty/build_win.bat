@@ -173,6 +173,11 @@ echo "copy stb head file to depends"
 cd %RD3_PATH%
 xcopy %cd%\stb\*.h %RD3_PATH%\..\depends\include\stb\ /s /y
 
+:BUILD_PUGIXML
+echo "copy pugixml head file to depends"
+cd %RD3_PATH%
+xcopy %cd%\pugixml\src\ %RD3_PATH%\..\depends\include\pugixml\ /s /y
+
 :BUILD_RAPIDJSON
 echo "copy rapidjson head file to depends"
 cd %RD3_PATH%
