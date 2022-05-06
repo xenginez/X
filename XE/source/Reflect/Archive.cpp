@@ -230,10 +230,10 @@ void XE::XmlOArchive::Serialize( const XE::Variant & val )
 		auto node = _p->_Document.append_child( pugi::node_declaration );
 		node.append_attribute( "version" ).set_value( "1.0" );
 		node.append_attribute( "encoding" ).set_value( "utf-8" );
-		node.append_attribute( "xe version" ).set_value( XE_VERSION );
+		node.append_attribute( "xe_version" ).set_value( XE_VERSION );
 
 		{
-			auto node = _p->_Document.append_child( "xe object" );
+			auto node = _p->_Document.append_child( "xe_object" );
 
 			_p->_Stack.push_back( &node );
 			Serialize( val );
@@ -250,44 +250,45 @@ void XE::XmlOArchive::Serialize( const XE::Variant & val )
 		if( val.IsEnum() )
 		{
 			_p->_Stack.back()->append_attribute( "type" ).set_value( val.GetType()->GetFullName().c_str() );
-			_p->_Stack.back()->append_child( "value" ).set_value( SP_CAST< const XE::MetaEnum >( val.GetType() )->FindName( val ).c_str() );
+			_p->_Stack.back()->text().set( SP_CAST< const XE::MetaEnum >( val.GetType() )->FindName( val ).c_str() );
 		}
 		else if( val.IsFundamental() )
 		{
+			_p->_Stack.back()->append_attribute( "type" ).set_value( val.GetType()->GetFullName().c_str() );
 			switch( val.GetData().index() )
 			{
 			case 1:
-				_p->_Stack.back()->append_child( val.GetType()->GetFullName().c_str() ).text().set( val.Value< bool >() );
+				_p->_Stack.back()->text().set( val.Value< bool >() );
 				break;
 			case 2:
-				_p->_Stack.back()->append_child( val.GetType()->GetFullName().c_str() ).text().set( val.Value< XE::int8 >() );
+				_p->_Stack.back()->text().set( val.Value< XE::int8 >() );
 				break;
 			case 3:
-				_p->_Stack.back()->append_child( val.GetType()->GetFullName().c_str() ).text().set( val.Value< XE::int16 >() );
+				_p->_Stack.back()->text().set( val.Value< XE::int16 >() );
 				break;
 			case 4:
-				_p->_Stack.back()->append_child( val.GetType()->GetFullName().c_str() ).text().set( val.Value< XE::int32 >() );
+				_p->_Stack.back()->text().set( val.Value< XE::int32 >() );
 				break;
 			case 5:
-				_p->_Stack.back()->append_child( val.GetType()->GetFullName().c_str() ).text().set( val.Value< XE::int64 >() );
+				_p->_Stack.back()->text().set( val.Value< XE::int64 >() );
 				break;
 			case 6:
-				_p->_Stack.back()->append_child( val.GetType()->GetFullName().c_str() ).text().set( val.Value< XE::uint8 >() );
+				_p->_Stack.back()->text().set( val.Value< XE::uint8 >() );
 				break;
 			case 7:
-				_p->_Stack.back()->append_child( val.GetType()->GetFullName().c_str() ).text().set( val.Value< XE::uint16 >() );
+				_p->_Stack.back()->text().set( val.Value< XE::uint16 >() );
 				break;
 			case 8:
-				_p->_Stack.back()->append_child( val.GetType()->GetFullName().c_str() ).text().set( val.Value< XE::uint32 >() );
+				_p->_Stack.back()->text().set( val.Value< XE::uint32 >() );
 				break;
 			case 9:
-				_p->_Stack.back()->append_child( val.GetType()->GetFullName().c_str() ).text().set( val.Value< XE::uint64 >() );
+				_p->_Stack.back()->text().set( val.Value< XE::uint64 >() );
 				break;
 			case 10:
-				_p->_Stack.back()->append_child( val.GetType()->GetFullName().c_str() ).text().set( val.Value< XE::float32 >() );
+				_p->_Stack.back()->text().set( val.Value< XE::float32 >() );
 				break;
 			case 11:
-				_p->_Stack.back()->append_child( val.GetType()->GetFullName().c_str() ).text().set( val.Value< XE::float64 >() );
+				_p->_Stack.back()->text().set( val.Value< XE::float64 >() );
 				break;
 				break;
 			default:
@@ -298,7 +299,8 @@ void XE::XmlOArchive::Serialize( const XE::Variant & val )
 		{
 			if( val.GetType() == ClassID< XE::String >::Get() )
 			{
-				_p->_Stack.back()->append_child( ::TypeID< XE::String >::Get()->GetFullName().c_str() ).set_value( val.Value< const XE::String & >().c_str() );
+				_p->_Stack.back()->append_attribute( "type" ).set_value( val.GetType()->GetFullName().c_str() );
+				_p->_Stack.back()->text().set( XE::Utf8String( val.Value< const XE::String & >() ).c_str() );
 			}
 			else if( val.GetType() == ClassID< XE::ArchiveNameVariant >::Get() )
 			{
@@ -359,9 +361,9 @@ XE::Variant XE::XmlIArchive::Deserialize( const XE::String & name /*= "" */ )
 	{
 		_p->_Init = true;
 
-		if( _p->_Document.child( "xml" ).attribute( "xe version" ).as_uint() == XE_VERSION )
+		if( _p->_Document.child( "xml" ).attribute( "xe_version" ).as_uint() == XE_VERSION )
 		{
-			auto node = _p->_Document.child( "xe object" );
+			auto node = _p->_Document.child( "xe_object" );
 			_p->_Stack.push_back( &node );
 			result = Deserialize();
 			_p->_Stack.pop_back();
@@ -379,63 +381,87 @@ XE::Variant XE::XmlIArchive::Deserialize( const XE::String & name /*= "" */ )
 			_p->_Stack.pop_back();
 		}
 	}
-	else
+	else if( XE::MetaTypeCPtr type = XE::Reflection::FindType( _p->_Stack.back()->attribute( "type" ).value() ) )
 	{
-#define AS( NAME, TYPE ) \
-		if( !_p->_Stack.back()->child( NAME ).empty() ) \
-		{ \
-			result = _p->_Stack.back()->child( NAME ).text().as_##TYPE(); \
+		if( type == ::TypeID< bool >::Get() )
+		{
+			result = _p->_Stack.back()->text().as_bool();
 		}
+		else if( type == ::TypeID< XE::int8 >::Get() )
+		{
+			result = _p->_Stack.back()->text().as_int();
+		}
+		else if( type == ::TypeID< XE::int16 >::Get() )
+		{
+			result = _p->_Stack.back()->text().as_int();
+		}
+		else if( type == ::TypeID< XE::int32 >::Get() )
+		{
+			result = _p->_Stack.back()->text().as_int();
+		}
+		else if( type == ::TypeID< XE::int64 >::Get() )
+		{
+			result = _p->_Stack.back()->text().as_llong();
+		}
+		else if( type == ::TypeID< XE::uint8 >::Get() )
+		{
+			result = _p->_Stack.back()->text().as_uint();
+		}
+		else if( type == ::TypeID< XE::uint16 >::Get() )
+		{
+			result = _p->_Stack.back()->text().as_uint();
+		}
+		else if( type == ::TypeID< XE::uint32 >::Get() )
+		{
+			result = _p->_Stack.back()->text().as_uint();
+		}
+		else if( type == ::TypeID< XE::uint64 >::Get() )
+		{
+			result = _p->_Stack.back()->text().as_ullong();
+		}
+		else if( type == ::TypeID< XE::float32 >::Get() )
+		{
+			result = _p->_Stack.back()->text().as_float();
+		}
+		else if( type == ::TypeID< XE::float64 >::Get() )
+		{
+			result = _p->_Stack.back()->text().as_double();
+		}
+		else if( type == ::TypeID< XE::String >::Get() )
+		{
+			result = XE::String( XE::Utf8String( _p->_Stack.back()->text().as_string() ) );
+		}
+		else if( type->GetType() == XE::MetaInfoType::ENUM )
+		{
+			result = SP_CAST< const XE::MetaEnum >( type )->FindValue( _p->_Stack.back()->text().as_string() );
+		}
+		else
+		{
+			auto flag = str_flag( _p->_Stack.back()->attribute( "flag" ).value() );
 
-		AS( ::TypeID< bool >::Get()->GetFullName().c_str(), bool )
-		else AS( ::TypeID< XE::int8 >::Get()->GetFullName().c_str(), int )
-		else AS( ::TypeID< XE::int16 >::Get()->GetFullName().c_str(), int )
-		else AS( ::TypeID< XE::int32 >::Get()->GetFullName().c_str(), int )
-		else AS( ::TypeID< XE::int64 >::Get()->GetFullName().c_str(), llong )
-		else AS( ::TypeID< XE::uint8 >::Get()->GetFullName().c_str(), uint )
-		else AS( ::TypeID< XE::uint16 >::Get()->GetFullName().c_str(), uint )
-		else AS( ::TypeID< XE::uint32 >::Get()->GetFullName().c_str(), uint )
-		else AS( ::TypeID< XE::uint64 >::Get()->GetFullName().c_str(), ullong )
-		else AS( ::TypeID< XE::float32 >::Get()->GetFullName().c_str(), float )
-		else AS( ::TypeID< XE::float64 >::Get()->GetFullName().c_str(), double )
-		else if( !_p->_Stack.back()->child( ::TypeID< XE::String >::Get()->GetFullName().c_str() ).empty() )
-		{
-			result = XE::String( _p->_Stack.back()->child( ::TypeID< XE::String >::Get()->GetFullName().c_str() ).value() );
-		}
-		else if( XE::MetaTypeCPtr type = XE::Reflection::FindType( _p->_Stack.back()->attribute( "type" ).value() ) )
-		{
-			if( type->GetType() == XE::MetaInfoType::ENUM )
+			if( XE::MetaClassCPtr cls = SP_CAST< const XE::MetaClass >( type ) )
 			{
-				result = SP_CAST< const XE::MetaEnum >( type )->FindValue( _p->_Stack.back()->child( "value" ).value() );
+				if( flag == is_null )
+				{
+					result = XE::VariantData( XE::VariantPointerData( nullptr, type.get() ) );
+				}
+				else if( flag == is_shared_ptr )
+				{
+					result = cls->ConstructPtr();
+				}
+				else
+				{
+					result = cls->Construct();
+				}
 			}
-			else
+
+			if( !result.IsNull() )
 			{
-				auto flag = str_flag( _p->_Stack.back()->attribute( "flag" ).value() );
+				auto node = _p->_Stack.back()->child( "value" );
 
-				if( XE::MetaClassCPtr cls = SP_CAST< const XE::MetaClass >( type ) )
-				{
-					if( flag == is_null )
-					{
-						result = XE::VariantData( XE::VariantPointerData( nullptr, type.get() ) );
-					}
-					else if( flag == is_shared_ptr )
-					{
-						result = cls->ConstructPtr();
-					}
-					else
-					{
-						result = cls->Construct();
-					}
-				}
-
-				if( !result.IsNull() )
-				{
-					auto node = _p->_Stack.back()->child( "value" );
-
-					_p->_Stack.push_back( &node );
-					type->Deserialize( *this, result );
-					_p->_Stack.pop_back();
-				}
+				_p->_Stack.push_back( &node );
+				type->Deserialize( *this, result );
+				_p->_Stack.pop_back();
 			}
 		}
 	}

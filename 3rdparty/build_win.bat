@@ -72,8 +72,8 @@ msbuild.exe ".\INSTALL.vcxproj"  /m /nr:true ^
     /p:AppxBundlePlatforms=x64 ^
     /p:UseSubFolderForOutputDirDuringMultiPlatformBuild=false
 echo "copy gtest debug file to depends"
-xcopy %cd%\install\bin\gtestd.dll %RD3_PATH%\..\depends\bin\win\debug\ /y
-xcopy %cd%\install\lib\gtestd.lib %RD3_PATH%\..\depends\lib\win\debug\ /y
+xcopy %cd%\install\bin\gtest.dll %RD3_PATH%\..\depends\bin\win\debug\ /y
+xcopy %cd%\install\lib\gtest.lib %RD3_PATH%\..\depends\lib\win\debug\ /y
 echo "build gtest release"
 cd %RD3_PATH%
 cd .\googletest\build
