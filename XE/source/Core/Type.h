@@ -724,7 +724,7 @@ struct XE_API RenderShaderDesc
 	XE::RenderShaderType Type;
 	XE::String Name;
 	XE::String Enter;
-	XE::StringView Source;
+	XE::String Source;
 };
 
 struct XE_API RenderTextureDesc

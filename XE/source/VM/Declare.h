@@ -14,6 +14,11 @@
 
 BEG_XE_NAMESPACE
 
+class Module;
+class Instance;
+class Compiler;
+class Interpreter;
+
 END_XE_NAMESPACE
 
 #endif // DECLARE_H__94D10B7F_40C7_4CF1_8B63_184A402AA9BC

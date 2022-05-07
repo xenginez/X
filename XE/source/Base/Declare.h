@@ -51,7 +51,6 @@ class WideEncode;
 class Utf8Encode;
 class StdStringConvert;
 template < typename Unit > class CodePointArrow;
-template < typename String > class BasicStringView;
 template < typename Encode, typename Alloc > class BasicString;
 template < typename Encode, typename Alloc > class BasicStringIterator;
 template < typename StringIterator > class BasicStringReverseIterator;

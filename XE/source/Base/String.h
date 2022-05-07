@@ -734,8 +734,6 @@ public:
 	using reverse_iterator = BasicStringReverseIterator< iterator >;
 	using const_reverse_iterator = BasicStringReverseIterator< const_iterator >;
 
-	using string_view = BasicStringView< BasicString< Encode, Alloc > >;
-
 	using storage_type = std::basic_string< typename Encode::storage_unit, std::char_traits< typename Encode::storage_unit >, Alloc >;
 	using storage_iterator = typename std::basic_string< typename Encode::storage_unit, std::char_traits< typename Encode::storage_unit >, Alloc >::iterator;
 	using storage_const_iterator = typename std::basic_string< typename Encode::storage_unit, std::char_traits< typename Encode::storage_unit >, Alloc >::const_iterator;
@@ -781,11 +779,6 @@ public:
 	{
 	}
 
-	BasicString( string_view str, const Alloc & a = Alloc() )
-		: BasicString( str.begin(), str.end(), a )
-	{
-	}
-
 	BasicString( const_iterator begin, const_iterator end, const Alloc & a = Alloc() )
 		: _string( a )
 	{
@@ -820,14 +813,6 @@ public:
 	BasicString & operator=( const BasicString & str ) = default;
 
 	BasicString & operator=( const storage_unit * str )
-	{
-		_string.clear();
-
-		append( str );
-		return *this;
-	}
-
-	BasicString & operator=( string_view str )
 	{
 		_string.clear();
 
@@ -872,13 +857,6 @@ public:
 		return result;
 	}
 
-	BasicString operator+( string_view str ) const
-	{
-		BasicString result = *this;
-		result.append( str );
-		return result;
-	}
-
 	BasicString operator+( const std::basic_string< typename Encode::storage_unit > & str ) const
 	{
 		BasicString result = *this;
@@ -903,12 +881,6 @@ public:
 	{
 		append( str );
 		return *this;;
-	}
-
-	BasicString & operator+=( string_view str )
-	{
-		append( str );
-		return *this;
 	}
 
 	BasicString & operator+=( const std::basic_string< typename Encode::storage_unit > & str )
@@ -946,99 +918,6 @@ public:
 	bool operator >= ( const BasicString & val ) const
 	{
 		return _string >= val._string;
-	}
-
-public:
-	bool operator == ( const string_view & val ) const
-	{
-		return std::equal( begin(), end(), val.begin(), val.end() );
-	}
-
-	bool operator != ( const string_view & val ) const
-	{
-		return !std::equal( begin(), end(), val.begin(), val.end() );
-	}
-
-	bool operator < ( const string_view & val ) const
-	{
-		return std::equal( begin(), end(), val.begin(), val.end(), std::less< CodePoint >() );
-	}
-
-	bool operator <= ( const string_view & val ) const
-	{
-		return std::equal( begin(), end(), val.begin(), val.end(), std::less_equal< CodePoint >() );
-	}
-
-	bool operator > ( const string_view & val ) const
-	{
-		return std::equal( begin(), end(), val.begin(), val.end(), std::greater< CodePoint >() );
-	}
-
-	bool operator >= ( const string_view & val ) const
-	{
-		return std::equal( begin(), end(), val.begin(), val.end(), std::greater_equal< CodePoint >() );
-	}
-
-public:
-	bool operator == ( const storage_unit * val ) const
-	{
-		return _string == val;
-	}
-
-	bool operator != ( const storage_unit * val ) const
-	{
-		return _string != val;
-	}
-
-	bool operator < ( const storage_unit * val ) const
-	{
-		return _string < val;
-	}
-
-	bool operator <= ( const storage_unit * val ) const
-	{
-		return _string <= val;
-	}
-
-	bool operator > ( const storage_unit * val ) const
-	{
-		return _string > val;
-	}
-
-	bool operator >= ( const storage_unit * val ) const
-	{
-		return _string >= val;
-	}
-
-public:
-	bool operator == ( const std::basic_string< typename Encode::storage_unit > & val ) const
-	{
-		return _string == val.c_str();
-	}
-
-	bool operator != ( const std::basic_string< typename Encode::storage_unit > & val ) const
-	{
-		return _string != val.c_str();
-	}
-
-	bool operator < ( const std::basic_string< typename Encode::storage_unit > & val ) const
-	{
-		return _string < val.c_str();
-	}
-
-	bool operator <= ( const std::basic_string< typename Encode::storage_unit > & val ) const
-	{
-		return _string <= val.c_str();
-	}
-
-	bool operator > ( const std::basic_string< typename Encode::storage_unit > & val ) const
-	{
-		return _string > val.c_str();
-	}
-
-	bool operator >= ( const std::basic_string< typename Encode::storage_unit > & val ) const
-	{
-		return _string >= val.c_str();
 	}
 
 public:
@@ -1137,13 +1016,6 @@ public:
 		return *this;
 	}
 
-	BasicString & append( BasicStringView< BasicString > str )
-	{
-		append( str.begin(), str.end() );
-
-		return *this;
-	}
-
 	BasicString & append( const std::basic_string< typename Encode::storage_unit > & str )
 	{
 		_string.append( str );
@@ -1205,14 +1077,6 @@ public:
 	{
 		clear();
 		append( begin, end );
-
-		return *this;
-	}
-
-	BasicString & assign( BasicStringView< BasicString > str )
-	{
-		clear();
-		append( str.begin(), str.end() );
 
 		return *this;
 	}
@@ -2265,626 +2129,11 @@ private:
 };
 template< typename Encode, typename Alloc > const BasicString< Encode, Alloc > BasicString< Encode, Alloc >::empty_string = {};
 
-template < typename String > class BasicStringView
-{
-public:
-	using size_type = typename String::size_type;
-	using value_type = typename String::value_type;
-	using difference_type = typename String::difference_type;
-
-	using iterator = typename String::const_iterator;
-	using const_iterator = typename String::const_iterator;
-	using reverse_iterator = typename String::const_reverse_iterator;
-	using const_reverse_iterator = typename String::const_reverse_iterator;
-
-public:
-	static constexpr const size_type npos = -1;
-
-private:
-	BasicStringView( String && str ) = delete;
-
-public:
-	BasicStringView() = default;
-
-	BasicStringView( const String & str )
-		: _begin( str.begin() ), _end( str.end() )
-	{}
-
-	BasicStringView( BasicStringView && str ) = default;
-
-	BasicStringView( const BasicStringView & str ) = default;
-
-	BasicStringView( const_iterator begin, const_iterator end )
-		: _begin( begin ), _end( end )
-	{
-	}
-
-public:
-	BasicStringView< String > & operator=( BasicStringView && str ) = default;
-
-	BasicStringView< String > & operator=( const BasicStringView & str ) = default;
-
-public:
-	value_type operator[]( size_type index ) const
-	{
-		const_iterator iter = begin();
-		std::advance( iter, index );
-
-		return *iter;
-	}
-
-	value_type at( size_type index ) const
-	{
-		const_iterator iter = begin();
-		std::advance( iter, index );
-
-		return *iter;
-	}
-
-public:
-	int compare( BasicStringView str ) const
-	{
-		auto iter_a = begin();
-		auto iter_b = str.begin();
-
-		while( iter_a != end() && iter_b != str.end() )
-		{
-			auto value_a = *iter_a;
-			auto value_b = *iter_b;
-
-			if( value_a < value_b )
-			{
-				return -1;
-			}
-			else if( value_a > value_b )
-			{
-				return 1;
-			}
-
-			++iter_a;
-			++iter_b;
-		}
-
-		if( iter_b != str.end() )
-		{
-			return -1;
-		}
-		else if( iter_a != end() )
-		{
-			return 1;
-		}
-
-		return 0;
-	}
-
-public:
-	bool empty() const
-	{
-		return ( _begin == _end );
-	}
-
-public:
-	const_iterator find_fast( value_type c ) const
-	{
-		return find_fast( c, begin() );
-	}
-
-	const_iterator find_fast( value_type c, const_iterator iter_begin ) const
-	{
-		const_iterator iter_end = end();
-
-		if( iter_begin == iter_end )
-		{
-			return iter_end;
-		}
-
-		auto iter = iter_begin;
-
-		while( iter != iter_end )
-		{
-			if( *iter == c )
-			{
-				return iter;
-			}
-
-			++iter;
-		}
-
-		return iter_end;
-	}
-
-	const_iterator find_fast( BasicStringView str ) const
-	{
-		return find_fast( str, begin() );
-	}
-
-	const_iterator find_fast( BasicStringView str, const_iterator iter_begin ) const
-	{
-		const_iterator iter_end = end();
-
-		if( iter_begin == iter_end )
-		{
-			return iter_end;
-		}
-
-		if( str.empty() )
-		{
-			return iter_begin;
-		}
-
-		auto iter = iter_begin;
-
-		while( iter != iter_end )
-		{
-			if( *iter == str[0] )
-			{
-				auto text_iter = iter + 1;
-				auto pattern_iter = str.begin() + 1;
-
-				while( text_iter != iter_end && pattern_iter != str.end() )
-				{
-					if( *text_iter == *pattern_iter )
-					{
-						++text_iter;
-						++pattern_iter;
-					}
-					else
-					{
-						break;
-					}
-				}
-
-				if( pattern_iter == str.end() )
-				{
-					return iter;
-				}
-			}
-
-			++iter;
-		}
-
-		return iter_end;
-	}
-
-	template <typename T, typename = typename std::enable_if< std::is_same< T, const char * >::value || std::is_same< T, char * >::value >::type >
-	const_iterator find_fast( const T & str, const_iterator iter_begin, size_type size ) const
-	{
-		const_iterator iter_end = end();
-
-		if( iter_begin == iter_end )
-		{
-			return iter_end;
-		}
-
-		if( str == nullptr || str[0] == 0 )
-		{
-			return iter_begin;
-		}
-
-		auto iter = iter_begin;
-
-		while( iter != iter_end )
-		{
-			if( *iter == str[0] )
-			{
-				auto text_iter = iter + 1;
-				auto pattern_iter = str + 1;
-
-				int count = 0;
-
-				while( text_iter != iter_end && *pattern_iter != 0 && count < size )
-				{
-					if( *text_iter == *pattern_iter )
-					{
-						++text_iter;
-						++pattern_iter;
-
-						++count;
-					}
-					else
-					{
-						break;
-					}
-				}
-
-				if( *pattern_iter == 0 )
-				{
-					return iter;
-				}
-			}
-
-			++iter;
-		}
-
-		return iter_end;
-	}
-
-	template <int N >
-	const_iterator find_fast( const char( &str )[N], const_iterator iter_begin, size_type size ) const
-	{
-		return find_fast( String::fromUtf8( str, size ), iter_begin );
-	}
-
-	template <typename T, typename = typename std::enable_if< std::is_same< T, const char * >::value || std::is_same< T, char * >::value >::type >
-	const_iterator find_fast( const T & str ) const
-	{
-		return find_fast( str, begin() );
-	}
-
-	template <typename T, typename = typename std::enable_if< std::is_same< T, const char * >::value || std::is_same< T, char * >::value >::type >
-	const_iterator find_fast( const T & str, const_iterator iter_begin ) const
-	{
-		const_iterator iter_end = end();
-
-		if( iter_begin == iter_end )
-		{
-			return iter_end;
-		}
-
-		if( str == nullptr || str[0] == 0 )
-		{
-			return iter_begin;
-		}
-
-		auto iter = iter_begin;
-
-		while( iter != iter_end )
-		{
-			if( *iter == str[0] )
-			{
-				auto text_iter = iter + 1;
-				auto pattern_iter = str + 1;
-
-				while( text_iter != iter_end && *pattern_iter != 0 )
-				{
-					if( *text_iter == *pattern_iter )
-					{
-						++text_iter;
-						++pattern_iter;
-					}
-					else
-					{
-						break;
-					}
-				}
-
-				if( *pattern_iter == 0 )
-				{
-					return iter;
-				}
-			}
-
-			++iter;
-		}
-
-		return iter_end;
-	}
-
-	template <int N >
-	const_iterator find_fast( const char( &str )[N] ) const
-	{
-		return find_fast( str, begin() );
-	}
-
-	template <int N >
-	const_iterator find_fast( const char( &str )[N], const_iterator iter_begin ) const
-	{
-		return find_fast( String::fromUtf8( str, N - 1 ), iter_begin );
-	}
-
-public:
-	const_iterator rfind_fast( value_type c ) const
-	{
-		return rfind_fast( c, end() );
-	}
-
-	const_iterator rfind_fast( value_type c, const_iterator iter_end ) const
-	{
-		const_iterator iter_begin = begin();
-
-		if( iter_begin == iter_end )
-		{
-			return end();
-		}
-
-		auto iter = iter_end;
-
-		while( iter != begin() )
-		{
-			--iter;
-
-			if( *iter == c )
-			{
-				return iter;
-			}
-		}
-
-		return end();
-	}
-
-	const_iterator rfind_fast( BasicStringView str ) const
-	{
-		return rfind_fast( str, end() );
-	}
-
-	const_iterator rfind_fast( BasicStringView str, const_iterator iter_end ) const
-	{
-		const_iterator iter_begin = begin();
-
-		if( iter_begin == iter_end )
-		{
-			return end();
-		}
-
-		if( str.empty() )
-		{
-			return iter_end;
-		}
-
-		auto iter = iter_end;
-		auto str_end = str.end();
-
-		while( iter != begin() )
-		{
-			--iter;
-
-			if( *iter == str[0] )
-			{
-				auto text_iter = iter + 1;
-				auto pattern_iter = str.begin() + 1;
-
-				while( text_iter != end() && pattern_iter != str_end )
-				{
-					if( *text_iter == *pattern_iter )
-					{
-						++text_iter;
-						++pattern_iter;
-					}
-					else
-					{
-						break;
-					}
-				}
-
-				if( pattern_iter == str_end )
-				{
-					return iter;
-				}
-			}
-		}
-
-		return end();
-	}
-
-public:
-	value_type front() const
-	{
-		return *begin();
-	}
-
-	value_type back() const
-	{
-		return *( --end() );
-	}
-
-public:
-	size_type length()  const
-	{
-		return size();
-	}
-
-	size_type size() const
-	{
-		size_type retval = 0;
-
-		for( auto item = begin(); item != end(); ++item )
-		{
-			++retval;
-		}
-
-		return retval;
-	}
-
-public:
-	bool starts_with( BasicStringView str ) const
-	{
-		if( str.empty() )
-		{
-			return true;
-		}
-		else if( empty() )
-		{
-			return false;
-		}
-
-		auto iter = begin();
-
-		for( auto uc : str )
-		{
-			if( iter == end() )
-			{
-				return false;
-			}
-
-			if( *iter != uc )
-			{
-				return false;
-			}
-
-			++iter;
-		}
-
-		return true;
-	}
-
-	bool ends_with( BasicStringView str ) const
-	{
-		if( str.empty() )
-		{
-			return true;
-		}
-		else if( empty() )
-		{
-			return false;
-		}
-
-		auto iter = crbegin();
-
-		for( auto iter_other = str.crbegin(); iter_other != str.crend(); ++iter_other )
-		{
-			if( iter == crend() )
-			{
-				return false;
-			}
-
-			if( *iter != *iter_other )
-			{
-				return false;
-			}
-
-			++iter;
-		}
-
-		return true;
-	}
-
-public:
-	BasicStringView< String > remove_prefix( size_type size ) const
-	{
-		const_iterator iter_begin = begin();
-
-		for( size_type i = 0; i < size && iter_begin != end(); ++i )
-		{
-			++iter_begin;
-		}
-
-		if( iter_begin == end() )
-		{
-			return BasicStringView();
-		}
-
-		return BasicStringView( iter_begin, end() );
-	}
-
-	BasicStringView< String > remove_suffix( size_type size ) const
-	{
-		const_iterator iter_end = end();
-
-		for( size_type i = 0; i < size && iter_end != begin(); ++i )
-		{
-			--iter_end;
-		}
-
-		return BasicStringView( begin(), iter_end );
-	}
-
-public:
-	BasicStringView< String > substr( size_type indexStart = 0, size_type size = npos ) const
-	{
-		const_iterator iter_begin = begin();
-		const_iterator iter_end;
-
-		for( size_type i = 0; i < indexStart && iter_begin != end(); ++i )
-		{
-			++iter_begin;
-		}
-
-		if( iter_begin == end() )
-		{
-			return BasicStringView();
-		}
-
-		if( size >= 0 )
-		{
-			iter_end = iter_begin;
-
-			for( size_type i = 0; i < size && iter_end != end(); ++i )
-			{
-				++iter_end;
-			}
-		}
-		else
-		{
-			iter_end = end();
-		}
-
-		return BasicStringView( iter_begin, iter_end );
-	}
-
-public:
-	void swap( BasicStringView & str )
-	{
-		swap( _begin, str._begin );
-		swap( _end, str._end );
-	}
-
-public:
-	const_iterator begin() const
-	{
-		return _begin;
-	}
-
-	const_iterator end() const
-	{
-		return _end;
-	}
-
-	const_reverse_iterator rbegin() const
-	{
-		return _end;
-	}
-
-	const_reverse_iterator rend() const
-	{
-		return _begin;
-	}
-
-	const_reverse_iterator crbegin() const
-	{
-		return _end;
-	}
-
-	const_reverse_iterator crend() const
-	{
-		return _begin;
-	}
-
-public:
-	const typename String::encode_type::storage_unit * data() const
-	{
-		return &( *_begin.code_point_begin() );
-	}
-
-	const typename String::encode_type::storage_unit * c_str() const
-	{
-		return &( *_begin.code_point_begin() );
-	}
-
-	std::basic_string< typename String::encode_type::storage_unit > std_str() const
-	{
-		return { _begin.code_point_begin(), _end.code_point_begin() };
-	}
-
-	operator std::basic_string< typename String::encode_type::storage_unit >() const
-	{
-		return std_str();
-	}
-
-private:
-	const_iterator _begin;
-	const_iterator _end;
-};
-
 using AnsiString = XE::BasicString< XE::AnsiEncode, std::pmr::polymorphic_allocator< XE::AnsiEncode::storage_unit > >;
 using WideString = XE::BasicString< XE::WideEncode, std::pmr::polymorphic_allocator< XE::WideEncode::storage_unit > >;
 using Utf8String = XE::BasicString< XE::Utf8Encode, std::pmr::polymorphic_allocator< XE::Utf8Encode::storage_unit > >;
 
-using AnsiStringView = XE::BasicStringView< XE::AnsiString >;
-using WideStringView = XE::BasicStringView< XE::WideString >;
-using Utf8StringView = XE::BasicStringView< XE::Utf8String >;
-
 using String = XE::AnsiString;
-using StringView = XE::AnsiStringView;
 
 
 XE_INLINE XE::String ToString(bool _Val )
@@ -3124,9 +2373,63 @@ template < typename ... T > struct Hasher< XE::BasicString< T... > >
 END_XE_NAMESPACE
 
 template <typename Encode, typename Alloc >
+XE_INLINE bool operator==( const typename Encode::storage_unit * str1, const XE::BasicString< Encode, Alloc > & str2 )
+{
+	return std::strcmp( str1, str2.c_str() ) == 0;
+}
+
+template <typename Encode, typename Alloc >
+XE_INLINE bool operator==( const XE::BasicString< Encode, Alloc > & str1, const typename Encode::storage_unit * str2 )
+{
+	return std::strcmp( str1.c_str(), str2 ) == 0;
+}
+
+template <typename Encode, typename Alloc1, typename Alloc2 >
+XE_INLINE bool operator==( const std::basic_string< typename Encode::storage_unit, std::char_traits< typename Encode::storage_unit >, Alloc1 > & str1, const XE::BasicString< Encode, Alloc2 > & str2 )
+{
+	return std::strcmp( str2.c_str(), str1.c_str() ) == 0;
+}
+
+template <typename Encode, typename Alloc1, typename Alloc2 >
+XE_INLINE bool operator==( const XE::BasicString< Encode, Alloc1 > & str1, const std::basic_string< typename Encode::storage_unit, std::char_traits< typename Encode::storage_unit >, Alloc2 > & str2 )
+{
+	return std::strcmp( str1.c_str(), str2.c_str() ) == 0;
+}
+
+template <typename Encode, typename Alloc >
 XE_INLINE bool operator==( const XE::BasicString< Encode, Alloc > & str1, const XE::BasicString< Encode, Alloc > & str2 )
 {
+	return std::strcmp( str1.c_str(), str2.c_str() ) == 0;
+}
+
+template <typename Encode1, typename Alloc1, typename Encode2, typename Alloc2 >
+XE_INLINE bool operator==( const XE::BasicString< Encode1, Alloc1 > & str1, const XE::BasicString< Encode2, Alloc2 > & str2 )
+{
 	return str1.strcmp( str2 ) == 0;
+}
+
+template <typename Encode, typename Alloc >
+XE_INLINE bool operator!=( const typename Encode::storage_unit * str1, const XE::BasicString< Encode, Alloc > & str2 )
+{
+	return !( str1 == str2 );
+}
+
+template <typename Encode, typename Alloc >
+XE_INLINE bool operator!=( const XE::BasicString< Encode, Alloc > & str1, const typename Encode::storage_unit * str2 )
+{
+	return !( str1 == str2 );
+}
+
+template <typename Encode, typename Alloc1, typename Alloc2 >
+XE_INLINE bool operator!=( const std::basic_string< typename Encode::storage_unit, std::char_traits< typename Encode::storage_unit >, Alloc1 > & str1, const XE::BasicString< Encode, Alloc2 > & str2 )
+{
+	return !( str1 == str2 );
+}
+
+template <typename Encode, typename Alloc1, typename Alloc2 >
+XE_INLINE bool operator!=( const XE::BasicString< Encode, Alloc1 > & str1, const std::basic_string< typename Encode::storage_unit, std::char_traits< typename Encode::storage_unit >, Alloc2 > & str2 )
+{
+	return !( str1 == str2 );
 }
 
 template <typename Encode, typename Alloc >
@@ -3135,30 +2438,154 @@ XE_INLINE bool operator!=( const XE::BasicString< Encode, Alloc > & str1, const 
 	return !( str1 == str2 );
 }
 
+template <typename Encode1, typename Alloc1, typename Encode2, typename Alloc2 >
+XE_INLINE bool operator!=( const XE::BasicString< Encode1, Alloc1 > & str1, const XE::BasicString< Encode2, Alloc2 > & str2 )
+{
+	return str1.strcmp( str2 ) != 0;
+}
+
+template <typename Encode, typename Alloc >
+XE_INLINE bool operator< ( const typename Encode::storage_unit * str1, const XE::BasicString< Encode, Alloc > & str2 )
+{
+	return std::strcmp( str1, str2.c_str() ) < 0;
+}
+
+template <typename Encode, typename Alloc >
+XE_INLINE bool operator< ( const XE::BasicString< Encode, Alloc > & str1, const typename Encode::storage_unit * str2 )
+{
+	return std::strcmp( str1.c_str(), str2 ) < 0;
+}
+
+template <typename Encode, typename Alloc1, typename Alloc2 >
+XE_INLINE bool operator< ( const std::basic_string< typename Encode::storage_unit, std::char_traits< typename Encode::storage_unit >, Alloc1 > & str1, const XE::BasicString< Encode, Alloc2 > & str2 )
+{
+	return std::strcmp( str2.c_str(), str1.c_str() ) < 0;
+}
+
+template <typename Encode, typename Alloc1, typename Alloc2 >
+XE_INLINE bool operator< ( const XE::BasicString< Encode, Alloc1 > & str1, const std::basic_string< typename Encode::storage_unit, std::char_traits< typename Encode::storage_unit >, Alloc2 > & str2 )
+{
+	return std::strcmp( str1.c_str(), str2.c_str() ) < 0;
+}
+
 template <typename Encode, typename Alloc >
 XE_INLINE bool operator< ( const XE::BasicString< Encode, Alloc > & str1, const XE::BasicString< Encode, Alloc > & str2 )
 {
 	return str1.strcmp( str2 ) < 0;
 }
 
-template <typename Encode, typename Alloc >
-XE_INLINE bool operator<=( const XE::BasicString< Encode, Alloc > & str1, const XE::BasicString< Encode, Alloc > & str2 )
+template <typename Encode1, typename Alloc1, typename Encode2, typename Alloc2 >
+XE_INLINE bool operator< ( const XE::BasicString< Encode1, Alloc1 > & str1, const XE::BasicString< Encode2, Alloc2 > & str2 )
 {
-	int cmp = str1.strcmp( str2 );
-	return cmp <= 0;
+	return str1.strcmp( str2 ) < 0;
 }
 
 template <typename Encode, typename Alloc >
-XE_INLINE bool operator >( const XE::BasicString< Encode, Alloc > & str1, const XE::BasicString< Encode, Alloc > & str2 )
+XE_INLINE bool operator<=( const typename Encode::storage_unit * str1, const XE::BasicString< Encode, Alloc > & str2 )
+{
+	return std::strcmp( str1, str2.c_str() ) <= 0;
+}
+
+template <typename Encode, typename Alloc >
+XE_INLINE bool operator<=( const XE::BasicString< Encode, Alloc > & str1, const typename Encode::storage_unit * str2 )
+{
+	return std::strcmp( str1.c_str(), str2 ) <= 0;
+}
+
+template <typename Encode, typename Alloc1, typename Alloc2 >
+XE_INLINE bool operator<=( const std::basic_string< typename Encode::storage_unit, std::char_traits< typename Encode::storage_unit >, Alloc1 > & str1, const XE::BasicString< Encode, Alloc2 > & str2 )
+{
+	return std::strcmp( str2.c_str(), str1.c_str() ) <= 0;
+}
+
+template <typename Encode, typename Alloc1, typename Alloc2 >
+XE_INLINE bool operator<=( const XE::BasicString< Encode, Alloc1 > & str1, const std::basic_string< typename Encode::storage_unit, std::char_traits< typename Encode::storage_unit >, Alloc2 > & str2 )
+{
+	return std::strcmp( str1.c_str(), str2.c_str() ) <= 0;
+}
+
+template <typename Encode, typename Alloc >
+XE_INLINE bool operator<=( const XE::BasicString< Encode, Alloc > & str1, const XE::BasicString< Encode, Alloc > & str2 )
+{
+	return std::strcmp( str1.c_str(), str2.c_str() ) <= 0;
+}
+
+template <typename Encode1, typename Alloc1, typename Encode2, typename Alloc2 >
+XE_INLINE bool operator<=( const XE::BasicString< Encode1, Alloc1 > & str1, const XE::BasicString< Encode2, Alloc2 > & str2 )
+{
+	return str1.strcmp( str2 ) <= 0;
+}
+
+template <typename Encode, typename Alloc >
+XE_INLINE bool operator> ( const typename Encode::storage_unit * str1, const XE::BasicString< Encode, Alloc > & str2 )
+{
+	return std::strcmp( str1, str2.c_str() ) > 0;
+}
+
+template <typename Encode, typename Alloc >
+XE_INLINE bool operator> ( const XE::BasicString< Encode, Alloc > & str1, const typename Encode::storage_unit * str2 )
+{
+	return std::strcmp( str1.c_str(), str2 ) > 0;
+}
+
+template <typename Encode, typename Alloc1, typename Alloc2 >
+XE_INLINE bool operator> ( const std::basic_string< typename Encode::storage_unit, std::char_traits< typename Encode::storage_unit >, Alloc1 > & str1, const XE::BasicString< Encode, Alloc2 > & str2 )
+{
+	return std::strcmp( str2.c_str(), str1.c_str() ) > 0;
+}
+
+template <typename Encode, typename Alloc1, typename Alloc2 >
+XE_INLINE bool operator> ( const XE::BasicString< Encode, Alloc1 > & str1, const std::basic_string< typename Encode::storage_unit, std::char_traits< typename Encode::storage_unit >, Alloc2 > & str2 )
+{
+	return std::strcmp( str1.c_str(), str2.c_str() ) > 0;
+}
+
+template <typename Encode, typename Alloc >
+XE_INLINE bool operator> ( const XE::BasicString< Encode, Alloc > & str1, const XE::BasicString< Encode, Alloc > & str2 )
+{
+	return std::strcmp( str1.c_str(), str2.c_str() ) > 0;
+}
+
+template <typename Encode1, typename Alloc1, typename Encode2, typename Alloc2 >
+XE_INLINE bool operator> ( const XE::BasicString< Encode1, Alloc1 > & str1, const XE::BasicString< Encode2, Alloc2 > & str2 )
 {
 	return str1.strcmp( str2 ) > 0;
 }
 
 template <typename Encode, typename Alloc >
+XE_INLINE bool operator>=( const typename Encode::storage_unit * str1, const XE::BasicString< Encode, Alloc > & str2 )
+{
+	return std::strcmp( str1, str2.c_str() ) >= 0;
+}
+
+template <typename Encode, typename Alloc >
+XE_INLINE bool operator>=( const XE::BasicString< Encode, Alloc > & str1, const typename Encode::storage_unit * str2 )
+{
+	return std::strcmp( str1.c_str(), str2 ) >= 0;
+}
+
+template <typename Encode, typename Alloc1, typename Alloc2 >
+XE_INLINE bool operator>=( const std::basic_string< typename Encode::storage_unit, std::char_traits< typename Encode::storage_unit >, Alloc1 > & str1, const XE::BasicString< Encode, Alloc2 > & str2 )
+{
+	return std::strcmp( str2.c_str(), str1.c_str() ) >= 0;
+}
+
+template <typename Encode, typename Alloc1, typename Alloc2 >
+XE_INLINE bool operator>=( const XE::BasicString< Encode, Alloc1 > & str1, const std::basic_string< typename Encode::storage_unit, std::char_traits< typename Encode::storage_unit >, Alloc2 > & str2 )
+{
+	return std::strcmp( str1.c_str(), str2.c_str() ) >= 0;
+}
+
+template <typename Encode, typename Alloc >
 XE_INLINE bool operator>=( const XE::BasicString< Encode, Alloc > & str1, const XE::BasicString< Encode, Alloc > & str2 )
 {
-	int cmp = str1.strcmp( str2 );
-	return cmp >= 0;
+	return std::strcmp( str1.c_str(), str2.c_str() ) >= 0;
+}
+
+template <typename Encode1, typename Alloc1, typename Encode2, typename Alloc2 >
+XE_INLINE bool operator>=( const XE::BasicString< Encode1, Alloc1 > & str1, const XE::BasicString< Encode2, Alloc2 > & str2 )
+{
+	return str1.strcmp( str2 ) >= 0;
 }
 
 template <typename Encode, typename Alloc >
@@ -3177,52 +2604,6 @@ XE_INLINE XE::BasicString< Encode, Alloc > operator+( const std::basic_string< t
 	retval.append( str2 );
 
 	return retval;
-}
-
-template <typename Encode, typename Alloc >
-XE_INLINE XE::BasicString< Encode, Alloc > operator+( const XE::BasicStringView< XE::BasicString< Encode, Alloc > > & str1, const XE::BasicString< Encode, Alloc > & str2 )
-{
-	XE::BasicString< Encode, Alloc > retval = str1;
-	retval.append( str2 );
-
-	return retval;
-}
-
-
-template <typename String >
-XE_INLINE bool operator==( XE::BasicStringView< String > & str1, XE::BasicStringView< String > & str2 )
-{
-	return str1.compare( str2 ) == 0;
-}
-
-template <typename String >
-XE_INLINE bool operator!=( XE::BasicStringView< String > & str1, XE::BasicStringView< String > & str2 )
-{
-	return str1.compare( str2 ) != 0;
-}
-
-template <typename String >
-XE_INLINE bool operator< ( XE::BasicStringView< String > & str1, XE::BasicStringView< String > & str2 )
-{
-	return str1.compare( str2 ) < 0;
-}
-
-template <typename String >
-XE_INLINE bool operator >( XE::BasicStringView< String > & str1, XE::BasicStringView< String > & str2 )
-{
-	return str1.compare( str2 ) > 0;
-}
-
-template <typename String >
-XE_INLINE bool operator<=( XE::BasicStringView< String > & str1, XE::BasicStringView< String > & str2 )
-{
-	return str1.compare( str2 ) <= 0;
-}
-
-template <typename String >
-XE_INLINE bool operator>=( XE::BasicStringView< String > & str1, XE::BasicStringView< String > & str2 )
-{
-	return str1.compare( str2 ) >= 0;
 }
 
 

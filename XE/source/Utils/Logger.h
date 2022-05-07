@@ -9,9 +9,9 @@
 #ifndef LOGGER_H__FABB4435_9587_4290_9EA3_18733C722EE2
 #define LOGGER_H__FABB4435_9587_4290_9EA3_18733C722EE2
 
-#include "Disposable.h"
+#include <source_location>
 
-#include "Type.h"
+#include "Disposable.h"
 
 BEG_XE_NAMESPACE
 
@@ -20,7 +20,7 @@ class XE_API Logger : public XE::NonCopyable
 public:
 	struct Private;
 
-	using ListenerType = XE::Delegate< void( std::chrono::system_clock::time_point, const char *, XE::uint32, XE::LoggerLevel, XE::String ) >;
+	using ListenerType = XE::Delegate< void( std::chrono::system_clock::time_point, const char *, XE::uint32, XE::uint32, const char *, XE::LoggerLevel, XE::Utf8String ) >;
 
 private:
 	Logger();
@@ -30,7 +30,7 @@ private:
 	static Logger * Instance();
 
 public:
-	static void Log( const char * file, XE::uint32 line, XE::LoggerLevel level, const XE::String & text );
+	static void Log( const std::source_location & location, XE::LoggerLevel level, const XE::Utf8String & text );
 
 public:
 	static XE::Disposable RegisterListener( ListenerType listener );
@@ -57,7 +57,7 @@ XE_INLINE XE::String ToString(XE::LoggerLevel _Val )
 END_XE_NAMESPACE
 
 #define XE_LOG(LEVEL, FMT, ...) \
-XE::Logger::Log( __FILE__, __LINE__, LEVEL, XE::Format( FMT, __VA_ARGS__ ) )
+XE::Logger::Log( std::source_location::current(), LEVEL, XE::Format( FMT, __VA_ARGS__ ) )
 
 #define XE_ERROR( FMT, ... ) XE_LOG( XE::LoggerLevel::Error, FMT, __VA_ARGS__ )
 #define XE_WARNING( FMT, ... ) XE_LOG( XE::LoggerLevel::Warning, FMT, __VA_ARGS__ )

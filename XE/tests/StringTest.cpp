@@ -6,7 +6,7 @@ TEST( StringTest, TestString )
 {
 	const char * cstr = "abcdef0123456789智慧中国";
 	const wchar_t * wstr = L"abcdef0123456789智慧中国";
-	const char * c8str = u8"abcdef0123456789智慧中国";
+	const char * c8str = reinterpret_cast< const char * >( u8"abcdef0123456789智慧中国" );
 
 	XE::AnsiString ansi = "abcdef0123456789智慧中国";
 	XE::WideString wide = ansi;

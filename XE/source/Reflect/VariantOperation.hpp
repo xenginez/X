@@ -21,6 +21,22 @@ template<> struct VariantCreate< char * >
 	}
 };
 
+template<> struct VariantCreate< XE::WideString >
+{
+	static XE::VariantData Create( const XE::WideString & val )
+	{
+		return { VariantWarpperData( XE::String( val ) ) };
+	}
+};
+
+template<> struct VariantCreate< XE::Utf8String >
+{
+	static XE::VariantData Create( const XE::Utf8String & val )
+	{
+		return { VariantWarpperData( XE::String( val ) ) };
+	}
+};
+
 template< typename T > struct VariantCreate
 {
 	static  XE::VariantData Create( const T & val )
@@ -131,6 +147,32 @@ template<> struct VariantCast< XE::float64 >
 	static XE::float64 Cast( const VariantData & val )
 	{
 		return std::visit( XE::VariantDataGetFundamental< XE::float64 >(), val );
+	}
+};
+
+template<> struct VariantCast< XE::WideString >
+{
+	static XE::WideString Cast( const XE::VariantData & val )
+	{
+		if( std::visit( VariantDataIsCanConvert< XE::String >(), val ) )
+		{
+			return *reinterpret_cast< XE::String * >( std::visit( VariantDataGetRawPointer(), const_cast< XE::VariantData & >( val ) ) );
+		}
+
+		throw std::bad_variant_access();
+	}
+};
+
+template<> struct VariantCast< XE::Utf8String >
+{
+	static XE::Utf8String Cast( const XE::VariantData & val )
+	{
+		if( std::visit( VariantDataIsCanConvert< XE::String >(), val ) )
+		{
+			return *reinterpret_cast< XE::String * >( std::visit( VariantDataGetRawPointer(), const_cast< XE::VariantData & >( val ) ) );
+		}
+
+		throw std::bad_variant_access();
 	}
 };
 
@@ -307,9 +349,11 @@ template< typename T > struct VariantCast< XE::SharedPtr< T > >
 template<> struct VariantCreate< XE::VariantData >;
 template<> struct VariantCreate< XE::VariantData * >;
 template<> struct VariantCreate< XE::VariantData & >;
+
+template<> struct VariantCast< XE::WideString & >;
+template<> struct VariantCast< XE::Utf8String & >;
 template< typename T > struct VariantCast< XE::SharedPtr< T > * >;
 template< typename T > struct VariantCast< XE::SharedPtr< T > & >;
-
 
 END_XE_NAMESPACE
 

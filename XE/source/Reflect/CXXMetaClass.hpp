@@ -408,10 +408,7 @@ template<> struct ::ClassID< XE::WideString >
 {
 	static XE::MetaClassCPtr Get( const XE::WideString * val = nullptr )
 	{
-		static constexpr char __xe__sig__[] = __FUNCTION__;
-		
-		static auto meta = XE::MetaInfo::NewMetaInfo< XE::CXXMetaClass< XE::WideString > >( XE::Hash( __xe__sig__ ), "WideString", nullptr, nullptr, XE::GetModule() );
-		return meta;
+		return ::ClassID< XE::String >::Get();
 	}
 };
 
@@ -419,10 +416,7 @@ template<> struct ::ClassID< XE::Utf8String >
 {
 	static XE::MetaClassCPtr Get( const XE::Utf8String * val = nullptr )
 	{
-		static constexpr char __xe__sig__[] = __FUNCTION__;
-		
-		static auto meta = XE::MetaInfo::NewMetaInfo< XE::CXXMetaClass< XE::Utf8String > >( XE::Hash( __xe__sig__ ), "UTF8String", nullptr, nullptr, XE::GetModule() );
-		return meta;
+		return ::ClassID< XE::String >::Get();
 	}
 };
 

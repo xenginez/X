@@ -3,10 +3,6 @@
 #include <tbb/concurrent_queue.h>
 #include <tbb/concurrent_vector.h>
 
-#if PLATFORM_OS == OS_ANDROID
-#include <android/log.h>
-#endif
-
 struct XE::Logger::Private
 {
 	tbb::concurrent_queue< XE::uint64 > _FreeIndex;
@@ -31,7 +27,7 @@ XE::Logger * XE::Logger::Instance()
 
 #define _p XE::Logger::Instance()->_p
 
-void XE::Logger::Log( const char * file, XE::uint32 line, LoggerLevel level, const XE::String & text )
+void XE::Logger::Log( const std::source_location & location, XE::LoggerLevel level, const XE::Utf8String & text )
 {
 	auto time = std::chrono::system_clock::now();
 
@@ -39,7 +35,7 @@ void XE::Logger::Log( const char * file, XE::uint32 line, LoggerLevel level, con
 	{
 		if( listener )
 		{
-			listener( time, file, line, level, text );
+			listener( time, location.file_name(), location.line(), location.column(), location.function_name(), level, text );
 		}
 	}
 }
