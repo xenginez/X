@@ -17,6 +17,7 @@ DECL_PTR( Module );
 DECL_PTR( Instance );
 DECL_PTR( Interpreter );
 
+
 enum class Opcode : XE::uint8
 {
 	/* control instructions */
@@ -716,7 +717,7 @@ enum class ValueType : XE::uint8
 	EXTERN,
 };
 
-enum class BlockType
+enum class BlockType : XE::uint8
 {
 	IF,
 	LOOP,
@@ -725,7 +726,7 @@ enum class BlockType
 	INIT_EXP,
 };
 
-enum class SectionType
+enum class SectionType : XE::uint8
 {
 	CUSTOM = 0,
 	TYPE,
@@ -739,21 +740,6 @@ enum class SectionType
 	ELEM,
 	CODE,
 	DATA,
-};
-
-enum class ElemModeType
-{
-	NONE = 0,
-	PASSIVE,
-	ACTIVE,
-	DECLARATIVE,
-};
-
-enum class DataModeType
-{
-	NONE = 0,
-	PASSIVE,
-	ACTIVE,
 };
 
 
@@ -787,7 +773,7 @@ struct XE_API TypeSection
 struct XE_API ImportSection
 {
 	XE::Utf8String Module;
-	XE::Utf8String Name;
+	XE::Utf8String Field;
 	XE::DescType Desc;
 	union
 	{
@@ -799,7 +785,7 @@ struct XE_API ImportSection
 		} Limits; // table, memory
 		struct
 		{
-			bool Mutable;
+			XE::uint32 Mutable;
 			XE::ValueType Type;
 		} Global;
 	};
@@ -814,7 +800,6 @@ struct XE_API FuncSection
 
 struct XE_API TableSection
 {
-	XE::RefType Type;
 	XE::uint32 Min;
 	XE::uint32 Max;
 };
@@ -827,61 +812,52 @@ struct XE_API MemorySection
 
 struct XE_API GlobalSection
 {
-	bool Mutable;
+	XE::uint32 Mutable;
 	XE::ValueType Type;
-	XE::ConstExpr Innit;
+	XE::ConstExpr Init;
 };
 
 struct XE_API ExportSection
 {
-	XE::Utf8String Name;
+	XE::Utf8String Field;
 	XE::DescType Desc;
 	XE::uint32 DescIdx;
 };
 
 struct XE_API ElemSection
 {
-	XE::ValueType Type;
-	XE::Array< ConstExpr > Init;
-	struct
-	{
-		XE::ElemModeType Type;
-		XE::uint32 TableIdx;
-		XE::ConstExpr Offset;
-	} Mode;
+	XE::uint32 TableIdx;
+	XE::ConstExpr Offset;
+	XE::Array< XE::uint32 > FuncIdxs;
 };
 
 struct XE_API DataSection
 {
+	XE::uint32 MemIdx;
+	XE::ConstExpr Offset;
 	XE::Array< XE::uint8 > Init;
-	struct  
-	{
-		XE::DataModeType Type;
-		XE::uint32 MemIdx;
-		XE::ConstExpr Offset;
-	} Mode;
 };
 
 struct XE_API Block
 {
 	XE::BlockType Type;
-	XE::uint32 TypeIdx;
-	XE::uint32 FuncIdx;
+	XE::uint32 TypeIdx = 0;
+	XE::uint32 FuncIdx = 0;
 
-	XE::uint32 StartAddr;
-	XE::uint32 BrAddr;
-	XE::uint32 EndAddr;
+	XE::uint32 StartAddr = 0;
+	XE::uint32 BrAddr = 0;
+	XE::uint32 EndAddr = 0;
 
-	XE::String Module;
+	XE::Utf8String Module;
 };
 
 struct XE_API Frame
 {
-	XE::uint64 SP;
-	XE::uint64 FP;
-	XE::uint64 PC;
-	XE::String Module;
+	XE::uint64 SP = 0;
+	XE::uint64 FP = 0;
+	XE::uint64 PC = 0;
 	XE::uint32 FuncIdx;
+	XE::Utf8String Module;
 };
 
 END_XE_NAMESPACE

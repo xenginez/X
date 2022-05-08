@@ -23,19 +23,48 @@ public:
 public:
 	void Load( XE::MemoryView view );
 
-	InstancePtr NewInstance() const;
+private:
+	void LoadCustomSecions( XE::MemoryView view );
+
+	void LoadTypeSecions( XE::MemoryView view );
+
+	void LoadImportSecions( XE::MemoryView view );
+
+	void LoadFuncSecions( XE::MemoryView view );
+
+	void LoadTableSecions( XE::MemoryView view );
+
+	void LoadMemorySecions( XE::MemoryView view );
+
+	void LoadGlobalSecions( XE::MemoryView view );
+
+	void LoadExportSecions( XE::MemoryView view );
+
+	void LoadStartSecions( XE::MemoryView view );
+
+	void LoadElemSecions( XE::MemoryView view );
+
+	void LoadCodeSecions( XE::MemoryView view );
+
+	void LoadDataSecions( XE::MemoryView view );
 
 private:
-	XE::Array< XE::TypeSection > Types;
-	XE::Array< XE::ImportSection > Imports;
-	XE::Array< XE::FuncSection > Funcs;
-	XE::Array< XE::TableSection > Tables;
-	XE::Array< XE::MemorySection > Memorys;
-	XE::Array< XE::GlobalSection > Globals;
-	XE::Array< XE::ExportSection > Exports;
-	XE::uint32 Start;
-	XE::Array< XE::ElemSection > Elems;
-	XE::Array< XE::DataSection > Datas;
+	XE::uint32 _Start = 0;
+	XE::Array< XE::TypeSection > _Types;
+	XE::Array< XE::ImportSection > _Imports;
+	XE::Array< XE::FuncSection > _Funcs;
+	XE::Array< XE::TableSection > _Tables;
+	XE::Array< XE::MemorySection > _Memorys;
+	XE::Array< XE::GlobalSection > _Globals;
+	XE::Array< XE::ExportSection > _Exports;
+	XE::Array< XE::ElemSection > _Elems;
+	XE::Array< XE::DataSection > _Datas;
+
+private:
+	XE::uint32 _ImportFuncSize = 0;
+	XE::uint32 _ImportTableSize = 0;
+	XE::uint32 _ImportMemorySize = 0;
+	XE::uint32 _ImportGlobalSize = 0;
 };
 
 END_XE_NAMESPACE

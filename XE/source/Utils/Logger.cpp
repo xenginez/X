@@ -27,6 +27,7 @@ XE::Logger * XE::Logger::Instance()
 
 #define _p XE::Logger::Instance()->_p
 
+#if __cplusplus > 202000L
 void XE::Logger::Log( const std::source_location & location, XE::LoggerLevel level, const XE::Utf8String & text )
 {
 	auto time = std::chrono::system_clock::now();
@@ -35,7 +36,21 @@ void XE::Logger::Log( const std::source_location & location, XE::LoggerLevel lev
 	{
 		if( listener )
 		{
-			listener( time, location.file_name(), location.line(), location.column(), location.function_name(), level, text );
+			listener( time, location.file_name(), location.line(), location.function_name(), level, text );
+		}
+	}
+}
+#endif
+
+void XE::Logger::Log( const char * file, XE::uint32 line, const char * func, XE::LoggerLevel level, const XE::Utf8String & text )
+{
+	auto time = std::chrono::system_clock::now();
+
+	for( const auto & listener : _p->_Listeners )
+	{
+		if( listener )
+		{
+			listener( time, file, line, func, level, text );
 		}
 	}
 }
