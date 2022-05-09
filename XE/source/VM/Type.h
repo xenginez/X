@@ -14,7 +14,6 @@
 BEG_XE_NAMESPACE
 
 DECL_PTR( Module );
-DECL_PTR( Instance );
 DECL_PTR( Interpreter );
 
 
@@ -699,7 +698,7 @@ enum class DescType : XE::uint8
 	GLOBAL,
 };
 
-enum class ConstType : XE::uint8
+enum class ExprType : XE::uint8
 {
 	NONE = 0,
 	VALUE,
@@ -758,9 +757,9 @@ struct XE_API Value
 	};
 };
 
-struct XE_API ConstExpr
+struct XE_API InitExpr
 {
-	XE::ConstType Type;
+	XE::ExprType Type;
 	XE::Value Val;
 };
 
@@ -814,7 +813,7 @@ struct XE_API GlobalSection
 {
 	XE::uint32 Mutable;
 	XE::ValueType Type;
-	XE::ConstExpr Init;
+	XE::InitExpr Init;
 };
 
 struct XE_API ExportSection
@@ -827,15 +826,35 @@ struct XE_API ExportSection
 struct XE_API ElemSection
 {
 	XE::uint32 TableIdx;
-	XE::ConstExpr Offset;
+	XE::InitExpr Offset;
 	XE::Array< XE::uint32 > FuncIdxs;
 };
 
 struct XE_API DataSection
 {
 	XE::uint32 MemIdx;
-	XE::ConstExpr Offset;
+	XE::InitExpr Offset;
 	XE::Array< XE::uint8 > Init;
+};
+
+struct XE_API FuncInstance
+{
+
+};
+
+struct XE_API TableInstance
+{
+
+};
+
+struct XE_API MemoryInstance
+{
+
+};
+
+struct XE_API GlobalInstance
+{
+
 };
 
 struct XE_API Block
@@ -848,7 +867,7 @@ struct XE_API Block
 	XE::uint32 BrAddr = 0;
 	XE::uint32 EndAddr = 0;
 
-	XE::Utf8String Module;
+	XE::ModulePtr Module;
 };
 
 struct XE_API Frame

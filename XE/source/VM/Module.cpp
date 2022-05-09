@@ -1,7 +1,5 @@
 #include "Module.h"
 
-#include "Instance.h"
-
 namespace
 {
 	XE::uint64 read_str( const void * buffer, XE::Utf8String & str )
@@ -12,18 +10,19 @@ namespace
 
 		str.resize( size );
 
-		std::copy( str.data(), str.data() + size, reinterpret_cast< const char * >( buffer ) + res );
+		auto src = reinterpret_cast< const char * >( buffer ) + res;
+		std::copy( src, src + size, str.data() );
 
 		return res + size;
 	}
 
-	XE::uint64 read_init_expr( const void * buffer, XE::ConstExpr & expr )
+	XE::uint64 read_init_expr( const void * buffer, XE::InitExpr & expr )
 	{
 		XE::uint64 idx = 0;
 
 		XE::uint8 opcode = 0;
 		idx += XE::DecodeLeb128( buffer, opcode );
-		expr.Type = XE::ConstType::VALUE;
+		expr.Type = XE::ExprType::VALUE;
 
 		switch( ( XE::Opcode ) opcode )
 		{
@@ -41,7 +40,7 @@ namespace
 			break;
 		case XE::Opcode::OP_GET_GLOBAL:
 			idx += XE::DecodeLeb128( reinterpret_cast< const XE::uint8 * >( buffer ) + idx, expr.Val.i32 );
-			expr.Type = XE::ConstType::INDEX;
+			expr.Type = XE::ExprType::INDEX;
 			break;
 		default:
 			break;
@@ -271,7 +270,7 @@ void XE::Module::LoadTableSecions( XE::MemoryView view )
 	XE::uint64 size = 0;
 	data += XE::DecodeLeb128( data, size );
 	_Tables.resize( size );
-	XE_ASSERT( size == 1, "More than 1 table not supported" );
+	XE_ASSERT( size == 1 && "More than 1 table not supported" );
 
 	XE::uint32 elem_t = 0;
 	data += XE::DecodeLeb128( data, elem_t );
@@ -299,7 +298,7 @@ void XE::Module::LoadMemorySecions( XE::MemoryView view )
 	XE::uint64 size = 0;
 	data += XE::DecodeLeb128( data, size );
 	_Memorys.resize( size );
-	XE_ASSERT( size == 1, "More than 1 memory not supported" );
+	XE_ASSERT( size == 1 && "More than 1 memory not supported" );
 
 	XE::uint32 flag = 0;
 	data += XE::DecodeLeb128( data, flag );
@@ -407,7 +406,7 @@ void XE::Module::LoadCodeSecions( XE::MemoryView view )
 		
 		data = payload + c_size - 1;
 
-		XE_ASSERT( *data == 0x0b, "code section did not end with 0x0b" );
+		XE_ASSERT( *data == 0x0b && "code section did not end with 0x0b" );
 
 		data++;
 	}

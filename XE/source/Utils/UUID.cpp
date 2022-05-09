@@ -16,11 +16,6 @@ XE::UUID::UUID( const XE::UUID & val )
 
 }
 
-XE::UUID::UUID( const XE::String & val )
-{
-	FromString( val );
-}
-
 XE::UUID XE::UUID::Create()
 {
 	XE::UUID result;

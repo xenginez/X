@@ -20,8 +20,6 @@ public:
 
 	UUID( const XE::UUID & val );
 
-	UUID( const XE::String & val );
-
 public:
 	UUID & operator=( const UUID & val );
 
@@ -71,14 +69,14 @@ private:
 };
 DECL_XE_CLASS( UUID );
 
-XE_INLINE XE::String ToString(const XE::UUID & _Val, std::string_view fmt = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" )
+XE_INLINE XE::String ToString( const XE::UUID & _Val )
 {
-	return _Val.ToString( fmt );
+	return _Val.ToString();
 }
 
-XE_INLINE bool FromString( XE::UUID & _Val, const XE::String & _Str, std::string_view fmt = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" )
+XE_INLINE bool FromString( const XE::String & _Str, XE::UUID & _Val )
 {
-	_Val.FromString( _Str, fmt );
+	_Val.FromString( _Str );
 
 	return true;
 }

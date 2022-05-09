@@ -15,7 +15,6 @@
 BEG_XE_NAMESPACE
 
 class Module;
-class Instance;
 class Compiler;
 class Interpreter;
 

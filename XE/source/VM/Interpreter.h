@@ -15,7 +15,27 @@ BEG_XE_NAMESPACE
 
 class XE_API Interpreter : public std::enable_shared_from_this< Interpreter >
 {
+public:
+	Interpreter();
 
+	~Interpreter();
+
+public:
+	XE::int32 Invoke( const XE::ModulePtr & mod, XE::uint32 func );
+
+public:
+	void Push( const XE::Value & val );
+
+	XE::Value Pop();
+
+private:
+	void Pushed( const XE::Frame & frame );
+
+	XE::Frame Poped();
+
+private:
+	XE::Deque< XE::Frame > _FrameStack;
+	XE::Deque< XE::Value > _ValueStack;
 };
 
 END_XE_NAMESPACE

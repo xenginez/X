@@ -42,17 +42,32 @@ public:
 	void Clearup() override;
 
 public:
+	XE::Array< XE::UUID > GetAssetsFromType( const XE::String & type ) const;
+
+public:
+	virtual XE::MemoryView Load( const XE::UUID & uuid );
+
 	virtual XE::MemoryView Load( const XE::UUID & uuid, const XE::String & path );
+
+	virtual void AsyncLoad( const XE::UUID & uuid, const LoadFinishCallback & callback );
 
 	virtual void AsyncLoad( const XE::UUID & uuid, const XE::String & path, const LoadFinishCallback & callback );
 
 public:
+	virtual XE::ObjectPtr LoadObject( const XE::UUID & uuid );
+
 	virtual XE::ObjectPtr LoadObject( const XE::UUID & uuid, const XE::String & path );
+
+	virtual void AsyncLoadObject( const XE::UUID & uuid, const LoadObjectFinishCallback & callback );
 
 	virtual void AsyncLoadObject( const XE::UUID & uuid, const XE::String & path, const LoadObjectFinishCallback & callback );
 
 public:
-	virtual bool LoadStream( const XE::UUID & uuid, const XE::String & path, std::ostream & stream, XE::uint64 offset, XE::uint64 size );
+	virtual bool LoadStream( const XE::UUID & uuid, std::ostream & stream, XE::uint64 offset = 0, XE::uint64 size = std::numeric_limits< XE::uint64 >::max() );
+
+	virtual bool LoadStream( const XE::UUID & uuid, const XE::String & path, std::ostream & stream, XE::uint64 offset = 0, XE::uint64 size = std::numeric_limits< XE::uint64 >::max() );
+
+	virtual void AsyncLoadStream( const XE::UUID & uuid, XE::uint64 offset, XE::uint64 size, const LoadStreamFinishCallback & callback );
 
 	virtual void AsyncLoadStream( const XE::UUID & uuid, const XE::String & path, XE::uint64 offset, XE::uint64 size, const LoadStreamFinishCallback & callback );
 

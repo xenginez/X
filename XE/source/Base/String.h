@@ -2136,87 +2136,87 @@ using Utf8String = XE::BasicString< XE::Utf8Encode, std::pmr::polymorphic_alloca
 using String = XE::AnsiString;
 
 
-XE_INLINE XE::String ToString(bool _Val )
+XE_INLINE XE::String ToString( bool _Val )
 {
 	return _Val ? "true" : "false";
 }
 
-XE_INLINE XE::String ToString(char _Val )
+XE_INLINE XE::String ToString( char _Val )
 {
 	return { CodePoint( _Val ) };
 }
 
-XE_INLINE XE::String ToString(uint8 _Val )
+XE_INLINE XE::String ToString( uint8 _Val )
 {
-	return std::to_string( ( int32 )_Val );
+	return std::to_string( ( int32 ) _Val );
 }
 
-XE_INLINE XE::String ToString(int16 _Val )
-{
-	return std::to_string( _Val );
-}
-
-XE_INLINE XE::String ToString(uint16 _Val )
+XE_INLINE XE::String ToString( int16 _Val )
 {
 	return std::to_string( _Val );
 }
 
-XE_INLINE XE::String ToString(int32 _Val )
+XE_INLINE XE::String ToString( uint16 _Val )
 {
 	return std::to_string( _Val );
 }
 
-XE_INLINE XE::String ToString(long _Val )
+XE_INLINE XE::String ToString( int32 _Val )
 {
 	return std::to_string( _Val );
 }
 
-XE_INLINE XE::String ToString(uint32 _Val )
+XE_INLINE XE::String ToString( long _Val )
 {
 	return std::to_string( _Val );
 }
 
-XE_INLINE XE::String ToString(int64 _Val )
+XE_INLINE XE::String ToString( uint32 _Val )
 {
 	return std::to_string( _Val );
 }
 
-XE_INLINE XE::String ToString(uint64 _Val )
+XE_INLINE XE::String ToString( int64 _Val )
 {
 	return std::to_string( _Val );
 }
 
-XE_INLINE XE::String ToString(float32 _Val )
+XE_INLINE XE::String ToString( uint64 _Val )
 {
 	return std::to_string( _Val );
 }
 
-XE_INLINE XE::String ToString(float64 _Val )
+XE_INLINE XE::String ToString( float32 _Val )
 {
 	return std::to_string( _Val );
 }
 
-XE_INLINE XE::String ToString(char * _Val )
+XE_INLINE XE::String ToString( float64 _Val )
+{
+	return std::to_string( _Val );
+}
+
+XE_INLINE XE::String ToString( char * _Val )
 {
 	return _Val;
 }
 
-XE_INLINE XE::String ToString(const char * _Val )
+XE_INLINE XE::String ToString( const char * _Val )
 {
 	return _Val;
 }
 
-XE_INLINE XE::String ToString(const XE::String & _Val )
+XE_INLINE XE::String ToString( const XE::String & _Val )
 {
 	return _Val;
 }
 
-XE_INLINE XE::String ToString(const std::filesystem::path & _Val )
+XE_INLINE XE::String ToString( const std::filesystem::path & _Val )
 {
 	return _Val.string();
 }
 
-XE_INLINE XE::String ToString(const std::chrono::system_clock::time_point & _Val )
+XE_INLINE XE::String ToString( const std::chrono::system_clock::time_point & _Val )
 {
 	std::tm _tm;
 	std::ostringstream _oss;

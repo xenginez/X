@@ -248,7 +248,8 @@ XE_INLINE XE::uint64 DecodeLeb128( const void * buffer, XE::int8 & val )
 		return 0;
 	}
 
-	XE::uint64 res = 0, shift = 0;
+	XE::int64 res = 0;
+	XE::uint64 shift = 0;
 	const XE::uint8 * data = reinterpret_cast< const XE::uint8 * >( buffer );
 
 	for( size_t i = 0; i < 10; i++ )
@@ -261,7 +262,7 @@ XE_INLINE XE::uint64 DecodeLeb128( const void * buffer, XE::int8 & val )
 		{
 			if( ( shift < 64 ) && ( b & 0x40 ) )
 			{
-				val = res | ( -1ULL ) << shift;
+				val = static_cast< XE::int8 >( res | std::numeric_limits< XE::uint64 >::max() << shift );
 				return i;
 			}
 
@@ -280,7 +281,8 @@ XE_INLINE XE::uint64 DecodeLeb128( const void * buffer, XE::int16 & val )
 		return 0;
 	}
 
-	XE::uint64 res = 0, shift = 0;
+	XE::int64 res = 0;
+	XE::uint64 shift = 0;
 	const XE::uint8 * data = reinterpret_cast< const XE::uint8 * >( buffer );
 
 	for( size_t i = 0; i < 10; i++ )
@@ -293,7 +295,7 @@ XE_INLINE XE::uint64 DecodeLeb128( const void * buffer, XE::int16 & val )
 		{
 			if( ( shift < 64 ) && ( b & 0x40 ) )
 			{
-				val = res | ( -1ULL ) << shift;
+				val = static_cast< XE::int16 >( res | std::numeric_limits< XE::uint64 >::max() << shift );
 				return i;
 			}
 
@@ -312,7 +314,8 @@ XE_INLINE XE::uint64 DecodeLeb128( const void * buffer, XE::int32 & val )
 		return 0;
 	}
 
-	XE::uint64 res = 0, shift = 0;
+	XE::int64 res = 0;
+	XE::uint64 shift = 0;
 	const XE::uint8 * data = reinterpret_cast< const XE::uint8 * >( buffer );
 
 	for( size_t i = 0; i < 10; i++ )
@@ -325,7 +328,7 @@ XE_INLINE XE::uint64 DecodeLeb128( const void * buffer, XE::int32 & val )
 		{
 			if( ( shift < 64 ) && ( b & 0x40 ) )
 			{
-				val = res | ( -1ULL ) << shift;
+				val = static_cast< XE::int32 >( res | std::numeric_limits< XE::uint64 >::max() << shift );
 				return i;
 			}
 
@@ -344,7 +347,8 @@ XE_INLINE XE::uint64 DecodeLeb128( const void * buffer, XE::int64 & val )
 		return 0;
 	}
 
-	XE::uint64 res = 0, shift = 0;
+	XE::int64 res = 0;
+	XE::uint64 shift = 0;
 	const XE::uint8 * data = reinterpret_cast< const XE::uint8 * >( buffer );
 
 	for( size_t i = 0; i < 10; i++ )
@@ -357,7 +361,7 @@ XE_INLINE XE::uint64 DecodeLeb128( const void * buffer, XE::int64 & val )
 		{
 			if( ( shift < 64 ) && ( b & 0x40 ) )
 			{
-				val = res | ( -1ULL ) << shift;
+				val = static_cast< XE::int64 >( res | std::numeric_limits< XE::uint64 >::max() << shift );
 				return i;
 			}
 

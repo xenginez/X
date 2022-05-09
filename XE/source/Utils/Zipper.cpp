@@ -24,9 +24,9 @@
 #define ZIP_MAX_SIZE GBYTE(4)
 #define SECTION_MAX_SIZE KBYTE(64)
 
-namespace _XE
+namespace
 {
-	struct SectionInfo
+	struct _SectionInfo
 	{
 		XE::uint64 Index = 0;		// zip index
 		XE::uint64 Start = 0;		// start address
@@ -34,29 +34,30 @@ namespace _XE
 		XE::uint64 DecompressSize;	// decompress size
 	};
 
-	struct FileInfo
+	struct _FileInfo
 	{
-		XE::uint32 Type = 0;				// file type
+		XE::uint32 Zip = 0;				    // file zip
 		XE::String Name;					// file name
+		XE::String Type;					// file type
 		XE::uint64 CompressSize = 0;		// file compress size
 		XE::uint64 DecompressSize = 0;		// file decompress size
-		XE::Array< SectionInfo > Sections;	// section info array
+		XE::Array< _SectionInfo > Sections;	// section info array
 	};
 
-	struct ZipInfo
+	struct _ZipInfo
 	{
-		XE::uint64 Size = 0;							// zip count
-		XE::UnorderedMap< XE::String, FileInfo > Files;	// zip file map
+		XE::uint64 Size = 0;								// zip count
+		XE::UnorderedMap< XE::String, _FileInfo > Files;	// zip file map
 	};
 
-	struct StreamInfo
+	struct _StreamInfo
 	{
 		XE::uint64 _Address = 0;
 		XE::MMapFile _Reader;
 		std::ofstream _Writer;
 	};
 
-	void Encryption( std::istream & in, std::ostream & out, const char * password )
+	void _Encryption( std::istream & in, std::ostream & out, const char * password )
 	{
 		if( password == nullptr || password[0] == 0 )
 		{
@@ -81,20 +82,20 @@ namespace _XE
 		}
 	}
 
-	void Decryption( std::istream & in, std::ostream & out, const char * password )
+	void _Decryption( std::istream & in, std::ostream & out, const char * password )
 	{
-		Encryption( in, out, password );
+		_Encryption( in, out, password );
 	}
 }
 
 
 struct XE::Zipper::Private
 {
-	_XE::ZipInfo _Zip;
+	_ZipInfo _Zip;
 	bool _IsOpen = false;
 	XE::String _Password;
 	std::filesystem::path _Path;
-	XE::Array< _XE::StreamInfo > _Streams;
+	XE::Array< _StreamInfo > _Streams;
 };
 
 XE::Zipper::Zipper()
@@ -129,17 +130,29 @@ void XE::Zipper::GetEntryNames( XE::Array< XE::String > & names ) const
 	}
 }
 
-bool XE::Zipper::AddEntry( const XE::String & name, std::istream & stream, XE::ZipType type /*= XE::ZipType::LZ4*/ )
+void XE::Zipper::GetEntryNamesFromType( const XE::String & type, XE::Array< XE::String > & names ) const
+{
+	for( const auto & it : _p->_Zip.Files )
+	{
+		if( it.second.Type == type )
+		{
+			names.push_back( it.first );
+		}
+	}
+}
+
+bool XE::Zipper::AddEntry( const XE::String & name, const XE::String & type, std::istream & stream, XE::ZipType zip /*= XE::ZipType::LZ4 */ )
 {
 	auto it = _p->_Zip.Files.find( name );
 
 	if( it == _p->_Zip.Files.end() )
 	{
-		_XE::FileInfo file;
+		_FileInfo file;
 
-		file.Type = static_cast< XE::uint32 >( type );
+		file.Zip = static_cast< XE::uint32 >( zip );
 
 		file.Name = name;
+		file.Type = type;
 		auto pos = stream.tellg();
 		stream.seekg( 0, std::ios::end );
 		file.DecompressSize = stream.tellg() - pos;
@@ -153,9 +166,9 @@ bool XE::Zipper::AddEntry( const XE::String & name, std::istream & stream, XE::Z
 
 			for( XE::uint64 i = 0; i < section_count; ++i )
 			{
-				_XE::SectionInfo section;
+				_SectionInfo section;
 
-				XE::Array< _XE::StreamInfo >::iterator it = _p->_Streams.begin();
+				XE::Array< _StreamInfo >::iterator it = _p->_Streams.begin();
 				for( ; it != _p->_Streams.end(); ++it )
 				{
 					if ( ( it->_Address + SECTION_MAX_SIZE ) < ZIP_MAX_SIZE )
@@ -166,7 +179,7 @@ bool XE::Zipper::AddEntry( const XE::String & name, std::istream & stream, XE::Z
 
 				if( it == _p->_Streams.end() )
 				{
-					_XE::StreamInfo info;
+					_StreamInfo info;
 					_p->_Streams.emplace_back( std::move( info ) );
 
 					it = _p->_Streams.end() - 1;
@@ -186,7 +199,7 @@ bool XE::Zipper::AddEntry( const XE::String & name, std::istream & stream, XE::Z
 				size_t in_size = stream.readsome( in_buf.data(), SECTION_MAX_SIZE );
 				size_t out_size = out_buf.size();
 
-				if( bundle::pack( file.Type, in_buf.data(), in_size, out_buf.data(), out_size ) )
+				if( bundle::pack( file.Zip, in_buf.data(), in_size, out_buf.data(), out_size ) )
 				{
 					it->_Writer.seekp( it->_Address, std::ios::beg );
 					it->_Writer.write( out_buf.data(), out_size );
@@ -223,14 +236,14 @@ bool XE::Zipper::GetEntry( const XE::String & name, std::ostream & stream )
 		XE::Array< char > in_buf( SECTION_MAX_SIZE );
 		XE::Array< char > out_buf( SECTION_MAX_SIZE );
 
-		const _XE::FileInfo & file = it->second;
+		const _FileInfo & file = it->second;
 		for( const auto section : file.Sections )
 		{
 			_p->_Streams[section.Index]._Writer.seekp( section.Start, std::ios::beg );
 
 			size_t in_size = _p->_Streams[section.Index]._Reader.Read( section.Start, reinterpret_cast< XE::uint8 * >( in_buf.data() ), section.CompressSize );
 			size_t out_size = out_buf.size();
-			if( bundle::unpack( file.Type, in_buf.data(), in_size, out_buf.data(), out_size ) )
+			if( bundle::unpack( file.Zip, in_buf.data(), in_size, out_buf.data(), out_size ) )
 			{
 				stream.write( out_buf.data(), section.DecompressSize );
 			}
@@ -255,7 +268,7 @@ bool XE::Zipper::GetEntryStream( const XE::String & name, std::ostream & stream,
 		XE::Array< char > in_buf( SECTION_MAX_SIZE );
 		XE::Array< char > out_buf( SECTION_MAX_SIZE );
 
-		const _XE::FileInfo & file = it->second;
+		const _FileInfo & file = it->second;
 		for( const auto section : file.Sections )
 		{
 			if( offset >= section.DecompressSize )
@@ -266,7 +279,7 @@ bool XE::Zipper::GetEntryStream( const XE::String & name, std::ostream & stream,
 
 			size_t in_size = _p->_Streams[section.Index]._Reader.Read( section.Start, reinterpret_cast< XE::uint8 * >( in_buf.data() ), section.CompressSize );
 			size_t out_size = out_buf.size();
-			if( bundle::unpack( file.Type, in_buf.data(), in_size, out_buf.data(), out_size ) )
+			if( bundle::unpack( file.Zip, in_buf.data(), in_size, out_buf.data(), out_size ) )
 			{
 				out_size = std::min( size, out_size - offset );
 				stream.write( out_buf.data() + offset, out_size );
@@ -301,26 +314,37 @@ bool XE::Zipper::Open( const std::filesystem::path & path, const XE::String & pa
 		if( file_stream.is_open() )
 		{
 			XE::MemoryStream mem_stream;
-			_XE::Decryption( file_stream, mem_stream, password.c_str() );
+			_Decryption( file_stream, mem_stream, password.c_str() );
 			if( mem_stream.view().size() != 0 )
 			{
 				mem_stream.read( reinterpret_cast< char * >( &_p->_Zip.Size ), sizeof( XE::uint64 ) );
 				for( XE::uint64 i = 0; i < _p->_Zip.Size; ++i )
 				{
-					_XE::FileInfo file;
-					mem_stream.read( reinterpret_cast< char * >( &file.Type ), sizeof( XE::uint32 ) );
+					_FileInfo file;
+					mem_stream.read( reinterpret_cast< char * >( &file.Zip ), sizeof( XE::uint32 ) );
+
 					XE::uint64 size = 0;
-					mem_stream.read( reinterpret_cast< char * >( &size ), sizeof( XE::uint64 ) );
-					std::string name; name.resize( size );
-					mem_stream.read( name.data(), size );
-					file.Name = name;
+					std::string buf;
+					{
+						mem_stream.read( reinterpret_cast< char * >( &size ), sizeof( XE::uint64 ) );
+						buf.resize( size );
+						mem_stream.read( buf.data(), size );
+						file.Name = buf;
+					}
+					{
+						mem_stream.read( reinterpret_cast< char * >( &size ), sizeof( XE::uint64 ) );
+						buf.resize( size );
+						mem_stream.read( buf.data(), size );
+						file.Type = buf;
+					}
+
 					mem_stream.read( reinterpret_cast< char * >( &file.CompressSize ), sizeof( XE::uint64 ) );
 					mem_stream.read( reinterpret_cast< char * >( &file.DecompressSize ), sizeof( XE::uint64 ) );
 
 					mem_stream.read( reinterpret_cast< char * >( &size ), sizeof( XE::uint64 ) );
 					for( XE::uint64 j = 0; j < size; ++j )
 					{
-						_XE::SectionInfo section;
+						_SectionInfo section;
 
 						mem_stream.read( reinterpret_cast< char * >( &section.Index ), sizeof( XE::uint64 ) );
 						mem_stream.read( reinterpret_cast< char * >( &section.Start ), sizeof( XE::uint64 ) );
@@ -380,11 +404,16 @@ void XE::Zipper::Close()
 			mem_stream.write( reinterpret_cast< const char * >( &_p->_Zip.Size ), sizeof( XE::uint64 ) );
 			for( auto it : _p->_Zip.Files )
 			{
-				const _XE::FileInfo & file = it.second;
-				mem_stream.write( reinterpret_cast< const char * >( &file.Type ), sizeof( XE::uint32 ) );
-				XE::uint64 size = file.Name.size();
+				XE::uint64 size = 0;
+
+				const _FileInfo & file = it.second;
+				mem_stream.write( reinterpret_cast< const char * >( &file.Zip ), sizeof( XE::uint32 ) );
+				size = file.Name.size();
 				mem_stream.write( reinterpret_cast< const char * >( &size ), sizeof( XE::uint64 ) );
 				mem_stream.write( file.Name.c_str(), size );
+				size = file.Type.size();
+				mem_stream.write( reinterpret_cast< const char * >( &size ), sizeof( XE::uint64 ) );
+				mem_stream.write( file.Type.c_str(), size );
 				mem_stream.write( reinterpret_cast< const char * >( &file.CompressSize ), sizeof( XE::uint64 ) );
 				mem_stream.write( reinterpret_cast< const char * >( &file.DecompressSize ), sizeof( XE::uint64 ) );
 
@@ -399,7 +428,7 @@ void XE::Zipper::Close()
 				}
 			}
 
-			_XE::Encryption( mem_stream, file_stream, _p->_Password.c_str() );
+			_Encryption( mem_stream, file_stream, _p->_Password.c_str() );
 		}
 
 		_p->_Zip.Size = 0;

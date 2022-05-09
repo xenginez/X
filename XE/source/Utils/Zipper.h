@@ -30,8 +30,10 @@ public:
 
 	void GetEntryNames( XE::Array< XE::String > & names ) const;
 
+	void GetEntryNamesFromType( const XE::String & type, XE::Array< XE::String > & names ) const;
+
 public:
-	bool AddEntry( const XE::String & name, std::istream & stream, XE::ZipType type = XE::ZipType::LZ4 );
+	bool AddEntry( const XE::String & name, const XE::String & type, std::istream & stream, XE::ZipType zip = XE::ZipType::LZ4 );
 
 	bool GetEntry( const XE::String & name, std::ostream & stream );
 
