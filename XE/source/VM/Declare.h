@@ -14,6 +14,7 @@
 
 BEG_XE_NAMESPACE
 
+class WASI;
 class Module;
 class Compiler;
 class Interpreter;

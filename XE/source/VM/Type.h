@@ -13,6 +13,7 @@
 
 BEG_XE_NAMESPACE
 
+DECL_PTR( WASI );
 DECL_PTR( Module );
 DECL_PTR( Interpreter );
 
