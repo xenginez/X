@@ -1,35 +1,35 @@
-#include "VMService.h"
+#include "WASMService.h"
 
 #include "CoreFramework.h"
 #include "AssetsService.h"
 
-#include "VM/Module.h"
 #include "Utils/UUID.h"
+#include "WASM/WASMModule.h"
 
-IMPLEMENT_META( XE::VMService );
+IMPLEMENT_META( XE::WASMService );
 
-struct XE::VMService::Private
+struct XE::WASMService::Private
 {
-	XE::Array< XE::ModulePtr > _Modules;
+	XE::Array< XE::WASMModulePtr > _Modules;
 };
 
-XE::VMService::VMService()
+XE::WASMService::WASMService()
 	: _p( XE::New< Private >() )
 {
 
 }
 
-XE::VMService::~VMService()
+XE::WASMService::~WASMService()
 {
 	XE::Delete( _p );
 }
 
-void XE::VMService::Prepare()
+void XE::WASMService::Prepare()
 {
 
 }
 
-bool XE::VMService::Startup()
+bool XE::WASMService::Startup()
 {
 	if( auto asset = GetFramework()->GetServiceT < XE::AssetsService >() )
 	{
@@ -40,7 +40,7 @@ bool XE::VMService::Startup()
 			auto view = asset->Load( it );
 			if( view.size() != 0 )
 			{
-				XE::ModulePtr mod = XE::MakeShared< XE::Module >();
+				XE::WASMModulePtr mod = XE::MakeShared< XE::WASMModule >();
 
 				mod->Load( view );
 
@@ -57,12 +57,12 @@ bool XE::VMService::Startup()
 	return true;
 }
 
-void XE::VMService::Update()
+void XE::WASMService::Update()
 {
 
 }
 
-void XE::VMService::Clearup()
+void XE::WASMService::Clearup()
 {
 
 }

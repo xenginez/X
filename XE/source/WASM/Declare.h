@@ -15,9 +15,9 @@
 BEG_XE_NAMESPACE
 
 class WASI;
-class Module;
-class Compiler;
-class Interpreter;
+class WASMModule;
+class WASMCompiler;
+class WASMInterpreter;
 
 END_XE_NAMESPACE
 

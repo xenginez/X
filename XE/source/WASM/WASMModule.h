@@ -1,24 +1,24 @@
 /*!
- * \file   Module.h
+ * \file	WASMModule.h
  *
- * \author ZhengYuanQing
- * \date   2022/05/07
- * \email  zhengyuanqing.95@gmail.com
+ * \author	ZhengYuanQing
+ * \date	2022/05/11
+ * \email	zhengyuanqing.95@gmail.com
  *
  */
-#ifndef MODULE_H__231D35BF_2935_441C_81E0_D3083C897627
-#define MODULE_H__231D35BF_2935_441C_81E0_D3083C897627
+#ifndef WASMMODULE_H__26705626_E5FC_4767_82C4_ECA4803F6DBF
+#define WASMMODULE_H__26705626_E5FC_4767_82C4_ECA4803F6DBF
 
 #include "Type.h"
 
 BEG_XE_NAMESPACE
 
-class XE_API Module : public std::enable_shared_from_this< Module >
+class XE_API WASMModule : public std::enable_shared_from_this< WASMModule >
 {
 public:
-	Module();
+	WASMModule();
 
-	~Module();
+	~WASMModule();
 
 public:
 	void Load( XE::MemoryView view );
@@ -69,4 +69,4 @@ private:
 
 END_XE_NAMESPACE
 
-#endif // MODULE_H__231D35BF_2935_441C_81E0_D3083C897627
+#endif//WASMMODULE_H__26705626_E5FC_4767_82C4_ECA4803F6DBF

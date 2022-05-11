@@ -18,6 +18,6 @@
 #include "Network/Network.h"
 #include "Core/Core.h"
 #include "Scene/Scene.h"
-#include "VM/VM.h"
+#include "WASM/WASM.h"
 
 #endif // XE_H__96F9903F_FF95_4563_BFEA_A114B0F55E46

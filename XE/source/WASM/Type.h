@@ -14,11 +14,11 @@
 BEG_XE_NAMESPACE
 
 DECL_PTR( WASI );
-DECL_PTR( Module );
-DECL_PTR( Interpreter );
+DECL_PTR( WASMModule );
+DECL_PTR( WASMInterpreter );
 
 
-enum class Opcode : XE::uint8
+enum class WASMOpcode : XE::uint8
 {
 	/* control instructions */
 	OP_UNREACHABLE = 0x00, /* unreachable */
@@ -743,7 +743,7 @@ enum class SectionType : XE::uint8
 };
 
 
-struct XE_API Value
+struct XE_API WASMValue
 {
 	XE::ValueType type;
 	union
@@ -761,7 +761,7 @@ struct XE_API Value
 struct XE_API InitExpr
 {
 	XE::ExprType Type;
-	XE::Value Val;
+	XE::WASMValue Val;
 };
 
 struct XE_API TypeSection
@@ -858,26 +858,13 @@ struct XE_API GlobalInstance
 
 };
 
-struct XE_API Block
-{
-	XE::BlockType Type;
-	XE::uint32 TypeIdx = 0;
-	XE::uint32 FuncIdx = 0;
-
-	XE::uint32 StartAddr = 0;
-	XE::uint32 BrAddr = 0;
-	XE::uint32 EndAddr = 0;
-
-	XE::ModulePtr Module;
-};
-
-struct XE_API Frame
+struct XE_API WASMFrame
 {
 	XE::uint64 SP = 0;
 	XE::uint64 FP = 0;
 	XE::uint64 PC = 0;
 	XE::uint32 FuncIdx;
-	XE::Utf8String Module;
+	XE::WASMModulePtr Module;
 };
 
 END_XE_NAMESPACE

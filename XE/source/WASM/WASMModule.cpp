@@ -1,4 +1,4 @@
-#include "Module.h"
+#include "WASMModule.h"
 
 namespace
 {
@@ -50,17 +50,17 @@ namespace
 	}
 }
 
-XE::Module::Module()
+XE::WASMModule::WASMModule()
 {
 
 }
 
-XE::Module::~Module()
+XE::WASMModule::~WASMModule()
 {
 
 }
 
-void XE::Module::Load( XE::MemoryView view )
+void XE::WASMModule::Load( XE::MemoryView view )
 {
 	auto data = view.data();
 
@@ -123,12 +123,12 @@ void XE::Module::Load( XE::MemoryView view )
 	}
 }
 
-void XE::Module::LoadCustomSecions( XE::MemoryView view )
+void XE::WASMModule::LoadCustomSecions( XE::MemoryView view )
 {
 
 }
 
-void XE::Module::LoadTypeSecions( XE::MemoryView view )
+void XE::WASMModule::LoadTypeSecions( XE::MemoryView view )
 {
 	auto data = view.data();
 
@@ -169,7 +169,7 @@ void XE::Module::LoadTypeSecions( XE::MemoryView view )
 	}
 }
 
-void XE::Module::LoadImportSecions( XE::MemoryView view )
+void XE::WASMModule::LoadImportSecions( XE::MemoryView view )
 {
 	auto data = view.data();
 
@@ -249,7 +249,7 @@ void XE::Module::LoadImportSecions( XE::MemoryView view )
 	}
 }
 
-void XE::Module::LoadFuncSecions( XE::MemoryView view )
+void XE::WASMModule::LoadFuncSecions( XE::MemoryView view )
 {
 	auto data = view.data();
 
@@ -263,7 +263,7 @@ void XE::Module::LoadFuncSecions( XE::MemoryView view )
 	}
 }
 
-void XE::Module::LoadTableSecions( XE::MemoryView view )
+void XE::WASMModule::LoadTableSecions( XE::MemoryView view )
 {
 	auto data = view.data();
 
@@ -291,7 +291,7 @@ void XE::Module::LoadTableSecions( XE::MemoryView view )
 	}
 }
 
-void XE::Module::LoadMemorySecions( XE::MemoryView view )
+void XE::WASMModule::LoadMemorySecions( XE::MemoryView view )
 {
 	auto data = view.data();
 
@@ -315,7 +315,7 @@ void XE::Module::LoadMemorySecions( XE::MemoryView view )
 	}
 }
 
-void XE::Module::LoadGlobalSecions( XE::MemoryView view )
+void XE::WASMModule::LoadGlobalSecions( XE::MemoryView view )
 {
 	auto data = view.data();
 
@@ -331,7 +331,7 @@ void XE::Module::LoadGlobalSecions( XE::MemoryView view )
 	}
 }
 
-void XE::Module::LoadExportSecions( XE::MemoryView view )
+void XE::WASMModule::LoadExportSecions( XE::MemoryView view )
 {
 	auto data = view.data();
 
@@ -347,12 +347,12 @@ void XE::Module::LoadExportSecions( XE::MemoryView view )
 	}
 }
 
-void XE::Module::LoadStartSecions( XE::MemoryView view )
+void XE::WASMModule::LoadStartSecions( XE::MemoryView view )
 {
 	XE::DecodeLeb128( view.data(), _Start );
 }
 
-void XE::Module::LoadElemSecions( XE::MemoryView view )
+void XE::WASMModule::LoadElemSecions( XE::MemoryView view )
 {
 	auto data = view.data();
 
@@ -375,7 +375,7 @@ void XE::Module::LoadElemSecions( XE::MemoryView view )
 	}
 }
 
-void XE::Module::LoadCodeSecions( XE::MemoryView view )
+void XE::WASMModule::LoadCodeSecions( XE::MemoryView view )
 {
 	auto data = view.data();
 
@@ -412,7 +412,7 @@ void XE::Module::LoadCodeSecions( XE::MemoryView view )
 	}
 }
 
-void XE::Module::LoadDataSecions( XE::MemoryView view )
+void XE::WASMModule::LoadDataSecions( XE::MemoryView view )
 {
 	auto data = view.data();
 
