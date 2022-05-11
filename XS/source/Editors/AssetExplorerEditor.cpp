@@ -1,6 +1,6 @@
-#include "AssetsEditor.h"
+#include "AssetExplorerEditor.h"
 
-#include "ui_AssetsEditor.h"
+#include "ui_AssetExplorerEditor.h"
 
 #include <QMenu>
 #include <QDateTime>
@@ -15,7 +15,7 @@
 #define ITEM_ICON_SCALE 100
 #define ITEM_HIGHT_EXT 20
 
-REG_WIDGET( XS::AssetsEditor );
+REG_WIDGET( XS::AssetExplorerEditor );
 
 class XS::AssetsItemModel : public QAbstractItemModel
 {
@@ -419,8 +419,8 @@ private:
 	AssetsItem * _RootItem;
 };
 
-XS::AssetsEditor::AssetsEditor( QWidget * parent /*= nullptr */ )
-	:DockWidget( parent ), ui( new Ui::AssetsEditor )
+XS::AssetExplorerEditor::AssetExplorerEditor( QWidget * parent /*= nullptr */ )
+	:DockWidget( parent ), ui( new Ui::AssetExplorerEditor )
 {
 	setupUi( ui );
 
@@ -446,12 +446,12 @@ XS::AssetsEditor::AssetsEditor( QWidget * parent /*= nullptr */ )
 // 	_LocalDB.setHostName( watchdb_file );
 // 	_LocalDB.open();
 
-	connect( ui->tree, &QTreeView::clicked, this, &AssetsEditor::OnTreeViewClicked );
-	connect( ui->scale, &QSlider::valueChanged, this, &AssetsEditor::OnScaleValueChanged );
-	connect( ui->tree, &QTreeView::customContextMenuRequested, this, &AssetsEditor::OnTreeViewCustomContextMenuRequested );
+	connect( ui->tree, &QTreeView::clicked, this, &AssetExplorerEditor::OnTreeViewClicked );
+	connect( ui->scale, &QSlider::valueChanged, this, &AssetExplorerEditor::OnScaleValueChanged );
+	connect( ui->tree, &QTreeView::customContextMenuRequested, this, &AssetExplorerEditor::OnTreeViewCustomContextMenuRequested );
 }
 
-XS::AssetsEditor::~AssetsEditor()
+XS::AssetExplorerEditor::~AssetExplorerEditor()
 {
 	if ( _LocalDB.isOpen() )
 	{
@@ -461,7 +461,7 @@ XS::AssetsEditor::~AssetsEditor()
 	delete ui;
 }
 
-void XS::AssetsEditor::SaveLayout( QSettings & settings )
+void XS::AssetExplorerEditor::SaveLayout( QSettings & settings )
 {
 	DockWidget::SaveLayout( settings );
 
@@ -474,7 +474,7 @@ void XS::AssetsEditor::SaveLayout( QSettings & settings )
 	settings.endGroup();
 }
 
-void XS::AssetsEditor::LoadLayout( QSettings & settings )
+void XS::AssetExplorerEditor::LoadLayout( QSettings & settings )
 {
 	DockWidget::LoadLayout( settings );
 
@@ -487,17 +487,17 @@ void XS::AssetsEditor::LoadLayout( QSettings & settings )
 	settings.endGroup();
 }
 
-void XS::AssetsEditor::OnWatcherFileChanged( const QString & path )
+void XS::AssetExplorerEditor::OnWatcherFileChanged( const QString & path )
 {
 
 }
 
-void XS::AssetsEditor::OnWatcherDirectoryChanged( const QString & path )
+void XS::AssetExplorerEditor::OnWatcherDirectoryChanged( const QString & path )
 {
 
 }
 
-void XS::AssetsEditor::OnScaleValueChanged( int value )
+void XS::AssetExplorerEditor::OnScaleValueChanged( int value )
 {
 	if ( value == 0 )
 	{
@@ -515,7 +515,7 @@ void XS::AssetsEditor::OnScaleValueChanged( int value )
 	}
 }
 
-void XS::AssetsEditor::OnTreeViewClicked( const QModelIndex & index )
+void XS::AssetExplorerEditor::OnTreeViewClicked( const QModelIndex & index )
 {
 	QFileInfo info( _Module->filePath( index ) );
 
@@ -531,7 +531,7 @@ void XS::AssetsEditor::OnTreeViewClicked( const QModelIndex & index )
 	}
 }
 
-void XS::AssetsEditor::OnTreeViewCustomContextMenuRequested( const QPoint & pos )
+void XS::AssetExplorerEditor::OnTreeViewCustomContextMenuRequested( const QPoint & pos )
 {
 	QModelIndex index = ui->tree->indexAt( ui->tree->viewport()->mapFromGlobal( QCursor::pos() ) );
 	

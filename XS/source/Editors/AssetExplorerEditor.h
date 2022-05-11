@@ -13,20 +13,20 @@
 
 #include <QSqlDatabase>
 
-UI_DECL( AssetsEditor );
+UI_DECL( AssetExplorerEditor );
 
 BEG_XS_NAMESPACE
 
 class AssetsItemModel;
 
-class XS_API AssetsEditor : public XS::DockWidget
+class XS_API AssetExplorerEditor : public XS::DockWidget
 {
 	Q_OBJECT
 
 public:
-	AssetsEditor( QWidget * parent = nullptr );
+	AssetExplorerEditor( QWidget * parent = nullptr );
 
-	~AssetsEditor();
+	~AssetExplorerEditor();
 
 public:
 	void SaveLayout( QSettings & settings ) override;
@@ -45,7 +45,7 @@ private slots:
 	void OnTreeViewCustomContextMenuRequested( const QPoint & pos );
 
 private:
-	Ui::AssetsEditor * ui;
+	Ui::AssetExplorerEditor * ui;
 	QSqlDatabase _LocalDB;
 	AssetsItemModel * _Module;
 };

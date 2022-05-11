@@ -255,7 +255,7 @@ void XS::LoggerEditor::OnListViewItemDoubleClicked( const QModelIndex & index )
 	}
 }
 
-void XS::LoggerEditor::OnLoggerListener( std::chrono::system_clock::time_point time, const char * file, XE::uint32 line, XE::LoggerLevel level, XE::String msg )
+void XS::LoggerEditor::OnLoggerListener( std::chrono::system_clock::time_point time, const char * file, XE::uint32 line, const char * func, XE::LoggerLevel level, XE::Utf8String msg )
 {
 	switch ( level )
 	{
@@ -287,6 +287,7 @@ void XS::LoggerEditor::OnLoggerListener( std::chrono::system_clock::time_point t
 		QString message;
 		XE::uint32 line;
 		const char * file;
+		const char * func;
 		XE::LoggerLevel level;
 		std::chrono::system_clock::time_point time;
 	} info;
@@ -294,8 +295,9 @@ void XS::LoggerEditor::OnLoggerListener( std::chrono::system_clock::time_point t
 	info.time = time;
 	info.file = file;
 	info.line = line;
+	info.func = func;
 	info.level = level;
-	info.message = msg.c_str();
+	info.message = QString::fromUtf8( msg.c_str() );
 	if ( GetParent< XS::MainWindow >()->GetEditorThreadId() == std::this_thread::get_id() )
 	{
 		info.thread = "EDITOR";
@@ -350,7 +352,7 @@ void XS::LoggerEditor::OnLoggerListener( std::chrono::system_clock::time_point t
 
 						auto message = widget->findChild<QLabel *>( "message" );
 						message->setText( info.message );
-						message->setToolTip( QString( XE::ToString( info.time ).c_str() ) + "\n" + QString( info.file ) + ":" + QString::number( info.line ) + "\n" + info.message );
+						message->setToolTip( QString( XE::ToString( info.time ).c_str() ) + "\n" + QString( info.file ) + ":" + QString::number( info.line ) + "  " + info.func +"\n" + info.message );
 
 						return;
 					}
