@@ -24,21 +24,21 @@ namespace
 		idx += XE::DecodeLeb128( buffer, opcode );
 		expr.Type = XE::ExprType::VALUE;
 
-		switch( ( XE::Opcode ) opcode )
+		switch( ( XE::WASMOpcode ) opcode )
 		{
-		case XE::Opcode::OP_I32_CONST:
+		case XE::WASMOpcode::OP_I32_CONST:
 			idx += XE::DecodeLeb128( reinterpret_cast< const XE::uint8 * >( buffer ) + idx, expr.Val.i32 );
 			break;
-		case XE::Opcode::OP_I64_CONST:
+		case XE::WASMOpcode::OP_I64_CONST:
 			idx += XE::DecodeLeb128( reinterpret_cast< const XE::uint8 * >( buffer ) + idx, expr.Val.i64 );
 			break;
-		case XE::Opcode::OP_F32_CONST:
+		case XE::WASMOpcode::OP_F32_CONST:
 			idx += XE::ReadLittleEndian( reinterpret_cast< const XE::uint8 * >( buffer ) + idx, expr.Val.f32 );
 			break;
-		case XE::Opcode::OP_F64_CONST:
+		case XE::WASMOpcode::OP_F64_CONST:
 			idx += XE::ReadLittleEndian( reinterpret_cast< const XE::uint8 * >( buffer ) + idx, expr.Val.f64 );
 			break;
-		case XE::Opcode::OP_GET_GLOBAL:
+		case XE::WASMOpcode::OP_GET_GLOBAL:
 			idx += XE::DecodeLeb128( reinterpret_cast< const XE::uint8 * >( buffer ) + idx, expr.Val.i32 );
 			expr.Type = XE::ExprType::INDEX;
 			break;
