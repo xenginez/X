@@ -14,10 +14,12 @@
 
 BEG_XE_NAMESPACE
 
-class World;
 class Level;
 class Entity;
 class GameObject;
+class EntitySystem;
+class EntityComponent;
+class GameObjectComponent;
 
 END_XE_NAMESPACE
 

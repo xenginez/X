@@ -26,6 +26,8 @@ public:
 public:
 	void Push( const XE::WASMValue & val );
 
+	XE::WASMValue Top();
+
 	XE::WASMValue Pop();
 
 private:
@@ -37,8 +39,9 @@ private:
 	XE::int32 Exec( XE::MemoryView view );
 
 private:
-	XE::Deque< XE::WASMFrame > _FrameStack;
-	XE::Deque< XE::WASMValue > _ValueStack;
+	XE::WASMFrame _CurFrame;
+	XE::Array< XE::WASMFrame > _FrameStack;
+	XE::Array< XE::WASMValue > _ValueStack;
 };
 
 END_XE_NAMESPACE

@@ -14,12 +14,12 @@
 
 BEG_XE_NAMESPACE
 
-DECL_HANDLE( Level );
 DECL_HANDLE( Entity );
-DECL_HANDLE( GameObject );
 
 DECL_PTR( Level );
 DECL_PTR( GameObject );
+DECL_PTR( EntitySystem );
+DECL_PTR( GameObjectComponent );
 
 END_XE_NAMESPACE
 

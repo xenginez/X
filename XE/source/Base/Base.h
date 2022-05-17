@@ -13,7 +13,7 @@
 #include "Endian.h"
 #include "String.h"
 #include "Bitmap.h"
-#include "Tree.hpp"
+#include "Graph.hpp"
 #include "Leb128.hpp"
 #include "Format.hpp"
 #include "Exception.h"
