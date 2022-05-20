@@ -14,12 +14,13 @@
 
 BEG_XE_NAMESPACE
 
-class Level;
+class World;
 class Entity;
 class GameObject;
 class EntitySystem;
 class EntityComponent;
 class GameObjectComponent;
+using EntitySystemGraph = XE::Graph< XE::EntitySystem * >;
 
 END_XE_NAMESPACE
 

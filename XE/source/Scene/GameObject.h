@@ -22,7 +22,7 @@ class XE_API GameObject final : public XE::Object
 	OBJECT( GameObject, XE::Object )
 
 private:
-	friend class Level;
+	friend class World;
 
 public:
 	GameObject();
@@ -50,7 +50,7 @@ public:
 	void SetParent( const XE::GameObjectPtr & val );
 
 public:
-	XE::LevelPtr GetLevel() const;
+	XE::WorldPtr GetWorld() const;
 
 	XE::Transform & GetTransform();
 
@@ -81,7 +81,7 @@ private:
 	XE::Array< XE::GameObjectComponentPtr > _Components;
 
 private:
-	XE::LevelWPtr _Level;
+	XE::WorldWPtr _World;
 	XE::GameObjectWPtr _Parent;
 	XE::Array< XE::GameObjectPtr > _Children;
 };
@@ -118,7 +118,7 @@ public:
 	void SetEnable( bool val );
 
 public:
-	XE::LevelPtr GetLevel() const;
+	XE::WorldPtr GetWorld() const;
 
 	XE::Transform & GetTransform() const;
 

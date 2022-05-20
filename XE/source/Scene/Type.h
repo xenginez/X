@@ -16,7 +16,7 @@ BEG_XE_NAMESPACE
 
 DECL_HANDLE( Entity );
 
-DECL_PTR( Level );
+DECL_PTR( World );
 DECL_PTR( GameObject );
 DECL_PTR( EntitySystem );
 DECL_PTR( GameObjectComponent );

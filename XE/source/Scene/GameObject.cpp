@@ -2,7 +2,7 @@
 
 #include "Utils/Logger.h"
 
-#include "Level.h"
+#include "World.h"
 
 BEG_META( XE::GameObject )
 END_META()
@@ -114,9 +114,9 @@ void XE::GameObject::SetParent( const XE::GameObjectPtr & val )
 	}
 }
 
-XE::LevelPtr XE::GameObject::GetLevel() const
+XE::WorldPtr XE::GameObject::GetWorld() const
 {
-	return _Level.lock();
+	return _World.lock();
 }
 
 XE::Transform & XE::GameObject::GetTransform()
@@ -235,9 +235,9 @@ void XE::GameObjectComponent::SetEnable( bool val )
 	_Enable = val;
 }
 
-XE::LevelPtr XE::GameObjectComponent::GetLevel() const
+XE::WorldPtr XE::GameObjectComponent::GetWorld() const
 {
-	return GetGameObject()->GetLevel();
+	return GetGameObject()->GetWorld();
 }
 
 XE::Transform & XE::GameObjectComponent::GetTransform() const

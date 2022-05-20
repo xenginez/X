@@ -91,6 +91,9 @@ public:
 	}
 
 public:
+	void Clear();
+
+public:
 	bool Empty() const;
 
 	XE::uint64 GetSize() const;

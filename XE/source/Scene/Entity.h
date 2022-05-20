@@ -13,58 +13,39 @@
 
 BEG_XE_NAMESPACE
 
-class XE_API Entity
+class XE_API EntitySystem
 {
 public:
-	XE::EntityHandle Handle;
+	virtual void Execute( const XE::World * world, XE::float32 dt ) const = 0;
 };
-DECL_XE_CLASS( Entity );
-
-class XE_API EntityResult
-{
-public:
-	XE::EntityComponent * WriteComponent( const XE::MetaClassCPtr & val );
-
-	const XE::EntityComponent * ReadComponent( const XE::MetaClassCPtr & val );
-
-	template< typename T > T * WriteComponent()
-	{
-		static_assert( std::is_base_of_v< XE::EntityComponent, T >, "" );
-
-		return static_cast<T *>( WriteComponent( ::ClassID< typename XE::TypeTraits< T >::raw_t >::Get() ) );
-	}
-
-	template< typename T > const T * ReadComponent()
-	{
-		static_assert( std::is_base_of_v< XE::EntityComponent, T >, "" );
-
-		return static_cast<const T *>( WriteComponent( ::ClassID< typename XE::TypeTraits< T >::raw_t >::Get() ) );
-	}
-};
-DECL_XE_CLASS( EntityResult );
+DECL_XE_CLASS( EntitySystem );
 
 class XE_API EntityComponent
 {
-
+public:
+	XE::EntityHandle Entity;
 };
 DECL_XE_CLASS( EntityComponent );
 
-class XE_API EntitySystem : public XE::Object
+class XE_API EntitySystemGroup : public EntitySystem
 {
-	OBJECT( EntitySystem, XE::Object );
+	friend class World;
+	friend struct XE::MetaTypeCollector< XE::EntitySystemGroup >;
 
 public:
-	EntitySystem() = default;
+	void Execute( const XE::World * world, XE::float32 dt ) const;
 
-	virtual ~EntitySystem() = default;
-
-public:
-	virtual XE::TemplateType ReadComponents() const = 0;
-
-	virtual XE::TemplateType WriteComponents() const = 0;
-
-	virtual void Execute( EntityResult & result ) const = 0;
+private:
+	XE::EntitySystemGraph _Graph;
 };
+DECL_XE_CLASS( EntitySystemGroup, EntitySystem );
+
+class XE_API NameEntityComponent : public XE::EntityComponent
+{
+public:
+	XE::String Name;
+};
+DECL_XE_CLASS( NameEntityComponent, EntityComponent );
 
 END_XE_NAMESPACE
 

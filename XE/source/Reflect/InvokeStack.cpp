@@ -101,3 +101,8 @@ XE::ParameterType XE::InvokeStack::GetTypes() const
 
 	return types;
 }
+
+void XE::InvokeStack::Clear()
+{
+	_Stack.clear();
+}

@@ -51,14 +51,14 @@ public:
 };
 
 
-template< typename ... Types >TemplateType MakeTemplateType()
+template< typename ... Types > TemplateType MakeTemplateType()
 {
 	TemplateType ret;
 	XE::TypeList< Types... >::Make( &ret );
 	return ret;
 }
 
-template< typename ... Types >ParameterType MakeParameterType()
+template< typename ... Types > ParameterType MakeParameterType()
 {
 	ParameterType ret;
 	XE::TypeList< Types... >::Make( &ret );
