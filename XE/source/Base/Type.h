@@ -378,10 +378,10 @@ template< typename T > using Queue = std::queue< T, XE::Deque< T > >;
 template< typename T > using UnorderedSet = std::pmr::unordered_set< T, XE::Hasher< T > >;
 template< typename T > using UnorderedMultiSet = std::pmr::unordered_multiset< T, XE::Hasher< T > >;
 template< typename K, typename V > using Pair = std::pair< K, V >;
-template< typename K, typename V > using Map = std::pmr::map< K, V >;
-template< typename K, typename V > using MultiMap = std::pmr::multimap< K, V >;
-template< typename K, typename V > using UnorderedMap = std::pmr::unordered_map< K, V, XE::Hasher< K > >;
-template< typename K, typename V > using UnorderedMultiMap = std::pmr::unordered_multimap< K, V, XE::Hasher< K > >;
+template< typename K, typename V, typename L = std::less< K > > using Map = std::pmr::map< K, V, L >;
+template< typename K, typename V, typename L = std::less< K >  > using MultiMap = std::pmr::multimap< K, V, L >;
+template< typename K, typename V, typename H = XE::Hasher< K > > using UnorderedMap = std::pmr::unordered_map< K, V, H >;
+template< typename K, typename V, typename H = XE::Hasher< K > > using UnorderedMultiMap = std::pmr::unordered_multimap< K, V, H >;
 
 END_XE_NAMESPACE
 

@@ -25,23 +25,18 @@ public:
 	using difference_type = std::ptrdiff_t;
 	using allocator_traits = std::allocator_traits< allocator_type >;
 
-	using vertex_container_type = XE::List< T >;
+	using vertex_container_type = XE::List< vertex_type >;
 	using vertex_iterator = typename vertex_container_type::iterator;
 	using vertex_const_iterator = typename vertex_container_type::const_iterator;
-	using vertex_reverse_iterator = typename vertex_container_type::reverse_iterator;
-	using vertex_const_reverse_iterator = typename vertex_container_type::const_reverse_iterator;
 
-	using adjacent_container_type = XE::List< vertex_iterator >;
+	using adjacent_container_type = XE::List< vertex_const_iterator >;
 	using in_edge_iterator = typename adjacent_container_type::iterator;
 	using in_edge_const_iterator = typename adjacent_container_type::const_iterator;
-	using in_edge_reverse_iterator = typename adjacent_container_type::reverse_iterator;
-	using in_edge_const_reverse_iterator = typename adjacent_container_type::const_reverse_iterator;
 	using out_edge_iterator = typename adjacent_container_type::iterator;
 	using out_edge_const_iterator = typename adjacent_container_type::const_iterator;
-	using out_edge_reverse_iterator = typename adjacent_container_type::reverse_iterator;
-	using out_edge_const_reverse_iterator = typename  adjacent_container_type::const_reverse_iterator;
 
-	using edge_container_type = XE::Map< vertex_iterator, XE::Pair< adjacent_container_type, adjacent_container_type > >;
+	struct less {  bool operator()( const vertex_const_iterator & l, const vertex_const_iterator & r ) const volatile { return *l < *r; } };
+	using edge_container_type = XE::Map < vertex_const_iterator, XE::Pair< adjacent_container_type, adjacent_container_type >, less >;
 
 public:
 	Graph( const allocator_type & alloc = allocator_type() )
@@ -216,7 +211,7 @@ public:
 		auto it = _Edges.find( val );
 		if ( it != _Edges.end() )
 		{
-			return { it->second.second.begin(),it->second.second.end() };
+			return { it->second.second.begin(), it->second.second.end() };
 		}
 
 		return {};

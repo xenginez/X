@@ -602,7 +602,7 @@ void XE::World::Each( const XE::TemplateType & components, const XE::TemplateTyp
 	}
 }
 
-void XE::World::AddCommand( const XE::Delegate< void() > & callback ) const
+void XE::World::AddCommand( const XE::Delegate< void() > & callback )
 {
 	_p->_TaskQueue.push( callback );
 }

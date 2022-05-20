@@ -16,7 +16,7 @@ BEG_XE_NAMESPACE
 class XE_API EntitySystem
 {
 public:
-	virtual void Execute( const XE::World * world, XE::float32 dt ) const = 0;
+	virtual void Execute( XE::World * world, XE::float32 dt ) const = 0;
 };
 DECL_XE_CLASS( EntitySystem );
 
@@ -33,7 +33,7 @@ class XE_API EntitySystemGroup : public EntitySystem
 	friend struct XE::MetaTypeCollector< XE::EntitySystemGroup >;
 
 public:
-	void Execute( const XE::World * world, XE::float32 dt ) const;
+	void Execute( XE::World * world, XE::float32 dt ) const;
 
 private:
 	XE::EntitySystemGraph _Graph;

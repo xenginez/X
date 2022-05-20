@@ -115,7 +115,7 @@ public:
 	}
 
 public:
-	void AddCommand( const XE::Delegate< void() > & callback ) const;
+	void AddCommand( const XE::Delegate< void() > & callback );
 
 private:
 	Private * _p;
