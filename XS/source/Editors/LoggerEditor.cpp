@@ -321,9 +321,6 @@ void XS::LoggerEditor::OnLoggerListener( std::chrono::system_clock::time_point t
 		case XE::ThreadType::PHYSICS:
 			info.thread = "PHYSICS";
 			break;
-		case XE::ThreadType::NETWORK:
-			info.thread = "NETWORK";
-			break;
 		case XE::ThreadType::WORKS:
 			info.thread = "WORKS";
 			break;

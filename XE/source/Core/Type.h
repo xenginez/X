@@ -55,7 +55,6 @@ enum class ThreadType
 	AUDIO,
 	RENDER,
 	PHYSICS,
-	NETWORK,
 	WORKS,
 	UNKNOWN,
 };

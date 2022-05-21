@@ -13,5 +13,6 @@
 #include "Server.h"
 #include "HttpRequest.h"
 #include "HttpResponse.h"
+#include "NetworkService.h"
 
 #endif//NETWORK_H__54860DE5_1F98_42EE_B99F_DBCD2D8B33B5

@@ -9,7 +9,9 @@
 #ifndef SERVICE_H__613AEC00_F8C2_4C3A_8612_B15EA97F0B61
 #define SERVICE_H__613AEC00_F8C2_4C3A_8612_B15EA97F0B61
 
-#include "Service.h"
+#include "Type.h"
+
+#include "Core/Service.h"
 
 BEG_XE_NAMESPACE
 
@@ -18,8 +20,8 @@ class XE_API NetworkService : public XE::Service
 	OBJECT( Service, XE::Service );
 
 private:
-	friend class Client;
-	friend class Server;
+	friend class XE::Client;
+	friend class XE::Server;
 
 private:
 	struct Private;
@@ -41,9 +43,9 @@ public:
 private:
 	void * GetIOService();
 
-	XE::Handle< XE::Client > AllocClientHandle();
+	XE::ClientHandle AllocClientHandle();
 
-	XE::Handle < XE::Server > AllocServerHandle();
+	XE::ServerHandle AllocServerHandle();
 
 	void Dispatch( const XE::Delegate< void() > & callback );
 

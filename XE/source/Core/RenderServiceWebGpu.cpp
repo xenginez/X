@@ -2,6 +2,8 @@
 
 #if !defined( NULL_RENDER ) && ( PLATFORM_OS & OS_WASM )
 
+#include <webgpu/webgpu.h>
+
 IMPLEMENT_META( XE::RenderService );
 
 struct XE::RenderService::Private

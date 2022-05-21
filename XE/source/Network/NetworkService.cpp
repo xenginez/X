@@ -4,12 +4,15 @@
 #include <sdkddkver.h>
 #endif
 
+#include <kcp/ikcp.h>
 #include <kcp/ikcp.c>
 #include <asio/asio.hpp>
 
-#include "CoreFramework.h"
-#include "ThreadService.h"
-#include "Network/Network.h"
+#include "Core/CoreFramework.h"
+#include "Core/ThreadService.h"
+
+#include "Client.h"
+#include "Server.h"
 
 BEG_META( XE::NetworkService )
 END_META()
@@ -18,9 +21,9 @@ struct XE::NetworkService::Private
 {
 	std::thread _Thread;
 	asio::io_service _IOService;
+	XE::ClientHandleAllocator _ClientAllocator;
+	XE::ServerHandleAllocator _ServerAllocator;
 	XE::UniquePtr< asio::io_service::work > _Work;
-	XE::HandleAllocator< XE::ClientHandle > _ClientAllocator;
-	XE::HandleAllocator< XE::ServerHandle > _ServerAllocator;
 };
 
 XE::NetworkService::NetworkService()
@@ -41,10 +44,8 @@ void XE::NetworkService::Prepare()
 
 bool XE::NetworkService::Startup()
 {
-	GetFramework()->GetServiceT< XE::ThreadService >()->PostTask( ThreadType::NETWORK, [this]()
-		{
-			_p->_IOService.run();
-		} );
+	_p->_Thread = std::thread( [this]() { _p->_IOService.run(); } );
+
 	return false;
 }
 

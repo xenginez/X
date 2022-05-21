@@ -22,7 +22,6 @@
 #include "AssetsService.h"
 #include "ThreadService.h"
 #include "PhysicsService.h"
-#include "NetworkService.h"
 #include "LocalizationService.h"
 
 #endif // CORE_H__89296107_DD2C_4CE3_A497_78460B7181B4

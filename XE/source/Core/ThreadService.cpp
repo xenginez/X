@@ -240,17 +240,14 @@ bool XE::ThreadService::Startup()
 {
 	MicroProfileOnThreadCreate( "Game" );
 
-	_p->_Threads.resize( EnumID< XE::ThreadType >::Get()->GetEnumCount() );
+	_p->_Threads.resize( (XE::uint64)XE::ThreadType::UNKNOWN );
 
 	_p->_Threads[(XE::uint64)XE::ThreadType::GAME] = new XEPMainThread();
-
 	_p->_Threads[(XE::uint64)XE::ThreadType::WORKS] = new XEPWorkThread();
-
 	_p->_Threads[(XE::uint64)XE::ThreadType::IO] = new XEPSpecialThread( "IO" );
 	_p->_Threads[(XE::uint64)XE::ThreadType::AUDIO] = new XEPSpecialThread( "Audio" );
 	_p->_Threads[(XE::uint64)XE::ThreadType::RENDER] = new XEPSpecialThread( "Render" );
 	_p->_Threads[(XE::uint64)XE::ThreadType::PHYSICS] = new XEPSpecialThread( "Physics" );
-	_p->_Threads[(XE::uint64)XE::ThreadType::NETWORK] = new XEPSpecialThread( "Network" );
 
 	return true;
 }

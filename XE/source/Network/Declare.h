@@ -26,6 +26,8 @@ class KCPServer;
 class HttpRequest;
 class HttpResponse;
 
+class NetworkService;
+
 template< typename Protocol, typename IArchive = XE::BinaryIArchive, typename OArchive = XE::BinaryOArchive > class RPCClient;
 template< typename Protocol, typename IArchive = XE::BinaryIArchive, typename OArchive = XE::BinaryOArchive > class RPCServer;
 

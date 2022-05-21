@@ -2,7 +2,6 @@
 
 #include "Core/CoreFramework.h"
 #include "Core/TimerService.h"
-#include "Core/NetworkService.h"
 
 #if PLATFORM_OS & OS_WINDOWS
 #include <sdkddkver.h>
@@ -10,6 +9,8 @@
 
 #include <kcp/ikcp.h>
 #include <asio/asio.hpp>
+
+#include "NetworkService.h"
 
 static constexpr XE::uint64 udp_timeout = 10;
 
