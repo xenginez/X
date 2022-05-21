@@ -22,7 +22,21 @@ XE_INLINE constexpr XE::uint64 Hash( const XE::TemplateType & val )
 	return value;
 }
 
+class Entity
+{
+public:
+	XE::uint64 Hash;
+	XE::EntityHandle Handle;
+	XE::Array< XE::Variant > Components;
+};
+DECL_XE_CLASS( Entity );
+
 END_XE_NAMESPACE
+
+BEG_META( XE::Entity )
+type->Property( "Handle", &XE::Entity::Handle );
+type->Property( "Components", &XE::Entity::Components );
+END_META()
 
 namespace
 {
@@ -55,7 +69,7 @@ namespace
 		ChunkList Chunks;
 		XE::uint64 ArchetypeSize;
 		XE::TemplateType ComponentTypes;
-		XE::UnorderedMap< XE::EntityHandle, IndexID > EntityIndexMap;
+		XE::Map< XE::EntityHandle, IndexID > EntityIndexMap;
 	};
 
 	XE::uint8 * CalcComponentPtr( XE::uint8 * data, XE::uint64 offset, XE::uint64 index, XE::uint64 count, XE::uint64 size )
@@ -71,10 +85,10 @@ struct XE::World::Private
 	XE::Transform _Transform;
 	XE::Array< XE::GameObjectPtr > _GameObjects;
 
-	XE::Array< HashID > _Entitys;
 	XE::EntitySystemGroup _SystemGroup;
-	XE::UnorderedMap< HashID, Archetype > _ArchetypeMap;
-	XE::QueueHandleAllocator< XE::EntityHandle > _EntityHandleAllocator;
+	XE::Map< HashID, Archetype > _ArchetypeMap;
+	XE::Map< XE::EntityHandle, HashID > _EntityMap;
+	XE::EntityHandleAllocator _EntityHandleAllocator;
 
 	ChunkList _FreeChunks;
 	XE::ConcurrentQueue< XE::Delegate< void() > > _TaskQueue;
@@ -167,7 +181,7 @@ void XE::World::Clearup()
 
 	_p->_GameObjects.clear();
 
-	_p->_Entitys.clear();
+	_p->_EntityMap.clear();
 	_p->_ArchetypeMap.clear();
 	_p->_EntityHandleAllocator.Reset();
 
@@ -276,7 +290,7 @@ XE::EntityHandle XE::World::AddEntity( const XE::TemplateType & components )
 			arche_it->second.ArchetypeSize += it->GetSize();
 		}
 
-		Chunk * chunk;
+		Chunk * chunk = nullptr;
 		if ( !_p->_FreeChunks.empty() )
 		{
 			chunk = std::move( _p->_FreeChunks.front() );
@@ -309,19 +323,33 @@ XE::EntityHandle XE::World::AddEntity( const XE::TemplateType & components )
 
 	arche_it->second.EntityIndexMap.insert( { handle, index } );
 
+	_p->_EntityMap.insert( { handle, hash } );
+
 	return handle;
 }
 
 void XE::World::RemoveEntity( const XE::EntityHandle & val )
 {
-	if ( val.GetValue() < _p->_Entitys.size() )
+	auto entity_it = _p->_EntityMap.find( val );
+	if ( entity_it != _p->_EntityMap.end() )
 	{
-		auto arche_it = _p->_ArchetypeMap.find( val.GetValue() );
+		auto arche_it = _p->_ArchetypeMap.find( entity_it->second );
 		if ( arche_it != _p->_ArchetypeMap.end() )
 		{
 			auto index_it = arche_it->second.EntityIndexMap.find( val );
 			if ( index_it != arche_it->second.EntityIndexMap.end() )
 			{
+				XE::uint64 offset = 0;
+				for ( const auto & type : arche_it->second.ComponentTypes )
+				{
+					if ( auto cls = SP_CAST< const XE::MetaClass >( type ) )
+					{
+						auto index = index_it->second;
+						cls->Destructor( CalcComponentPtr( ( *index.Data )->Data, offset, index.Index, ( *index.Data )->Bits.Count(), cls->GetSize() ) );
+						offset += cls->GetSize();
+					}
+				}
+
 				( *index_it->second.Data )->Bits.Set( index_it->second.Index, false );
 				if ( ( *index_it->second.Data )->Bits.None() )
 				{
@@ -339,178 +367,191 @@ void XE::World::AddComponent( const XE::EntityHandle & handle, const XE::MetaCla
 {
 	HashID hash;
 	IndexID old_index, new_index;
-	XE::UnorderedMap< HashID, Archetype >::iterator old_it, new_it;
+	XE::Map< HashID, Archetype >::iterator old_it, new_it;
 
-	old_it = _p->_ArchetypeMap.find( _p->_Entitys[handle.GetValue()] );
-	if ( old_it == _p->_ArchetypeMap.end() )
+	auto entity_it = _p->_EntityMap.find( handle );
+	if ( entity_it != _p->_EntityMap.end() )
 	{
-		XE_ERROR( "the archetype of {%0} was not found.", handle.GetValue() );
-
-		return;
-	}
-	if ( std::find( old_it->second.ComponentTypes.begin(), old_it->second.ComponentTypes.end(), component ) != old_it->second.ComponentTypes.end() )
-	{
-		XE_ERROR( "Type {%0} already exists", component->GetFullName() );
-
-		return;
-	}
-	old_index = old_it->second.EntityIndexMap[handle];
-
-	auto components = old_it->second.ComponentTypes; components.push_back( component );
-	hash = XE::Hash( components );
-
-	new_it = _p->_ArchetypeMap.find( hash );
-	if ( new_it == _p->_ArchetypeMap.end() )
-	{
-		new_it = _p->_ArchetypeMap.insert( { hash, {} } ).first;
-
-		new_it->second.ComponentTypes = components;
-		for ( const auto & it : components )
+		old_it = _p->_ArchetypeMap.find( entity_it->second );
+		if ( old_it == _p->_ArchetypeMap.end() )
 		{
-			new_it->second.ArchetypeSize += it->GetSize();
+			XE_ERROR( "the archetype of {%0} was not found.", handle.GetValue() );
+
+			return;
+		}
+		if ( std::find( old_it->second.ComponentTypes.begin(), old_it->second.ComponentTypes.end(), component ) != old_it->second.ComponentTypes.end() )
+		{
+			XE_ERROR( "Type {%0} already exists", component->GetFullName() );
+
+			return;
+		}
+		old_index = old_it->second.EntityIndexMap[handle];
+
+		auto components = old_it->second.ComponentTypes; components.push_back( component );
+		hash = XE::Hash( components );
+
+		new_it = _p->_ArchetypeMap.find( hash );
+		if ( new_it == _p->_ArchetypeMap.end() )
+		{
+			new_it = _p->_ArchetypeMap.insert( { hash, {} } ).first;
+
+			new_it->second.ComponentTypes = components;
+			for ( const auto & it : components )
+			{
+				new_it->second.ArchetypeSize += it->GetSize();
+			}
+
+			Chunk * chunk = nullptr;
+			if ( _p->_FreeChunks.empty() )
+			{
+				chunk = XE::New< Chunk >();
+			}
+			else
+			{
+				chunk = std::move( _p->_FreeChunks.front() );
+				_p->_FreeChunks.pop_front();
+			}
+			chunk->Bits.Reset( KBYTE( 16 ) / new_it->second.ArchetypeSize );
+
+			new_it->second.Chunks.emplace_back( std::move( chunk ) );
 		}
 
-		Chunk * chunk;
-		if ( _p->_FreeChunks.empty() )
+		for ( auto it = new_it->second.Chunks.begin(); it != new_it->second.Chunks.end(); ++it )
 		{
-			chunk = XE::New< Chunk >();
+			if ( !( *it )->Bits.All() )
+			{
+				new_index.Data = it;
+				new_index.Index = ( *it )->Bits.FindFirstFalse();
+
+				( *it )->Bits.Set( new_index.Index, true );
+
+				break;
+			}
 		}
-		else
+
+		XE::uint64 offset = 0;
+		for ( const auto & it : old_it->second.ComponentTypes )
 		{
-			chunk = std::move( _p->_FreeChunks.front() );
-			_p->_FreeChunks.pop_front();
+			auto size = it->GetSize();
+			auto old_p = CalcComponentPtr( ( *old_index.Data )->Data, offset, old_index.Index, ( *old_index.Data )->Bits.Count(), size );
+			auto new_p = CalcComponentPtr( ( *new_index.Data )->Data, offset, new_index.Index, ( *new_index.Data )->Bits.Count(), size );
+			std::copy( old_p, old_p + size, new_p );
+			offset += size;
 		}
-		chunk->Bits.Reset( KBYTE( 16 ) / new_it->second.ArchetypeSize );
+		component->Construct( CalcComponentPtr( ( *new_index.Data )->Data, offset, new_index.Index, ( *new_index.Data )->Bits.Count(), component->GetSize() ) );
 
-		new_it->second.Chunks.emplace_back( std::move( chunk ) );
-	}
-
-	for ( auto it = new_it->second.Chunks.begin(); it != new_it->second.Chunks.end(); ++it )
-	{
-		if ( !( *it )->Bits.All() )
+		( *old_index.Data )->Bits.Set( old_index.Index, false );
+		if ( ( *old_index.Data )->Bits.None() )
 		{
-			new_index.Data = it;
-			new_index.Index = ( *it )->Bits.FindFirstFalse();
-
-			( *it )->Bits.Set( new_index.Index, true );
-
-			break;
+			_p->_FreeChunks.emplace_back( std::move( *old_index.Data ) );
+			old_it->second.Chunks.erase( old_index.Data );
 		}
+		old_it->second.EntityIndexMap.erase( old_it->second.EntityIndexMap.find( handle ) );
+
+		new_it->second.EntityIndexMap.insert( { handle, new_index } );
+
+		entity_it->second = hash;
 	}
-
-	XE::uint64 offset = 0;
-	for ( const auto & it : old_it->second.ComponentTypes )
-	{
-		auto size = it->GetSize();
-		auto old_p = CalcComponentPtr( ( *old_index.Data )->Data, offset, old_index.Index, ( *old_index.Data )->Bits.Count(), size );
-		auto new_p = CalcComponentPtr( ( *new_index.Data )->Data, offset, new_index.Index, ( *new_index.Data )->Bits.Count(), size );
-		std::copy( old_p, old_p + size, new_p );
-		offset += size;
-	}
-	component->Construct( CalcComponentPtr( ( *new_index.Data )->Data, offset, new_index.Index, ( *new_index.Data )->Bits.Count(), component->GetSize() ) );
-
-	( *old_index.Data )->Bits.Set( old_index.Index, false );
-	if ( ( *old_index.Data )->Bits.None() )
-	{
-		_p->_FreeChunks.emplace_back( std::move( *old_index.Data ) );
-		old_it->second.Chunks.erase( old_index.Data );
-	}
-	old_it->second.EntityIndexMap.erase( old_it->second.EntityIndexMap.find( handle ) );
-
-	new_it->second.EntityIndexMap.insert( { handle, new_index } );
-
-	_p->_Entitys[handle.GetValue()] = hash;
 }
 
 void XE::World::RemoveComponent( const XE::EntityHandle & handle, const XE::MetaClassCPtr & component )
 {
 	HashID hash;
 	IndexID old_index, new_index;
-	XE::UnorderedMap< HashID, Archetype >::iterator old_it, new_it;
+	XE::Map< HashID, Archetype >::iterator old_it, new_it;
 
-	old_it = _p->_ArchetypeMap.find( _p->_Entitys[handle.GetValue()] );
-	if ( old_it == _p->_ArchetypeMap.end() )
+	auto entity_it = _p->_EntityMap.find( handle );
+	if ( entity_it != _p->_EntityMap.end() )
 	{
-		XE_ERROR( "the archetype of {%0} was not found.", handle.GetValue() );
-
-		return;
-	}
-	old_index = old_it->second.EntityIndexMap[handle];
-
-	auto components = old_it->second.ComponentTypes; std::erase( components, component );
-	hash = XE::Hash( components );
-
-	new_it = _p->_ArchetypeMap.find( hash );
-	if ( new_it == _p->_ArchetypeMap.end() )
-	{
-		new_it = _p->_ArchetypeMap.insert( { hash, {} } ).first;
-
-		new_it->second.ComponentTypes = components;
-		for ( const auto & it : components )
+		old_it = _p->_ArchetypeMap.find( entity_it->second );
+		if ( old_it == _p->_ArchetypeMap.end() )
 		{
-			new_it->second.ArchetypeSize += it->GetSize();
+			XE_ERROR( "the archetype of {%0} was not found.", handle.GetValue() );
+
+			return;
+		}
+		old_index = old_it->second.EntityIndexMap[handle];
+
+		auto components = old_it->second.ComponentTypes; std::erase( components, component );
+		hash = XE::Hash( components );
+
+		new_it = _p->_ArchetypeMap.find( hash );
+		if ( new_it == _p->_ArchetypeMap.end() )
+		{
+			new_it = _p->_ArchetypeMap.insert( { hash, {} } ).first;
+
+			new_it->second.ComponentTypes = components;
+			for ( const auto & it : components )
+			{
+				new_it->second.ArchetypeSize += it->GetSize();
+			}
+
+			Chunk * chunk = nullptr;
+			if ( _p->_FreeChunks.empty() )
+			{
+				chunk = XE::New< Chunk >();
+			}
+			else
+			{
+				chunk = std::move( _p->_FreeChunks.front() );
+				_p->_FreeChunks.pop_front();
+			}
+			chunk->Bits.Reset( KBYTE( 16 ) / new_it->second.ArchetypeSize );
+
+			new_it->second.Chunks.emplace_back( std::move( chunk ) );
 		}
 
-		Chunk * chunk;
-		if ( _p->_FreeChunks.empty() )
+		for ( auto it = new_it->second.Chunks.begin(); it != new_it->second.Chunks.end(); ++it )
 		{
-			chunk = XE::New< Chunk >();
+			if ( !( *it )->Bits.All() )
+			{
+				new_index.Data = it;
+				new_index.Index = ( *it )->Bits.FindFirstFalse();
+
+				( *it )->Bits.Set( new_index.Index, true );
+
+				break;
+			}
 		}
-		else
+
+		XE::uint64 old_offset = 0, new_offset = 0;
+		for ( const auto & it : old_it->second.ComponentTypes )
 		{
-			chunk = std::move( _p->_FreeChunks.front() );
-			_p->_FreeChunks.pop_front();
+			auto size = it->GetSize();
+			if ( it != component )
+			{
+				auto old_p = CalcComponentPtr( ( *old_index.Data )->Data, old_offset, old_index.Index, ( *old_index.Data )->Bits.Count(), size );
+				auto new_p = CalcComponentPtr( ( *new_index.Data )->Data, new_offset, new_index.Index, ( *new_index.Data )->Bits.Count(), size );
+				std::copy( old_p, old_p + size, new_p );
+				new_offset += size;
+			}
+			else
+			{
+				component->Destructor( CalcComponentPtr( ( *old_index.Data )->Data, old_offset, old_index.Index, ( *old_index.Data )->Bits.Count(), size ) );
+			}
+			old_offset += size;
 		}
-		chunk->Bits.Reset( KBYTE( 16 ) / new_it->second.ArchetypeSize );
 
-		new_it->second.Chunks.emplace_back( std::move( chunk ) );
-	}
-
-	for ( auto it = new_it->second.Chunks.begin(); it != new_it->second.Chunks.end(); ++it )
-	{
-		if ( !( *it )->Bits.All() )
+		( *old_index.Data )->Bits.Set( old_index.Index, false );
+		if ( ( *old_index.Data )->Bits.None() )
 		{
-			new_index.Data = it;
-			new_index.Index = ( *it )->Bits.FindFirstFalse();
-
-			( *it )->Bits.Set( new_index.Index, true );
-
-			break;
+			_p->_FreeChunks.emplace_back( std::move( *old_index.Data ) );
+			old_it->second.Chunks.erase( old_index.Data );
 		}
+		old_it->second.EntityIndexMap.erase( old_it->second.EntityIndexMap.find( handle ) );
+
+		new_it->second.EntityIndexMap.insert( { handle, new_index } );
+
+		entity_it->second = hash;
 	}
-
-	XE::uint64 old_offset = 0, new_offset = 0;
-	for ( const auto & it : old_it->second.ComponentTypes )
-	{
-		auto size = it->GetSize();
-		if ( it != component )
-		{
-			auto old_p = CalcComponentPtr( ( *old_index.Data )->Data, old_offset, old_index.Index, ( *old_index.Data )->Bits.Count(), size );
-			auto new_p = CalcComponentPtr( ( *new_index.Data )->Data, new_offset, new_index.Index, ( *new_index.Data )->Bits.Count(), size );
-			std::copy( old_p, old_p + size, new_p );
-			new_offset += size;
-		}
-		old_offset += size;
-	}
-
-	( *old_index.Data )->Bits.Set( old_index.Index, false );
-	if ( ( *old_index.Data )->Bits.None() )
-	{
-		_p->_FreeChunks.emplace_back( std::move( *old_index.Data ) );
-		old_it->second.Chunks.erase( old_index.Data );
-	}
-	old_it->second.EntityIndexMap.erase( old_it->second.EntityIndexMap.find( handle ) );
-
-	new_it->second.EntityIndexMap.insert( { handle, new_index } );
-
-	_p->_Entitys[handle.GetValue()] = hash;
 }
 
 XE::EntityComponent * XE::World::GetComponent( const XE::MetaClassCPtr & type, const XE::EntityHandle & handle ) const
 {
-	if ( handle.GetValue() < _p->_Entitys.size() )
+	auto entity_it = _p->_EntityMap.find( handle );
+	if ( entity_it != _p->_EntityMap.end() )
 	{
-		auto arche_it = _p->_ArchetypeMap.find( handle.GetValue() );
+		auto arche_it = _p->_ArchetypeMap.find( entity_it->second );
 		if ( arche_it != _p->_ArchetypeMap.end() )
 		{
 			auto & arche_type = arche_it->second;
@@ -539,63 +580,47 @@ XE::EntityComponent * XE::World::GetComponent( const XE::MetaClassCPtr & type, c
 
 void XE::World::Each( const XE::TemplateType & components, const XE::TemplateType & include, const XE::TemplateType & exclude, const XE::Delegate< void( XE::InvokeStack * ) > & callback ) const
 {
-	auto all = []( auto beg1, auto end1, auto beg2, auto end2 ) -> bool
-	{
-		for ( ; beg2 != end2; ++beg2 )
-		{
-			if ( std::find( beg1, end1, *beg2 ) == end1 )
-			{
-				return false;
-			}
-		}
-
-		return true;
-	};
-	auto any = []( auto beg1, auto end1, auto beg2, auto end2 ) -> bool
-	{
-		for ( ; beg2 != end2; ++beg2 )
-		{
-			if ( std::find( beg1, end1, *beg2 ) != end1 )
-			{
-				return true;
-			}
-		}
-
-		return false;
-	};
-
 	XE::InvokeStack stack;
 
-	for ( size_t i = 0; i < _p->_Entitys.size(); i++ )
+	for ( const auto & arche_it : _p->_ArchetypeMap )
 	{
-		auto arche_it = _p->_ArchetypeMap.find( _p->_Entitys[i] );
-		if ( arche_it != _p->_ArchetypeMap.end() )
+		auto & arche_type = arche_it.second;
+
+		if ( std::all_of( components.begin(), components.end(), [&arche_type]( const XE::MetaTypeCPtr & val ) { return std::find( arche_type.ComponentTypes.begin(), arche_type.ComponentTypes.end(), val ) != arche_type.ComponentTypes.end(); } ) &&
+			( include.empty() || std::all_of( include.begin(), include.end(), [&arche_type]( const XE::MetaTypeCPtr & val ) { return std::find( arche_type.ComponentTypes.begin(), arche_type.ComponentTypes.end(), val ) != arche_type.ComponentTypes.end(); } ) ) &&
+			( exclude.empty() || !std::any_of( exclude.begin(), exclude.end(), [&arche_type]( const XE::MetaTypeCPtr & val ) { return std::find( arche_type.ComponentTypes.begin(), arche_type.ComponentTypes.end(), val ) != arche_type.ComponentTypes.end(); } ) ) )
 		{
-			auto & arche_type = arche_it->second;
+			XE::StackMemoryResource< KBYTE( 1 ) > resource;
+			XE::Array< XE::uint64 > sizes( components.size(), &resource );
+			XE::Array< XE::uint64 > offsets( components.size(), &resource );
 
-			if ( all( arche_type.ComponentTypes.begin(), arche_type.ComponentTypes.end(), components.begin(), components.end() ) &&
-				( include.empty() || all( arche_type.ComponentTypes.begin(), arche_type.ComponentTypes.end(), include.begin(), include.end() ) == true ) &&
-				( exclude.empty() || any( arche_type.ComponentTypes.begin(), arche_type.ComponentTypes.end(), exclude.begin(), exclude.end() ) == false ) )
+			for ( const auto & type : components )
 			{
-				auto idx_it = arche_type.EntityIndexMap.find( XE::HandleCast< XE::Entity >( i ) );
-				if ( idx_it != arche_type.EntityIndexMap.end() )
+				XE::uint64 offset = 0;
+				auto it = std::find( arche_type.ComponentTypes.begin(), arche_type.ComponentTypes.end(), type );
+				for ( auto it = arche_type.ComponentTypes.begin(); it != it; ++it )
 				{
-					stack.Clear();
+					offset += ( *it )->GetSize();
+				}
+				offsets.push_back( offset );
+				sizes.push_back( type->GetSize() );
+			}
 
-					for ( const auto & type : components )
+			for ( auto & chunk : arche_type.Chunks )
+			{
+				for ( size_t i = 0; i < chunk->Bits.Count(); i++ )
+				{
+					if ( chunk->Bits.Test( i ) )
 					{
-						XE::uint64 offset = 0;
+						stack.Clear();
 
-						auto comp_it = std::find( arche_type.ComponentTypes.begin(), arche_type.ComponentTypes.end(), type );
-						for ( auto it = arche_type.ComponentTypes.begin(); it != comp_it; ++it )
+						for ( size_t i = 0; i < components.size(); i++ )
 						{
-							offset += ( *it )->GetSize();
+							stack.Push( XE::Variant( CalcComponentPtr( chunk->Data, offsets[i], i, chunk->Bits.Count(), sizes[i] ), components[i].get() ) );
 						}
-						
-						stack.Push( XE::Variant( CalcComponentPtr( ( *idx_it->second.Data )->Data, offset, idx_it->second.Index, ( *idx_it->second.Data )->Bits.Count(), ( *comp_it )->GetSize() ), type.get() ) );
-					}
 
-					callback( &stack );
+						callback( &stack );
+					}
 				}
 			}
 		}
@@ -605,4 +630,113 @@ void XE::World::Each( const XE::TemplateType & components, const XE::TemplateTyp
 void XE::World::AddCommand( const XE::Delegate< void() > & callback )
 {
 	_p->_TaskQueue.push( callback );
+}
+
+void XE::World::Serialize( XE::OArchive & archive ) const
+{
+	archive 
+		& ARCHIVE_NVP( "Enable", _p->_Enable ) 
+		& ARCHIVE_NVP( "Name", _p->_Name ) 
+		& ARCHIVE_NVP( "Transfrom", _p->_Transform ) 
+		& ARCHIVE_NVP( "GameObjects", _p->_GameObjects ) 
+		& ARCHIVE_NVP( "SystemGroup", _p->_SystemGroup )
+		& ARCHIVE_NVP( "EntityHandleAllocator", _p->_EntityHandleAllocator );
+	
+	XE::Array< XE::Entity > Entities;
+	{
+		for ( const auto & entity_it : _p->_EntityMap )
+		{
+			XE::Entity entity;
+			{
+				entity.Hash = entity_it.second;
+				entity.Handle = entity_it.first;
+				auto arche_it = _p->_ArchetypeMap.find( entity_it.second );
+				if ( arche_it == _p->_ArchetypeMap.end() ) continue;
+
+				auto index_it = arche_it->second.EntityIndexMap.find( entity_it.first );
+				if ( index_it == arche_it->second.EntityIndexMap.end() ) continue;
+
+				XE::uint64 offset = 0;
+				for ( const auto & type : arche_it->second.ComponentTypes )
+				{
+					XE::uint64 size = type->GetSize();
+					entity.Components.push_back(
+						XE::Variant( 
+							CalcComponentPtr( ( *( index_it->second.Data ) )->Data, offset, index_it->second.Index, ( *( index_it->second.Data ) )->Bits.Count(), size ),
+							type.get()
+						)
+					);
+					offset += size;
+				}
+			}
+			Entities.emplace_back( std::move( entity ) );
+		}
+	}
+	archive & ARCHIVE_NVP( "Entities", Entities );
+}
+
+void XE::World::Deserialize( XE::IArchive & archive )
+{
+	XE::Array< XE::Entity > Entities;
+	archive
+		& ARCHIVE_NVP( "Enable", _p->_Enable )
+		& ARCHIVE_NVP( "Name", _p->_Name )
+		& ARCHIVE_NVP( "Transfrom", _p->_Transform )
+		& ARCHIVE_NVP( "GameObjects", _p->_GameObjects )
+		& ARCHIVE_NVP( "SystemGroup", _p->_SystemGroup )
+		& ARCHIVE_NVP( "EntityHandleAllocator", _p->_EntityHandleAllocator )
+		& ARCHIVE_NVP( "Entities", Entities );
+
+	for ( const auto & entity : Entities )
+	{
+		_p->_EntityMap.insert( { entity.Handle, entity.Hash } );
+		auto arche_it = _p->_ArchetypeMap.find( entity.Hash );
+		if ( arche_it == _p->_ArchetypeMap.end() )
+		{
+			arche_it = _p->_ArchetypeMap.insert( { entity.Hash, {} } ).first;
+			for ( const auto & comp : entity.Components )
+			{
+				arche_it->second.ArchetypeSize += comp.GetType()->GetSize();
+				arche_it->second.ComponentTypes.push_back( comp.GetType() );
+			}
+		}
+
+		auto chunk_it = std::find_if( arche_it->second.Chunks.begin(), arche_it->second.Chunks.end(), []( const Chunk * chunk ) { return !chunk->Bits.All(); } );
+		if ( chunk_it == arche_it->second.Chunks.end() )
+		{
+			Chunk * chunk = nullptr;
+			if ( _p->_FreeChunks.empty() )
+			{
+				chunk = XE::New< Chunk >();
+			}
+			else
+			{
+				chunk = _p->_FreeChunks.front();
+				_p->_FreeChunks.pop_front();
+			}
+
+			chunk->Bits.Reset( ChunkSize / arche_it->second.ArchetypeSize, false );
+
+			arche_it->second.Chunks.push_back( chunk );
+			chunk_it = --arche_it->second.Chunks.end();
+		}
+
+		IndexID index;
+		index.Data = chunk_it;
+		index.Index = ( *chunk_it )->Bits.FindFirstFalse();
+
+		( *chunk_it )->Bits.Set( index.Index, true );
+
+		arche_it->second.EntityIndexMap.insert( { entity.Handle, index } );
+
+		XE::uint64 offset = 0;
+		for ( const auto & comp : entity.Components )
+		{
+			auto size = comp.GetType()->GetSize();
+			auto new_p = CalcComponentPtr( ( *index.Data )->Data, offset, index.Index, ( *index.Data )->Bits.Count(), comp.GetType()->GetSize() );
+			auto old_p = reinterpret_cast<const XE::uint8 *>( comp.Value< const XE::EntityComponent * >() );
+			std::copy( old_p, old_p + size, new_p );
+			offset += size;
+		}
+	}
 }

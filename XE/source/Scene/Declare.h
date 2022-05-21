@@ -15,12 +15,12 @@
 BEG_XE_NAMESPACE
 
 class World;
-class Entity;
 class GameObject;
 class EntitySystem;
 class EntityComponent;
 class GameObjectComponent;
 using EntitySystemGraph = XE::Graph< XE::EntitySystem * >;
+using EntitySystemPaths = XE::List< XE::Array< XE::EntitySystemGraph::vertex_const_iterator > >;
 
 END_XE_NAMESPACE
 

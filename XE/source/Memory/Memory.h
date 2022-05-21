@@ -19,5 +19,6 @@
 #include "FrameMemoryResource.h"
 #include "ObjectMemoryResource.h"
 #include "DefaultMemoryResource.h"
+#include "StackMemoryResource.hpp"
 
 #endif // GC_H__FA923875_63B1_4537_BFB7_E063B491B0B7

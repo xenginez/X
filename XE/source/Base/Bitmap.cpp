@@ -203,7 +203,7 @@ const std::vector< XE::uint8 > & XE::Bitmap::Data() const
 	return _Data;
 }
 
-bool XE::Bitmap::Test( XE::uint64 index, bool val ) const
+bool XE::Bitmap::Test( XE::uint64 index ) const
 {
 	XE_ASSERT( _Count <= index && "out of range" );
 

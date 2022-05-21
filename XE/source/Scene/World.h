@@ -117,6 +117,11 @@ public:
 public:
 	void AddCommand( const XE::Delegate< void() > & callback );
 
+public:
+	void Serialize( XE::OArchive & archive ) const override;
+
+	void Deserialize( XE::IArchive & archive ) override;
+
 private:
 	Private * _p;
 };

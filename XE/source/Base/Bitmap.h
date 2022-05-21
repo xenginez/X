@@ -78,7 +78,7 @@ public:
 	const std::vector< XE::uint8 > & Data() const;
 
 public:
-	bool Test( XE::uint64 index, bool val ) const;
+	bool Test( XE::uint64 index ) const;
 
 public:
 	Bitmap & Flip();

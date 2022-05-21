@@ -3,7 +3,7 @@
 #include "MemoryResource.h"
 
 XE::FrameMemoryResource::FrameMemoryResource()
-	:_Data( XE::MemoryResource::GetDefaultMemoryResource()->allocate( KBYTE( 16 ) ) ), _Size( KBYTE( 16 ) )
+	:_Data( XE::MemoryResource::GetDefaultMemoryResource()->allocate( MBYTE( 2 ) ) ), _Size( MBYTE( 2 ) )
 {
 	_Current = new( _Data )Node;
 

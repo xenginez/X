@@ -17,6 +17,7 @@ class MemoryResource;
 class FrameMemoryResource;
 class ObjectMemoryResource;
 class DefaultMemoryResource;
+template< XE::uint64 S > class StackMemoryResource;
 
 template< typename Ty > void Delete( Ty * ptr );
 template< typename Ty, typename ... Args > Ty * New( Args &&... args );
