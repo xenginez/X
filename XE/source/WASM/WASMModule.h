@@ -13,7 +13,7 @@
 
 BEG_XE_NAMESPACE
 
-class XE_API WASMModule : public std::enable_shared_from_this< WASMModule >
+class XE_API WASMModule : public XE::EnableSharedFromThis< WASMModule >
 {
 public:
 	WASMModule();

@@ -25,7 +25,7 @@ public:
 public:
 	template< typename T > MetaPropertyImpl & Attribute( const T & val )
 	{
-		static_assert( std::is_base_of_v< XE::MetaAttribute, XE::TypeTraits< T >::raw_t >, "does not belong to meta attribute" );
+		static_assert( std::is_base_of_v< XE::MetaAttribute, typename XE::TypeTraits< T >::raw_t >, "does not belong to meta attribute" );
 
 		for( auto & attr : _Attributes )
 		{

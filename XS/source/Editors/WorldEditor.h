@@ -33,6 +33,8 @@ public:
 	void LoadLayout( QSettings & settings ) override;
 
 private slots:
+	void OnLogicSystemClicked();
+
 	void OnLogicTreeWidgetItemClicked( QTreeWidgetItem * item, int column );
 
 	void OnRenderTreeWidgetItemClicked( QTreeWidgetItem * item, int column );

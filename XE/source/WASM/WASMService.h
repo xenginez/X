@@ -9,7 +9,9 @@
 #ifndef WASMSERVICE_H__E368C1E5_7F84_4D47_986A_4F78083E3D5D
 #define WASMSERVICE_H__E368C1E5_7F84_4D47_986A_4F78083E3D5D
 
-#include "Service.h"
+#include "Type.h"
+
+#include "Core/Service.h"
 
 BEG_XE_NAMESPACE
 

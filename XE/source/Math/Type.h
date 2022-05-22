@@ -13,31 +13,6 @@
 
 BEG_XE_NAMESPACE
 
-class Quat;
-class float16;
-template< typename T > class Vec2;
-template< typename T > class Vec3;
-template< typename T > class Vec4;
-template< typename T > class Mat3;
-template< typename T > class Mat4;
-template< typename T > class Rect;
-
-class Color;
-class FColor;
-
-class Ray;
-class OBB;
-class AABB;
-class Line;
-class Plane;
-class Sphere;
-class Capsule;
-class Frustum;
-class Triangle;
-class ConvexHull;
-class HeightField;
-
-
 enum class SideType
 {
 	NOOP,
@@ -69,9 +44,6 @@ enum class RotationType
 	ZYX
 };
 DECL_XE_ENUM( RotationType );
-
-template< typename _Ty > class MakeRect;
-template< typename _Ty > class MakeAABB;
 
 END_XE_NAMESPACE
 

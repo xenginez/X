@@ -31,6 +31,8 @@
 
 #include "Color.h"
 
+#include "int128.h"
+#include "uint128.h"
 #include "float16.h"
 #include "fixed32.h"
 #include "fixed64.h"

@@ -33,6 +33,7 @@ XS::WorldEditor::WorldEditor( QWidget * parent /*= nullptr */ )
 	ui->inspector_expand->setIcon( QIcon( "SkinIcons:/images/objects/icon_objects_expand.png" ) );
 	ui->inspector_collapse->setIcon( QIcon( "SkinIcons:/images/objects/icon_objects_collapse.png" ) );
 
+	connect( ui->logic_sys, &QToolButton::clicked, this, &WorldEditor::OnLogicSystemClicked );
 	connect( ui->logic_tree, &QTreeWidget::itemClicked, this, &WorldEditor::OnLogicTreeWidgetItemClicked );
 	connect( ui->render_tree, &QTreeWidget::itemClicked, this, &WorldEditor::OnRenderTreeWidgetItemClicked );
 
@@ -71,6 +72,11 @@ void XS::WorldEditor::LoadLayout( QSettings & settings )
 		ui->splitter_2->restoreState( settings.value( "splitter_vertical_state" ).toByteArray() );
 	}
 	settings.endGroup();
+}
+
+void XS::WorldEditor::OnLogicSystemClicked()
+{
+
 }
 
 void XS::WorldEditor::OnLogicTreeWidgetItemClicked( QTreeWidgetItem * item, int column )

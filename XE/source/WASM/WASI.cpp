@@ -3,257 +3,270 @@
 BEG_META( XE::WASI )
 END_META()
 
-XE::WASI::__wasi_errno_t XE::WASI::__wasi_args_get( char ** argv, char * argv_buf )
+XE::WASI::errno_t XE::WASI::args_get( char ** argv, char * argv_buf )
 {
-	return 0;
+	return ERRNO_SUCCESS;
 }
 
-XE::WASI::__wasi_errno_t XE::WASI::__wasi_args_sizes_get( __wasi_size_t * argc, __wasi_size_t * argv_buf_size )
+XE::WASI::errno_t XE::WASI::args_sizes_get( XE::WASI::size_t * argc, XE::WASI::size_t * argv_buf_size )
 {
-	return 0;
+	return ERRNO_SUCCESS;
 }
 
-XE::WASI::__wasi_errno_t XE::WASI::__wasi_clock_res_get( __wasi_clockid_t clock_id, __wasi_timestamp_t * resolution )
+XE::WASI::errno_t XE::WASI::clock_res_get( XE::WASI::clockid_t clock_id, XE::WASI::timestamp_t * resolution )
 {
-	return 0;
+	switch ( clock_id )
+	{
+	case XE::WASI::CLOCKID_REALTIME:
+		break;
+	case XE::WASI::CLOCKID_MONOTONIC:
+		break;
+	case XE::WASI::CLOCKID_PROCESS_CPUTIME_ID:
+		break;
+	case XE::WASI::CLOCKID_THREAD_CPUTIME_ID:
+		break;
+	default:
+		return ERRNO_INVAL;
+		break;
+	}
 }
 
-XE::WASI::__wasi_errno_t XE::WASI::__wasi_clock_time_get( __wasi_clockid_t clock_id, __wasi_timestamp_t precision, __wasi_timestamp_t * time )
+XE::WASI::errno_t XE::WASI::clock_time_get( XE::WASI::clockid_t clock_id, XE::WASI::timestamp_t precision, XE::WASI::timestamp_t * time )
 {
-	return 0;
+	return ERRNO_SUCCESS;
 }
 
-XE::WASI::__wasi_errno_t XE::WASI::__wasi_environ_get( char ** environ, char * environ_buf )
+XE::WASI::errno_t XE::WASI::environ_get( char ** environ, char * environ_buf )
 {
-	return 0;
+	return ERRNO_SUCCESS;
 }
 
-XE::WASI::__wasi_errno_t XE::WASI::__wasi_environ_sizes_get( __wasi_size_t * environ_count, __wasi_size_t * environ_buf_size )
+XE::WASI::errno_t XE::WASI::environ_sizes_get( XE::WASI::size_t * environ_count, XE::WASI::size_t * environ_buf_size )
 {
-	return 0;
+	return ERRNO_SUCCESS;
 }
 
-XE::WASI::__wasi_errno_t XE::WASI::__wasi_fd_prestat_get( __wasi_fd_t fd, __wasi_prestat_t * buf )
+XE::WASI::errno_t XE::WASI::fd_prestat_get( XE::WASI::fd_t fd, XE::WASI::prestat_t * buf )
 {
-	return 0;
+	return ERRNO_SUCCESS;
 }
 
-XE::WASI::__wasi_errno_t XE::WASI::__wasi_fd_prestat_dir_name( __wasi_fd_t fd, char * path, __wasi_size_t path_len )
+XE::WASI::errno_t XE::WASI::fd_prestat_dir_name( XE::WASI::fd_t fd, char * path, XE::WASI::size_t path_len )
 {
-	return 0;
+	return ERRNO_SUCCESS;
 }
 
-XE::WASI::__wasi_errno_t XE::WASI::__wasi_fd_close( __wasi_fd_t fd )
+XE::WASI::errno_t XE::WASI::fd_close( XE::WASI::fd_t fd )
 {
-	return 0;
+	return ERRNO_SUCCESS;
 }
 
-XE::WASI::__wasi_errno_t XE::WASI::__wasi_fd_datasync( __wasi_fd_t fd )
+XE::WASI::errno_t XE::WASI::fd_datasync( XE::WASI::fd_t fd )
 {
-	return 0;
+	return ERRNO_SUCCESS;
 }
 
-XE::WASI::__wasi_errno_t XE::WASI::__wasi_fd_pread( __wasi_fd_t fd, const __wasi_iovec_t * iovs, __wasi_size_t iovs_len, __wasi_filesize_t offset, __wasi_size_t * nread )
+XE::WASI::errno_t XE::WASI::fd_pread( XE::WASI::fd_t fd, const XE::WASI::iovec_t * iovs, XE::WASI::size_t iovs_len, XE::WASI::filesize_t offset, XE::WASI::size_t * nread )
 {
-	return 0;
+	return ERRNO_SUCCESS;
 }
 
-XE::WASI::__wasi_errno_t XE::WASI::__wasi_fd_pwrite( __wasi_fd_t fd, const __wasi_ciovec_t * iovs, __wasi_size_t iovs_len, __wasi_filesize_t offset, __wasi_size_t * nwritten )
+XE::WASI::errno_t XE::WASI::fd_pwrite( XE::WASI::fd_t fd, const XE::WASI::ciovec_t * iovs, XE::WASI::size_t iovs_len, XE::WASI::filesize_t offset, XE::WASI::size_t * nwritten )
 {
-	return 0;
+	return ERRNO_SUCCESS;
 }
 
-XE::WASI::__wasi_errno_t XE::WASI::__wasi_fd_read( __wasi_fd_t fd, const __wasi_iovec_t * iovs, __wasi_size_t iovs_len, __wasi_size_t * nread )
+XE::WASI::errno_t XE::WASI::fd_read( XE::WASI::fd_t fd, const XE::WASI::iovec_t * iovs, XE::WASI::size_t iovs_len, XE::WASI::size_t * nread )
 {
-	return 0;
+	return ERRNO_SUCCESS;
 }
 
-XE::WASI::__wasi_errno_t XE::WASI::__wasi_fd_renumber( __wasi_fd_t from, __wasi_fd_t to )
+XE::WASI::errno_t XE::WASI::fd_renumber( XE::WASI::fd_t from, XE::WASI::fd_t to )
 {
-	return 0;
+	return ERRNO_SUCCESS;
 }
 
-XE::WASI::__wasi_errno_t XE::WASI::__wasi_fd_seek( __wasi_fd_t fd, __wasi_filedelta_t offset, __wasi_whence_t whence, __wasi_filesize_t * newoffset )
+XE::WASI::errno_t XE::WASI::fd_seek( XE::WASI::fd_t fd, XE::WASI::filedelta_t offset, XE::WASI::whence_t whence, XE::WASI::filesize_t * newoffset )
 {
-	return 0;
+	return ERRNO_SUCCESS;
 }
 
-XE::WASI::__wasi_errno_t XE::WASI::__wasi_fd_tell( __wasi_fd_t fd, __wasi_filesize_t * newoffset )
+XE::WASI::errno_t XE::WASI::fd_tell( XE::WASI::fd_t fd, XE::WASI::filesize_t * newoffset )
 {
-	return 0;
+	return ERRNO_SUCCESS;
 }
 
-XE::WASI::__wasi_errno_t XE::WASI::__wasi_fd_fdstat_get( __wasi_fd_t fd, __wasi_fdstat_t * buf )
+XE::WASI::errno_t XE::WASI::fd_fdstat_get( XE::WASI::fd_t fd, XE::WASI::fdstat_t * buf )
 {
-	return 0;
+	return ERRNO_SUCCESS;
 }
 
-XE::WASI::__wasi_errno_t XE::WASI::__wasi_fd_fdstat_set_flags( __wasi_fd_t fd, __wasi_fdflags_t flags )
+XE::WASI::errno_t XE::WASI::fd_fdstat_set_flags( XE::WASI::fd_t fd, XE::WASI::fdflags_t flags )
 {
-	return 0;
+	return ERRNO_SUCCESS;
 }
 
-XE::WASI::__wasi_errno_t XE::WASI::__wasi_fd_fdstat_set_rights( __wasi_fd_t fd, __wasi_rights_t fs_rights_base, __wasi_rights_t fs_rights_inheriting )
+XE::WASI::errno_t XE::WASI::fd_fdstat_set_rights( XE::WASI::fd_t fd, XE::WASI::rights_t fs_rights_base, XE::WASI::rights_t fs_rights_inheriting )
 {
-	return 0;
+	return ERRNO_SUCCESS;
 }
 
-XE::WASI::__wasi_errno_t XE::WASI::__wasi_fd_sync( __wasi_fd_t fd )
+XE::WASI::errno_t XE::WASI::fd_sync( XE::WASI::fd_t fd )
 {
-	return 0;
+	return ERRNO_SUCCESS;
 }
 
-XE::WASI::__wasi_errno_t XE::WASI::__wasi_fd_write( __wasi_fd_t fd, const __wasi_ciovec_t * iovs, __wasi_size_t iovs_len, __wasi_size_t * nwritten )
+XE::WASI::errno_t XE::WASI::fd_write( XE::WASI::fd_t fd, const XE::WASI::ciovec_t * iovs, XE::WASI::size_t iovs_len, XE::WASI::size_t * nwritten )
 {
-	return 0;
+	return ERRNO_SUCCESS;
 }
 
-XE::WASI::__wasi_errno_t XE::WASI::__wasi_fd_advise( __wasi_fd_t fd, __wasi_filesize_t offset, __wasi_filesize_t len, __wasi_advice_t advice )
+XE::WASI::errno_t XE::WASI::fd_advise( XE::WASI::fd_t fd, XE::WASI::filesize_t offset, XE::WASI::filesize_t len, XE::WASI::advice_t advice )
 {
-	return 0;
+	return ERRNO_SUCCESS;
 }
 
-XE::WASI::__wasi_errno_t XE::WASI::__wasi_fd_allocate( __wasi_fd_t fd, __wasi_filesize_t offset, __wasi_filesize_t len )
+XE::WASI::errno_t XE::WASI::fd_allocate( XE::WASI::fd_t fd, XE::WASI::filesize_t offset, XE::WASI::filesize_t len )
 {
-	return 0;
+	return ERRNO_SUCCESS;
 }
 
-XE::WASI::__wasi_errno_t XE::WASI::__wasi_path_create_directory( __wasi_fd_t fd, const char * path, __wasi_size_t path_len )
+XE::WASI::errno_t XE::WASI::path_create_directory( XE::WASI::fd_t fd, const char * path, XE::WASI::size_t path_len )
 {
-	return 0;
+	return ERRNO_SUCCESS;
 }
 
-XE::WASI::__wasi_errno_t XE::WASI::__wasi_path_link( __wasi_fd_t old_fd, __wasi_lookupflags_t old_flags, const char * old_path, __wasi_size_t old_path_len, __wasi_fd_t new_fd, const char * new_path, __wasi_size_t new_path_len )
+XE::WASI::errno_t XE::WASI::path_link( XE::WASI::fd_t old_fd, XE::WASI::lookupflags_t old_flags, const char * old_path, XE::WASI::size_t old_path_len, XE::WASI::fd_t new_fd, const char * new_path, XE::WASI::size_t new_path_len )
 {
-	return 0;
+	return ERRNO_SUCCESS;
 }
 
-XE::WASI::__wasi_errno_t XE::WASI::__wasi_path_open( __wasi_fd_t dirfd, __wasi_lookupflags_t dirflags, const char * path, __wasi_size_t path_len, __wasi_oflags_t oflags, __wasi_rights_t fs_rights_base, __wasi_rights_t fs_rights_inheriting, __wasi_fdflags_t fs_flags, __wasi_fd_t * fd )
+XE::WASI::errno_t XE::WASI::path_open( XE::WASI::fd_t dirfd, XE::WASI::lookupflags_t dirflags, const char * path, XE::WASI::size_t path_len, XE::WASI::oflags_t oflags, XE::WASI::rights_t fs_rights_base, XE::WASI::rights_t fs_rights_inheriting, XE::WASI::fdflags_t fs_flags, XE::WASI::fd_t * fd )
 {
-	return 0;
+	return ERRNO_SUCCESS;
 }
 
-XE::WASI::__wasi_errno_t XE::WASI::__wasi_fd_readdir( __wasi_fd_t fd, void * buf, __wasi_size_t buf_len, __wasi_dircookie_t cookie, __wasi_size_t * bufused )
+XE::WASI::errno_t XE::WASI::fd_readdir( XE::WASI::fd_t fd, void * buf, XE::WASI::size_t buf_len, XE::WASI::dircookie_t cookie, XE::WASI::size_t * bufused )
 {
-	return 0;
+	return ERRNO_SUCCESS;
 }
 
-XE::WASI::__wasi_errno_t XE::WASI::__wasi_path_readlink( __wasi_fd_t fd, const char * path, __wasi_size_t path_len, char * buf, __wasi_size_t buf_len, __wasi_size_t * bufused )
+XE::WASI::errno_t XE::WASI::path_readlink( XE::WASI::fd_t fd, const char * path, XE::WASI::size_t path_len, char * buf, XE::WASI::size_t buf_len, XE::WASI::size_t * bufused )
 {
-	return 0;
+	return ERRNO_SUCCESS;
 }
 
-XE::WASI::__wasi_errno_t XE::WASI::__wasi_path_rename( __wasi_fd_t old_fd, const char * old_path, __wasi_size_t old_path_len, __wasi_fd_t new_fd, const char * new_path, __wasi_size_t new_path_len )
+XE::WASI::errno_t XE::WASI::path_rename( XE::WASI::fd_t old_fd, const char * old_path, XE::WASI::size_t old_path_len, XE::WASI::fd_t new_fd, const char * new_path, XE::WASI::size_t new_path_len )
 {
-	return 0;
+	return ERRNO_SUCCESS;
 }
 
-XE::WASI::__wasi_errno_t XE::WASI::__wasi_fd_filestat_get( __wasi_fd_t fd, __wasi_filestat_t * buf )
+XE::WASI::errno_t XE::WASI::fd_filestat_get( XE::WASI::fd_t fd, XE::WASI::filestat_t * buf )
 {
-	return 0;
+	return ERRNO_SUCCESS;
 }
 
-XE::WASI::__wasi_errno_t XE::WASI::__wasi_fd_filestat_set_times( __wasi_fd_t fd, __wasi_timestamp_t st_atim, __wasi_timestamp_t st_mtim, __wasi_fstflags_t fstflags )
+XE::WASI::errno_t XE::WASI::fd_filestat_set_times( XE::WASI::fd_t fd, XE::WASI::timestamp_t st_atim, XE::WASI::timestamp_t st_mtim, XE::WASI::fstflags_t fstflags )
 {
-	return 0;
+	return ERRNO_SUCCESS;
 }
 
-XE::WASI::__wasi_errno_t XE::WASI::__wasi_fd_filestat_set_size( __wasi_fd_t fd, __wasi_filesize_t st_size )
+XE::WASI::errno_t XE::WASI::fd_filestat_set_size( XE::WASI::fd_t fd, XE::WASI::filesize_t st_size )
 {
-	return 0;
+	return ERRNO_SUCCESS;
 }
 
-XE::WASI::__wasi_errno_t XE::WASI::__wasi_path_filestat_get( __wasi_fd_t fd, __wasi_lookupflags_t flags, const char * path, __wasi_size_t path_len, __wasi_filestat_t * buf )
+XE::WASI::errno_t XE::WASI::path_filestat_get( XE::WASI::fd_t fd, XE::WASI::lookupflags_t flags, const char * path, XE::WASI::size_t path_len, XE::WASI::filestat_t * buf )
 {
-	return 0;
+	return ERRNO_SUCCESS;
 }
 
-XE::WASI::__wasi_errno_t XE::WASI::__wasi_path_filestat_set_times( __wasi_fd_t fd, __wasi_lookupflags_t flags, const char * path, __wasi_size_t path_len, __wasi_timestamp_t st_atim, __wasi_timestamp_t st_mtim, __wasi_fstflags_t fstflags )
+XE::WASI::errno_t XE::WASI::path_filestat_set_times( XE::WASI::fd_t fd, XE::WASI::lookupflags_t flags, const char * path, XE::WASI::size_t path_len, XE::WASI::timestamp_t st_atim, XE::WASI::timestamp_t st_mtim, XE::WASI::fstflags_t fstflags )
 {
-	return 0;
+	return ERRNO_SUCCESS;
 }
 
-XE::WASI::__wasi_errno_t XE::WASI::__wasi_path_symlink( const char * old_path, __wasi_size_t old_path_len, __wasi_fd_t fd, const char * new_path, __wasi_size_t new_path_len )
+XE::WASI::errno_t XE::WASI::path_symlink( const char * old_path, XE::WASI::size_t old_path_len, XE::WASI::fd_t fd, const char * new_path, XE::WASI::size_t new_path_len )
 {
-	return 0;
+	return ERRNO_SUCCESS;
 }
 
-XE::WASI::__wasi_errno_t XE::WASI::__wasi_path_unlink_file( __wasi_fd_t fd, const char * path, __wasi_size_t path_len )
+XE::WASI::errno_t XE::WASI::path_unlink_file( XE::WASI::fd_t fd, const char * path, XE::WASI::size_t path_len )
 {
-	return 0;
+	return ERRNO_SUCCESS;
 }
 
-XE::WASI::__wasi_errno_t XE::WASI::__wasi_path_remove_directory( __wasi_fd_t fd, const char * path, __wasi_size_t path_len )
+XE::WASI::errno_t XE::WASI::path_remove_directory( XE::WASI::fd_t fd, const char * path, XE::WASI::size_t path_len )
 {
-	return 0;
+	return ERRNO_SUCCESS;
 }
 
-XE::WASI::__wasi_errno_t XE::WASI::__wasi_poll_oneoff( const __wasi_subscription_t * in, __wasi_event_t * out, __wasi_size_t nsubscriptions, __wasi_size_t * nevents )
+XE::WASI::errno_t XE::WASI::poll_oneoff( const XE::WASI::subscription_t * in, XE::WASI::event_t * out, XE::WASI::size_t nsubscriptions, XE::WASI::size_t * nevents )
 {
-	return 0;
+	return ERRNO_SUCCESS;
 }
 
-XE::WASI::__wasi_errno_t XE::WASI::__wasi_proc_raise( __wasi_signal_t sig )
+XE::WASI::errno_t XE::WASI::proc_raise( XE::WASI::signal_t sig )
 {
-	return 0;
+	return ERRNO_SUCCESS;
 }
 
-XE::WASI::__wasi_errno_t XE::WASI::__wasi_random_get( void * buf, __wasi_size_t buf_len )
+XE::WASI::errno_t XE::WASI::random_get( void * buf, XE::WASI::size_t buf_len )
 {
-	return 0;
+	return ERRNO_SUCCESS;
 }
 
-XE::WASI::__wasi_errno_t XE::WASI::__wasi_sock_accept( __wasi_fd_t fd, __wasi_fd_t * fd_new )
+XE::WASI::errno_t XE::WASI::sock_accept( XE::WASI::fd_t fd, XE::WASI::fd_t * fd_new )
 {
-	return 0;
+	return ERRNO_SUCCESS;
 }
 
-XE::WASI::__wasi_errno_t XE::WASI::__wasi_sock_addr_local( __wasi_fd_t fd, XE::uint8 * buf, __wasi_size_t buf_len )
+XE::WASI::errno_t XE::WASI::sock_addr_local( XE::WASI::fd_t fd, XE::uint8 * buf, XE::WASI::size_t buf_len )
 {
-	return 0;
+	return ERRNO_SUCCESS;
 }
 
-XE::WASI::__wasi_errno_t XE::WASI::__wasi_sock_addr_remote( __wasi_fd_t fd, XE::uint8 * buf, __wasi_size_t buf_len )
+XE::WASI::errno_t XE::WASI::sock_addr_remote( XE::WASI::fd_t fd, XE::uint8 * buf, XE::WASI::size_t buf_len )
 {
-	return 0;
+	return ERRNO_SUCCESS;
 }
 
-XE::WASI::__wasi_errno_t XE::WASI::__wasi_sock_open( __wasi_fd_t poolfd, __wasi_address_family_t af, __wasi_sock_type_t socktype, __wasi_fd_t * sockfd )
+XE::WASI::errno_t XE::WASI::sock_open( XE::WASI::fd_t poolfd, XE::WASI::address_family_t af, XE::WASI::sock_type_t socktype, XE::WASI::fd_t * sockfd )
 {
-	return 0;
+	return ERRNO_SUCCESS;
 }
 
-XE::WASI::__wasi_errno_t XE::WASI::__wasi_sock_bind( __wasi_fd_t fd, __wasi_addr_t * addr )
+XE::WASI::errno_t XE::WASI::sock_bind( XE::WASI::fd_t fd, XE::WASI::addr_t * addr )
 {
-	return 0;
+	return ERRNO_SUCCESS;
 }
 
-XE::WASI::__wasi_errno_t XE::WASI::__wasi_sock_connect( __wasi_fd_t fd, __wasi_addr_t * addr )
+XE::WASI::errno_t XE::WASI::sock_connect( XE::WASI::fd_t fd, XE::WASI::addr_t * addr )
 {
-	return 0;
+	return ERRNO_SUCCESS;
 }
 
-XE::WASI::__wasi_errno_t XE::WASI::__wasi_sock_listen( __wasi_fd_t fd, __wasi_size_t backlog )
+XE::WASI::errno_t XE::WASI::sock_listen( XE::WASI::fd_t fd, XE::WASI::size_t backlog )
 {
-	return 0;
+	return ERRNO_SUCCESS;
 }
 
-XE::WASI::__wasi_errno_t XE::WASI::__wasi_sock_recv( __wasi_fd_t sock, void * buf, __wasi_size_t buf_len, __wasi_size_t * recv_len )
+XE::WASI::errno_t XE::WASI::sock_recv( XE::WASI::fd_t sock, void * buf, XE::WASI::size_t buf_len, XE::WASI::size_t * recv_len )
 {
-	return 0;
+	return ERRNO_SUCCESS;
 }
 
-XE::WASI::__wasi_errno_t XE::WASI::__wasi_sock_send( __wasi_fd_t sock, const void * buf, __wasi_size_t buf_len, __wasi_size_t * sent_len )
+XE::WASI::errno_t XE::WASI::sock_send( XE::WASI::fd_t sock, const void * buf, XE::WASI::size_t buf_len, XE::WASI::size_t * sent_len )
 {
-	return 0;
+	return ERRNO_SUCCESS;
 }
 
-XE::WASI::__wasi_errno_t XE::WASI::__wasi_sock_shutdown( __wasi_fd_t sock )
+XE::WASI::errno_t XE::WASI::sock_shutdown( XE::WASI::fd_t sock )
 {
-	return 0;
+	return ERRNO_SUCCESS;
 }
 
-XE::WASI::__wasi_errno_t XE::WASI::__wasi_sched_yield()
+XE::WASI::errno_t XE::WASI::sched_yield()
 {
-	return 0;
+	return ERRNO_SUCCESS;
 }

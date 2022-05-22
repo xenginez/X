@@ -13,7 +13,7 @@
 
 BEG_XE_NAMESPACE
 
-class XE_API WASMInterpreter : public std::enable_shared_from_this< WASMInterpreter >
+class XE_API WASMInterpreter : public XE::EnableSharedFromThis< WASMInterpreter >
 {
 public:
 	WASMInterpreter();
