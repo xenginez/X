@@ -1,4 +1,4 @@
-#include "RenderService.h"
+#include "GraphicsService.h"
 
 #if !defined( NULL_RENDER ) && ( PLATFORM_OS & ( OS_WINDOWS | OS_XBOX ) )
 
@@ -1155,9 +1155,9 @@ public:
 
 }
 
-IMPLEMENT_META( XE::RenderService );
+IMPLEMENT_META( XE::GraphicsService );
 
-struct XE::RenderService::Private
+struct XE::GraphicsService::Private
 {
 	ID3D12Debug * _Debug = nullptr;
 	IDXGIFactory7 * _Factory = nullptr;
@@ -1171,18 +1171,18 @@ struct XE::RenderService::Private
 	XE::Array< std::unique_ptr< D3D12RenderContext > > _Contexts;
 };
 
-XE::RenderService::RenderService()
+XE::GraphicsService::GraphicsService()
 	:_p( XE::New< Private >() )
 {
 
 }
 
-XE::RenderService::~RenderService()
+XE::GraphicsService::~GraphicsService()
 {
 	XE::Delete( _p );
 }
 
-void XE::RenderService::Prepare()
+void XE::GraphicsService::Prepare()
 {
 	// factory
 	{
@@ -1452,21 +1452,21 @@ modes );
 	}
 }
 
-bool XE::RenderService::Startup()
+bool XE::GraphicsService::Startup()
 {
 	_p->_Contexts[_p->_MainContext]->_WindowListener = GetFramework()->GetServiceT< XE::EventService >()->RegisterListener( XE::EVENT_WINDOW, [this]( const XE::EventPtr & evt )
 	{
 		XE::WindowEventType type = evt->parameter.Value< XE::WindowEventType >();
 		if( type == XE::WindowEventType::SIZE )
 		{
-			_p->_Contexts[_p->_MainContext]->_WaitCallbacks.push( XE::Delegate< void() >( &XE::RenderService::OnMainWindowResize, this ) );
+			_p->_Contexts[_p->_MainContext]->_WaitCallbacks.push( XE::Delegate< void() >( &XE::GraphicsService::OnMainWindowResize, this ) );
 		}
 	} );
 
 	return true;
 }
 
-void XE::RenderService::Update()
+void XE::GraphicsService::Update()
 {
 	Execute( GetMainContextHandle() );
 
@@ -1492,7 +1492,7 @@ void XE::RenderService::Update()
 	_p->_SwapChainBackBufferIndex = ( _p->_SwapChainBackBufferIndex + 1 ) % XE::RENDER_MAX_SWAP_CHAIN_BACK_BUFFER;
 }
 
-void XE::RenderService::Clearup()
+void XE::GraphicsService::Clearup()
 {
 	for( size_t i = 0; i < _p->_Contexts.size(); i++ )
 	{
@@ -1511,37 +1511,37 @@ void XE::RenderService::Clearup()
 	_p->_Debug->Release(); _p->_Debug = nullptr;
 }
 
-XE::uint32 XE::RenderService::GetContextCount() const
+XE::uint32 XE::GraphicsService::GetContextCount() const
 {
 	return _p->_Contexts.size();
 }
 
-XE::RenderContextHandle XE::RenderService::GetMainContextHandle() const
+XE::RenderContextHandle XE::GraphicsService::GetMainContextHandle() const
 {
 	return XE::HandleCast< XE::RenderContext >( _p->_MainContext );
 }
 
-XE::RenderContextHandle XE::RenderService::GetContextHandle( XE::uint32 val ) const
+XE::RenderContextHandle XE::GraphicsService::GetContextHandle( XE::uint32 val ) const
 {
 	return XE::HandleCast< XE::RenderContext >( val );
 }
 
-const XE::RenderContextDesc & XE::RenderService::GetContextDesc( XE::uint32 val ) const
+const XE::RenderContextDesc & XE::GraphicsService::GetContextDesc( XE::uint32 val ) const
 {
 	return _p->_Contexts[val]->_Desc;
 }
 
-XE::RenderApiType XE::RenderService::GetApiType() const
+XE::RenderApiType XE::GraphicsService::GetApiType() const
 {
 	return XE::RenderApiType::D3D12;
 }
 
-XE::RenderTargetHandle XE::RenderService::GetMainWindowRenderTarget() const
+XE::RenderTargetHandle XE::GraphicsService::GetMainWindowRenderTarget() const
 {
 	return XE::HandleCast< XE::RenderTarget >( _p->_SwapChainBackBufferIndex );
 }
 
-XE::RenderTargetHandle XE::RenderService::GetMainWindowBackRenderTarget() const
+XE::RenderTargetHandle XE::GraphicsService::GetMainWindowBackRenderTarget() const
 {
 	return XE::HandleCast< XE::RenderTarget >( ( _p->_SwapChainBackBufferIndex + 1 ) % XE::RENDER_MAX_SWAP_CHAIN_BACK_BUFFER );
 }
@@ -1554,7 +1554,7 @@ XE::RenderTargetHandle XE::RenderService::GetMainWindowBackRenderTarget() const
 		return it->_Handle; \
 	}
 
-XE::RenderQueryHandle XE::RenderService::Create( XE::RenderContextHandle context, const XE::RenderQueryDesc & desc )
+XE::RenderQueryHandle XE::GraphicsService::Create( XE::RenderContextHandle context, const XE::RenderQueryDesc & desc )
 {
 	auto & ctx = _p->_Contexts[context.GetValue()];
 
@@ -1595,7 +1595,7 @@ XE::RenderQueryHandle XE::RenderService::Create( XE::RenderContextHandle context
 	return handle;
 }
 
-XE::RenderBufferHandle XE::RenderService::Create( XE::RenderContextHandle context, const XE::RenderBufferDesc & desc )
+XE::RenderBufferHandle XE::GraphicsService::Create( XE::RenderContextHandle context, const XE::RenderBufferDesc & desc )
 {
 	auto & ctx = _p->_Contexts[context.GetValue()];
 
@@ -1623,7 +1623,7 @@ XE::RenderBufferHandle XE::RenderService::Create( XE::RenderContextHandle contex
 	return handle;
 }
 
-XE::RenderTargetHandle XE::RenderService::Create( XE::RenderContextHandle context, const XE::RenderTargetDesc & desc )
+XE::RenderTargetHandle XE::GraphicsService::Create( XE::RenderContextHandle context, const XE::RenderTargetDesc & desc )
 {
 	auto & ctx = _p->_Contexts[context.GetValue()];
 
@@ -1695,7 +1695,7 @@ XE::RenderTargetHandle XE::RenderService::Create( XE::RenderContextHandle contex
 	return handle;
 }
 
-XE::RenderShaderHandle XE::RenderService::Create( XE::RenderContextHandle context, const XE::RenderShaderDesc & desc )
+XE::RenderShaderHandle XE::GraphicsService::Create( XE::RenderContextHandle context, const XE::RenderShaderDesc & desc )
 {
 	auto & ctx = _p->_Contexts[context.GetValue()];
 
@@ -1744,7 +1744,7 @@ XE::RenderShaderHandle XE::RenderService::Create( XE::RenderContextHandle contex
 	return handle;
 }
 
-XE::RenderTextureHandle XE::RenderService::Create( XE::RenderContextHandle context, const XE::RenderTextureDesc & desc )
+XE::RenderTextureHandle XE::GraphicsService::Create( XE::RenderContextHandle context, const XE::RenderTextureDesc & desc )
 {
 	auto & ctx = _p->_Contexts[context.GetValue()];
 
@@ -1796,7 +1796,7 @@ XE::RenderTextureHandle XE::RenderService::Create( XE::RenderContextHandle conte
 	return handle;
 }
 
-XE::RenderSamplerHandle XE::RenderService::Create( XE::RenderContextHandle context, const XE::RenderSamplerDesc & desc )
+XE::RenderSamplerHandle XE::GraphicsService::Create( XE::RenderContextHandle context, const XE::RenderSamplerDesc & desc )
 {
 	auto & ctx = _p->_Contexts[context.GetValue()];
 
@@ -1830,7 +1830,7 @@ XE::RenderSamplerHandle XE::RenderService::Create( XE::RenderContextHandle conte
 	return handle;
 }
 
-XE::RenderDescriptorSetHandle XE::RenderService::Create( XE::RenderContextHandle context, const XE::RenderDescriptorSetDesc & desc )
+XE::RenderDescriptorSetHandle XE::GraphicsService::Create( XE::RenderContextHandle context, const XE::RenderDescriptorSetDesc & desc )
 {
 	auto & ctx = _p->_Contexts[context.GetValue()];
 
@@ -1946,7 +1946,7 @@ XE::RenderDescriptorSetHandle XE::RenderService::Create( XE::RenderContextHandle
 	return handle;
 }
 
-XE::RenderCommandBundleHandle XE::RenderService::Create( XE::RenderContextHandle context, const XE::RenderCommandBundleDesc & desc )
+XE::RenderCommandBundleHandle XE::GraphicsService::Create( XE::RenderContextHandle context, const XE::RenderCommandBundleDesc & desc )
 {
 	auto & ctx = _p->_Contexts[context.GetValue()];
 
@@ -1968,7 +1968,7 @@ XE::RenderCommandBundleHandle XE::RenderService::Create( XE::RenderContextHandle
 	return handle;
 }
 
-XE::RenderShaderProgramHandle XE::RenderService::Create( XE::RenderContextHandle context, const XE::RenderShaderProgramDesc & desc )
+XE::RenderShaderProgramHandle XE::GraphicsService::Create( XE::RenderContextHandle context, const XE::RenderShaderProgramDesc & desc )
 {
 	auto & ctx = _p->_Contexts[context.GetValue()];
 
@@ -1993,7 +1993,7 @@ XE::RenderShaderProgramHandle XE::RenderService::Create( XE::RenderContextHandle
 	return handle;
 }
 
-XE::RenderPipelineStateHandle XE::RenderService::Create( XE::RenderContextHandle context, const XE::RenderPipelineStateDesc & desc )
+XE::RenderPipelineStateHandle XE::GraphicsService::Create( XE::RenderContextHandle context, const XE::RenderPipelineStateDesc & desc )
 {
 	auto & ctx = _p->_Contexts[context.GetValue()];
 
@@ -2155,7 +2155,7 @@ XE::RenderPipelineStateHandle XE::RenderService::Create( XE::RenderContextHandle
 	return handle;
 }
 
-XE::RenderVirtualBufferHandle XE::RenderService::Create( XE::RenderContextHandle context, const XE::RenderVirtualBufferDesc & desc, XE::MemoryView data )
+XE::RenderVirtualBufferHandle XE::GraphicsService::Create( XE::RenderContextHandle context, const XE::RenderVirtualBufferDesc & desc, XE::MemoryView data )
 {
 	auto & ctx = _p->_Contexts[context.GetValue()];
 
@@ -2182,62 +2182,62 @@ XE::RenderVirtualBufferHandle XE::RenderService::Create( XE::RenderContextHandle
 
 #undef FIND_FROM_NAME
 
-const XE::RenderQueryDesc & XE::RenderService::GetDesc( XE::RenderContextHandle context, XE::RenderQueryHandle handle )
+const XE::RenderQueryDesc & XE::GraphicsService::GetDesc( XE::RenderContextHandle context, XE::RenderQueryHandle handle )
 {
 	return _p->_Contexts[context.GetValue()]->_RenderQuerys[handle.GetValue()]._Desc;
 }
 
-const XE::RenderBufferDesc & XE::RenderService::GetDesc( XE::RenderContextHandle context, XE::RenderBufferHandle handle )
+const XE::RenderBufferDesc & XE::GraphicsService::GetDesc( XE::RenderContextHandle context, XE::RenderBufferHandle handle )
 {
 	return _p->_Contexts[context.GetValue()]->_RenderBuffers[handle.GetValue()]._Desc;
 }
 
-const XE::RenderTargetDesc & XE::RenderService::GetDesc( XE::RenderContextHandle context, XE::RenderTargetHandle handle )
+const XE::RenderTargetDesc & XE::GraphicsService::GetDesc( XE::RenderContextHandle context, XE::RenderTargetHandle handle )
 {
 	return _p->_Contexts[context.GetValue()]->_RenderTargets[handle.GetValue()]._Desc;
 }
 
-const XE::RenderShaderDesc & XE::RenderService::GetDesc( XE::RenderContextHandle context, XE::RenderShaderHandle handle )
+const XE::RenderShaderDesc & XE::GraphicsService::GetDesc( XE::RenderContextHandle context, XE::RenderShaderHandle handle )
 {
 	return _p->_Contexts[context.GetValue()]->_RenderShaders[handle.GetValue()]._Desc;
 }
 
-const XE::RenderTextureDesc & XE::RenderService::GetDesc( XE::RenderContextHandle context, XE::RenderTextureHandle handle )
+const XE::RenderTextureDesc & XE::GraphicsService::GetDesc( XE::RenderContextHandle context, XE::RenderTextureHandle handle )
 {
 	return _p->_Contexts[context.GetValue()]->_RenderTextures[handle.GetValue()]._Desc;
 }
 
-const XE::RenderSamplerDesc & XE::RenderService::GetDesc( XE::RenderContextHandle context, XE::RenderSamplerHandle handle )
+const XE::RenderSamplerDesc & XE::GraphicsService::GetDesc( XE::RenderContextHandle context, XE::RenderSamplerHandle handle )
 {
 	return _p->_Contexts[context.GetValue()]->_RenderSamplers[handle.GetValue()]._Desc;
 }
 
-const XE::RenderDescriptorSetDesc & XE::RenderService::GetDesc( XE::RenderContextHandle context, XE::RenderDescriptorSetHandle handle )
+const XE::RenderDescriptorSetDesc & XE::GraphicsService::GetDesc( XE::RenderContextHandle context, XE::RenderDescriptorSetHandle handle )
 {
 	return _p->_Contexts[context.GetValue()]->_RenderDescriptorSets[handle.GetValue()]._Desc;
 }
 
-const XE::RenderCommandBundleDesc & XE::RenderService::GetDesc( XE::RenderContextHandle context, XE::RenderCommandBundleHandle handle )
+const XE::RenderCommandBundleDesc & XE::GraphicsService::GetDesc( XE::RenderContextHandle context, XE::RenderCommandBundleHandle handle )
 {
 	return _p->_Contexts[context.GetValue()]->_RenderCommandBundles[handle.GetValue()]._Desc;
 }
 
-const XE::RenderShaderProgramDesc & XE::RenderService::GetDesc( XE::RenderContextHandle context, XE::RenderShaderProgramHandle handle )
+const XE::RenderShaderProgramDesc & XE::GraphicsService::GetDesc( XE::RenderContextHandle context, XE::RenderShaderProgramHandle handle )
 {
 	return _p->_Contexts[context.GetValue()]->_RenderShaderPrograms[handle.GetValue()]._Desc;
 }
 
-const XE::RenderPipelineStateDesc & XE::RenderService::GetDesc( XE::RenderContextHandle context, XE::RenderPipelineStateHandle handle )
+const XE::RenderPipelineStateDesc & XE::GraphicsService::GetDesc( XE::RenderContextHandle context, XE::RenderPipelineStateHandle handle )
 {
 	return _p->_Contexts[context.GetValue()]->_RenderPipelineStates[handle.GetValue()]._Desc;
 }
 
-const XE::RenderVirtualBufferDesc & XE::RenderService::GetDesc( XE::RenderContextHandle context, XE::RenderVirtualBufferHandle handle )
+const XE::RenderVirtualBufferDesc & XE::GraphicsService::GetDesc( XE::RenderContextHandle context, XE::RenderVirtualBufferHandle handle )
 {
 	return _p->_Contexts[context.GetValue()]->_RenderVirtualBuffers[handle.GetValue()]._Desc;
 }
 
-void XE::RenderService::Destroy( XE::RenderContextHandle context, XE::RenderQueryHandle handle )
+void XE::GraphicsService::Destroy( XE::RenderContextHandle context, XE::RenderQueryHandle handle )
 {
 	auto & ctx = _p->_Contexts[context.GetValue()];
 	auto & query = ctx->_RenderQuerys[handle.GetValue()];
@@ -2262,7 +2262,7 @@ void XE::RenderService::Destroy( XE::RenderContextHandle context, XE::RenderQuer
 	}
 }
 
-void XE::RenderService::Destroy( XE::RenderContextHandle context, XE::RenderBufferHandle handle )
+void XE::GraphicsService::Destroy( XE::RenderContextHandle context, XE::RenderBufferHandle handle )
 {
 	auto & ctx = _p->_Contexts[context.GetValue()];
 	auto & buffer = ctx->_RenderBuffers[handle.GetValue()];
@@ -2278,7 +2278,7 @@ void XE::RenderService::Destroy( XE::RenderContextHandle context, XE::RenderBuff
 	}
 }
 
-void XE::RenderService::Destroy( XE::RenderContextHandle context, XE::RenderTargetHandle handle )
+void XE::GraphicsService::Destroy( XE::RenderContextHandle context, XE::RenderTargetHandle handle )
 {
 	auto & ctx = _p->_Contexts[context.GetValue()];
 	auto & rendertarget = ctx->_RenderTargets[handle.GetValue()];
@@ -2301,7 +2301,7 @@ void XE::RenderService::Destroy( XE::RenderContextHandle context, XE::RenderTarg
 	}
 }
 
-void XE::RenderService::Destroy( XE::RenderContextHandle context, XE::RenderShaderHandle handle )
+void XE::GraphicsService::Destroy( XE::RenderContextHandle context, XE::RenderShaderHandle handle )
 {
 	auto & ctx = _p->_Contexts[context.GetValue()];
 	auto & shader = ctx->_RenderShaders[handle.GetValue()];
@@ -2320,7 +2320,7 @@ void XE::RenderService::Destroy( XE::RenderContextHandle context, XE::RenderShad
 	}
 }
 
-void XE::RenderService::Destroy( XE::RenderContextHandle context, XE::RenderTextureHandle handle )
+void XE::GraphicsService::Destroy( XE::RenderContextHandle context, XE::RenderTextureHandle handle )
 {
 	auto & ctx = _p->_Contexts[context.GetValue()];
 	auto & texture = ctx->_RenderTextures[handle.GetValue()];
@@ -2336,7 +2336,7 @@ void XE::RenderService::Destroy( XE::RenderContextHandle context, XE::RenderText
 	}
 }
 
-void XE::RenderService::Destroy( XE::RenderContextHandle context, XE::RenderSamplerHandle handle )
+void XE::GraphicsService::Destroy( XE::RenderContextHandle context, XE::RenderSamplerHandle handle )
 {
 	auto & ctx = _p->_Contexts[context.GetValue()];
 	auto & sampler = ctx->_RenderSamplers[handle.GetValue()];
@@ -2355,7 +2355,7 @@ void XE::RenderService::Destroy( XE::RenderContextHandle context, XE::RenderSamp
 	}
 }
 
-void XE::RenderService::Destroy( XE::RenderContextHandle context, XE::RenderDescriptorSetHandle handle )
+void XE::GraphicsService::Destroy( XE::RenderContextHandle context, XE::RenderDescriptorSetHandle handle )
 {
 	auto & ctx = _p->_Contexts[context.GetValue()];
 	auto & desc_set = ctx->_RenderDescriptorSets[handle.GetValue()];
@@ -2398,7 +2398,7 @@ void XE::RenderService::Destroy( XE::RenderContextHandle context, XE::RenderDesc
 	}
 }
 
-void XE::RenderService::Destroy( XE::RenderContextHandle context, XE::RenderCommandBundleHandle handle )
+void XE::GraphicsService::Destroy( XE::RenderContextHandle context, XE::RenderCommandBundleHandle handle )
 {
 	auto & ctx = _p->_Contexts[context.GetValue()];
 	auto & bundle = ctx->_RenderCommandBundles[handle.GetValue()];
@@ -2420,7 +2420,7 @@ void XE::RenderService::Destroy( XE::RenderContextHandle context, XE::RenderComm
 	}
 }
 
-void XE::RenderService::Destroy( XE::RenderContextHandle context, XE::RenderShaderProgramHandle handle )
+void XE::GraphicsService::Destroy( XE::RenderContextHandle context, XE::RenderShaderProgramHandle handle )
 {
 	auto & ctx = _p->_Contexts[context.GetValue()];
 	auto & programs = ctx->_RenderShaderPrograms[handle.GetValue()];
@@ -2441,7 +2441,7 @@ void XE::RenderService::Destroy( XE::RenderContextHandle context, XE::RenderShad
 	}
 }
 
-void XE::RenderService::Destroy( XE::RenderContextHandle context, XE::RenderPipelineStateHandle handle )
+void XE::GraphicsService::Destroy( XE::RenderContextHandle context, XE::RenderPipelineStateHandle handle )
 {
 	auto & ctx = _p->_Contexts[context.GetValue()];
 	auto & pipe = ctx->_RenderPipelineStates[handle.GetValue()];
@@ -2465,7 +2465,7 @@ void XE::RenderService::Destroy( XE::RenderContextHandle context, XE::RenderPipe
 	}
 }
 
-void XE::RenderService::Destroy( XE::RenderContextHandle context, XE::RenderVirtualBufferHandle handle )
+void XE::GraphicsService::Destroy( XE::RenderContextHandle context, XE::RenderVirtualBufferHandle handle )
 {
 	auto & ctx = _p->_Contexts[context.GetValue()];
 	auto & buf = ctx->_RenderVirtualBuffers[handle.GetValue()];
@@ -2488,7 +2488,7 @@ void XE::RenderService::Destroy( XE::RenderContextHandle context, XE::RenderVirt
 	}
 }
 
-XE::RenderCommandBufferHandle XE::RenderService::Begin( XE::RenderContextHandle context )
+XE::RenderCommandBufferHandle XE::GraphicsService::Begin( XE::RenderContextHandle context )
 {
 	auto & ctx = _p->_Contexts[context.GetValue()];
 	auto handle = ctx->_RenderCommandBufferHandleAllocator.Alloc();
@@ -2508,7 +2508,7 @@ XE::RenderCommandBufferHandle XE::RenderService::Begin( XE::RenderContextHandle 
 	return handle;
 }
 
-void XE::RenderService::Read( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf,
+void XE::GraphicsService::Read( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf,
 							  XE::RenderBufferHandle handle, XE::uint64 offset,
 							  const XE::Delegate< void( void *, XE::uint64 ) > & callback )
 {
@@ -2550,7 +2550,7 @@ void XE::RenderService::Read( XE::RenderContextHandle context, XE::RenderCommand
 	} );
 }
 
-void XE::RenderService::Read( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf,
+void XE::GraphicsService::Read( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf,
 							  XE::RenderTextureHandle handle,
 							  XE::uint32 offset_x, XE::uint32 offset_y, XE::uint32 offset_z, XE::uint32 width, XE::uint32 height, XE::uint32 depth,
 							  XE::uint32 mip, XE::uint32 mip_size,
@@ -2634,7 +2634,7 @@ void XE::RenderService::Read( XE::RenderContextHandle context, XE::RenderCommand
 	} );
 }
 
-void XE::RenderService::Write( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf,
+void XE::GraphicsService::Write( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf,
 							   XE::RenderBufferHandle handle, XE::uint64 offset,
 							   XE::MemoryView src_data )
 {
@@ -2674,7 +2674,7 @@ void XE::RenderService::Write( XE::RenderContextHandle context, XE::RenderComman
 	cmd._WaitCallbacks.push_back( [this, upload = std::move( upload )](){ upload.Release(); } );
 }
 
-void XE::RenderService::Write( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf,
+void XE::GraphicsService::Write( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf,
 							   XE::RenderTextureHandle handle,
 							   XE::uint32 offset_x, XE::uint32 offset_y, XE::uint32 offset_z, XE::uint32 width, XE::uint32 height, XE::uint32 depth,
 							   XE::uint32 mip, XE::uint32 mip_size,
@@ -2752,7 +2752,7 @@ void XE::RenderService::Write( XE::RenderContextHandle context, XE::RenderComman
 	} );
 }
 
-void XE::RenderService::Copy( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf,
+void XE::GraphicsService::Copy( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf,
 							  XE::RenderBufferHandle dst_buf, XE::uint64 dst_offset,
 							  XE::RenderBufferHandle src_buf, XE::uint64 src_offset,
 							  XE::uint64 size )
@@ -2771,7 +2771,7 @@ void XE::RenderService::Copy( XE::RenderContextHandle context, XE::RenderCommand
 	TransitionBarrier( context, cmdbuf, src_buf, src_state );
 }
 
-void XE::RenderService::Copy( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf,
+void XE::GraphicsService::Copy( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf,
 							  XE::RenderBufferHandle dst_buf, XE::uint64 dst_offset,
 							  XE::RenderTextureHandle src_tex,
 							  XE::uint32 offset_x, XE::uint32 offset_y, XE::uint32 offset_z, XE::uint32 width, XE::uint32 height, XE::uint32 depth, XE::uint32 mip, XE::uint32 mip_size )
@@ -2779,7 +2779,7 @@ void XE::RenderService::Copy( XE::RenderContextHandle context, XE::RenderCommand
 	// TODO: 
 }
 
-void XE::RenderService::Copy( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf,
+void XE::GraphicsService::Copy( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf,
 							  XE::RenderTextureHandle dst_tex,
 							  XE::uint32 offset_x, XE::uint32 offset_y, XE::uint32 offset_z, XE::uint32 width, XE::uint32 height, XE::uint32 depth, XE::uint32 mip, XE::uint32 mip_size,
 							  XE::RenderBufferHandle src_buf, XE::uint64 src_offset )
@@ -2787,7 +2787,7 @@ void XE::RenderService::Copy( XE::RenderContextHandle context, XE::RenderCommand
 	// TODO: 
 }
 
-void XE::RenderService::Copy( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf,
+void XE::GraphicsService::Copy( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf,
 							  XE::RenderTextureHandle dst_tex,
 							  XE::uint32 dst_offset_x, XE::uint32 dst_offset_y, XE::uint32 dst_offset_z, XE::uint32 dst_mip,
 							  XE::RenderTextureHandle src_tex,
@@ -2812,7 +2812,7 @@ void XE::RenderService::Copy( XE::RenderContextHandle context, XE::RenderCommand
 	TransitionBarrier( context, cmdbuf, src_tex, src_state );
 }
 
-XE::RenderResourceStatesType XE::RenderService::TransitionBarrier( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderBufferHandle buffer, XE::RenderResourceStatesType after )
+XE::RenderResourceStatesType XE::GraphicsService::TransitionBarrier( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderBufferHandle buffer, XE::RenderResourceStatesType after )
 {
 	auto & ctx = _p->_Contexts[context.GetValue()];
 	auto & buf = ctx->_RenderBuffers[buffer.GetValue()];
@@ -2831,7 +2831,7 @@ XE::RenderResourceStatesType XE::RenderService::TransitionBarrier( XE::RenderCon
 	return before;
 }
 
-XE::RenderResourceStatesType XE::RenderService::TransitionBarrier( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderTextureHandle texture, XE::RenderResourceStatesType after )
+XE::RenderResourceStatesType XE::GraphicsService::TransitionBarrier( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderTextureHandle texture, XE::RenderResourceStatesType after )
 {
 	auto & ctx = _p->_Contexts[context.GetValue()];
 	auto & tex = ctx->_RenderTextures[texture.GetValue()];
@@ -2850,7 +2850,7 @@ XE::RenderResourceStatesType XE::RenderService::TransitionBarrier( XE::RenderCon
 	return before;
 }
 
-XE::RenderPassHandle XE::RenderService::BeginPass( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, const XE::RenderPassDesc & desc )
+XE::RenderPassHandle XE::GraphicsService::BeginPass( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, const XE::RenderPassDesc & desc )
 {
 	auto & ctx = _p->_Contexts[context.GetValue()];
 	auto & cmd = ctx->_RenderCommandBuffers[cmdbuf.GetValue()];
@@ -2917,14 +2917,14 @@ XE::RenderPassHandle XE::RenderService::BeginPass( XE::RenderContextHandle conte
 	return handle;
 }
 
-void XE::RenderService::SetViewport( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, const XE::Rectf & view )
+void XE::GraphicsService::SetViewport( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, const XE::Rectf & view )
 {
 	D3D12_VIEWPORT viewport{ view.x, view.y, view.width, view.height, 0.0f, 1.0f };
 
 	_p->_Contexts[context.GetValue()]->_RenderCommandBuffers[cmdbuf.GetValue()]._CommandList->RSSetViewports( 1, &viewport );
 }
 
-void XE::RenderService::SetViewport( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, const XE::Array< XE::Rectf > & views )
+void XE::GraphicsService::SetViewport( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, const XE::Array< XE::Rectf > & views )
 {
 	XE::Array< D3D12_VIEWPORT > ports;
 	for( const auto & it : views )
@@ -2934,13 +2934,13 @@ void XE::RenderService::SetViewport( XE::RenderContextHandle context, XE::Render
 	_p->_Contexts[context.GetValue()]->_RenderCommandBuffers[cmdbuf.GetValue()]._CommandList->RSSetViewports( ports.size(), ports.data() );
 }
 
-void XE::RenderService::SetScissor( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, const XE::Rectf & rect )
+void XE::GraphicsService::SetScissor( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, const XE::Rectf & rect )
 {
 	D3D12_RECT _rect{ (LONG)rect.x, (LONG)rect.y, (LONG)rect.x + (LONG)rect.width, (LONG)rect.y + (LONG)rect.height };
 	_p->_Contexts[context.GetValue()]->_RenderCommandBuffers[cmdbuf.GetValue()]._CommandList->RSSetScissorRects( 1, &_rect );
 }
 
-void XE::RenderService::SetScissor( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, const XE::Array< XE::Rectf > & rects )
+void XE::GraphicsService::SetScissor( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, const XE::Array< XE::Rectf > & rects )
 {
 	XE::Array< D3D12_RECT > _rects;
 	for( const auto & it : rects )
@@ -2950,7 +2950,7 @@ void XE::RenderService::SetScissor( XE::RenderContextHandle context, XE::RenderC
 	_p->_Contexts[context.GetValue()]->_RenderCommandBuffers[cmdbuf.GetValue()]._CommandList->RSSetScissorRects( _rects.size(), _rects.data() );
 }
 
-void XE::RenderService::SetIndexBuffer( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::RenderVirtualBufferHandle buffer )
+void XE::GraphicsService::SetIndexBuffer( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::RenderVirtualBufferHandle buffer )
 {
 	auto & ctx = _p->_Contexts[context.GetValue()];
 	auto & cmd = ctx->_RenderCommandBuffers[cmdbuf.GetValue()];
@@ -2964,7 +2964,7 @@ void XE::RenderService::SetIndexBuffer( XE::RenderContextHandle context, XE::Ren
 	_p->_Contexts[context.GetValue()]->_RenderCommandBuffers[cmdbuf.GetValue()]._CommandList->IASetIndexBuffer( &view );
 }
 
-void XE::RenderService::SetVertexBuffer( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::RenderVirtualBufferHandle buffer )
+void XE::GraphicsService::SetVertexBuffer( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::RenderVirtualBufferHandle buffer )
 {
 	auto & ctx = _p->_Contexts[context.GetValue()];
 	auto & cmd = ctx->_RenderCommandBuffers[cmdbuf.GetValue()];
@@ -2978,7 +2978,7 @@ void XE::RenderService::SetVertexBuffer( XE::RenderContextHandle context, XE::Re
 	cmd._CommandList->IASetVertexBuffers( 0, 1, &view );
 }
 
-void XE::RenderService::SetDescriptorSet( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::RenderDescriptorSetHandle heap, XE::uint32 first, XE::RenderPipelineStateType bind )
+void XE::GraphicsService::SetDescriptorSet( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::RenderDescriptorSetHandle heap, XE::uint32 first, XE::RenderPipelineStateType bind )
 {
 	auto & ctx = _p->_Contexts[context.GetValue()];
 	auto & cmd = ctx->_RenderCommandBuffers[cmdbuf.GetValue()];
@@ -2987,7 +2987,7 @@ void XE::RenderService::SetDescriptorSet( XE::RenderContextHandle context, XE::R
 	cmd._CommandList->SetGraphicsRootSignature( desc._RootSignature );
 }
 
-void XE::RenderService::SetPipelineState( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::RenderPipelineStateHandle pso )
+void XE::GraphicsService::SetPipelineState( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::RenderPipelineStateHandle pso )
 {
 	auto & ctx = _p->_Contexts[context.GetValue()];
 	auto & cmd = ctx->_RenderCommandBuffers[cmdbuf.GetValue()];
@@ -2996,37 +2996,37 @@ void XE::RenderService::SetPipelineState( XE::RenderContextHandle context, XE::R
 	cmd._CommandList->SetPipelineState( pipe._PipelineState );
 }
 
-void XE::RenderService::SetUniform( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::uint32 location, const XE::Variant & value )
+void XE::GraphicsService::SetUniform( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::uint32 location, const XE::Variant & value )
 {
 	// TODO: 
 }
 
-void XE::RenderService::SetUniform( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::uint32 location, const XE::VariantArray & value )
+void XE::GraphicsService::SetUniform( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::uint32 location, const XE::VariantArray & value )
 {
 	// TODO: 
 }
 
-void XE::RenderService::SetResource( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::RenderBufferHandle buffer, XE::uint32 slot, XE::RenderBindFlags bind, XE::RenderStageFlags stage )
+void XE::GraphicsService::SetResource( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::RenderBufferHandle buffer, XE::uint32 slot, XE::RenderBindFlags bind, XE::RenderStageFlags stage )
 {
 	// TODO: 
 }
 
-void XE::RenderService::SetResource( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::RenderTextureHandle texture, XE::uint32 slot, XE::RenderBindFlags bind, XE::RenderStageFlags stage )
+void XE::GraphicsService::SetResource( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::RenderTextureHandle texture, XE::uint32 slot, XE::RenderBindFlags bind, XE::RenderStageFlags stage )
 {
 	// TODO: 
 }
 
-void XE::RenderService::SetResource( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::RenderSamplerHandle sampler, XE::uint32 slot, XE::RenderBindFlags bind, XE::RenderStageFlags stage )
+void XE::GraphicsService::SetResource( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::RenderSamplerHandle sampler, XE::uint32 slot, XE::RenderBindFlags bind, XE::RenderStageFlags stage )
 {
 	// TODO: 
 }
 
-void XE::RenderService::ResetResource( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::RenderResourceType type, const XE::Pair< XE::uint32, XE::uint32 > & slot_ranges, XE::RenderBindFlags bind, XE::RenderStageFlags stage )
+void XE::GraphicsService::ResetResource( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::RenderResourceType type, const XE::Pair< XE::uint32, XE::uint32 > & slot_ranges, XE::RenderBindFlags bind, XE::RenderStageFlags stage )
 {
 	// TODO: 
 }
 
-void XE::RenderService::SetBlendFactor( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, const XE::FColor & color )
+void XE::GraphicsService::SetBlendFactor( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, const XE::FColor & color )
 {
 	auto & ctx = _p->_Contexts[context.GetValue()];
 	auto & cmd = ctx->_RenderCommandBuffers[cmdbuf.GetValue()];
@@ -3034,7 +3034,7 @@ void XE::RenderService::SetBlendFactor( XE::RenderContextHandle context, XE::Ren
 	cmd._CommandList->OMSetBlendFactor( color.d );
 }
 
-void XE::RenderService::SetStencilReference( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::uint32 reference, XE::RenderStencilFaceType stencilFace /*= XE::RenderStencilFaceType::FRONT_BACK */ )
+void XE::GraphicsService::SetStencilReference( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::uint32 reference, XE::RenderStencilFaceType stencilFace /*= XE::RenderStencilFaceType::FRONT_BACK */ )
 {
 	auto & ctx = _p->_Contexts[context.GetValue()];
 	auto & cmd = ctx->_RenderCommandBuffers[cmdbuf.GetValue()];
@@ -3042,7 +3042,7 @@ void XE::RenderService::SetStencilReference( XE::RenderContextHandle context, XE
 	cmd._CommandList->OMSetStencilRef( reference );
 }
 
-void XE::RenderService::BeginQuery( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::RenderQueryHandle query, XE::uint32 value )
+void XE::GraphicsService::BeginQuery( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::RenderQueryHandle query, XE::uint32 value )
 {
 	auto & ctx = _p->_Contexts[context.GetValue()];
 	auto & cmd = ctx->_RenderCommandBuffers[cmdbuf.GetValue()];
@@ -3058,7 +3058,7 @@ void XE::RenderService::BeginQuery( XE::RenderContextHandle context, XE::RenderC
 	}
 }
 
-void XE::RenderService::EndQuery( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::RenderQueryHandle query, XE::uint32 value )
+void XE::GraphicsService::EndQuery( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::RenderQueryHandle query, XE::uint32 value )
 {
 	auto & ctx = _p->_Contexts[context.GetValue()];
 	auto & cmd = ctx->_RenderCommandBuffers[cmdbuf.GetValue()];
@@ -3074,7 +3074,7 @@ void XE::RenderService::EndQuery( XE::RenderContextHandle context, XE::RenderCom
 	}
 }
 
-void XE::RenderService::BeginCondition( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::RenderQueryHandle query, XE::uint32 offset, XE::RenderConditionType cond )
+void XE::GraphicsService::BeginCondition( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::RenderQueryHandle query, XE::uint32 offset, XE::RenderConditionType cond )
 {
 	auto & ctx = _p->_Contexts[context.GetValue()];
 	auto & cmd = ctx->_RenderCommandBuffers[cmdbuf.GetValue()];
@@ -3083,7 +3083,7 @@ void XE::RenderService::BeginCondition( XE::RenderContextHandle context, XE::Ren
 	cmd._CommandList->SetPredication( quer._QueryResults, (XE::uint64)offset * quer._QueryStride, To( cond ) );
 }
 
-void XE::RenderService::EndCondition( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::RenderQueryHandle query )
+void XE::GraphicsService::EndCondition( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::RenderQueryHandle query )
 {
 	auto & ctx = _p->_Contexts[context.GetValue()];
 	auto & cmd = ctx->_RenderCommandBuffers[cmdbuf.GetValue()];
@@ -3092,17 +3092,17 @@ void XE::RenderService::EndCondition( XE::RenderContextHandle context, XE::Rende
 	cmd._CommandList->SetPredication( quer._QueryResults, 0, D3D12_PREDICATION_OP_EQUAL_ZERO );
 }
 
-void XE::RenderService::BeginStreamOutput( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, const XE::Array< XE::RenderBufferHandle > & buffers )
+void XE::GraphicsService::BeginStreamOutput( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, const XE::Array< XE::RenderBufferHandle > & buffers )
 {
 	// TODO: 
 }
 
-void XE::RenderService::EndStreamOutput( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass )
+void XE::GraphicsService::EndStreamOutput( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass )
 {
 	// TODO: 
 }
 
-void XE::RenderService::Draw( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, const XE::Pair< XE::uint32, XE::uint32 > & vertices )
+void XE::GraphicsService::Draw( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, const XE::Pair< XE::uint32, XE::uint32 > & vertices )
 {
 	auto & ctx = _p->_Contexts[context.GetValue()];
 	auto & cmd = ctx->_RenderCommandBuffers[cmdbuf.GetValue()];
@@ -3110,7 +3110,7 @@ void XE::RenderService::Draw( XE::RenderContextHandle context, XE::RenderCommand
 	cmd._CommandList->DrawInstanced( vertices.second - vertices.first, 1, vertices.first, 0 );
 }
 
-void XE::RenderService::DrawIndexed( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, const XE::Pair< XE::uint32, XE::uint32 > & indices )
+void XE::GraphicsService::DrawIndexed( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, const XE::Pair< XE::uint32, XE::uint32 > & indices )
 {
 	auto & ctx = _p->_Contexts[context.GetValue()];
 	auto & cmd = ctx->_RenderCommandBuffers[cmdbuf.GetValue()];
@@ -3118,7 +3118,7 @@ void XE::RenderService::DrawIndexed( XE::RenderContextHandle context, XE::Render
 	cmd._CommandList->DrawIndexedInstanced( indices.second - indices.first, 1, indices.first, 0, 0 );
 }
 
-void XE::RenderService::DrawIndexed( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, const XE::Pair< XE::uint32, XE::uint32 > & indices, XE::uint32 vertex_offset )
+void XE::GraphicsService::DrawIndexed( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, const XE::Pair< XE::uint32, XE::uint32 > & indices, XE::uint32 vertex_offset )
 {
 	auto & ctx = _p->_Contexts[context.GetValue()];
 	auto & cmd = ctx->_RenderCommandBuffers[cmdbuf.GetValue()];
@@ -3126,7 +3126,7 @@ void XE::RenderService::DrawIndexed( XE::RenderContextHandle context, XE::Render
 	cmd._CommandList->DrawIndexedInstanced( indices.second - indices.first, 1, indices.first, vertex_offset, 0 );
 }
 
-void XE::RenderService::DrawInstanced( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, const XE::Pair< XE::uint32, XE::uint32 > & vertices, XE::uint32 num_instances )
+void XE::GraphicsService::DrawInstanced( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, const XE::Pair< XE::uint32, XE::uint32 > & vertices, XE::uint32 num_instances )
 {
 	auto & ctx = _p->_Contexts[context.GetValue()];
 	auto & cmd = ctx->_RenderCommandBuffers[cmdbuf.GetValue()];
@@ -3134,7 +3134,7 @@ void XE::RenderService::DrawInstanced( XE::RenderContextHandle context, XE::Rend
 	cmd._CommandList->DrawInstanced( vertices.second - vertices.first, num_instances, vertices.first, 0 );
 }
 
-void XE::RenderService::DrawInstanced( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, const XE::Pair< XE::uint32, XE::uint32 > & vertices, const XE::Pair< XE::uint32, XE::uint32 > & instances )
+void XE::GraphicsService::DrawInstanced( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, const XE::Pair< XE::uint32, XE::uint32 > & vertices, const XE::Pair< XE::uint32, XE::uint32 > & instances )
 {
 	auto & ctx = _p->_Contexts[context.GetValue()];
 	auto & cmd = ctx->_RenderCommandBuffers[cmdbuf.GetValue()];
@@ -3142,7 +3142,7 @@ void XE::RenderService::DrawInstanced( XE::RenderContextHandle context, XE::Rend
 	cmd._CommandList->DrawInstanced( vertices.second - vertices.first, instances.second - instances.first, vertices.first, instances.first );
 }
 
-void XE::RenderService::DrawIndexedInstanced( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::uint32 num_indices, XE::uint32 num_instances, XE::uint32 first_index )
+void XE::GraphicsService::DrawIndexedInstanced( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::uint32 num_indices, XE::uint32 num_instances, XE::uint32 first_index )
 {
 	auto & ctx = _p->_Contexts[context.GetValue()];
 	auto & cmd = ctx->_RenderCommandBuffers[cmdbuf.GetValue()];
@@ -3150,7 +3150,7 @@ void XE::RenderService::DrawIndexedInstanced( XE::RenderContextHandle context, X
 	cmd._CommandList->DrawIndexedInstanced( num_indices, num_instances, first_index, 0, 0 );
 }
 
-void XE::RenderService::DrawIndexedInstanced( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::uint32 num_indices, XE::uint32 num_instances, XE::uint32 first_index, XE::uint32 vertex_offset )
+void XE::GraphicsService::DrawIndexedInstanced( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::uint32 num_indices, XE::uint32 num_instances, XE::uint32 first_index, XE::uint32 vertex_offset )
 {
 	auto & ctx = _p->_Contexts[context.GetValue()];
 	auto & cmd = ctx->_RenderCommandBuffers[cmdbuf.GetValue()];
@@ -3158,7 +3158,7 @@ void XE::RenderService::DrawIndexedInstanced( XE::RenderContextHandle context, X
 	cmd._CommandList->DrawIndexedInstanced( num_indices, num_instances, first_index, vertex_offset, 0 );
 }
 
-void XE::RenderService::DrawIndexedInstanced( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::uint32 num_indices, XE::uint32 num_instances, XE::uint32 first_index, XE::uint32 vertex_offset, XE::uint32 first_instance )
+void XE::GraphicsService::DrawIndexedInstanced( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::uint32 num_indices, XE::uint32 num_instances, XE::uint32 first_index, XE::uint32 vertex_offset, XE::uint32 first_instance )
 {
 	auto & ctx = _p->_Contexts[context.GetValue()];
 	auto & cmd = ctx->_RenderCommandBuffers[cmdbuf.GetValue()];
@@ -3166,32 +3166,32 @@ void XE::RenderService::DrawIndexedInstanced( XE::RenderContextHandle context, X
 	cmd._CommandList->DrawIndexedInstanced( num_indices, num_instances, first_index, vertex_offset, first_instance );
 }
 
-void XE::RenderService::DrawIndirect( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::RenderBufferHandle buffer, XE::uint64 offset )
+void XE::GraphicsService::DrawIndirect( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::RenderBufferHandle buffer, XE::uint64 offset )
 {
 	// TODO: 
 }
 
-void XE::RenderService::DrawIndirect( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::RenderBufferHandle buffer, XE::uint64 offset, XE::uint32 num_commands, XE::uint32 stride )
+void XE::GraphicsService::DrawIndirect( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::RenderBufferHandle buffer, XE::uint64 offset, XE::uint32 num_commands, XE::uint32 stride )
 {
 	// TODO: 
 }
 
-void XE::RenderService::DrawIndexedIndirect( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::RenderBufferHandle buffer, XE::uint64 offset )
+void XE::GraphicsService::DrawIndexedIndirect( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::RenderBufferHandle buffer, XE::uint64 offset )
 {
 	// TODO: 
 }
 
-void XE::RenderService::DrawIndexedIndirect( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::RenderBufferHandle buffer, XE::uint64 offset, XE::uint32 num_commands, XE::uint32 stride )
+void XE::GraphicsService::DrawIndexedIndirect( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::RenderBufferHandle buffer, XE::uint64 offset, XE::uint32 num_commands, XE::uint32 stride )
 {
 	// TODO: 
 }
 
-void XE::RenderService::EndPass( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass )
+void XE::GraphicsService::EndPass( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass )
 {
 	// TODO: 
 }
 
-void XE::RenderService::ExecuteBundle( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::RenderCommandBundleHandle bundle )
+void XE::GraphicsService::ExecuteBundle( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::RenderCommandBundleHandle bundle )
 {
 	auto & ctx = _p->_Contexts[context.GetValue()];
 	auto & cmd = ctx->_RenderCommandBuffers[cmdbuf.GetValue()];
@@ -3200,7 +3200,7 @@ void XE::RenderService::ExecuteBundle( XE::RenderContextHandle context, XE::Rend
 	cmd._CommandList->ExecuteBundle( bun._CommandList );
 }
 
-void XE::RenderService::Dispatch( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::uint32 group_x, XE::uint32 group_y, XE::uint32 group_z )
+void XE::GraphicsService::Dispatch( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::uint32 group_x, XE::uint32 group_y, XE::uint32 group_z )
 {
 	auto & ctx = _p->_Contexts[context.GetValue()];
 	auto & cmd = ctx->_RenderCommandBuffers[cmdbuf.GetValue()];
@@ -3208,12 +3208,12 @@ void XE::RenderService::Dispatch( XE::RenderContextHandle context, XE::RenderCom
 	cmd._CommandList->Dispatch( group_x, group_y, group_z );
 }
 
-void XE::RenderService::DispatchIndirect( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderBufferHandle buffer, XE::uint64 offset )
+void XE::GraphicsService::DispatchIndirect( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderBufferHandle buffer, XE::uint64 offset )
 {
 	// TODO: 
 }
 
-void XE::RenderService::End( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf )
+void XE::GraphicsService::End( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf )
 {
 	auto & ctx = _p->_Contexts[context.GetValue()];
 	auto & cmd = ctx->_RenderCommandBuffers[cmdbuf.GetValue()];
@@ -3231,7 +3231,7 @@ void XE::RenderService::End( XE::RenderContextHandle context, XE::RenderCommandB
 	} );
 }
 
-void XE::RenderService::BeginBundle( XE::RenderContextHandle context, XE::RenderCommandBundleHandle bundle )
+void XE::GraphicsService::BeginBundle( XE::RenderContextHandle context, XE::RenderCommandBundleHandle bundle )
 {
 	auto & ctx = _p->_Contexts[context.GetValue()];
 
@@ -3248,7 +3248,7 @@ void XE::RenderService::BeginBundle( XE::RenderContextHandle context, XE::Render
 	bun._CommandList->Reset( bun._CommandAllocator, nullptr );
 }
 
-void XE::RenderService::EndBundle( XE::RenderContextHandle context, XE::RenderCommandBundleHandle bundle )
+void XE::GraphicsService::EndBundle( XE::RenderContextHandle context, XE::RenderCommandBundleHandle bundle )
 {
 	auto & ctx = _p->_Contexts[context.GetValue()];
 	auto & bun = ctx->_RenderCommandBundles[bundle.GetValue()];
@@ -3256,7 +3256,7 @@ void XE::RenderService::EndBundle( XE::RenderContextHandle context, XE::RenderCo
 	bun._CommandList->Close();
 }
 
-void XE::RenderService::Execute( XE::RenderContextHandle context )
+void XE::GraphicsService::Execute( XE::RenderContextHandle context )
 {
 	auto & ctx = _p->_Contexts[context.GetValue()];
 
@@ -3274,7 +3274,7 @@ void XE::RenderService::Execute( XE::RenderContextHandle context )
 	}
 }
 
-void XE::RenderService::Wait( XE::RenderContextHandle context )
+void XE::GraphicsService::Wait( XE::RenderContextHandle context )
 {
 	auto & ctx = _p->_Contexts[context.GetValue()];
 
@@ -3296,7 +3296,7 @@ void XE::RenderService::Wait( XE::RenderContextHandle context )
 	}
 }
 
-void XE::RenderService::QueryResolve( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderQueryHandle query, XE::uint32 offset, XE::uint32 size )
+void XE::GraphicsService::QueryResolve( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderQueryHandle query, XE::uint32 offset, XE::uint32 size )
 {
 	auto & ctx = _p->_Contexts[context.GetValue()];
 	auto & cmd = ctx->_RenderCommandBuffers[cmdbuf.GetValue()];
@@ -3323,7 +3323,7 @@ void XE::RenderService::QueryResolve( XE::RenderContextHandle context, XE::Rende
 	cmd._CommandList->ResourceBarrier( 1, &barrier );
 }
 
-void XE::RenderService::QueryResult( XE::RenderContextHandle context, XE::RenderQueryHandle query, XE::uint32 offset, XE::uint32 size, std::ostream & stream )
+void XE::GraphicsService::QueryResult( XE::RenderContextHandle context, XE::RenderQueryHandle query, XE::uint32 offset, XE::uint32 size, std::ostream & stream )
 {
 	auto & ctx = _p->_Contexts[context.GetValue()];
 	auto & quer = ctx->_RenderQuerys[query.GetValue()];
@@ -3343,7 +3343,7 @@ void XE::RenderService::QueryResult( XE::RenderContextHandle context, XE::Render
 	quer._QueryResults->Unmap( 0, &end_range );
 }
 
-void XE::RenderService::OnMainWindowResize()
+void XE::GraphicsService::OnMainWindowResize()
 {
 	auto size = GetFramework()->GetMainWindow()->GetScreenSize();
 	bool fullscreen = GetFramework()->GetMainWindow()->IsFullscreen();

@@ -13,8 +13,13 @@
 
 BEG_XE_NAMESPACE
 
-class XE_API EntitySystem
+class XE_API EntitySystem : public XE::EnableSharedFromThis< XE::EntitySystem >
 {
+public:
+	EntitySystem() = default;
+
+	virtual ~EntitySystem() = default;
+
 public:
 	virtual void Execute( XE::World * world, XE::float32 dt ) const = 0;
 };

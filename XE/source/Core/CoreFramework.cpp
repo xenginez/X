@@ -102,6 +102,11 @@ int XE::CoreFramework::Exec( XE::WindowPtr window )
 	return 0;
 }
 
+const XE::Array<XE::ServicePtr> & XE::CoreFramework::GetServices() const
+{
+	return _p->_Services;
+}
+
 XE::ServicePtr XE::CoreFramework::GetService( const XE::MetaClassCPtr & val ) const
 {
 	for( auto service : _p->_Services )

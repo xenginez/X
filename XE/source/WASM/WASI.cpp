@@ -26,9 +26,10 @@ XE::WASI::errno_t XE::WASI::clock_res_get( XE::WASI::clockid_t clock_id, XE::WAS
 	case XE::WASI::CLOCKID_THREAD_CPUTIME_ID:
 		break;
 	default:
-		return ERRNO_INVAL;
 		break;
 	}
+
+	return ERRNO_INVAL;
 }
 
 XE::WASI::errno_t XE::WASI::clock_time_get( XE::WASI::clockid_t clock_id, XE::WASI::timestamp_t precision, XE::WASI::timestamp_t * time )

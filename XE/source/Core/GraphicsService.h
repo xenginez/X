@@ -13,17 +13,17 @@
 
 BEG_XE_NAMESPACE
 
-class XE_API RenderService : public XE::Service
+class XE_API GraphicsService : public XE::Service
 {
-	OBJECT( RenderService, XE::Service );
+	OBJECT( GraphicsService, XE::Service );
 
 private:
 	struct Private;
 
 public:
-	RenderService();
+	GraphicsService();
 
-	~RenderService();
+	~GraphicsService();
 
 public:
 	void Prepare() override;

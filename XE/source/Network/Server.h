@@ -87,8 +87,8 @@ protected:
 	DisconnectCallbackType _DisconnectCB = nullptr;
 
 	std::mutex _Mutex;
-	XE::ConcurrentQueue< XE::Array< XE::int8 > > _Buffers;
 	XE::Array< XE::UniquePtr< XE::Session > > _Sessions;
+	XE::ConcurrentQueue< XE::Array< XE::int8 > > _Buffers;
 	XE::QueueHandleAllocator< XE::SessionHandle, std::numeric_limits< XE::uint32 >::max() > _SessionAllocator;
 };
 
@@ -439,8 +439,8 @@ private:
 	}
 
 private:
-	XE::Map< XE::String, FunctionCallbackType > _Callbacks;
 	XE::ConcurrentHandleAllocator< XE::RPC > _Allocator;
+	XE::Map< XE::String, FunctionCallbackType > _Callbacks;
 	XE::ConcurrentHashMap< XE::RPCHandle, ResultCallbackType > _Results;
 };
 

@@ -1,10 +1,10 @@
 #include "WASMService.h"
 
-#include "CoreFramework.h"
-#include "AssetsService.h"
-
 #include "Utils/UUID.h"
-#include "WASM/WASMModule.h"
+#include "Core/CoreFramework.h"
+#include "Core/AssetsService.h"
+
+#include "WASMModule.h"
 
 IMPLEMENT_META( XE::WASMService );
 

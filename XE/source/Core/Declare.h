@@ -21,12 +21,11 @@ class CoreFramework;
 
 class TimerService;
 class EventService;
-class InputService;
 class CacheService;
 class AssetsService;
-class RenderService;
 class ThreadService;
 class PhysicsService;
+class GraphicsService;
 class LocalizationService;
 
 END_XE_NAMESPACE

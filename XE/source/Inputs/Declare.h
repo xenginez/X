@@ -22,6 +22,8 @@ class TouchInput;
 class MouseInput;
 class KeyboardInput;
 
+class InputService;
+
 END_XE_NAMESPACE
 
 #endif//DECLARE_H__1DF4526D_9C58_4074_A5EF_761A397CA051

@@ -2,10 +2,9 @@
 
 #if PLATFORM_OS == OS_WINDOWS
 
-#include "Inputs/Type.h"
 #include "Core/EventService.h"
-#include "Core/InputService.h"
 #include "Core/CoreFramework.h"
+#include "Inputs/InputService.h"
 
 #include <Windows.h>
 

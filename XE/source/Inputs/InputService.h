@@ -9,7 +9,9 @@
 #ifndef __INPUTSERVICE_H__1AA680A2_3C45_4FAF_A62A_EF525EE5FFFD
 #define __INPUTSERVICE_H__1AA680A2_3C45_4FAF_A62A_EF525EE5FFFD
 
-#include "Service.h"
+#include "Type.h"
+
+#include "Core/Service.h"
 
 BEG_XE_NAMESPACE
 

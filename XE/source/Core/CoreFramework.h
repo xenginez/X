@@ -31,6 +31,8 @@ public:
 	static CoreFrameworkPtr GetCurrentFramework();
 
 public:
+	virtual const XE::Array < XE::ServicePtr > & GetServices() const;
+
 	virtual XE::ServicePtr GetService( const XE::MetaClassCPtr & val ) const;
 
 	template< typename T > XE::SharedPtr< T > GetServiceT() const

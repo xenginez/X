@@ -26,13 +26,11 @@ DECL_PTR( Service );
 DECL_PTR( EventService );
 DECL_PTR( TimerService );
 DECL_PTR( AudioService );
-DECL_PTR( InputService );
 DECL_PTR( CacheService );
 DECL_PTR( AssetsService );
-DECL_PTR( ConfigService );
-DECL_PTR( RenderService );
 DECL_PTR( ThreadService );
 DECL_PTR( PhysicsService );
+DECL_PTR( GraphicsService );
 DECL_PTR( LocalizationService );
 class CoreFramework;  using CoreFrameworkPtr = CoreFramework * ;
 

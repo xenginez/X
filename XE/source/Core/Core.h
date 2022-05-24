@@ -14,14 +14,13 @@
 #include "CoreFramework.h"
 
 #include "AudioService.h"
-#include "InputService.h"
 #include "TimerService.h"
 #include "EventService.h"
 #include "CacheService.h"
-#include "RenderService.h"
 #include "AssetsService.h"
 #include "ThreadService.h"
 #include "PhysicsService.h"
+#include "GraphicsService.h"
 #include "LocalizationService.h"
 
 #endif // CORE_H__89296107_DD2C_4CE3_A497_78460B7181B4

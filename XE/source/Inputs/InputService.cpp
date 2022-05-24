@@ -1,8 +1,10 @@
 #include "InputService.h"
 
-#include "CoreFramework.h"
+#include "Core/CoreFramework.h"
 
-#include "Inputs/Inputs.h"
+#include "Input.h"
+#include "InputState.h"
+#include "InputStateMap.h"
 
 BEG_META( XE::InputService )
 END_META()
