@@ -6,45 +6,43 @@
 
 IMPLEMENT_META( XE::GraphicsService );
 
-struct XE::GraphicsService::Private
-{
-	XE::RenderContextDesc _ContextDesc;
-	XE::RenderQueryDesc _RenderQueryDesc;
-	XE::RenderBufferDesc _RenderBufferDesc;
-	XE::RenderTargetDesc _RenderTargetDesc;
-	XE::RenderShaderDesc _RenderShaderDesc;
-	XE::RenderTextureDesc _RenderTextureDesc;
-	XE::RenderSamplerDesc _RenderSamplerDesc;
-	XE::RenderDescriptorSetDesc _RenderDescriptorSetDesc;
-	XE::RenderCommandBundleDesc _RenderCommandBundleDesc;
-	XE::RenderShaderProgramDesc _RenderShaderProgramDesc;
-	XE::RenderPipelineStateDesc _RenderPipelineStateDesc;
-	XE::RenderVirtualBufferDesc _RenderVirtualBufferDesc;
-
-	XE::ConcurrentHandleAllocator< XE::RenderPassHandle, XE::RENDER_MAX_PASS > _RenderPassHandleAllocator;
-	XE::ConcurrentHandleAllocator< XE::RenderQueryHandle, XE::RENDER_MAX_QUERY > _RenderQueryHandleAllocator;
-	XE::ConcurrentHandleAllocator< XE::RenderBufferHandle, XE::RENDER_MAX_BUFFER > _RenderBufferHandleAllocator;
-	XE::ConcurrentHandleAllocator< XE::RenderTargetHandle, XE::RENDER_MAX_TARGET > _RenderTargetHandleAllocator;
-	XE::ConcurrentHandleAllocator< XE::RenderShaderHandle, XE::RENDER_MAX_SHADER > _RenderShaderHandleAllocator;
-	XE::ConcurrentHandleAllocator< XE::RenderTextureHandle, XE::RENDER_MAX_TEXTURE > _RenderTextureHandleAllocator;
-	XE::ConcurrentHandleAllocator< XE::RenderSamplerHandle, XE::RENDER_MAX_SAMPLER > _RenderSamplerHandleAllocator;
-	XE::ConcurrentHandleAllocator< XE::RenderDescriptorSetHandle, XE::RENDER_MAX_DESCRIPTOR_SET > _RenderDescriptorSetHandleAllocator;
-	XE::ConcurrentHandleAllocator< XE::RenderCommandBufferHandle, XE::RENDER_MAX_COMMAND_BUFFER > _RenderCommandBufferHandleAllocator;
-	XE::ConcurrentHandleAllocator< XE::RenderCommandBundleHandle, XE::RENDER_MAX_COMMAND_BUNDLE > _RenderCommandBundleHandleAllocator;
-	XE::ConcurrentHandleAllocator< XE::RenderPipelineStateHandle, XE::RENDER_MAX_PIPELINE_STATE > _RenderPipelineStateHandleAllocator;
-	XE::ConcurrentHandleAllocator< XE::RenderShaderProgramHandle, XE::RENDER_MAX_SHADER_PROGRAM > _RenderShaderProgramHandleAllocator;
-	XE::ConcurrentHandleAllocator< XE::RenderVirtualBufferHandle, XE::RENDER_MAX_VIRTUAL_BUFFER > _RenderVirtualBufferHandleAllocator;
-};
+// BEG_XE_NAMESPACE
+// #define RENAME_TYPE( NAME ) using Graphics##NAME = WGPU##NAME;
+// RENAME_TYPE( Instance );
+// RENAME_TYPE( Adapter );
+// RENAME_TYPE( Device );
+// RENAME_TYPE( BindGroup );
+// RENAME_TYPE( BindGroupLayout );
+// RENAME_TYPE( Buffer );
+// RENAME_TYPE( CommandBuffer );
+// RENAME_TYPE( CommandEncoder );
+// RENAME_TYPE( ComputePassEncoder );
+// RENAME_TYPE( ComputePipeline );
+// RENAME_TYPE( PipelineLayout );
+// RENAME_TYPE( QuerySet );
+// RENAME_TYPE( Queue );
+// RENAME_TYPE( RenderBundle );
+// RENAME_TYPE( RenderBundleEncoder );
+// RENAME_TYPE( RenderPassEncoder );
+// RENAME_TYPE( RenderPipeline );
+// RENAME_TYPE( Sampler );
+// RENAME_TYPE( ShaderModule );
+// RENAME_TYPE( Surface );
+// RENAME_TYPE( SwapChain );
+// RENAME_TYPE( Texture );
+// RENAME_TYPE( TextureView );
+// #undef RENAME_TYPE
+// END_XE_NAMESPACE
 
 XE::GraphicsService::GraphicsService()
-	:_p( XE::New< Private >() )
+	:_p( nullptr )
 {
 
 }
 
 XE::GraphicsService::~GraphicsService()
 {
-	XE::Delete( _p );
+
 }
 
 void XE::GraphicsService::Prepare()
@@ -67,494 +65,593 @@ void XE::GraphicsService::Clearup()
 
 }
 
-XE::RenderApiType XE::GraphicsService::GetApiType() const
+void XE::GraphicsService::AdapterEnumerateFeatures( XE::GraphicsAdapterHandle adapter, XE::Array< XE::GraphicsFeatureName > & features )
 {
-	return RenderApiType::NIL;
+	features.resize( 10 );
+	features.resize( wgpuAdapterEnumerateFeatures( reinterpret_cast<WGPUAdapter>( adapter.GetValue() ), reinterpret_cast<WGPUFeatureName *>( features.data() ) ) );
 }
 
-XE::uint32 XE::GraphicsService::GetContextCount() const
+bool XE::GraphicsService::AdapterGetLimits( XE::GraphicsAdapterHandle adapter, XE::GraphicsSupportedLimits & limits )
 {
-	return 1;
+	return wgpuAdapterGetLimits( reinterpret_cast<WGPUAdapter>( adapter.GetValue() ), reinterpret_cast<WGPUSupportedLimits *>( &limits ) );
 }
 
-XE::RenderContextHandle XE::GraphicsService::GetContextHandle( XE::uint32 val ) const
+void XE::GraphicsService::AdapterGetProperties( XE::GraphicsAdapterHandle adapter, XE::GraphicsAdapterProperties & properties )
 {
-	return XE::HandleCast< XE::RenderContext >( 0 );
+	wgpuAdapterGetProperties( reinterpret_cast<WGPUAdapter>( adapter.GetValue() ), reinterpret_cast<WGPUAdapterProperties *>( &properties ) );
 }
 
-const XE::RenderContextDesc & XE::GraphicsService::GetContextDesc( XE::uint32 val ) const
+bool XE::GraphicsService::AdapterHasFeature( XE::GraphicsAdapterHandle adapter, XE::GraphicsFeatureName feature )
 {
-	return _p->_ContextDesc;
+	return wgpuAdapterHasFeature( reinterpret_cast<WGPUAdapter>( adapter.GetValue() ), static_cast<WGPUFeatureName>( feature ) );
 }
 
-XE::RenderContextHandle XE::GraphicsService::GetMainContextHandle() const
+void XE::GraphicsService::AdapterRequestDevice( XE::GraphicsAdapterHandle adapter, const XE::GraphicsDeviceDescriptor & descriptor, RequestDeviceCallback callback )
 {
-	return XE::HandleCast< XE::RenderContext >( 0 );
+	wgpuAdapterRequestDevice( reinterpret_cast<WGPUAdapter>( adapter.GetValue() ), reinterpret_cast<const WGPUDeviceDescriptor *>( &descriptor ),
+							  []( WGPURequestDeviceStatus status, WGPUDevice device, char const * message, void * userdata )
+	{
+		( *reinterpret_cast<RequestDeviceCallback *>( userdata ) )
+			( static_cast<XE::GraphicsRequestDeviceStatus>( status ), XE::HandleCast< XE::GraphicsDevice >( reinterpret_cast<XE::uint64>( device ) ), message );
+	}, &callback );
 }
 
-XE::RenderTargetHandle XE::GraphicsService::GetMainWindowRenderTarget() const
+void XE::GraphicsService::BufferDestroy( XE::GraphicsBufferHandle buffer )
 {
-	return XE::HandleCast< XE::RenderTarget >( 0 );
+	wgpuBufferDestroy( reinterpret_cast<WGPUBuffer>( buffer.GetValue() ) );
 }
 
-XE::RenderTargetHandle XE::GraphicsService::GetMainWindowBackRenderTarget() const
+XE::MemoryView XE::GraphicsService::BufferGetMappedRange( XE::GraphicsBufferHandle buffer, XE::uint64 offset, XE::uint64 size )
 {
-	return XE::HandleCast< XE::RenderTarget >( 0 );
+	void * p = wgpuBufferGetMappedRange( reinterpret_cast<WGPUBuffer>( buffer.GetValue() ), offset, size );
+	return { reinterpret_cast<XE::int8 *>( p ), size };
 }
 
-XE::RenderQueryHandle XE::GraphicsService::Create( XE::RenderContextHandle context, const XE::RenderQueryDesc & desc )
+void XE::GraphicsService::BufferMapAsync( XE::GraphicsBufferHandle buffer, XE::GraphicsMapModeFlags mode, XE::uint64 offset, XE::uint64 size, BufferMapCallback callback )
 {
-	return _p->_RenderQueryHandleAllocator.Alloc();
+	wgpuBufferMapAsync( reinterpret_cast<WGPUBuffer>( buffer.GetValue() ), static_cast<WGPUMapModeFlags>( mode ), offset, size,
+						[]( WGPUBufferMapAsyncStatus status, void * userdata )
+	{
+		( *reinterpret_cast<BufferMapCallback *>( userdata ) )( static_cast<XE::GraphicsBufferMapAsyncStatus>( status ) );
+	}, &callback );
 }
 
-XE::RenderBufferHandle XE::GraphicsService::Create( XE::RenderContextHandle context, const XE::RenderBufferDesc & desc )
+void XE::GraphicsService::BufferUnmap( XE::GraphicsBufferHandle buffer )
 {
-	return _p->_RenderBufferHandleAllocator.Alloc();
+	wgpuBufferUnmap( reinterpret_cast<WGPUBuffer>( buffer.GetValue() ) );
 }
 
-XE::RenderTargetHandle XE::GraphicsService::Create( XE::RenderContextHandle context, const XE::RenderTargetDesc & desc )
+XE::GraphicsComputePassEncoderHandle XE::GraphicsService::CommandEncoderBeginComputePass( XE::GraphicsCommandEncoderHandle commandEncoder, const XE::GraphicsComputePassDescriptor & descriptor )
 {
-	return _p->_RenderTargetHandleAllocator.Alloc();
+	return XE::HandleCast<XE::GraphicsComputePassEncoder>( reinterpret_cast<XE::uint64>( wgpuCommandEncoderBeginComputePass( reinterpret_cast<WGPUCommandEncoder>( commandEncoder.GetValue() ), reinterpret_cast<const WGPUComputePassDescriptor *>( &descriptor ) ) ) );
 }
 
-XE::RenderShaderHandle XE::GraphicsService::Create( XE::RenderContextHandle context, const XE::RenderShaderDesc & desc )
+XE::GraphicsRenderPassEncoderHandle XE::GraphicsService::CommandEncoderBeginRenderPass( XE::GraphicsCommandEncoderHandle commandEncoder, const XE::GraphicsRenderPassDescriptor & descriptor )
 {
-	return _p->_RenderShaderHandleAllocator.Alloc();
+	return XE::HandleCast<XE::GraphicsRenderPassEncoder>( reinterpret_cast<XE::uint64>( wgpuCommandEncoderBeginRenderPass( reinterpret_cast<WGPUCommandEncoder>( commandEncoder.GetValue() ), reinterpret_cast<const WGPURenderPassDescriptor *>( &descriptor ) ) ) );
 }
 
-XE::RenderTextureHandle XE::GraphicsService::Create( XE::RenderContextHandle context, const XE::RenderTextureDesc & desc )
+void XE::GraphicsService::CommandEncoderClearBuffer( XE::GraphicsCommandEncoderHandle commandEncoder, XE::GraphicsBufferHandle buffer, XE::uint64 offset, XE::uint64 size )
 {
-	return _p->_RenderTextureHandleAllocator.Alloc();
+	wgpuCommandEncoderClearBuffer( reinterpret_cast<WGPUCommandEncoder>( commandEncoder.GetValue() ), reinterpret_cast<WGPUBuffer>( buffer.GetValue() ), offset, size );
 }
 
-XE::RenderSamplerHandle XE::GraphicsService::Create( XE::RenderContextHandle context, const XE::RenderSamplerDesc & desc )
+void XE::GraphicsService::CommandEncoderCopyBufferToBuffer( XE::GraphicsCommandEncoderHandle commandEncoder, XE::GraphicsBufferHandle source, XE::uint64 sourceOffset, XE::GraphicsBufferHandle destination, XE::uint64 destinationOffset, XE::uint64 size )
 {
-	return _p->_RenderSamplerHandleAllocator.Alloc();
+	wgpuCommandEncoderCopyBufferToBuffer( reinterpret_cast<WGPUCommandEncoder>( commandEncoder.GetValue() ), reinterpret_cast<WGPUBuffer>( source.GetValue() ), sourceOffset, reinterpret_cast<WGPUBuffer>( destination.GetValue() ), destinationOffset, size );
 }
 
-XE::RenderDescriptorSetHandle XE::GraphicsService::Create( XE::RenderContextHandle context, const XE::RenderDescriptorSetDesc & desc )
+void XE::GraphicsService::CommandEncoderCopyBufferToTexture( XE::GraphicsCommandEncoderHandle commandEncoder, const XE::GraphicsImageCopyBuffer & source, const XE::GraphicsImageCopyTexture & destination, const XE::GraphicsExtent3D & copySize )
 {
-	return _p->_RenderDescriptorSetHandleAllocator.Alloc();
+	wgpuCommandEncoderCopyBufferToTexture( reinterpret_cast<WGPUCommandEncoder>( commandEncoder.GetValue() ), reinterpret_cast<const WGPUImageCopyBuffer *>( &source ), reinterpret_cast<const WGPUImageCopyTexture *>( &destination ), reinterpret_cast<const WGPUExtent3D *>( &copySize ) );
 }
 
-XE::RenderCommandBundleHandle XE::GraphicsService::Create( XE::RenderContextHandle context, const XE::RenderCommandBundleDesc & desc )
+void XE::GraphicsService::CommandEncoderCopyTextureToBuffer( XE::GraphicsCommandEncoderHandle commandEncoder, const XE::GraphicsImageCopyTexture & source, const XE::GraphicsImageCopyBuffer & destination, const XE::GraphicsExtent3D & copySize )
 {
-	return _p->_RenderCommandBundleHandleAllocator.Alloc();
+	wgpuCommandEncoderCopyTextureToBuffer( reinterpret_cast<WGPUCommandEncoder>( commandEncoder.GetValue() ), reinterpret_cast<const WGPUImageCopyTexture *>( &source ), reinterpret_cast<const WGPUImageCopyBuffer *>( &destination ), reinterpret_cast<const WGPUExtent3D *>( &copySize ) );
 }
 
-XE::RenderShaderProgramHandle XE::GraphicsService::Create( XE::RenderContextHandle context, const XE::RenderShaderProgramDesc & desc )
+void XE::GraphicsService::CommandEncoderCopyTextureToTexture( XE::GraphicsCommandEncoderHandle commandEncoder, const XE::GraphicsImageCopyTexture & source, const XE::GraphicsImageCopyTexture & destination, const XE::GraphicsExtent3D & copySize )
 {
-	return _p->_RenderShaderProgramHandleAllocator.Alloc();
+	wgpuCommandEncoderCopyTextureToTexture( reinterpret_cast<WGPUCommandEncoder>( commandEncoder.GetValue() ), reinterpret_cast<const WGPUImageCopyTexture *>( &source ), reinterpret_cast<const WGPUImageCopyTexture *>( &destination ), reinterpret_cast<const WGPUExtent3D *>( &copySize ) );
 }
 
-XE::RenderPipelineStateHandle XE::GraphicsService::Create( XE::RenderContextHandle context, const XE::RenderPipelineStateDesc & desc )
+XE::GraphicsCommandBufferHandle XE::GraphicsService::CommandEncoderFinish( XE::GraphicsCommandEncoderHandle commandEncoder, const XE::GraphicsCommandBufferDescriptor & descriptor )
 {
-	return _p->_RenderPipelineStateHandleAllocator.Alloc();
+	return XE::HandleCast<XE::GraphicsCommandBuffer>( reinterpret_cast<XE::uint64>( wgpuCommandEncoderFinish( reinterpret_cast<WGPUCommandEncoder>( commandEncoder.GetValue() ), reinterpret_cast<const WGPUCommandBufferDescriptor *>( &descriptor ) ) ) );
 }
 
-XE::RenderVirtualBufferHandle XE::GraphicsService::Create( XE::RenderContextHandle context, const XE::RenderVirtualBufferDesc & desc, XE::MemoryView data )
+void XE::GraphicsService::CommandEncoderInsertDebugMarker( XE::GraphicsCommandEncoderHandle commandEncoder, const XE::String & markerLabel )
 {
-	return _p->_RenderVirtualBufferHandleAllocator.Alloc();
+	wgpuCommandEncoderInsertDebugMarker( reinterpret_cast<WGPUCommandEncoder>( commandEncoder.GetValue() ), markerLabel.c_str() );
 }
 
-const XE::RenderQueryDesc & XE::GraphicsService::GetDesc( XE::RenderContextHandle context, XE::RenderQueryHandle handle )
+void XE::GraphicsService::CommandEncoderPopDebugGroup( XE::GraphicsCommandEncoderHandle commandEncoder )
 {
-	return _p->_RenderQueryDesc;
+	wgpuCommandEncoderPopDebugGroup( reinterpret_cast<WGPUCommandEncoder>( commandEncoder.GetValue() ) );
 }
 
-const XE::RenderBufferDesc & XE::GraphicsService::GetDesc( XE::RenderContextHandle context, XE::RenderBufferHandle handle )
+void XE::GraphicsService::CommandEncoderPushDebugGroup( XE::GraphicsCommandEncoderHandle commandEncoder, const XE::String & groupLabel )
 {
-	return _p->_RenderBufferDesc;
+	wgpuCommandEncoderPushDebugGroup( reinterpret_cast<WGPUCommandEncoder>( commandEncoder.GetValue() ), groupLabel.c_str() );
 }
 
-const XE::RenderTargetDesc & XE::GraphicsService::GetDesc( XE::RenderContextHandle context, XE::RenderTargetHandle handle )
+void XE::GraphicsService::CommandEncoderResolveQuerySet( XE::GraphicsCommandEncoderHandle commandEncoder, XE::GraphicsQuerySetHandle querySet, XE::uint32 firstQuery, XE::uint32 queryCount, XE::GraphicsBufferHandle destination, XE::uint64 destinationOffset )
 {
-	return _p->_RenderTargetDesc;
+	wgpuCommandEncoderResolveQuerySet( reinterpret_cast<WGPUCommandEncoder>( commandEncoder.GetValue() ), reinterpret_cast<WGPUQuerySet>( querySet.GetValue() ), firstQuery, queryCount, reinterpret_cast<WGPUBuffer>( destination.GetValue() ), destinationOffset );
 }
 
-const XE::RenderShaderDesc & XE::GraphicsService::GetDesc( XE::RenderContextHandle context, XE::RenderShaderHandle handle )
+void XE::GraphicsService::CommandEncoderWriteTimestamp( XE::GraphicsCommandEncoderHandle commandEncoder, XE::GraphicsQuerySetHandle querySet, XE::uint32 queryIndex )
 {
-	return _p->_RenderShaderDesc;
+	wgpuCommandEncoderWriteTimestamp( reinterpret_cast<WGPUCommandEncoder>( commandEncoder.GetValue() ), reinterpret_cast<WGPUQuerySet>( querySet.GetValue() ), queryIndex );
 }
 
-const XE::RenderTextureDesc & XE::GraphicsService::GetDesc( XE::RenderContextHandle context, XE::RenderTextureHandle handle )
+void XE::GraphicsService::ComputePassEncoderBeginPipelineStatisticsQuery( XE::GraphicsComputePassEncoderHandle computePassEncoder, XE::GraphicsQuerySetHandle querySet, XE::uint32 queryIndex )
 {
-	return _p->_RenderTextureDesc;
+	wgpuComputePassEncoderBeginPipelineStatisticsQuery( reinterpret_cast<WGPUComputePassEncoder>( computePassEncoder.GetValue() ), reinterpret_cast<WGPUQuerySet>( querySet.GetValue() ), queryIndex );
 }
 
-const XE::RenderSamplerDesc & XE::GraphicsService::GetDesc( XE::RenderContextHandle context, XE::RenderSamplerHandle handle )
+void XE::GraphicsService::ComputePassEncoderDispatch( XE::GraphicsComputePassEncoderHandle computePassEncoder, XE::uint32 workgroupCountX, XE::uint32 workgroupCountY, XE::uint32 workgroupCountZ )
 {
-	return _p->_RenderSamplerDesc;
+	wgpuComputePassEncoderDispatch( reinterpret_cast<WGPUComputePassEncoder>( computePassEncoder.GetValue() ), workgroupCountX, workgroupCountY, workgroupCountZ );
 }
 
-const XE::RenderDescriptorSetDesc & XE::GraphicsService::GetDesc( XE::RenderContextHandle context, XE::RenderDescriptorSetHandle handle )
+void XE::GraphicsService::ComputePassEncoderDispatchIndirect( XE::GraphicsComputePassEncoderHandle computePassEncoder, XE::GraphicsBufferHandle indirectBuffer, XE::uint64 indirectOffset )
 {
-	return _p->_RenderDescriptorSetDesc;
+	wgpuComputePassEncoderDispatchIndirect( reinterpret_cast<WGPUComputePassEncoder>( computePassEncoder.GetValue() ), reinterpret_cast<WGPUBuffer>( indirectBuffer.GetValue() ), indirectOffset );
 }
 
-const XE::RenderCommandBundleDesc & XE::GraphicsService::GetDesc( XE::RenderContextHandle context, XE::RenderCommandBundleHandle handle )
+void XE::GraphicsService::ComputePassEncoderEnd( XE::GraphicsComputePassEncoderHandle computePassEncoder )
 {
-	return _p->_RenderCommandBundleDesc;
+	wgpuComputePassEncoderEnd( reinterpret_cast<WGPUComputePassEncoder>( computePassEncoder.GetValue() ) );
 }
 
-const XE::RenderShaderProgramDesc & XE::GraphicsService::GetDesc( XE::RenderContextHandle context, XE::RenderShaderProgramHandle handle )
+void XE::GraphicsService::ComputePassEncoderEndPipelineStatisticsQuery( XE::GraphicsComputePassEncoderHandle computePassEncoder )
 {
-	return _p->_RenderShaderProgramDesc;
+	wgpuComputePassEncoderEndPipelineStatisticsQuery( reinterpret_cast<WGPUComputePassEncoder>( computePassEncoder.GetValue() ) );
 }
 
-const XE::RenderPipelineStateDesc & XE::GraphicsService::GetDesc( XE::RenderContextHandle context, XE::RenderPipelineStateHandle handle )
+void XE::GraphicsService::ComputePassEncoderInsertDebugMarker( XE::GraphicsComputePassEncoderHandle computePassEncoder, const XE::String & markerLabel )
 {
-	return _p->_RenderPipelineStateDesc;
+	wgpuComputePassEncoderInsertDebugMarker( reinterpret_cast<WGPUComputePassEncoder>( computePassEncoder.GetValue() ), markerLabel.c_str() );
 }
 
-const XE::RenderVirtualBufferDesc & XE::GraphicsService::GetDesc( XE::RenderContextHandle context, XE::RenderVirtualBufferHandle handle )
+void XE::GraphicsService::ComputePassEncoderPopDebugGroup( XE::GraphicsComputePassEncoderHandle computePassEncoder )
 {
-	return _p->_RenderVirtualBufferDesc;
+	wgpuComputePassEncoderPopDebugGroup( reinterpret_cast<WGPUComputePassEncoder>( computePassEncoder.GetValue() ) );
 }
 
-void XE::GraphicsService::Destroy( XE::RenderContextHandle context, XE::RenderQueryHandle handle )
+void XE::GraphicsService::ComputePassEncoderPushDebugGroup( XE::GraphicsComputePassEncoderHandle computePassEncoder, const XE::String & groupLabel )
 {
-	_p->_RenderQueryHandleAllocator.Free( handle );
+	wgpuComputePassEncoderPushDebugGroup( reinterpret_cast<WGPUComputePassEncoder>( computePassEncoder.GetValue() ), groupLabel.c_str() );
 }
 
-void XE::GraphicsService::Destroy( XE::RenderContextHandle context, XE::RenderBufferHandle handle )
+void XE::GraphicsService::ComputePassEncoderSetBindGroup( XE::GraphicsComputePassEncoderHandle computePassEncoder, XE::uint32 groupIndex, XE::GraphicsBindGroupHandle group, XE::uint32 dynamicOffsetCount, XE::uint32 & dynamicOffsets )
 {
-	_p->_RenderBufferHandleAllocator.Free( handle );
+	wgpuComputePassEncoderSetBindGroup( reinterpret_cast<WGPUComputePassEncoder>( computePassEncoder.GetValue() ), groupIndex, reinterpret_cast<WGPUBindGroup>( group.GetValue() ), dynamicOffsetCount, &dynamicOffsets );
 }
 
-void XE::GraphicsService::Destroy( XE::RenderContextHandle context, XE::RenderTargetHandle handle )
+void XE::GraphicsService::ComputePassEncoderSetPipeline( XE::GraphicsComputePassEncoderHandle computePassEncoder, XE::GraphicsComputePipelineHandle pipeline )
 {
-	_p->_RenderTargetHandleAllocator.Free( handle );
+	wgpuComputePassEncoderSetPipeline( reinterpret_cast<WGPUComputePassEncoder>( computePassEncoder.GetValue() ), reinterpret_cast<WGPUComputePipeline>( pipeline.GetValue() ) );
 }
 
-void XE::GraphicsService::Destroy( XE::RenderContextHandle context, XE::RenderShaderHandle handle )
+XE::GraphicsBindGroupLayoutHandle XE::GraphicsService::ComputePipelineGetBindGroupLayout( XE::GraphicsComputePipelineHandle computePipeline, XE::uint32 groupIndex )
 {
-	_p->_RenderShaderHandleAllocator.Free( handle );
+	return XE::HandleCast<XE::GraphicsBindGroupLayout>( reinterpret_cast<XE::uint64>( wgpuComputePipelineGetBindGroupLayout( reinterpret_cast<WGPUComputePipeline>( computePipeline.GetValue() ), groupIndex ) ) );
 }
 
-void XE::GraphicsService::Destroy( XE::RenderContextHandle context, XE::RenderTextureHandle handle )
+void XE::GraphicsService::ComputePipelineSetLabel( XE::GraphicsComputePipelineHandle computePipeline, const XE::String & label )
 {
-	_p->_RenderTextureHandleAllocator.Free( handle );
+	wgpuComputePipelineSetLabel( reinterpret_cast<WGPUComputePipeline>( computePipeline.GetValue() ), label.c_str() );
 }
 
-void XE::GraphicsService::Destroy( XE::RenderContextHandle context, XE::RenderSamplerHandle handle )
+XE::GraphicsBindGroupHandle XE::GraphicsService::DeviceCreateBindGroup( XE::GraphicsDeviceHandle device, const XE::GraphicsBindGroupDescriptor & descriptor )
 {
-	_p->_RenderSamplerHandleAllocator.Free( handle );
+	return XE::HandleCast<XE::GraphicsBindGroup>( reinterpret_cast<XE::uint64>( wgpuDeviceCreateBindGroup( reinterpret_cast<WGPUDevice>( device.GetValue() ), reinterpret_cast<const WGPUBindGroupDescriptor *>( &descriptor ) ) ) );
 }
 
-void XE::GraphicsService::Destroy( XE::RenderContextHandle context, XE::RenderDescriptorSetHandle handle )
+XE::GraphicsBindGroupLayoutHandle XE::GraphicsService::DeviceCreateBindGroupLayout( XE::GraphicsDeviceHandle device, const XE::GraphicsBindGroupLayoutDescriptor & descriptor )
 {
-	_p->_RenderDescriptorSetHandleAllocator.Free( handle );
+	return XE::HandleCast<XE::GraphicsBindGroupLayout>( reinterpret_cast<XE::uint64>( wgpuDeviceCreateBindGroupLayout( reinterpret_cast<WGPUDevice>( device.GetValue() ), reinterpret_cast<const WGPUBindGroupLayoutDescriptor *>( &descriptor ) ) ) );
 }
 
-void XE::GraphicsService::Destroy( XE::RenderContextHandle context, XE::RenderCommandBundleHandle handle )
+XE::GraphicsBufferHandle XE::GraphicsService::DeviceCreateBuffer( XE::GraphicsDeviceHandle device, const XE::GraphicsBufferDescriptor & descriptor )
 {
-	_p->_RenderCommandBundleHandleAllocator.Free( handle );
+	return XE::HandleCast<XE::GraphicsBuffer>( reinterpret_cast<XE::uint64>( wgpuDeviceCreateBuffer( reinterpret_cast<WGPUDevice>( device.GetValue() ), reinterpret_cast<const WGPUBufferDescriptor *>( &descriptor ) ) ) );
 }
 
-void XE::GraphicsService::Destroy( XE::RenderContextHandle context, XE::RenderShaderProgramHandle handle )
+XE::GraphicsCommandEncoderHandle XE::GraphicsService::DeviceCreateCommandEncoder( XE::GraphicsDeviceHandle device, const XE::GraphicsCommandEncoderDescriptor & descriptor )
 {
-	_p->_RenderShaderProgramHandleAllocator.Free( handle );
+	return XE::HandleCast<XE::GraphicsCommandEncoder>( reinterpret_cast<XE::uint64>( wgpuDeviceCreateCommandEncoder( reinterpret_cast<WGPUDevice>( device.GetValue() ), reinterpret_cast<const WGPUCommandEncoderDescriptor *>( &descriptor ) ) ) );
 }
 
-void XE::GraphicsService::Destroy( XE::RenderContextHandle context, XE::RenderPipelineStateHandle handle )
+XE::GraphicsComputePipelineHandle XE::GraphicsService::DeviceCreateComputePipeline( XE::GraphicsDeviceHandle device, const XE::GraphicsComputePipelineDescriptor & descriptor )
 {
-	_p->_RenderPipelineStateHandleAllocator.Free( handle );
+	return XE::HandleCast<XE::GraphicsComputePipeline>( reinterpret_cast<XE::uint64>( wgpuDeviceCreateComputePipeline( reinterpret_cast<WGPUDevice>( device.GetValue() ), reinterpret_cast<const WGPUComputePipelineDescriptor *>( &descriptor ) ) ) );
 }
 
-void XE::GraphicsService::Destroy( XE::RenderContextHandle context, XE::RenderVirtualBufferHandle handle )
+void XE::GraphicsService::DeviceCreateComputePipelineAsync( XE::GraphicsDeviceHandle device, const XE::GraphicsComputePipelineDescriptor & descriptor, CreateComputePipelineAsyncCallback callback )
 {
-	_p->_RenderVirtualBufferHandleAllocator.Free( handle );
+	wgpuDeviceCreateComputePipelineAsync( reinterpret_cast<WGPUDevice>( device.GetValue() ), reinterpret_cast<const WGPUComputePipelineDescriptor *>( &descriptor ), 
+										  []( WGPUCreatePipelineAsyncStatus status, WGPUComputePipeline pipeline, char const * message, void * userdata )
+	{
+		( *reinterpret_cast<CreateComputePipelineAsyncCallback *>( userdata ) )
+			( static_cast<XE::GraphicsCreatePipelineAsyncStatus>( status ), XE::HandleCast<XE::GraphicsComputePipeline>( reinterpret_cast<XE::uint64>( pipeline ) ), message );
+	}, &callback );
 }
 
-XE::RenderCommandBufferHandle XE::GraphicsService::Begin( XE::RenderContextHandle context )
+XE::GraphicsPipelineLayoutHandle XE::GraphicsService::DeviceCreatePipelineLayout( XE::GraphicsDeviceHandle device, const XE::GraphicsPipelineLayoutDescriptor & descriptor )
 {
-	return _p->_RenderCommandBufferHandleAllocator.Alloc();
+	return XE::HandleCast<XE::GraphicsPipelineLayout>( reinterpret_cast<XE::uint64>( wgpuDeviceCreatePipelineLayout( reinterpret_cast<WGPUDevice>( device.GetValue() ), reinterpret_cast<const WGPUPipelineLayoutDescriptor *>( &descriptor ) ) ) );
 }
 
-void XE::GraphicsService::Read( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderBufferHandle handle, XE::uint64 offset, const XE::Delegate< void( void *, XE::uint64 ) > & callback )
+XE::GraphicsQuerySetHandle XE::GraphicsService::DeviceCreateQuerySet( XE::GraphicsDeviceHandle device, const XE::GraphicsQuerySetDescriptor & descriptor )
 {
-
+	return XE::HandleCast<XE::GraphicsQuerySet>( reinterpret_cast<XE::uint64>( wgpuDeviceCreateQuerySet( reinterpret_cast<WGPUDevice>( device.GetValue() ), reinterpret_cast<const WGPUQuerySetDescriptor *>( &descriptor ) ) ) );
 }
 
-void XE::GraphicsService::Read( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderTextureHandle handle, XE::uint32 offset_x, XE::uint32 offset_y, XE::uint32 offset_z, XE::uint32 width, XE::uint32 height, XE::uint32 depth, XE::uint32 mip, XE::uint32 mip_size, const XE::Delegate< void( void * data, XE::uint64 y, XE::uint64 z, XE::uint64 size ) > & callback )
+XE::GraphicsRenderBundleEncoderHandle XE::GraphicsService::DeviceCreateRenderBundleEncoder( XE::GraphicsDeviceHandle device, const XE::GraphicsRenderBundleEncoderDescriptor & descriptor )
 {
-
+	return XE::HandleCast<XE::GraphicsRenderBundleEncoder>( reinterpret_cast<XE::uint64>( wgpuDeviceCreateRenderBundleEncoder( reinterpret_cast<WGPUDevice>( device.GetValue() ), reinterpret_cast<const WGPURenderBundleEncoderDescriptor *>( &descriptor ) ) ) );
 }
 
-void XE::GraphicsService::Write( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderBufferHandle handle, XE::uint64 offset, XE::MemoryView src_data )
+XE::GraphicsRenderPipelineHandle XE::GraphicsService::DeviceCreateRenderPipeline( XE::GraphicsDeviceHandle device, const XE::GraphicsRenderPipelineDescriptor & descriptor )
 {
-
+	return XE::HandleCast<XE::GraphicsRenderPipeline>( reinterpret_cast<XE::uint64>( wgpuDeviceCreateRenderPipeline( reinterpret_cast<WGPUDevice>( device.GetValue() ), reinterpret_cast<const WGPURenderPipelineDescriptor *>( &descriptor ) ) ) );
 }
 
-void XE::GraphicsService::Write( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderTextureHandle handle, XE::uint32 offset_x, XE::uint32 offset_y, XE::uint32 offset_z, XE::uint32 width, XE::uint32 height, XE::uint32 depth, XE::uint32 mip, XE::uint32 mip_size, XE::MemoryView src_data )
+void XE::GraphicsService::DeviceCreateRenderPipelineAsync( XE::GraphicsDeviceHandle device, const XE::GraphicsRenderPipelineDescriptor & descriptor, CreateRenderPipelineAsyncCallback callback )
 {
-
+	wgpuDeviceCreateRenderPipelineAsync( reinterpret_cast<WGPUDevice>( device.GetValue() ), reinterpret_cast<const WGPURenderPipelineDescriptor *>( &descriptor ),
+										  []( WGPUCreatePipelineAsyncStatus status, WGPURenderPipeline pipeline, char const * message, void * userdata )
+	{
+		( *reinterpret_cast<CreateRenderPipelineAsyncCallback *>( userdata ) )
+			( static_cast<XE::GraphicsCreatePipelineAsyncStatus>( status ), XE::HandleCast<XE::GraphicsRenderPipeline>( reinterpret_cast<XE::uint64>( pipeline ) ), message );
+	}, &callback );
 }
 
-void XE::GraphicsService::Copy( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderBufferHandle dst_buf, XE::uint64 dst_offset, XE::RenderBufferHandle src_buf, XE::uint64 src_offset, XE::uint64 size )
+XE::GraphicsSamplerHandle XE::GraphicsService::DeviceCreateSampler( XE::GraphicsDeviceHandle device, const XE::GraphicsSamplerDescriptor & descriptor )
 {
-
+	return XE::HandleCast<XE::GraphicsSampler>( reinterpret_cast<XE::uint64>( wgpuDeviceCreateSampler( reinterpret_cast<WGPUDevice>( device.GetValue() ), reinterpret_cast<const WGPUSamplerDescriptor *>( &descriptor ) ) ) );
 }
 
-void XE::GraphicsService::Copy( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderBufferHandle dst_buf, XE::uint64 dst_offset, XE::RenderTextureHandle src_tex, XE::uint32 offset_x, XE::uint32 offset_y, XE::uint32 offset_z, XE::uint32 width, XE::uint32 height, XE::uint32 depth, XE::uint32 mip, XE::uint32 mip_size )
+XE::GraphicsShaderModuleHandle XE::GraphicsService::DeviceCreateShaderModule( XE::GraphicsDeviceHandle device, const XE::GraphicsShaderModuleDescriptor & descriptor )
 {
-
+	return XE::HandleCast<XE::GraphicsShaderModule>( reinterpret_cast<XE::uint64>( wgpuDeviceCreateShaderModule( reinterpret_cast<WGPUDevice>( device.GetValue() ), reinterpret_cast<const WGPUShaderModuleDescriptor *>( &descriptor ) ) ) );
 }
 
-void XE::GraphicsService::Copy( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderTextureHandle dst_tex, XE::uint32 dst_offset_x, XE::uint32 dst_offset_y, XE::uint32 dst_offset_z, XE::uint32 dst_mip, XE::RenderTextureHandle src_tex, XE::uint32 src_offset_x, XE::uint32 src_offset_y, XE::uint32 src_offset_z, XE::uint32 src_mip, XE::uint32 width, XE::uint32 height, XE::uint32 depth )
+XE::GraphicsSwapChainHandle XE::GraphicsService::DeviceCreateSwapChain( XE::GraphicsDeviceHandle device, XE::GraphicsSurfaceHandle surface, const XE::GraphicsSwapChainDescriptor & descriptor )
 {
-
+	return XE::HandleCast<XE::GraphicsSwapChain>( reinterpret_cast<XE::uint64>( wgpuDeviceCreateSwapChain( reinterpret_cast<WGPUDevice>( device.GetValue() ), reinterpret_cast<WGPUSurface>( surface.GetValue() ), reinterpret_cast<const WGPUSwapChainDescriptor *>( &descriptor ) ) ) );
 }
 
-void XE::GraphicsService::Copy( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderTextureHandle dst_tex, XE::uint32 offset_x, XE::uint32 offset_y, XE::uint32 offset_z, XE::uint32 width, XE::uint32 height, XE::uint32 depth, XE::uint32 mip, XE::uint32 mip_size, XE::RenderBufferHandle src_buf, XE::uint64 src_offset )
+XE::GraphicsTextureHandle XE::GraphicsService::DeviceCreateTexture( XE::GraphicsDeviceHandle device, const XE::GraphicsTextureDescriptor & descriptor )
 {
-
+	return XE::HandleCast<XE::GraphicsTexture>( reinterpret_cast<XE::uint64>( wgpuDeviceCreateTexture( reinterpret_cast<WGPUDevice>( device.GetValue() ), reinterpret_cast<const WGPUTextureDescriptor *>( &descriptor ) ) ) );
 }
 
-XE::RenderResourceStatesType XE::GraphicsService::TransitionBarrier( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderBufferHandle buffer, XE::RenderResourceStatesType after )
+void XE::GraphicsService::DeviceDestroy( XE::GraphicsDeviceHandle device )
 {
-	return XE::RenderResourceStatesType::COMMON;
+	wgpuDeviceDestroy( reinterpret_cast<WGPUDevice>( device.GetValue() ) );
 }
 
-XE::RenderResourceStatesType XE::GraphicsService::TransitionBarrier( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderTextureHandle texture, XE::RenderResourceStatesType after )
+void XE::GraphicsService::DeviceEnumerateFeatures( XE::GraphicsDeviceHandle device, XE::Array< XE::GraphicsFeatureName > & features )
 {
-	return XE::RenderResourceStatesType::COMMON;
+	features.resize( 10 );
+	features.resize( wgpuDeviceEnumerateFeatures( reinterpret_cast<WGPUDevice>( device.GetValue() ), reinterpret_cast<WGPUFeatureName *>( features.data() ) ) );
 }
 
-XE::RenderPassHandle XE::GraphicsService::BeginPass( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, const XE::RenderPassDesc & desc )
+bool XE::GraphicsService::DeviceGetLimits( XE::GraphicsDeviceHandle device, XE::GraphicsSupportedLimits & limits )
 {
-	return _p->_RenderPassHandleAllocator.Alloc();
+	return wgpuDeviceGetLimits( reinterpret_cast<WGPUDevice>( device.GetValue() ), reinterpret_cast<WGPUSupportedLimits *>( &limits ) );
 }
 
-void XE::GraphicsService::SetViewport( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, const XE::Rectf & view )
+XE::GraphicsQueueHandle XE::GraphicsService::DeviceGetQueue( XE::GraphicsDeviceHandle device )
 {
-
+	return XE::HandleCast<XE::GraphicsQueue>( reinterpret_cast<XE::uint64>( wgpuDeviceGetQueue( reinterpret_cast<WGPUDevice>( device.GetValue() ) ) ) );
 }
 
-void XE::GraphicsService::SetViewport( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, const XE::Array< XE::Rectf > & views )
+bool XE::GraphicsService::DeviceHasFeature( XE::GraphicsDeviceHandle device, XE::GraphicsFeatureName feature )
 {
-
+	return wgpuDeviceHasFeature( reinterpret_cast<WGPUDevice>( device.GetValue() ), static_cast<WGPUFeatureName>( feature ) );
 }
 
-void XE::GraphicsService::SetScissor( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, const XE::Rectf & rect )
+bool XE::GraphicsService::DevicePopErrorScope( XE::GraphicsDeviceHandle device, ErrorCallback callback )
 {
-
+	return wgpuDevicePopErrorScope( reinterpret_cast<WGPUDevice>( device.GetValue() ), []( WGPUErrorType type, char const * message, void * userdata )
+	{
+		( *reinterpret_cast<ErrorCallback *>( userdata ) )( static_cast<XE::GraphicsErrorType>( type ), message );
+	}, &callback );
 }
 
-void XE::GraphicsService::SetScissor( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, const XE::Array< XE::Rectf > & rects )
+void XE::GraphicsService::DevicePushErrorScope( XE::GraphicsDeviceHandle device, XE::GraphicsErrorFilter filter )
 {
-
+	wgpuDevicePushErrorScope( reinterpret_cast<WGPUDevice>( device.GetValue() ), static_cast<WGPUErrorFilter>( filter ) );
 }
 
-void XE::GraphicsService::SetIndexBuffer( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::RenderVirtualBufferHandle buffer )
+void XE::GraphicsService::DeviceSetDeviceLostCallback( XE::GraphicsDeviceHandle device, DeviceLostCallback callback )
 {
-
+	wgpuDeviceSetDeviceLostCallback( reinterpret_cast<WGPUDevice>( device.GetValue() ), []( WGPUDeviceLostReason type, char const * message, void * userdata )
+	{
+		( *reinterpret_cast<DeviceLostCallback *>( userdata ) )( static_cast<XE::GraphicsDeviceLostReason>( type ), message );
+	}, &callback );
 }
 
-void XE::GraphicsService::SetVertexBuffer( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::RenderVirtualBufferHandle buffer )
+void XE::GraphicsService::DeviceSetUncapturedErrorCallback( XE::GraphicsDeviceHandle device, ErrorCallback callback )
 {
-
+	wgpuDeviceSetUncapturedErrorCallback( reinterpret_cast<WGPUDevice>( device.GetValue() ), []( WGPUErrorType type, char const * message, void * userdata )
+	{
+		( *reinterpret_cast<ErrorCallback *>( userdata ) )( static_cast<XE::GraphicsErrorType>( type ), message );
+	}, &callback );
 }
 
-void XE::GraphicsService::SetDescriptorSet( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::RenderDescriptorSetHandle heap, XE::uint32 first, XE::RenderPipelineStateType bind )
+XE::GraphicsSurfaceHandle XE::GraphicsService::InstanceCreateSurface( XE::GraphicsInstanceHandle instance, const XE::GraphicsSurfaceDescriptor & descriptor )
 {
-
+	return XE::HandleCast<XE::GraphicsSurface>( reinterpret_cast<XE::uint64>( wgpuInstanceCreateSurface( reinterpret_cast<WGPUInstance>( instance.GetValue() ), reinterpret_cast<const WGPUSurfaceDescriptor *>( &descriptor ) ) ) );
 }
 
-void XE::GraphicsService::SetPipelineState( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::RenderPipelineStateHandle pso )
+void XE::GraphicsService::InstanceProcessEvents( XE::GraphicsInstanceHandle instance )
 {
-
+	wgpuInstanceProcessEvents( reinterpret_cast<WGPUInstance>( instance.GetValue() ) );
 }
 
-void XE::GraphicsService::SetUniform( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::uint32 location, const XE::Variant & value )
+void XE::GraphicsService::InstanceRequestAdapter( XE::GraphicsInstanceHandle instance, const XE::GraphicsRequestAdapterOptions & options, RequestAdapterCallback callback )
 {
-
+	wgpuInstanceRequestAdapter( reinterpret_cast<WGPUInstance>( instance.GetValue() ), reinterpret_cast<const WGPURequestAdapterOptions *>( &options ),
+								[]( WGPURequestAdapterStatus status, WGPUAdapter adapter, char const * message, void * userdata )
+	{
+		( *reinterpret_cast<RequestAdapterCallback *>( userdata ) )( static_cast<XE::GraphicsRequestAdapterStatus>( status ), XE::HandleCast<XE::GraphicsAdapter>( reinterpret_cast<XE::uint64>( adapter ) ), message );
+	}, &callback );
 }
 
-void XE::GraphicsService::SetUniform( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::uint32 location, const XE::VariantArray & value )
+void XE::GraphicsService::QuerySetDestroy( XE::GraphicsQuerySetHandle querySet )
 {
-
+	wgpuQuerySetDestroy( reinterpret_cast<WGPUQuerySet>( querySet.GetValue() ) );
 }
 
-void XE::GraphicsService::SetResource( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::RenderBufferHandle buffer, XE::uint32 slot, XE::RenderBindFlags bind, XE::RenderStageFlags stage )
+void XE::GraphicsService::QueueOnSubmittedWorkDone( XE::GraphicsQueueHandle queue, QueueWorkDoneCallback callback )
 {
-
+	wgpuQueueOnSubmittedWorkDone( reinterpret_cast<WGPUQueue>( queue.GetValue() ), []( WGPUQueueWorkDoneStatus status, void * userdata )
+	{
+		( *reinterpret_cast<QueueWorkDoneCallback *>( userdata ) )( static_cast<XE::GraphicsQueueWorkDoneStatus>( status ) );
+	}, &callback );
 }
 
-void XE::GraphicsService::SetResource( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::RenderTextureHandle texture, XE::uint32 slot, XE::RenderBindFlags bind, XE::RenderStageFlags stage )
+void XE::GraphicsService::QueueSubmit( XE::GraphicsQueueHandle queue, XE::uint32 commandCount, const XE::GraphicsCommandBufferHandle & commands )
 {
-
+	wgpuQueueSubmit( reinterpret_cast<WGPUQueue>( queue.GetValue() ), commandCount, reinterpret_cast<const WGPUCommandBuffer *>( commands.GetValue() ) );
 }
 
-void XE::GraphicsService::SetResource( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::RenderSamplerHandle sampler, XE::uint32 slot, XE::RenderBindFlags bind, XE::RenderStageFlags stage )
+void XE::GraphicsService::QueueWriteBuffer( XE::GraphicsQueueHandle queue, XE::GraphicsBufferHandle buffer, XE::uint64 bufferOffset, XE::MemoryView data )
 {
-
+	wgpuQueueWriteBuffer( reinterpret_cast<WGPUQueue>( queue.GetValue() ), reinterpret_cast<WGPUBuffer>( buffer.GetValue() ), bufferOffset, data.data(), data.size() );
 }
 
-void XE::GraphicsService::ResetResource( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::RenderResourceType type, const XE::Pair< XE::uint32, XE::uint32 > & slot_ranges, XE::RenderBindFlags bind, XE::RenderStageFlags stage )
+void XE::GraphicsService::QueueWriteTexture( XE::GraphicsQueueHandle queue, const XE::GraphicsImageCopyTexture & destination, XE::MemoryView data, const XE::GraphicsTextureDataLayout & dataLayout, const XE::GraphicsExtent3D & writeSize )
 {
-
+	wgpuQueueWriteTexture( reinterpret_cast<WGPUQueue>( queue.GetValue() ), reinterpret_cast<const WGPUImageCopyTexture *>( &destination ), data.data(), data.size(), reinterpret_cast<const WGPUTextureDataLayout *>( &dataLayout ), reinterpret_cast<const WGPUExtent3D *>( &writeSize ) );
 }
 
-void XE::GraphicsService::SetBlendFactor( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, const XE::FColor & color )
+void XE::GraphicsService::RenderBundleEncoderDraw( XE::GraphicsRenderBundleEncoderHandle renderBundleEncoder, XE::uint32 vertexCount, XE::uint32 instanceCount, XE::uint32 firstVertex, XE::uint32 firstInstance )
 {
-
+	wgpuRenderBundleEncoderDraw( reinterpret_cast<WGPURenderBundleEncoder>( renderBundleEncoder.GetValue() ), vertexCount, instanceCount, firstVertex, firstInstance );
 }
 
-void XE::GraphicsService::SetStencilReference( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::uint32 reference, XE::RenderStencilFaceType stencilFace /*= XE::RenderStencilFaceType::FRONT_BACK */ )
+void XE::GraphicsService::RenderBundleEncoderDrawIndexed( XE::GraphicsRenderBundleEncoderHandle renderBundleEncoder, XE::uint32 indexCount, XE::uint32 instanceCount, XE::uint32 firstIndex, XE::int32 baseVertex, XE::uint32 firstInstance )
 {
-
+	wgpuRenderBundleEncoderDrawIndexed( reinterpret_cast<WGPURenderBundleEncoder>( renderBundleEncoder.GetValue() ), indexCount, instanceCount, firstIndex, baseVertex, firstInstance );
 }
 
-void XE::GraphicsService::BeginQuery( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::RenderQueryHandle query, XE::uint32 value )
+void XE::GraphicsService::RenderBundleEncoderDrawIndexedIndirect( XE::GraphicsRenderBundleEncoderHandle renderBundleEncoder, XE::GraphicsBufferHandle indirectBuffer, XE::uint64 indirectOffset )
 {
-
+	wgpuRenderBundleEncoderDrawIndexedIndirect( reinterpret_cast<WGPURenderBundleEncoder>( renderBundleEncoder.GetValue() ), reinterpret_cast<WGPUBuffer>( indirectBuffer.GetValue() ), indirectOffset );
 }
 
-void XE::GraphicsService::EndQuery( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::RenderQueryHandle query, XE::uint32 value )
+void XE::GraphicsService::RenderBundleEncoderDrawIndirect( XE::GraphicsRenderBundleEncoderHandle renderBundleEncoder, XE::GraphicsBufferHandle indirectBuffer, XE::uint64 indirectOffset )
 {
-
+	wgpuRenderBundleEncoderDrawIndirect( reinterpret_cast<WGPURenderBundleEncoder>( renderBundleEncoder.GetValue() ), reinterpret_cast<WGPUBuffer>( indirectBuffer.GetValue() ), indirectOffset );
 }
 
-void XE::GraphicsService::BeginCondition( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::RenderQueryHandle query, XE::uint32 offset, XE::RenderConditionType cond )
+XE::GraphicsRenderBundleHandle XE::GraphicsService::RenderBundleEncoderFinish( XE::GraphicsRenderBundleEncoderHandle renderBundleEncoder, const XE::GraphicsRenderBundleDescriptor & descriptor )
 {
-
+	return XE::HandleCast<XE::GraphicsRenderBundle>( reinterpret_cast<XE::uint64>( wgpuRenderBundleEncoderFinish( reinterpret_cast<WGPURenderBundleEncoder>( renderBundleEncoder.GetValue() ), reinterpret_cast<const WGPURenderBundleDescriptor *>( &descriptor ) ) ) );
 }
 
-void XE::GraphicsService::EndCondition( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::RenderQueryHandle query )
+void XE::GraphicsService::RenderBundleEncoderInsertDebugMarker( XE::GraphicsRenderBundleEncoderHandle renderBundleEncoder, const XE::String & markerLabel )
 {
-
+	wgpuRenderBundleEncoderInsertDebugMarker( reinterpret_cast<WGPURenderBundleEncoder>( renderBundleEncoder.GetValue() ), markerLabel.c_str() );
 }
 
-void XE::GraphicsService::BeginStreamOutput( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, const XE::Array< XE::RenderBufferHandle > & buffers )
+void XE::GraphicsService::RenderBundleEncoderPopDebugGroup( XE::GraphicsRenderBundleEncoderHandle renderBundleEncoder )
 {
-
+	wgpuRenderBundleEncoderPopDebugGroup( reinterpret_cast<WGPURenderBundleEncoder>( renderBundleEncoder.GetValue() ) );
 }
 
-void XE::GraphicsService::EndStreamOutput( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass )
+void XE::GraphicsService::RenderBundleEncoderPushDebugGroup( XE::GraphicsRenderBundleEncoderHandle renderBundleEncoder, const XE::String & groupLabel )
 {
-
+	wgpuRenderBundleEncoderPushDebugGroup( reinterpret_cast<WGPURenderBundleEncoder>( renderBundleEncoder.GetValue() ), groupLabel.c_str() );
 }
 
-void XE::GraphicsService::Draw( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, const XE::Pair< XE::uint32, XE::uint32 > & vertices )
+void XE::GraphicsService::RenderBundleEncoderSetBindGroup( XE::GraphicsRenderBundleEncoderHandle renderBundleEncoder, XE::uint32 groupIndex, XE::GraphicsBindGroupHandle group, XE::uint32 dynamicOffsetCount, XE::uint32 & dynamicOffsets )
 {
-
+	wgpuRenderBundleEncoderSetBindGroup( reinterpret_cast<WGPURenderBundleEncoder>( renderBundleEncoder.GetValue() ), groupIndex, reinterpret_cast<WGPUBindGroup>( group.GetValue() ), dynamicOffsetCount, &dynamicOffsets );
 }
 
-void XE::GraphicsService::DrawIndexed( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, const XE::Pair< XE::uint32, XE::uint32 > & indices )
+void XE::GraphicsService::RenderBundleEncoderSetIndexBuffer( XE::GraphicsRenderBundleEncoderHandle renderBundleEncoder, XE::GraphicsBufferHandle buffer, XE::GraphicsIndexFormat format, XE::uint64 offset, XE::uint64 size )
 {
-
+	wgpuRenderBundleEncoderSetIndexBuffer( reinterpret_cast<WGPURenderBundleEncoder>( renderBundleEncoder.GetValue() ), reinterpret_cast<WGPUBuffer>( buffer.GetValue() ), static_cast<WGPUIndexFormat>( format ), offset, size );
 }
 
-void XE::GraphicsService::DrawIndexed( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, const XE::Pair< XE::uint32, XE::uint32 > & indices, XE::uint32 vertex_offset )
+void XE::GraphicsService::RenderBundleEncoderSetPipeline( XE::GraphicsRenderBundleEncoderHandle renderBundleEncoder, XE::GraphicsRenderPipelineHandle pipeline )
 {
-
+	wgpuRenderBundleEncoderSetPipeline( reinterpret_cast<WGPURenderBundleEncoder>( renderBundleEncoder.GetValue() ), reinterpret_cast<WGPURenderPipeline>( pipeline.GetValue() ) );
 }
 
-void XE::GraphicsService::DrawInstanced( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, const XE::Pair< XE::uint32, XE::uint32 > & vertices, XE::uint32 num_instances )
+void XE::GraphicsService::RenderBundleEncoderSetVertexBuffer( XE::GraphicsRenderBundleEncoderHandle renderBundleEncoder, XE::uint32 slot, XE::GraphicsBufferHandle buffer, XE::uint64 offset, XE::uint64 size )
 {
-
+	wgpuRenderBundleEncoderSetVertexBuffer( reinterpret_cast<WGPURenderBundleEncoder>( renderBundleEncoder.GetValue() ), slot, reinterpret_cast<WGPUBuffer>( buffer.GetValue() ), offset, size );
 }
 
-void XE::GraphicsService::DrawInstanced( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, const XE::Pair< XE::uint32, XE::uint32 > & vertices, const XE::Pair< XE::uint32, XE::uint32 > & instances )
+void XE::GraphicsService::RenderPassEncoderBeginOcclusionQuery( XE::GraphicsRenderPassEncoderHandle renderPassEncoder, XE::uint32 queryIndex )
 {
-
+	wgpuRenderPassEncoderBeginOcclusionQuery( reinterpret_cast<WGPURenderPassEncoder>( renderPassEncoder.GetValue() ), queryIndex );
 }
 
-void XE::GraphicsService::DrawIndexedInstanced( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::uint32 num_indices, XE::uint32 num_instances, XE::uint32 first_index )
+void XE::GraphicsService::RenderPassEncoderBeginPipelineStatisticsQuery( XE::GraphicsRenderPassEncoderHandle renderPassEncoder, XE::GraphicsQuerySetHandle querySet, XE::uint32 queryIndex )
 {
-
+	wgpuRenderPassEncoderBeginPipelineStatisticsQuery( reinterpret_cast<WGPURenderPassEncoder>( renderPassEncoder.GetValue() ), reinterpret_cast<WGPUQuerySet>( querySet.GetValue() ), queryIndex );
 }
 
-void XE::GraphicsService::DrawIndexedInstanced( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::uint32 num_indices, XE::uint32 num_instances, XE::uint32 first_index, XE::uint32 vertex_offset )
+void XE::GraphicsService::RenderPassEncoderDraw( XE::GraphicsRenderPassEncoderHandle renderPassEncoder, XE::uint32 vertexCount, XE::uint32 instanceCount, XE::uint32 firstVertex, XE::uint32 firstInstance )
 {
-
+	wgpuRenderPassEncoderDraw( reinterpret_cast<WGPURenderPassEncoder>( renderPassEncoder.GetValue() ), vertexCount, instanceCount, firstVertex, firstInstance );
 }
 
-void XE::GraphicsService::DrawIndexedInstanced( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::uint32 num_indices, XE::uint32 num_instances, XE::uint32 first_index, XE::uint32 vertex_offset, XE::uint32 first_instance )
+void XE::GraphicsService::RenderPassEncoderDrawIndexed( XE::GraphicsRenderPassEncoderHandle renderPassEncoder, XE::uint32 indexCount, XE::uint32 instanceCount, XE::uint32 firstIndex, XE::int32 baseVertex, XE::uint32 firstInstance )
 {
-
+	wgpuRenderPassEncoderDrawIndexed( reinterpret_cast<WGPURenderPassEncoder>( renderPassEncoder.GetValue() ), indexCount, instanceCount, firstIndex, baseVertex, firstInstance );
 }
 
-void XE::GraphicsService::DrawIndirect( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::RenderBufferHandle buffer, XE::uint64 offset )
+void XE::GraphicsService::RenderPassEncoderDrawIndexedIndirect( XE::GraphicsRenderPassEncoderHandle renderPassEncoder, XE::GraphicsBufferHandle indirectBuffer, XE::uint64 indirectOffset )
 {
-
+	wgpuRenderPassEncoderDrawIndexedIndirect( reinterpret_cast<WGPURenderPassEncoder>( renderPassEncoder.GetValue() ), reinterpret_cast<WGPUBuffer>( indirectBuffer.GetValue() ), indirectOffset );
 }
 
-void XE::GraphicsService::DrawIndirect( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::RenderBufferHandle buffer, XE::uint64 offset, XE::uint32 num_commands, XE::uint32 stride )
+void XE::GraphicsService::RenderPassEncoderDrawIndirect( XE::GraphicsRenderPassEncoderHandle renderPassEncoder, XE::GraphicsBufferHandle indirectBuffer, XE::uint64 indirectOffset )
 {
-
+	wgpuRenderPassEncoderDrawIndirect( reinterpret_cast<WGPURenderPassEncoder>( renderPassEncoder.GetValue() ), reinterpret_cast<WGPUBuffer>( indirectBuffer.GetValue() ), indirectOffset );
 }
 
-void XE::GraphicsService::DrawIndexedIndirect( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::RenderBufferHandle buffer, XE::uint64 offset )
+void XE::GraphicsService::RenderPassEncoderEnd( XE::GraphicsRenderPassEncoderHandle renderPassEncoder )
 {
-
+	wgpuRenderPassEncoderEnd( reinterpret_cast<WGPURenderPassEncoder>( renderPassEncoder.GetValue() ) );
 }
 
-void XE::GraphicsService::DrawIndexedIndirect( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::RenderBufferHandle buffer, XE::uint64 offset, XE::uint32 num_commands, XE::uint32 stride )
+void XE::GraphicsService::RenderPassEncoderEndOcclusionQuery( XE::GraphicsRenderPassEncoderHandle renderPassEncoder )
 {
+	wgpuRenderPassEncoderEndOcclusionQuery( reinterpret_cast<WGPURenderPassEncoder>( renderPassEncoder.GetValue() ) );
+}
 
+void XE::GraphicsService::RenderPassEncoderEndPipelineStatisticsQuery( XE::GraphicsRenderPassEncoderHandle renderPassEncoder )
+{
+	wgpuRenderPassEncoderEndPipelineStatisticsQuery( reinterpret_cast<WGPURenderPassEncoder>( renderPassEncoder.GetValue() ) );
 }
 
-void XE::GraphicsService::ExecuteBundle( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::RenderCommandBundleHandle bundle )
+void XE::GraphicsService::RenderPassEncoderExecuteBundles( XE::GraphicsRenderPassEncoderHandle renderPassEncoder, XE::uint32 bundlesCount, XE::GraphicsRenderBundleHandle bundles )
 {
+	wgpuRenderPassEncoderExecuteBundles( reinterpret_cast<WGPURenderPassEncoder>( renderPassEncoder.GetValue() ), bundlesCount, reinterpret_cast<const WGPURenderBundle *>( bundles.GetValue() ) );
+}
 
+void XE::GraphicsService::RenderPassEncoderInsertDebugMarker( XE::GraphicsRenderPassEncoderHandle renderPassEncoder, const XE::String & markerLabel )
+{
+	wgpuRenderPassEncoderInsertDebugMarker( reinterpret_cast<WGPURenderPassEncoder>( renderPassEncoder.GetValue() ), markerLabel.c_str() );
 }
 
-void XE::GraphicsService::EndPass( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass )
+void XE::GraphicsService::RenderPassEncoderPopDebugGroup( XE::GraphicsRenderPassEncoderHandle renderPassEncoder )
 {
-	_p->_RenderPassHandleAllocator.Free( pass );
+	wgpuRenderPassEncoderPopDebugGroup( reinterpret_cast<WGPURenderPassEncoder>( renderPassEncoder.GetValue() ) );
 }
 
-void XE::GraphicsService::Dispatch( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::uint32 group_x, XE::uint32 group_y, XE::uint32 group_z )
+void XE::GraphicsService::RenderPassEncoderPushDebugGroup( XE::GraphicsRenderPassEncoderHandle renderPassEncoder, const XE::String & groupLabel )
 {
+	wgpuRenderPassEncoderPushDebugGroup( reinterpret_cast<WGPURenderPassEncoder>( renderPassEncoder.GetValue() ), groupLabel.c_str() );
+}
 
+void XE::GraphicsService::RenderPassEncoderSetBindGroup( XE::GraphicsRenderPassEncoderHandle renderPassEncoder, XE::uint32 groupIndex, XE::GraphicsBindGroupHandle group, XE::uint32 dynamicOffsetCount, XE::uint32 & dynamicOffsets )
+{
+	wgpuRenderPassEncoderSetBindGroup( reinterpret_cast<WGPURenderPassEncoder>( renderPassEncoder.GetValue() ), groupIndex, reinterpret_cast<WGPUBindGroup>( group.GetValue() ), dynamicOffsetCount, &dynamicOffsets );
 }
 
-void XE::GraphicsService::DispatchIndirect( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderBufferHandle buffer, XE::uint64 offset )
+void XE::GraphicsService::RenderPassEncoderSetBlendConstant( XE::GraphicsRenderPassEncoderHandle renderPassEncoder, const XE::Color & color )
 {
+	WGPUColor c;
+
+	c.r = color.r;
+	c.g = color.g;
+	c.b = color.b;
+	c.a = color.a;
 
+	wgpuRenderPassEncoderSetBlendConstant( reinterpret_cast<WGPURenderPassEncoder>( renderPassEncoder.GetValue() ), &c );
 }
 
-void XE::GraphicsService::QueryResolve( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderQueryHandle query, XE::uint32 offset, XE::uint32 size )
+void XE::GraphicsService::RenderPassEncoderSetIndexBuffer( XE::GraphicsRenderPassEncoderHandle renderPassEncoder, XE::GraphicsBufferHandle buffer, XE::GraphicsIndexFormat format, XE::uint64 offset, XE::uint64 size )
 {
+	wgpuRenderPassEncoderSetIndexBuffer( reinterpret_cast<WGPURenderPassEncoder>( renderPassEncoder.GetValue() ), reinterpret_cast<WGPUBuffer>( buffer.GetValue() ), static_cast<WGPUIndexFormat>( format ), offset, size );
+}
 
+void XE::GraphicsService::RenderPassEncoderSetPipeline( XE::GraphicsRenderPassEncoderHandle renderPassEncoder, XE::GraphicsRenderPipelineHandle pipeline )
+{
+	wgpuRenderPassEncoderSetPipeline( reinterpret_cast<WGPURenderPassEncoder>( renderPassEncoder.GetValue() ), reinterpret_cast<WGPURenderPipeline>( pipeline.GetValue() ) );
 }
 
-void XE::GraphicsService::QueryResult( XE::RenderContextHandle context, XE::RenderQueryHandle query, XE::uint32 offset, XE::uint32 size, std::ostream & stream )
+void XE::GraphicsService::RenderPassEncoderSetScissorRect( XE::GraphicsRenderPassEncoderHandle renderPassEncoder, XE::uint32 x, XE::uint32 y, XE::uint32 width, XE::uint32 height )
 {
+	wgpuRenderPassEncoderSetScissorRect( reinterpret_cast<WGPURenderPassEncoder>( renderPassEncoder.GetValue() ), x, y, width, height );
+}
 
+void XE::GraphicsService::RenderPassEncoderSetStencilReference( XE::GraphicsRenderPassEncoderHandle renderPassEncoder, XE::uint32 reference )
+{
+	wgpuRenderPassEncoderSetStencilReference( reinterpret_cast<WGPURenderPassEncoder>( renderPassEncoder.GetValue() ), reference );
 }
 
-void XE::GraphicsService::End( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf )
+void XE::GraphicsService::RenderPassEncoderSetVertexBuffer( XE::GraphicsRenderPassEncoderHandle renderPassEncoder, XE::uint32 slot, XE::GraphicsBufferHandle buffer, XE::uint64 offset, XE::uint64 size )
 {
-	_p->_RenderCommandBufferHandleAllocator.Free( cmdbuf );
+	wgpuRenderPassEncoderSetVertexBuffer( reinterpret_cast<WGPURenderPassEncoder>( renderPassEncoder.GetValue() ), slot, reinterpret_cast<WGPUBuffer>( buffer.GetValue() ), offset, size );
 }
 
-void XE::GraphicsService::BeginBundle( XE::RenderContextHandle context, XE::RenderCommandBundleHandle bundle )
+void XE::GraphicsService::RenderPassEncoderSetViewport( XE::GraphicsRenderPassEncoderHandle renderPassEncoder, float x, float y, float width, float height, float minDepth, float maxDepth )
 {
+	wgpuRenderPassEncoderSetViewport( reinterpret_cast<WGPURenderPassEncoder>( renderPassEncoder.GetValue() ), x, y, width, height, minDepth, maxDepth );
+}
 
+XE::GraphicsBindGroupLayoutHandle XE::GraphicsService::RenderPipelineGetBindGroupLayout( XE::GraphicsRenderPipelineHandle renderPipeline, XE::uint32 groupIndex )
+{
+	wgpuRenderPipelineGetBindGroupLayout( reinterpret_cast<WGPURenderPipeline>( renderPipeline.GetValue() ), groupIndex );
 }
 
-void XE::GraphicsService::EndBundle( XE::RenderContextHandle context, XE::RenderCommandBundleHandle bundle )
+void XE::GraphicsService::RenderPipelineSetLabel( XE::GraphicsRenderPipelineHandle renderPipeline, const XE::String & label )
 {
+	wgpuRenderPipelineSetLabel( reinterpret_cast<WGPURenderPipeline>( renderPipeline.GetValue() ), label.c_str() );
+}
 
+void XE::GraphicsService::ShaderModuleGetCompilationInfo( XE::GraphicsShaderModuleHandle shaderModule, CompilationInfoCallback callback )
+{
+	wgpuShaderModuleGetCompilationInfo( reinterpret_cast<WGPUShaderModule>( shaderModule.GetValue() ),
+										[]( WGPUCompilationInfoRequestStatus status, WGPUCompilationInfo const * compilationInfo, void * userdata )
+	{
+		( *reinterpret_cast<CompilationInfoCallback *>( userdata ) )( static_cast<XE::GraphicsCompilationInfoRequestStatus>( status ), *reinterpret_cast<const XE::GraphicsCompilationInfo *>( compilationInfo ) );
+	}, &callback );
 }
 
-void XE::GraphicsService::Execute( XE::RenderContextHandle context )
+void XE::GraphicsService::ShaderModuleSetLabel( XE::GraphicsShaderModuleHandle shaderModule, const XE::String & label )
 {
+	wgpuShaderModuleSetLabel( reinterpret_cast<WGPUShaderModule>( shaderModule.GetValue() ), label.c_str() );
+}
 
+XE::GraphicsTextureFormat XE::GraphicsService::SurfaceGetPreferredFormat( XE::GraphicsSurfaceHandle surface, XE::GraphicsAdapterHandle adapter )
+{
+	wgpuSurfaceGetPreferredFormat( reinterpret_cast<WGPUSurface>( surface.GetValue() ), reinterpret_cast<WGPUAdapter>( adapter.GetValue() ) );
 }
 
-void XE::GraphicsService::Wait( XE::RenderContextHandle context )
+XE::GraphicsTextureViewHandle XE::GraphicsService::SwapChainGetCurrentTextureView( XE::GraphicsSwapChainHandle swapChain )
 {
+	wgpuSwapChainGetCurrentTextureView( reinterpret_cast<WGPUSwapChain>( swapChain.GetValue() ) );
+}
 
+void XE::GraphicsService::SwapChainPresent( XE::GraphicsSwapChainHandle swapChain )
+{
+	wgpuSwapChainPresent( reinterpret_cast<WGPUSwapChain>( swapChain.GetValue() ) );
 }
 
-void XE::GraphicsService::OnMainWindowResize()
+XE::GraphicsTextureViewHandle XE::GraphicsService::TextureCreateView( XE::GraphicsTextureHandle texture, const XE::GraphicsTextureViewDescriptor & descriptor )
 {
+	return XE::HandleCast< XE::GraphicsTextureView>( reinterpret_cast<XE::uint64>( wgpuTextureCreateView( reinterpret_cast<WGPUTexture>( texture.GetValue() ), reinterpret_cast<const WGPUTextureViewDescriptor *>( &descriptor ) ) ) );
+}
 
+void XE::GraphicsService::TextureDestroy( XE::GraphicsTextureHandle texture )
+{
+	wgpuTextureDestroy( reinterpret_cast<WGPUTexture>( texture.GetValue() ) );
 }
 
 #endif // !defined( NULL_RENDER ) && ( PLATFORM_OS & OS_EMSCRIPTEN )

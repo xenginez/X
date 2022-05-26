@@ -19,32 +19,7 @@ IMPLEMENT_META( XE::GraphicsService );
 
 struct XE::GraphicsService::Private
 {
-	XE::RenderContextDesc _ContextDesc;
-	XE::RenderQueryDesc _RenderQueryDesc;
-	XE::RenderBufferDesc _RenderBufferDesc;
-	XE::RenderTargetDesc _RenderTargetDesc;
-	XE::RenderShaderDesc _RenderShaderDesc;
-	XE::RenderTextureDesc _RenderTextureDesc;
-	XE::RenderSamplerDesc _RenderSamplerDesc;
-	XE::RenderDescriptorSetDesc _RenderDescriptorSetDesc;
-	XE::RenderCommandBundleDesc _RenderCommandBundleDesc;
-	XE::RenderShaderProgramDesc _RenderShaderProgramDesc;
-	XE::RenderPipelineStateDesc _RenderPipelineStateDesc;
-	XE::RenderVirtualBufferDesc _RenderVirtualBufferDesc;
 
-	XE::ConcurrentHandleAllocator< XE::RenderPassHandle, XE::RENDER_MAX_PASS > _RenderPassHandleAllocator;
-	XE::ConcurrentHandleAllocator< XE::RenderQueryHandle, XE::RENDER_MAX_QUERY > _RenderQueryHandleAllocator;
-	XE::ConcurrentHandleAllocator< XE::RenderBufferHandle, XE::RENDER_MAX_BUFFER > _RenderBufferHandleAllocator;
-	XE::ConcurrentHandleAllocator< XE::RenderTargetHandle, XE::RENDER_MAX_TARGET > _RenderTargetHandleAllocator;
-	XE::ConcurrentHandleAllocator< XE::RenderShaderHandle, XE::RENDER_MAX_SHADER > _RenderShaderHandleAllocator;
-	XE::ConcurrentHandleAllocator< XE::RenderTextureHandle, XE::RENDER_MAX_TEXTURE > _RenderTextureHandleAllocator;
-	XE::ConcurrentHandleAllocator< XE::RenderSamplerHandle, XE::RENDER_MAX_SAMPLER > _RenderSamplerHandleAllocator;
-	XE::ConcurrentHandleAllocator< XE::RenderDescriptorSetHandle, XE::RENDER_MAX_DESCRIPTOR_SET > _RenderDescriptorSetHandleAllocator;
-	XE::ConcurrentHandleAllocator< XE::RenderCommandBufferHandle, XE::RENDER_MAX_COMMAND_BUFFER > _RenderCommandBufferHandleAllocator;
-	XE::ConcurrentHandleAllocator< XE::RenderCommandBundleHandle, XE::RENDER_MAX_COMMAND_BUNDLE > _RenderCommandBundleHandleAllocator;
-	XE::ConcurrentHandleAllocator< XE::RenderPipelineStateHandle, XE::RENDER_MAX_PIPELINE_STATE > _RenderPipelineStateHandleAllocator;
-	XE::ConcurrentHandleAllocator< XE::RenderShaderProgramHandle, XE::RENDER_MAX_SHADER_PROGRAM > _RenderShaderProgramHandleAllocator;
-	XE::ConcurrentHandleAllocator< XE::RenderVirtualBufferHandle, XE::RENDER_MAX_VIRTUAL_BUFFER > _RenderVirtualBufferHandleAllocator;
 };
 
 XE::GraphicsService::GraphicsService()
@@ -78,492 +53,542 @@ void XE::GraphicsService::Clearup()
 
 }
 
-XE::RenderApiType XE::GraphicsService::GetApiType() const
+void XE::GraphicsService::AdapterEnumerateFeatures( XE::GraphicsAdapterHandle adapter, XE::Array< XE::GraphicsFeatureName > & features )
 {
-	return RenderApiType::NIL;
+
+}
+
+bool XE::GraphicsService::AdapterGetLimits( XE::GraphicsAdapterHandle adapter, XE::GraphicsSupportedLimits & limits )
+{
+
+}
+
+void XE::GraphicsService::AdapterGetProperties( XE::GraphicsAdapterHandle adapter, XE::GraphicsAdapterProperties & properties )
+{
+
+}
+
+bool XE::GraphicsService::AdapterHasFeature( XE::GraphicsAdapterHandle adapter, XE::GraphicsFeatureName feature )
+{
+
+}
+
+void XE::GraphicsService::AdapterRequestDevice( XE::GraphicsAdapterHandle adapter, const XE::GraphicsDeviceDescriptor & descriptor, RequestDeviceCallback callback )
+{
+
+}
+
+void XE::GraphicsService::BufferDestroy( XE::GraphicsBufferHandle buffer )
+{
+
 }
 
-XE::uint32 XE::GraphicsService::GetContextCount() const
+XE::MemoryView XE::GraphicsService::BufferGetMappedRange( XE::GraphicsBufferHandle buffer, XE::uint64 offset, XE::uint64 size )
 {
-	return 1;
+
+}
+
+void XE::GraphicsService::BufferMapAsync( XE::GraphicsBufferHandle buffer, XE::GraphicsMapModeFlags mode, XE::uint64 offset, XE::uint64 size, BufferMapCallback callback )
+{
+
+}
+
+void XE::GraphicsService::BufferUnmap( XE::GraphicsBufferHandle buffer )
+{
+
+}
+
+XE::GraphicsComputePassEncoderHandle XE::GraphicsService::CommandEncoderBeginComputePass( XE::GraphicsCommandEncoderHandle commandEncoder, const XE::GraphicsComputePassDescriptor & descriptor )
+{
+
+}
+
+XE::GraphicsRenderPassEncoderHandle XE::GraphicsService::CommandEncoderBeginRenderPass( XE::GraphicsCommandEncoderHandle commandEncoder, const XE::GraphicsRenderPassDescriptor & descriptor )
+{
+
+}
+
+void XE::GraphicsService::CommandEncoderClearBuffer( XE::GraphicsCommandEncoderHandle commandEncoder, XE::GraphicsBufferHandle buffer, XE::uint64 offset, XE::uint64 size )
+{
+
 }
 
-XE::RenderContextHandle XE::GraphicsService::GetContextHandle( XE::uint32 val ) const
+void XE::GraphicsService::CommandEncoderCopyBufferToBuffer( XE::GraphicsCommandEncoderHandle commandEncoder, XE::GraphicsBufferHandle source, XE::uint64 sourceOffset, XE::GraphicsBufferHandle destination, XE::uint64 destinationOffset, XE::uint64 size )
 {
-	return XE::HandleCast< XE::RenderContext >( 0 );
+
 }
 
-const XE::RenderContextDesc & XE::GraphicsService::GetContextDesc( XE::uint32 val ) const
+void XE::GraphicsService::CommandEncoderCopyBufferToTexture( XE::GraphicsCommandEncoderHandle commandEncoder, const XE::GraphicsImageCopyBuffer & source, const XE::GraphicsImageCopyTexture & destination, const XE::GraphicsExtent3D & copySize )
 {
-	return _p->_ContextDesc;
+
 }
 
-XE::RenderContextHandle XE::GraphicsService::GetMainContextHandle() const
+void XE::GraphicsService::CommandEncoderCopyTextureToBuffer( XE::GraphicsCommandEncoderHandle commandEncoder, const XE::GraphicsImageCopyTexture & source, const XE::GraphicsImageCopyBuffer & destination, const XE::GraphicsExtent3D & copySize )
 {
-	return XE::HandleCast< XE::RenderContext >( 0 );
+
 }
 
-XE::RenderTargetHandle XE::GraphicsService::GetMainWindowRenderTarget() const
+void XE::GraphicsService::CommandEncoderCopyTextureToTexture( XE::GraphicsCommandEncoderHandle commandEncoder, const XE::GraphicsImageCopyTexture & source, const XE::GraphicsImageCopyTexture & destination, const XE::GraphicsExtent3D & copySize )
 {
-	return XE::HandleCast< XE::RenderTarget >( 0 );
+
 }
 
-XE::RenderTargetHandle XE::GraphicsService::GetMainWindowBackRenderTarget() const
+XE::GraphicsCommandBufferHandle XE::GraphicsService::CommandEncoderFinish( XE::GraphicsCommandEncoderHandle commandEncoder, const XE::GraphicsCommandBufferDescriptor & descriptor )
 {
-	return XE::HandleCast< XE::RenderTarget >( 0 );
+
 }
 
-XE::RenderQueryHandle XE::GraphicsService::Create( XE::RenderContextHandle context, const XE::RenderQueryDesc & desc )
+void XE::GraphicsService::CommandEncoderInsertDebugMarker( XE::GraphicsCommandEncoderHandle commandEncoder, const XE::String & markerLabel )
 {
-	return _p->_RenderQueryHandleAllocator.Alloc();
+
 }
 
-XE::RenderBufferHandle XE::GraphicsService::Create( XE::RenderContextHandle context, const XE::RenderBufferDesc & desc )
+void XE::GraphicsService::CommandEncoderPopDebugGroup( XE::GraphicsCommandEncoderHandle commandEncoder )
 {
-	return _p->_RenderBufferHandleAllocator.Alloc();
+
 }
 
-XE::RenderTargetHandle XE::GraphicsService::Create( XE::RenderContextHandle context, const XE::RenderTargetDesc & desc )
+void XE::GraphicsService::CommandEncoderPushDebugGroup( XE::GraphicsCommandEncoderHandle commandEncoder, const XE::String & groupLabel )
 {
-	return _p->_RenderTargetHandleAllocator.Alloc();
+
 }
 
-XE::RenderShaderHandle XE::GraphicsService::Create( XE::RenderContextHandle context, const XE::RenderShaderDesc & desc )
+void XE::GraphicsService::CommandEncoderResolveQuerySet( XE::GraphicsCommandEncoderHandle commandEncoder, XE::GraphicsQuerySetHandle querySet, XE::uint32 firstQuery, XE::uint32 queryCount, XE::GraphicsBufferHandle destination, XE::uint64 destinationOffset )
 {
-	return _p->_RenderShaderHandleAllocator.Alloc();
+
 }
 
-XE::RenderTextureHandle XE::GraphicsService::Create( XE::RenderContextHandle context, const XE::RenderTextureDesc & desc )
+void XE::GraphicsService::CommandEncoderWriteTimestamp( XE::GraphicsCommandEncoderHandle commandEncoder, XE::GraphicsQuerySetHandle querySet, XE::uint32 queryIndex )
 {
-	return _p->_RenderTextureHandleAllocator.Alloc();
+
 }
 
-XE::RenderSamplerHandle XE::GraphicsService::Create( XE::RenderContextHandle context, const XE::RenderSamplerDesc & desc )
+void XE::GraphicsService::ComputePassEncoderBeginPipelineStatisticsQuery( XE::GraphicsComputePassEncoderHandle computePassEncoder, XE::GraphicsQuerySetHandle querySet, XE::uint32 queryIndex )
 {
-	return _p->_RenderSamplerHandleAllocator.Alloc();
+
 }
 
-XE::RenderDescriptorSetHandle XE::GraphicsService::Create( XE::RenderContextHandle context, const XE::RenderDescriptorSetDesc & desc )
+void XE::GraphicsService::ComputePassEncoderDispatch( XE::GraphicsComputePassEncoderHandle computePassEncoder, XE::uint32 workgroupCountX, XE::uint32 workgroupCountY, XE::uint32 workgroupCountZ )
 {
-	return _p->_RenderDescriptorSetHandleAllocator.Alloc();
+
 }
 
-XE::RenderCommandBundleHandle XE::GraphicsService::Create( XE::RenderContextHandle context, const XE::RenderCommandBundleDesc & desc )
+void XE::GraphicsService::ComputePassEncoderDispatchIndirect( XE::GraphicsComputePassEncoderHandle computePassEncoder, XE::GraphicsBufferHandle indirectBuffer, XE::uint64 indirectOffset )
 {
-	return _p->_RenderCommandBundleHandleAllocator.Alloc();
+
 }
 
-XE::RenderShaderProgramHandle XE::GraphicsService::Create( XE::RenderContextHandle context, const XE::RenderShaderProgramDesc & desc )
+void XE::GraphicsService::ComputePassEncoderEnd( XE::GraphicsComputePassEncoderHandle computePassEncoder )
 {
-	return _p->_RenderShaderProgramHandleAllocator.Alloc();
+
 }
 
-XE::RenderPipelineStateHandle XE::GraphicsService::Create( XE::RenderContextHandle context, const XE::RenderPipelineStateDesc & desc )
+void XE::GraphicsService::ComputePassEncoderEndPipelineStatisticsQuery( XE::GraphicsComputePassEncoderHandle computePassEncoder )
 {
-	return _p->_RenderPipelineStateHandleAllocator.Alloc();
+
 }
 
-XE::RenderVirtualBufferHandle XE::GraphicsService::Create( XE::RenderContextHandle context, const XE::RenderVirtualBufferDesc & desc, XE::MemoryView data )
+void XE::GraphicsService::ComputePassEncoderInsertDebugMarker( XE::GraphicsComputePassEncoderHandle computePassEncoder, const XE::String & markerLabel )
 {
-	return _p->_RenderVirtualBufferHandleAllocator.Alloc();
+
 }
 
-const XE::RenderQueryDesc & XE::GraphicsService::GetDesc( XE::RenderContextHandle context, XE::RenderQueryHandle handle )
+void XE::GraphicsService::ComputePassEncoderPopDebugGroup( XE::GraphicsComputePassEncoderHandle computePassEncoder )
 {
-	return _p->_RenderQueryDesc;
+
 }
 
-const XE::RenderBufferDesc & XE::GraphicsService::GetDesc( XE::RenderContextHandle context, XE::RenderBufferHandle handle )
+void XE::GraphicsService::ComputePassEncoderPushDebugGroup( XE::GraphicsComputePassEncoderHandle computePassEncoder, const XE::String & groupLabel )
 {
-	return _p->_RenderBufferDesc;
+
 }
 
-const XE::RenderTargetDesc & XE::GraphicsService::GetDesc( XE::RenderContextHandle context, XE::RenderTargetHandle handle )
+void XE::GraphicsService::ComputePassEncoderSetBindGroup( XE::GraphicsComputePassEncoderHandle computePassEncoder, XE::uint32 groupIndex, XE::GraphicsBindGroupHandle group, XE::uint32 dynamicOffsetCount, XE::uint32 & dynamicOffsets )
 {
-	return _p->_RenderTargetDesc;
+
 }
 
-const XE::RenderShaderDesc & XE::GraphicsService::GetDesc( XE::RenderContextHandle context, XE::RenderShaderHandle handle )
+void XE::GraphicsService::ComputePassEncoderSetPipeline( XE::GraphicsComputePassEncoderHandle computePassEncoder, XE::GraphicsComputePipelineHandle pipeline )
 {
-	return _p->_RenderShaderDesc;
+
 }
 
-const XE::RenderTextureDesc & XE::GraphicsService::GetDesc( XE::RenderContextHandle context, XE::RenderTextureHandle handle )
+XE::GraphicsBindGroupLayoutHandle XE::GraphicsService::ComputePipelineGetBindGroupLayout( XE::GraphicsComputePipelineHandle computePipeline, XE::uint32 groupIndex )
 {
-	return _p->_RenderTextureDesc;
+
 }
 
-const XE::RenderSamplerDesc & XE::GraphicsService::GetDesc( XE::RenderContextHandle context, XE::RenderSamplerHandle handle )
+void XE::GraphicsService::ComputePipelineSetLabel( XE::GraphicsComputePipelineHandle computePipeline, const XE::String & label )
 {
-	return _p->_RenderSamplerDesc;
+
 }
 
-const XE::RenderDescriptorSetDesc & XE::GraphicsService::GetDesc( XE::RenderContextHandle context, XE::RenderDescriptorSetHandle handle )
+XE::GraphicsBindGroupHandle XE::GraphicsService::DeviceCreateBindGroup( XE::GraphicsDeviceHandle device, const XE::GraphicsBindGroupDescriptor & descriptor )
 {
-	return _p->_RenderDescriptorSetDesc;
+
 }
 
-const XE::RenderCommandBundleDesc & XE::GraphicsService::GetDesc( XE::RenderContextHandle context, XE::RenderCommandBundleHandle handle )
+XE::GraphicsBindGroupLayoutHandle XE::GraphicsService::DeviceCreateBindGroupLayout( XE::GraphicsDeviceHandle device, const XE::GraphicsBindGroupLayoutDescriptor & descriptor )
 {
-	return _p->_RenderCommandBundleDesc;
+
 }
 
-const XE::RenderShaderProgramDesc & XE::GraphicsService::GetDesc( XE::RenderContextHandle context, XE::RenderShaderProgramHandle handle )
+XE::GraphicsBufferHandle XE::GraphicsService::DeviceCreateBuffer( XE::GraphicsDeviceHandle device, const XE::GraphicsBufferDescriptor & descriptor )
 {
-	return _p->_RenderShaderProgramDesc;
+
 }
 
-const XE::RenderPipelineStateDesc & XE::GraphicsService::GetDesc( XE::RenderContextHandle context, XE::RenderPipelineStateHandle handle )
+XE::GraphicsCommandEncoderHandle XE::GraphicsService::DeviceCreateCommandEncoder( XE::GraphicsDeviceHandle device, const XE::GraphicsCommandEncoderDescriptor & descriptor )
 {
-	return _p->_RenderPipelineStateDesc;
+
 }
 
-const XE::RenderVirtualBufferDesc & XE::GraphicsService::GetDesc( XE::RenderContextHandle context, XE::RenderVirtualBufferHandle handle )
+XE::GraphicsComputePipelineHandle XE::GraphicsService::DeviceCreateComputePipeline( XE::GraphicsDeviceHandle device, const XE::GraphicsComputePipelineDescriptor & descriptor )
 {
-	return _p->_RenderVirtualBufferDesc;
+
 }
 
-void XE::GraphicsService::Destroy( XE::RenderContextHandle context, XE::RenderQueryHandle handle )
+void XE::GraphicsService::DeviceCreateComputePipelineAsync( XE::GraphicsDeviceHandle device, const XE::GraphicsComputePipelineDescriptor & descriptor, CreateComputePipelineAsyncCallback callback )
 {
-	_p->_RenderQueryHandleAllocator.Free( handle );
+
 }
 
-void XE::GraphicsService::Destroy( XE::RenderContextHandle context, XE::RenderBufferHandle handle )
+XE::GraphicsPipelineLayoutHandle XE::GraphicsService::DeviceCreatePipelineLayout( XE::GraphicsDeviceHandle device, const XE::GraphicsPipelineLayoutDescriptor & descriptor )
 {
-	_p->_RenderBufferHandleAllocator.Free( handle );
+
 }
 
-void XE::GraphicsService::Destroy( XE::RenderContextHandle context, XE::RenderTargetHandle handle )
+XE::GraphicsQuerySetHandle XE::GraphicsService::DeviceCreateQuerySet( XE::GraphicsDeviceHandle device, const XE::GraphicsQuerySetDescriptor & descriptor )
 {
-	_p->_RenderTargetHandleAllocator.Free( handle );
+
 }
 
-void XE::GraphicsService::Destroy( XE::RenderContextHandle context, XE::RenderShaderHandle handle )
+XE::GraphicsRenderBundleEncoderHandle XE::GraphicsService::DeviceCreateRenderBundleEncoder( XE::GraphicsDeviceHandle device, const XE::GraphicsRenderBundleEncoderDescriptor & descriptor )
 {
-	_p->_RenderShaderHandleAllocator.Free( handle );
+
 }
 
-void XE::GraphicsService::Destroy( XE::RenderContextHandle context, XE::RenderTextureHandle handle )
+XE::GraphicsRenderPipelineHandle XE::GraphicsService::DeviceCreateRenderPipeline( XE::GraphicsDeviceHandle device, const XE::GraphicsRenderPipelineDescriptor & descriptor )
 {
-	_p->_RenderTextureHandleAllocator.Free( handle );
+
 }
 
-void XE::GraphicsService::Destroy( XE::RenderContextHandle context, XE::RenderSamplerHandle handle )
+void XE::GraphicsService::DeviceCreateRenderPipelineAsync( XE::GraphicsDeviceHandle device, const XE::GraphicsRenderPipelineDescriptor & descriptor, CreateRenderPipelineAsyncCallback callback )
 {
-	_p->_RenderSamplerHandleAllocator.Free( handle );
+
 }
 
-void XE::GraphicsService::Destroy( XE::RenderContextHandle context, XE::RenderDescriptorSetHandle handle )
+XE::GraphicsSamplerHandle XE::GraphicsService::DeviceCreateSampler( XE::GraphicsDeviceHandle device, const XE::GraphicsSamplerDescriptor & descriptor )
 {
-	_p->_RenderDescriptorSetHandleAllocator.Free( handle );
+
 }
 
-void XE::GraphicsService::Destroy( XE::RenderContextHandle context, XE::RenderCommandBundleHandle handle )
+XE::GraphicsShaderModuleHandle XE::GraphicsService::DeviceCreateShaderModule( XE::GraphicsDeviceHandle device, const XE::GraphicsShaderModuleDescriptor & descriptor )
 {
-	_p->_RenderCommandBundleHandleAllocator.Free( handle );
+
 }
 
-void XE::GraphicsService::Destroy( XE::RenderContextHandle context, XE::RenderShaderProgramHandle handle )
+XE::GraphicsSwapChainHandle XE::GraphicsService::DeviceCreateSwapChain( XE::GraphicsDeviceHandle device, XE::GraphicsSurfaceHandle surface, const XE::GraphicsSwapChainDescriptor & descriptor )
 {
-	_p->_RenderShaderProgramHandleAllocator.Free( handle );
+
 }
 
-void XE::GraphicsService::Destroy( XE::RenderContextHandle context, XE::RenderPipelineStateHandle handle )
+XE::GraphicsTextureHandle XE::GraphicsService::DeviceCreateTexture( XE::GraphicsDeviceHandle device, const XE::GraphicsTextureDescriptor & descriptor )
 {
-	_p->_RenderPipelineStateHandleAllocator.Free( handle );
+
 }
 
-void XE::GraphicsService::Destroy( XE::RenderContextHandle context, XE::RenderVirtualBufferHandle handle )
+void XE::GraphicsService::DeviceDestroy( XE::GraphicsDeviceHandle device )
 {
-	_p->_RenderVirtualBufferHandleAllocator.Free( handle );
+
 }
 
-XE::RenderCommandBufferHandle XE::GraphicsService::Begin( XE::RenderContextHandle context )
+void XE::GraphicsService::DeviceEnumerateFeatures( XE::GraphicsDeviceHandle device, XE::Array< XE::GraphicsFeatureName > & features )
 {
-	return _p->_RenderCommandBufferHandleAllocator.Alloc();
+
 }
 
-void XE::GraphicsService::Read( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderBufferHandle handle, XE::uint64 offset, const XE::Delegate< void( void *, XE::uint64 ) > & callback )
+bool XE::GraphicsService::DeviceGetLimits( XE::GraphicsDeviceHandle device, XE::GraphicsSupportedLimits & limits )
 {
 
 }
 
-void XE::GraphicsService::Read( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderTextureHandle handle, XE::uint32 offset_x, XE::uint32 offset_y, XE::uint32 offset_z, XE::uint32 width, XE::uint32 height, XE::uint32 depth, XE::uint32 mip, XE::uint32 mip_size, const XE::Delegate< void( void * data, XE::uint64 y, XE::uint64 z, XE::uint64 size ) > & callback )
+XE::GraphicsQueueHandle XE::GraphicsService::DeviceGetQueue( XE::GraphicsDeviceHandle device )
 {
 
 }
 
-void XE::GraphicsService::Write( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderBufferHandle handle, XE::uint64 offset, XE::MemoryView src_data )
+bool XE::GraphicsService::DeviceHasFeature( XE::GraphicsDeviceHandle device, XE::GraphicsFeatureName feature )
 {
 
 }
 
-void XE::GraphicsService::Write( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderTextureHandle handle, XE::uint32 offset_x, XE::uint32 offset_y, XE::uint32 offset_z, XE::uint32 width, XE::uint32 height, XE::uint32 depth, XE::uint32 mip, XE::uint32 mip_size, XE::MemoryView src_data )
+bool XE::GraphicsService::DevicePopErrorScope( XE::GraphicsDeviceHandle device, ErrorCallback callback )
 {
 
 }
 
-void XE::GraphicsService::Copy( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderBufferHandle dst_buf, XE::uint64 dst_offset, XE::RenderBufferHandle src_buf, XE::uint64 src_offset, XE::uint64 size )
+void XE::GraphicsService::DevicePushErrorScope( XE::GraphicsDeviceHandle device, XE::GraphicsErrorFilter filter )
 {
 
 }
 
-void XE::GraphicsService::Copy( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderBufferHandle dst_buf, XE::uint64 dst_offset, XE::RenderTextureHandle src_tex, XE::uint32 offset_x, XE::uint32 offset_y, XE::uint32 offset_z, XE::uint32 width, XE::uint32 height, XE::uint32 depth, XE::uint32 mip, XE::uint32 mip_size )
+void XE::GraphicsService::DeviceSetDeviceLostCallback( XE::GraphicsDeviceHandle device, DeviceLostCallback callback )
 {
 
 }
 
-void XE::GraphicsService::Copy( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderTextureHandle dst_tex, XE::uint32 dst_offset_x, XE::uint32 dst_offset_y, XE::uint32 dst_offset_z, XE::uint32 dst_mip, XE::RenderTextureHandle src_tex, XE::uint32 src_offset_x, XE::uint32 src_offset_y, XE::uint32 src_offset_z, XE::uint32 src_mip, XE::uint32 width, XE::uint32 height, XE::uint32 depth )
+void XE::GraphicsService::DeviceSetUncapturedErrorCallback( XE::GraphicsDeviceHandle device, ErrorCallback callback )
 {
 
 }
 
-void XE::GraphicsService::Copy( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderTextureHandle dst_tex, XE::uint32 offset_x, XE::uint32 offset_y, XE::uint32 offset_z, XE::uint32 width, XE::uint32 height, XE::uint32 depth, XE::uint32 mip, XE::uint32 mip_size, XE::RenderBufferHandle src_buf, XE::uint64 src_offset )
+XE::GraphicsSurfaceHandle XE::GraphicsService::InstanceCreateSurface( XE::GraphicsInstanceHandle instance, const XE::GraphicsSurfaceDescriptor & descriptor )
 {
 
 }
 
-XE::RenderResourceStatesType XE::GraphicsService::TransitionBarrier( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderBufferHandle buffer, XE::RenderResourceStatesType after )
+void XE::GraphicsService::InstanceProcessEvents( XE::GraphicsInstanceHandle instance )
 {
-	return XE::RenderResourceStatesType::COMMON;
+
 }
 
-XE::RenderResourceStatesType XE::GraphicsService::TransitionBarrier( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderTextureHandle texture, XE::RenderResourceStatesType after )
+void XE::GraphicsService::InstanceRequestAdapter( XE::GraphicsInstanceHandle instance, const XE::GraphicsRequestAdapterOptions & options, RequestAdapterCallback callback )
 {
-	return XE::RenderResourceStatesType::COMMON;
+
 }
 
-XE::RenderPassHandle XE::GraphicsService::BeginPass( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, const XE::RenderPassDesc & desc )
+void XE::GraphicsService::QuerySetDestroy( XE::GraphicsQuerySetHandle querySet )
 {
-	return _p->_RenderPassHandleAllocator.Alloc();
+
 }
 
-void XE::GraphicsService::SetViewport( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, const XE::Rectf & view )
+void XE::GraphicsService::QueueOnSubmittedWorkDone( XE::GraphicsQueueHandle queue, QueueWorkDoneCallback callback )
 {
 
 }
 
-void XE::GraphicsService::SetViewport( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, const XE::Array< XE::Rectf > & views )
+void XE::GraphicsService::QueueSubmit( XE::GraphicsQueueHandle queue, XE::uint32 commandCount, const XE::GraphicsCommandBufferHandle & commands )
 {
 
 }
 
-void XE::GraphicsService::SetScissor( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, const XE::Rectf & rect )
+void XE::GraphicsService::QueueWriteBuffer( XE::GraphicsQueueHandle queue, XE::GraphicsBufferHandle buffer, XE::uint64 bufferOffset, XE::MemoryView data )
 {
 
 }
 
-void XE::GraphicsService::SetScissor( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, const XE::Array< XE::Rectf > & rects )
+void XE::GraphicsService::QueueWriteTexture( XE::GraphicsQueueHandle queue, const XE::GraphicsImageCopyTexture & destination, XE::MemoryView data, const XE::GraphicsTextureDataLayout & dataLayout, const XE::GraphicsExtent3D & writeSize )
 {
 
 }
 
-void XE::GraphicsService::SetIndexBuffer( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::RenderVirtualBufferHandle buffer )
+void XE::GraphicsService::RenderBundleEncoderDraw( XE::GraphicsRenderBundleEncoderHandle renderBundleEncoder, XE::uint32 vertexCount, XE::uint32 instanceCount, XE::uint32 firstVertex, XE::uint32 firstInstance )
 {
 
 }
 
-void XE::GraphicsService::SetVertexBuffer( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::RenderVirtualBufferHandle buffer )
+void XE::GraphicsService::RenderBundleEncoderDrawIndexed( XE::GraphicsRenderBundleEncoderHandle renderBundleEncoder, XE::uint32 indexCount, XE::uint32 instanceCount, XE::uint32 firstIndex, XE::int32 baseVertex, XE::uint32 firstInstance )
 {
 
 }
 
-void XE::GraphicsService::SetDescriptorSet( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::RenderDescriptorSetHandle heap, XE::uint32 first, XE::RenderPipelineStateType bind )
+void XE::GraphicsService::RenderBundleEncoderDrawIndexedIndirect( XE::GraphicsRenderBundleEncoderHandle renderBundleEncoder, XE::GraphicsBufferHandle indirectBuffer, XE::uint64 indirectOffset )
 {
 
 }
 
-void XE::GraphicsService::SetPipelineState( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::RenderPipelineStateHandle pso )
+void XE::GraphicsService::RenderBundleEncoderDrawIndirect( XE::GraphicsRenderBundleEncoderHandle renderBundleEncoder, XE::GraphicsBufferHandle indirectBuffer, XE::uint64 indirectOffset )
 {
 
 }
 
-void XE::GraphicsService::SetUniform( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::uint32 location, const XE::Variant & value )
+XE::GraphicsRenderBundleHandle XE::GraphicsService::RenderBundleEncoderFinish( XE::GraphicsRenderBundleEncoderHandle renderBundleEncoder, const XE::GraphicsRenderBundleDescriptor & descriptor )
 {
 
 }
 
-void XE::GraphicsService::SetUniform( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::uint32 location, const XE::VariantArray & value )
+void XE::GraphicsService::RenderBundleEncoderInsertDebugMarker( XE::GraphicsRenderBundleEncoderHandle renderBundleEncoder, const XE::String & markerLabel )
 {
 
 }
 
-void XE::GraphicsService::SetResource( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::RenderBufferHandle buffer, XE::uint32 slot, XE::RenderBindFlags bind, XE::RenderStageFlags stage )
+void XE::GraphicsService::RenderBundleEncoderPopDebugGroup( XE::GraphicsRenderBundleEncoderHandle renderBundleEncoder )
 {
 
 }
 
-void XE::GraphicsService::SetResource( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::RenderTextureHandle texture, XE::uint32 slot, XE::RenderBindFlags bind, XE::RenderStageFlags stage )
+void XE::GraphicsService::RenderBundleEncoderPushDebugGroup( XE::GraphicsRenderBundleEncoderHandle renderBundleEncoder, const XE::String & groupLabel )
 {
 
 }
 
-void XE::GraphicsService::SetResource( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::RenderSamplerHandle sampler, XE::uint32 slot, XE::RenderBindFlags bind, XE::RenderStageFlags stage )
+void XE::GraphicsService::RenderBundleEncoderSetBindGroup( XE::GraphicsRenderBundleEncoderHandle renderBundleEncoder, XE::uint32 groupIndex, XE::GraphicsBindGroupHandle group, XE::uint32 dynamicOffsetCount, XE::uint32 & dynamicOffsets )
 {
 
 }
 
-void XE::GraphicsService::ResetResource( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::RenderResourceType type, const XE::Pair< XE::uint32, XE::uint32 > & slot_ranges, XE::RenderBindFlags bind, XE::RenderStageFlags stage )
+void XE::GraphicsService::RenderBundleEncoderSetIndexBuffer( XE::GraphicsRenderBundleEncoderHandle renderBundleEncoder, XE::GraphicsBufferHandle buffer, XE::GraphicsIndexFormat format, XE::uint64 offset, XE::uint64 size )
 {
 
 }
 
-void XE::GraphicsService::SetBlendFactor( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, const XE::FColor & color )
+void XE::GraphicsService::RenderBundleEncoderSetPipeline( XE::GraphicsRenderBundleEncoderHandle renderBundleEncoder, XE::GraphicsRenderPipelineHandle pipeline )
 {
 
 }
 
-void XE::GraphicsService::SetStencilReference( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::uint32 reference, XE::RenderStencilFaceType stencilFace /*= XE::RenderStencilFaceType::FRONT_BACK */ )
+void XE::GraphicsService::RenderBundleEncoderSetVertexBuffer( XE::GraphicsRenderBundleEncoderHandle renderBundleEncoder, XE::uint32 slot, XE::GraphicsBufferHandle buffer, XE::uint64 offset, XE::uint64 size )
 {
 
 }
 
-void XE::GraphicsService::BeginQuery( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::RenderQueryHandle query, XE::uint32 value )
+void XE::GraphicsService::RenderPassEncoderBeginOcclusionQuery( XE::GraphicsRenderPassEncoderHandle renderPassEncoder, XE::uint32 queryIndex )
 {
 
 }
 
-void XE::GraphicsService::EndQuery( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::RenderQueryHandle query, XE::uint32 value )
+void XE::GraphicsService::RenderPassEncoderBeginPipelineStatisticsQuery( XE::GraphicsRenderPassEncoderHandle renderPassEncoder, XE::GraphicsQuerySetHandle querySet, XE::uint32 queryIndex )
 {
 
 }
 
-void XE::GraphicsService::BeginCondition( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::RenderQueryHandle query, XE::uint32 offset, XE::RenderConditionType cond )
+void XE::GraphicsService::RenderPassEncoderDraw( XE::GraphicsRenderPassEncoderHandle renderPassEncoder, XE::uint32 vertexCount, XE::uint32 instanceCount, XE::uint32 firstVertex, XE::uint32 firstInstance )
 {
 
 }
 
-void XE::GraphicsService::EndCondition( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::RenderQueryHandle query )
+void XE::GraphicsService::RenderPassEncoderDrawIndexed( XE::GraphicsRenderPassEncoderHandle renderPassEncoder, XE::uint32 indexCount, XE::uint32 instanceCount, XE::uint32 firstIndex, XE::int32 baseVertex, XE::uint32 firstInstance )
 {
 
 }
 
-void XE::GraphicsService::BeginStreamOutput( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, const XE::Array< XE::RenderBufferHandle > & buffers )
+void XE::GraphicsService::RenderPassEncoderDrawIndexedIndirect( XE::GraphicsRenderPassEncoderHandle renderPassEncoder, XE::GraphicsBufferHandle indirectBuffer, XE::uint64 indirectOffset )
 {
 
 }
 
-void XE::GraphicsService::EndStreamOutput( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass )
+void XE::GraphicsService::RenderPassEncoderDrawIndirect( XE::GraphicsRenderPassEncoderHandle renderPassEncoder, XE::GraphicsBufferHandle indirectBuffer, XE::uint64 indirectOffset )
 {
 
 }
 
-void XE::GraphicsService::Draw( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, const XE::Pair< XE::uint32, XE::uint32 > & vertices )
+void XE::GraphicsService::RenderPassEncoderEnd( XE::GraphicsRenderPassEncoderHandle renderPassEncoder )
 {
 
 }
 
-void XE::GraphicsService::DrawIndexed( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, const XE::Pair< XE::uint32, XE::uint32 > & indices )
+void XE::GraphicsService::RenderPassEncoderEndOcclusionQuery( XE::GraphicsRenderPassEncoderHandle renderPassEncoder )
 {
 
 }
 
-void XE::GraphicsService::DrawIndexed( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, const XE::Pair< XE::uint32, XE::uint32 > & indices, XE::uint32 vertex_offset )
+void XE::GraphicsService::RenderPassEncoderEndPipelineStatisticsQuery( XE::GraphicsRenderPassEncoderHandle renderPassEncoder )
 {
 
 }
 
-void XE::GraphicsService::DrawInstanced( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, const XE::Pair< XE::uint32, XE::uint32 > & vertices, XE::uint32 num_instances )
+void XE::GraphicsService::RenderPassEncoderExecuteBundles( XE::GraphicsRenderPassEncoderHandle renderPassEncoder, XE::uint32 bundlesCount, XE::GraphicsRenderBundleHandle bundles )
 {
 
 }
 
-void XE::GraphicsService::DrawInstanced( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, const XE::Pair< XE::uint32, XE::uint32 > & vertices, const XE::Pair< XE::uint32, XE::uint32 > & instances )
+void XE::GraphicsService::RenderPassEncoderInsertDebugMarker( XE::GraphicsRenderPassEncoderHandle renderPassEncoder, const XE::String & markerLabel )
 {
 
 }
 
-void XE::GraphicsService::DrawIndexedInstanced( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::uint32 num_indices, XE::uint32 num_instances, XE::uint32 first_index )
+void XE::GraphicsService::RenderPassEncoderPopDebugGroup( XE::GraphicsRenderPassEncoderHandle renderPassEncoder )
 {
 
 }
 
-void XE::GraphicsService::DrawIndexedInstanced( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::uint32 num_indices, XE::uint32 num_instances, XE::uint32 first_index, XE::uint32 vertex_offset )
+void XE::GraphicsService::RenderPassEncoderPushDebugGroup( XE::GraphicsRenderPassEncoderHandle renderPassEncoder, const XE::String & groupLabel )
 {
 
 }
 
-void XE::GraphicsService::DrawIndexedInstanced( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::uint32 num_indices, XE::uint32 num_instances, XE::uint32 first_index, XE::uint32 vertex_offset, XE::uint32 first_instance )
+void XE::GraphicsService::RenderPassEncoderSetBindGroup( XE::GraphicsRenderPassEncoderHandle renderPassEncoder, XE::uint32 groupIndex, XE::GraphicsBindGroupHandle group, XE::uint32 dynamicOffsetCount, XE::uint32 & dynamicOffsets )
 {
 
 }
 
-void XE::GraphicsService::DrawIndirect( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::RenderBufferHandle buffer, XE::uint64 offset )
+void XE::GraphicsService::RenderPassEncoderSetBlendConstant( XE::GraphicsRenderPassEncoderHandle renderPassEncoder, const XE::Color & color )
 {
 
 }
 
-void XE::GraphicsService::DrawIndirect( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::RenderBufferHandle buffer, XE::uint64 offset, XE::uint32 num_commands, XE::uint32 stride )
+void XE::GraphicsService::RenderPassEncoderSetIndexBuffer( XE::GraphicsRenderPassEncoderHandle renderPassEncoder, XE::GraphicsBufferHandle buffer, XE::GraphicsIndexFormat format, XE::uint64 offset, XE::uint64 size )
 {
 
 }
 
-void XE::GraphicsService::DrawIndexedIndirect( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::RenderBufferHandle buffer, XE::uint64 offset )
+void XE::GraphicsService::RenderPassEncoderSetPipeline( XE::GraphicsRenderPassEncoderHandle renderPassEncoder, XE::GraphicsRenderPipelineHandle pipeline )
 {
 
 }
 
-void XE::GraphicsService::DrawIndexedIndirect( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::RenderBufferHandle buffer, XE::uint64 offset, XE::uint32 num_commands, XE::uint32 stride )
+void XE::GraphicsService::RenderPassEncoderSetScissorRect( XE::GraphicsRenderPassEncoderHandle renderPassEncoder, XE::uint32 x, XE::uint32 y, XE::uint32 width, XE::uint32 height )
 {
 
 }
 
-void XE::GraphicsService::ExecuteBundle( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass, XE::RenderCommandBundleHandle bundle )
+void XE::GraphicsService::RenderPassEncoderSetStencilReference( XE::GraphicsRenderPassEncoderHandle renderPassEncoder, XE::uint32 reference )
 {
 
 }
 
-void XE::GraphicsService::EndPass( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderPassHandle pass )
+void XE::GraphicsService::RenderPassEncoderSetVertexBuffer( XE::GraphicsRenderPassEncoderHandle renderPassEncoder, XE::uint32 slot, XE::GraphicsBufferHandle buffer, XE::uint64 offset, XE::uint64 size )
 {
-	_p->_RenderPassHandleAllocator.Free( pass );
+
 }
 
-void XE::GraphicsService::Dispatch( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::uint32 group_x, XE::uint32 group_y, XE::uint32 group_z )
+void XE::GraphicsService::RenderPassEncoderSetViewport( XE::GraphicsRenderPassEncoderHandle renderPassEncoder, float x, float y, float width, float height, float minDepth, float maxDepth )
 {
 
 }
 
-void XE::GraphicsService::DispatchIndirect( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderBufferHandle buffer, XE::uint64 offset )
+XE::GraphicsBindGroupLayoutHandle XE::GraphicsService::RenderPipelineGetBindGroupLayout( XE::GraphicsRenderPipelineHandle renderPipeline, XE::uint32 groupIndex )
 {
 
 }
 
-void XE::GraphicsService::QueryResolve( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf, XE::RenderQueryHandle query, XE::uint32 offset, XE::uint32 size )
+void XE::GraphicsService::RenderPipelineSetLabel( XE::GraphicsRenderPipelineHandle renderPipeline, const XE::String & label )
 {
 
 }
 
-void XE::GraphicsService::QueryResult( XE::RenderContextHandle context, XE::RenderQueryHandle query, XE::uint32 offset, XE::uint32 size, std::ostream & stream )
+void XE::GraphicsService::ShaderModuleGetCompilationInfo( XE::GraphicsShaderModuleHandle shaderModule, CompilationInfoCallback callback )
 {
 
 }
 
-void XE::GraphicsService::End( XE::RenderContextHandle context, XE::RenderCommandBufferHandle cmdbuf )
+void XE::GraphicsService::ShaderModuleSetLabel( XE::GraphicsShaderModuleHandle shaderModule, const XE::String & label )
 {
-	_p->_RenderCommandBufferHandleAllocator.Free( cmdbuf );
+
 }
 
-void XE::GraphicsService::BeginBundle( XE::RenderContextHandle context, XE::RenderCommandBundleHandle bundle )
+XE::GraphicsTextureFormat XE::GraphicsService::SurfaceGetPreferredFormat( XE::GraphicsSurfaceHandle surface, XE::GraphicsAdapterHandle adapter )
 {
 
 }
 
-void XE::GraphicsService::EndBundle( XE::RenderContextHandle context, XE::RenderCommandBundleHandle bundle )
+XE::GraphicsTextureViewHandle XE::GraphicsService::SwapChainGetCurrentTextureView( XE::GraphicsSwapChainHandle swapChain )
 {
 
 }
 
-void XE::GraphicsService::Execute( XE::RenderContextHandle context )
+void XE::GraphicsService::SwapChainPresent( XE::GraphicsSwapChainHandle swapChain )
 {
 
 }
 
-void XE::GraphicsService::Wait( XE::RenderContextHandle context )
+XE::GraphicsTextureViewHandle XE::GraphicsService::TextureCreateView( XE::GraphicsTextureHandle texture, const XE::GraphicsTextureViewDescriptor & descriptor )
 {
 
 }
 
-void XE::GraphicsService::OnMainWindowResize()
+void XE::GraphicsService::TextureDestroy( XE::GraphicsTextureHandle texture )
 {
 
 }

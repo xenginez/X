@@ -167,796 +167,1203 @@ using UnqueBufferCallbackType = void( * )( void * userdata, XE::AudioBufferHandl
 //////////////////////////////////////////////////////////////////////////
 // Render
 
-static constexpr XE::uint64 RENDER_MAX_PASS = 512;
-static constexpr XE::uint64 RENDER_MAX_QUERY = 512;
-static constexpr XE::uint64 RENDER_MAX_BUFFER = 512;
-static constexpr XE::uint64 RENDER_MAX_TARGET = 512;
-static constexpr XE::uint64 RENDER_MAX_SHADER = 512;
-static constexpr XE::uint64 RENDER_MAX_TEXTURE = 512;
-static constexpr XE::uint64 RENDER_MAX_SAMPLER = 512;
-static constexpr XE::uint64 RENDER_MAX_COMMAND_BUFFER = 32;
-static constexpr XE::uint64 RENDER_MAX_COMMAND_BUNDLE = 64;
-static constexpr XE::uint64 RENDER_MAX_SHADER_PROGRAM = 1024;
-static constexpr XE::uint64 RENDER_MAX_DESCRIPTOR_SET = 1024;
-static constexpr XE::uint64 RENDER_MAX_PIPELINE_STATE = 1024;
-static constexpr XE::uint64 RENDER_MAX_VIRTUAL_BUFFER = 1024;
+DECL_HANDLE( GraphicsInstance );
+DECL_HANDLE( GraphicsAdapter );
+DECL_HANDLE( GraphicsDevice );
+DECL_HANDLE( GraphicsBindGroup );
+DECL_HANDLE( GraphicsBindGroupLayout );
+DECL_HANDLE( GraphicsBuffer );
+DECL_HANDLE( GraphicsCommandBuffer );
+DECL_HANDLE( GraphicsCommandEncoder );
+DECL_HANDLE( GraphicsComputePassEncoder );
+DECL_HANDLE( GraphicsComputePipeline );
+DECL_HANDLE( GraphicsPipelineLayout );
+DECL_HANDLE( GraphicsQuerySet );
+DECL_HANDLE( GraphicsQueue );
+DECL_HANDLE( GraphicsRenderBundle );
+DECL_HANDLE( GraphicsRenderBundleEncoder );
+DECL_HANDLE( GraphicsRenderPassEncoder );
+DECL_HANDLE( GraphicsRenderPipeline );
+DECL_HANDLE( GraphicsSampler );
+DECL_HANDLE( GraphicsShaderModule );
+DECL_HANDLE( GraphicsSurface );
+DECL_HANDLE( GraphicsSwapChain );
+DECL_HANDLE( GraphicsTexture );
+DECL_HANDLE( GraphicsTextureView );
 
-static constexpr XE::uint64 RENDER_MAX_SWAP_CHAIN_BACK_BUFFER = 2;
-
-static constexpr XE::uint64 RENDER_MAX_RTV_DESC_HEAP_CACHE = 512;
-static constexpr XE::uint64 RENDER_MAX_DSV_DESC_HEAP_CACHE = 512;
-static constexpr XE::uint64 RENDER_MAX_SAMPLER_DESC_HEAP_CACHE = 512;
-static constexpr XE::uint64 RENDER_MAX_CBV_SRV_UAV_DESC_HEAP_CACHE = 512;
-
-DECL_HANDLE( RenderPass );
-DECL_HANDLE( RenderQuery );
-DECL_HANDLE( RenderBuffer );
-DECL_HANDLE( RenderTarget );
-DECL_HANDLE( RenderShader );
-DECL_HANDLE( RenderTexture );
-DECL_HANDLE( RenderSampler );
-DECL_HANDLE( RenderContext );
-DECL_HANDLE( RenderDescriptorSet );
-DECL_HANDLE( RenderCommandBuffer );
-DECL_HANDLE( RenderCommandBundle );
-DECL_HANDLE( RenderPipelineState );
-DECL_HANDLE( RenderShaderProgram );
-DECL_HANDLE( RenderVirtualBuffer );
-
-
-enum class RenderApiType
+enum class GraphicsSType
 {
-	NIL,
-	D3D12,
-	METAL,
-	VULKAN,
-	WEBGPU,
+    Invalid = 0x00000000,
+    SurfaceDescriptorFromMetalLayer = 0x00000001,
+    SurfaceDescriptorFromWindowsHWND = 0x00000002,
+    SurfaceDescriptorFromXlibWindow = 0x00000003,
+    SurfaceDescriptorFromCanvasHTMLSelector = 0x00000004,
+    ShaderModuleSPIRVDescriptor = 0x00000005,
+    ShaderModuleWGSLDescriptor = 0x00000006,
+    PrimitiveDepthClipControl = 0x00000007,
+    SurfaceDescriptorFromWaylandSurface = 0x00000008,
+    SurfaceDescriptorFromAndroidNativeWindow = 0x00000009,
+    SurfaceDescriptorFromXcbWindow = 0x0000000A,
+    Force32 = 0x7FFFFFFF
 };
+DECL_XE_ENUM( GraphicsSType );
 
-enum class RenderCullType
+enum class GraphicsAdapterType
 {
-	DISABLED,
-	FRONT,
-	BACK,
+    DiscreteGPU = 0x00000000,
+    IntegratedGPU = 0x00000001,
+    SoftwareCPU = 0x00000002,
+    Unknown = 0x00000003,
+    Force32 = 0x7FFFFFFF
 };
+DECL_XE_ENUM( GraphicsAdapterType );
 
-enum class RenderQueryType
-{ 
-	SAMPLES_PASSED,
-	ANY_SAMPLES_PASSED,
-	ANY_SAMPLES_PASSED_CONSERVATIVE,
-	TIME_ELAPSED,
-	STREAMOUT_PRIMITIVES_WRITTEN,
-	STREAMOUT_OVERFLOW,
-	PIPELINE_STATISTICS,
-};
-
-enum class RenderAccessType
+enum class GraphicsAddressMode
 {
-	READ_ONLY,
-	WRITE_ONLY,
-	READ_WRITE,
+    Repeat = 0x00000000,
+    MirrorRepeat = 0x00000001,
+    ClampToEdge = 0x00000002,
+    Force32 = 0x7FFFFFFF
 };
+DECL_XE_ENUM( GraphicsAddressMode );
 
-enum class RenderShaderType
+enum class GraphicsBackendType
 {
-	CS,
-	VS,
-	PS,
-	HS,
-	DS,
-	GS,
+    Null = 0x00000000,
+    WebGPU = 0x00000001,
+    D3D11 = 0x00000002,
+    D3D12 = 0x00000003,
+    Metal = 0x00000004,
+    Vulkan = 0x00000005,
+    OpenGL = 0x00000006,
+    OpenGLES = 0x00000007,
+    Force32 = 0x7FFFFFFF
 };
+DECL_XE_ENUM( GraphicsBackendType );
 
-enum class RenderFormatType
+enum class GraphicsBlendFactor
 {
-	UNKNOWN,
-	R8_UNORM,
-	R8_SNORM,
-	R8_UINT,
-	R8_SINT,
-	R16_UNORM,
-	R16_SNORM,
-	R16_UINT,
-	R16_SINT,
-	R16_SFLOAT,
-	R32_UINT,
-	R32_SINT,
-	R32_SFLOAT,
-
-	R8G8_UNORM,
-	R8G8_SNORM,
-	R8G8_UINT,
-	R8G8_SINT,
-	R16G16_UNORM,
-	R16G16_SNORM,
-	R16G16_UINT,
-	R16G16_SINT,
-	R16G16_SFLOAT,
-	R32G32_UINT,
-	R32G32_SINT,
-	R32G32_SFLOAT,
-
-	R32G32B32_UINT,
-	R32G32B32_SINT,
-	R32G32B32_SFLOAT,
-
-	R8G8B8A8_UNORM,
-	R8G8B8A8_SNORM,
-	R8G8B8A8_UINT,
-	R8G8B8A8_SINT,
-	R8G8B8A8_SRGB,
-	R16G16B16A16_UNORM,
-	R16G16B16A16_SNORM,
-	R16G16B16A16_UINT,
-	R16G16B16A16_SINT,
-	R16G16B16A16_SFLOAT,
-	R32G32B32A32_UINT,
-	R32G32B32A32_SINT,
-	R32G32B32A32_SFLOAT,
-
-	B8G8R8A8_UNORM,
-	B8G8R8A8_SRGB,
-
-	B5G6R5_UNORM_PACK16,
-	B5G5R5A1_UNORM_PACK16,
-	R10G10B10A2_UNORM_PACK32,
-	R10G10B10A2_UINT_PACK32,
-	R9G9B9E5_UFLOAT_PACK32,
-	R11G11B10_UFLOAT_PACK32,
-
-	D16_UNORM,
-	D32_SFLOAT,
-	D24_UNORM_S8_UINT,
-	D32_SFLOAT_S8_UINT,
-
-	BC1_UNORM_BLOCK,
-	BC1_SRGB_BLOCK,
-	BC2_UNORM_BLOCK,
-	BC2_SRGB_BLOCK,
-	BC3_UNORM_BLOCK,
-	BC3_SRGB_BLOCK,
-	BC4_UNORM_BLOCK,
-	BC4_SNORM_BLOCK,
-	BC5_UNORM_BLOCK,
-	BC5_SNORM_BLOCK,
-	BC6_UFLOAT_BLOCK,
-	BC6_SFLOAT_BLOCK,
-	BC7_UNORM_BLOCK,
-	BC7_SRGB_BLOCK,
+    Zero = 0x00000000,
+    One = 0x00000001,
+    Src = 0x00000002,
+    OneMinusSrc = 0x00000003,
+    SrcAlpha = 0x00000004,
+    OneMinusSrcAlpha = 0x00000005,
+    Dst = 0x00000006,
+    OneMinusDst = 0x00000007,
+    DstAlpha = 0x00000008,
+    OneMinusDstAlpha = 0x00000009,
+    SrcAlphaSaturated = 0x0000000A,
+    Constant = 0x0000000B,
+    OneMinusConstant = 0x0000000C,
+    Force32 = 0x7FFFFFFF
 };
+DECL_XE_ENUM( GraphicsBlendFactor );
 
-enum class RenderTextureType
+enum class GraphicsBlendOperation
 {
-	TEXTURE_1D,
-	TEXTURE_1D_ARRAY,
-	TEXTURE_2D,
-	TEXTURE_2D_MS,
-	TEXTURE_2D_ARRAY,
-	TEXTURE_3D,
-	TEXTURE_CUBE,
-	TEXTURE_2D_MS_ARRAY,
+    Add = 0x00000000,
+    Subtract = 0x00000001,
+    ReverseSubtract = 0x00000002,
+    Min = 0x00000003,
+    Max = 0x00000004,
+    Force32 = 0x7FFFFFFF
 };
+DECL_XE_ENUM( GraphicsBlendOperation );
 
-enum class RenderPolygonType
+enum class GraphicsBufferBindingType
 {
-	FILL,
-	WIREFRAME,
-	POINTS,
+    Undefined = 0x00000000,
+    Uniform = 0x00000001,
+    Storage = 0x00000002,
+    ReadOnlyStorage = 0x00000003,
+    Force32 = 0x7FFFFFFF
 };
+DECL_XE_ENUM( GraphicsBufferBindingType );
 
-enum class RenderLogicOpType
+enum class GraphicsBufferMapAsyncStatus
 {
-	DISABLED,
-	CLEAR,
-	SET,
-	COPY,
-	COPY_INVERTED,
-	NOOP,
-	INVERT,
-	AND,
-	AND_REVERSE,
-	AND_INVERTED,
-	NAND,
-	OR,
-	OR_REVERSE,
-	OR_INVERTED,
-	NOR,
-	XOR,
-	EQUIV,
+    Success = 0x00000000,
+    Error = 0x00000001,
+    Unknown = 0x00000002,
+    DeviceLost = 0x00000003,
+    DestroyedBeforeCallback = 0x00000004,
+    UnmappedBeforeCallback = 0x00000005,
+    Force32 = 0x7FFFFFFF
 };
+DECL_XE_ENUM( GraphicsBufferMapAsyncStatus );
 
-enum class RenderBlendOpType
+enum class GraphicsCompareFunction
 {
-	ZERO,
-	ONE,
-	SRC_COLOR,
-	INV_SRC_COLOR,
-	SRC_ALPHA,
-	INV_SRC_ALPHA,
-	DST_COLOR,
-	INV_DST_COLOR,
-	DST_ALPHA,
-	INV_DST_ALPHA,
-	SRC_ALPHA_SATURATE,
-	BLEND_FACTOR,
-	INV_BLEND_FACTOR,
-	SRC1_COLOR,
-	INV_SRC1_COLOR,
-	SRC1_ALPHA,
-	INV_SRC1_ALPHA,
+    Undefined = 0x00000000,
+    Never = 0x00000001,
+    Less = 0x00000002,
+    LessEqual = 0x00000003,
+    Greater = 0x00000004,
+    GreaterEqual = 0x00000005,
+    Equal = 0x00000006,
+    NotEqual = 0x00000007,
+    Always = 0x00000008,
+    Force32 = 0x7FFFFFFF
 };
+DECL_XE_ENUM( GraphicsCompareFunction );
 
-enum class RenderResourceType
+enum class GraphicsCompilationInfoRequestStatus
 {
-	BUFFER,
-	TEXTURE,
-	SAMPLER,
+    Success = 0x00000000,
+    Error = 0x00000001,
+    DeviceLost = 0x00000002,
+    Unknown = 0x00000003,
+    Force32 = 0x7FFFFFFF
 };
+DECL_XE_ENUM( GraphicsCompilationInfoRequestStatus );
 
-enum class RenderStencilOpType
+enum class GraphicsCompilationMessageType
 {
-	KEEP,
-	ZERO,
-	REPLACE,
-	INC_CLAMP,
-	DEC_CLAMP,
-	INVERT,
-	INC_WRAP,
-	DEC_WRAP,
+    Error = 0x00000000,
+    Warning = 0x00000001,
+    Info = 0x00000002,
+    Force32 = 0x7FFFFFFF
 };
+DECL_XE_ENUM( GraphicsCompilationMessageType );
 
-enum class RenderCompareOpType
+enum class GraphicsComputePassTimestampLocation
 {
-	NEVER_PASS,
-	LESS,
-	EQUAL,
-	LESS_EQUAL,
-	GREATER,
-	NOT_EQUAL,
-	GREATER_EQUAL,
-	ALWAYS_PASS,
+    Beginning = 0x00000000,
+    End = 0x00000001,
+    Force32 = 0x7FFFFFFF
 };
+DECL_XE_ENUM( GraphicsComputePassTimestampLocation );
 
-enum class RenderConditionType
+enum class GraphicsCreatePipelineAsyncStatus
 {
-	WAIT,
-	NO_WAIT,
-	BY_REGION_WAIT,
-	BY_REGION_NO_WAIT,
-	WAIT_INVERTED,
-	NO_WAIT_INVERTED,
-	BY_REGION_WAIT_INVERTED,
-	BY_REGION_NO_WAIT_INVERTED,
+    Success = 0x00000000,
+    Error = 0x00000001,
+    DeviceLost = 0x00000002,
+    DeviceDestroyed = 0x00000003,
+    Unknown = 0x00000004,
+    Force32 = 0x7FFFFFFF
 };
+DECL_XE_ENUM( GraphicsCreatePipelineAsyncStatus );
 
-enum class RenderAttributeType
+enum class GraphicsCullMode
 {
-	UNDEFINED,
-	CLIP_DISTANCE,
-	COLOR,
-	CULL_DISTANCE,
-	DEPTH,
-	DEPTH_GREATER,
-	DEPTH_LESS,
-	FRONT_FACING,
-	INSTANCE_ID,
-	POSITION,
-	PRIMITIVE_ID,
-	RENDER_TARGET_INDEX,
-	SAMPLE_MASK,
-	SAMPLE_ID,
-	STENCIL,
-	VERTEX_ID,
-	VIEWPORT_INDEX,
+    None = 0x00000000,
+    Front = 0x00000001,
+    Back = 0x00000002,
+    Force32 = 0x7FFFFFFF
 };
+DECL_XE_ENUM( GraphicsCullMode );
 
-enum class RenderAttachmentType
+enum class GraphicsDeviceLostReason
 {
-	COLOR,
-	DEPTH,
-	STENCIL,
-	DEPTH_STENCIL,
+    Undefined = 0x00000000,
+    Destroyed = 0x00000001,
+    Force32 = 0x7FFFFFFF
 };
+DECL_XE_ENUM( GraphicsDeviceLostReason );
 
-enum class RenderStencilFaceType
+enum class GraphicsErrorFilter
 {
-	FRONT = 1,
-	BACK = 2,
-	FRONT_BACK = FRONT | BACK,
+    Validation = 0x00000000,
+    OutOfMemory = 0x00000001,
+    Force32 = 0x7FFFFFFF
 };
+DECL_XE_ENUM( GraphicsErrorFilter );
 
-enum class RenderSamplerFilterType
+enum class GraphicsErrorType
 {
-	NEAREST,
-	LINEAR,
+    NoError = 0x00000000,
+    Validation = 0x00000001,
+    OutOfMemory = 0x00000002,
+    Unknown = 0x00000003,
+    DeviceLost = 0x00000004,
+    Force32 = 0x7FFFFFFF
 };
+DECL_XE_ENUM( GraphicsErrorType );
 
-enum class RenderPipelineStateType
+enum class GraphicsFeatureName
 {
-	COMPUTE,
-	GRAPHICS,
+    Undefined = 0x00000000,
+    DepthClipControl = 0x00000001,
+    Depth24UnormStencil8 = 0x00000002,
+    Depth32FloatStencil8 = 0x00000003,
+    TimestampQuery = 0x00000004,
+    PipelineStatisticsQuery = 0x00000005,
+    TextureCompressionBC = 0x00000006,
+    TextureCompressionETC2 = 0x00000007,
+    TextureCompressionASTC = 0x00000008,
+    IndirectFirstInstance = 0x00000009,
+    Force32 = 0x7FFFFFFF
 };
+DECL_XE_ENUM( GraphicsFeatureName );
 
-enum class RenderResourceStatesType
+enum class GraphicsFilterMode
 {
-	COMMON,
-	VERTEX_AND_CONSTANT_BUFFER,
-	INDEX_BUFFER,
-	RENDER_TARGET,
-	UNORDERED_ACCESS,
-	DEPTH_WRITE,
-	DEPTH_READ,
-	NON_PIXEL_SHADER_RESOURCE,
-	PIXEL_SHADER_RESOURCE,
-	STREAM_OUT,
-	INDIRECT_ARGUMENT,
-	COPY_DEST,
-	COPY_SOURCE,
-	RESOLVE_DEST,
-	RESOLVE_SOURCE,
-	RAYTRACING_ACCELERATION_STRUCTURE,
-	SHADING_RATE_SOURCE,
-	GENERIC_READ,
-	PRESENT,
-	PREDICATION,
+    Nearest = 0x00000000,
+    Linear = 0x00000001,
+    Force32 = 0x7FFFFFFF
 };
+DECL_XE_ENUM( GraphicsFilterMode );
 
-enum class RenderTextureSwizzleType
+enum class GraphicsFrontFace
 {
-	ZERO,
-	ONE,
-	RED,
-	GREEN,
-	BLUE,
-	ALPHA,
+    CCW = 0x00000000,
+    CW = 0x00000001,
+    Force32 = 0x7FFFFFFF
 };
+DECL_XE_ENUM( GraphicsFrontFace );
 
-enum class RenderBlendArithmeticType
+enum class GraphicsIndexFormat
 {
-	ADD,           
-	SUBTRACT,      
-	REV_SUBTRACT,   
-	MIN,           
-	MAX,           
+    Undefined = 0x00000000,
+    Uint16 = 0x00000001,
+    Uint32 = 0x00000002,
+    Force32 = 0x7FFFFFFF
 };
+DECL_XE_ENUM( GraphicsIndexFormat );
 
-enum class RenderAttachmentLoadOpType
+enum class GraphicsLoadOp
 {
-	DISCARD,
-	PRESERVE,
-	CLEAR,
-	NO_ACCESS,
+    Undefined = 0x00000000,
+    Clear = 0x00000001,
+    Load = 0x00000002,
+    Force32 = 0x7FFFFFFF
 };
+DECL_XE_ENUM( GraphicsLoadOp );
 
-enum class RenderAttachmentStoreOpType
+enum class GraphicsMipmapFilterMode
 {
-	DISCARD,
-	PRESERVE,
-	RESOLVE,
-	NO_ACCESS,
+    Nearest = 0x00000000,
+    Linear = 0x00000001,
+    Force32 = 0x7FFFFFFF
 };
+DECL_XE_ENUM( GraphicsMipmapFilterMode );
 
-enum class RenderPrimitiveTopologyType
+enum class GraphicsPipelineStatisticName
 {
-	POINT_LIST,
-	LINE_LIST,
-	LINE_STRIP,
-	LINE_LOOP,
-	LINE_LIST_ADJACENCY,
-	LINE_STRIP_ADJACENCY,
-	TRIANGLE_LIST,
-	TRIANGLE_STRIP,
-	TRIANGLE_FAN,
-	TRIANGLE_LIST_ADJACENCY,
-	TRIANGLE_STRIP_ADJACENCY,
-	PATCHES_1,
-	PATCHES_2,
-	PATCHES_3,
-	PATCHES_4,
-	PATCHES_5,
-	PATCHES_6,
-	PATCHES_7,
-	PATCHES_8,
-	PATCHES_9,
-	PATCHES_10,
-	PATCHES_11,
-	PATCHES_12,
-	PATCHES_13,
-	PATCHES_14,
-	PATCHES_15,
-	PATCHES_16,
-	PATCHES_17,
-	PATCHES_18,
-	PATCHES_19,
-	PATCHES_20,
-	PATCHES_21,
-	PATCHES_22,
-	PATCHES_23,
-	PATCHES_24,
-	PATCHES_25,
-	PATCHES_26,
-	PATCHES_27,
-	PATCHES_28,
-	PATCHES_29,
-	PATCHES_30,
-	PATCHES_31,
-	PATCHES_32,
+    VertexShaderInvocations = 0x00000000,
+    ClipperInvocations = 0x00000001,
+    ClipperPrimitivesOut = 0x00000002,
+    FragmentShaderInvocations = 0x00000003,
+    ComputeShaderInvocations = 0x00000004,
+    Force32 = 0x7FFFFFFF
 };
+DECL_XE_ENUM( GraphicsPipelineStatisticName );
 
-enum class RenderSamplerAddressModeType
+enum class GraphicsPowerPreference
 {
-	REPEAT,
-	MIRROR,
-	CLAMP,
-	BORDER,
-	MIRRORONCE,
+    Undefined = 0x00000000,
+    LowPower = 0x00000001,
+    HighPerformance = 0x00000002,
+    Force32 = 0x7FFFFFFF
 };
+DECL_XE_ENUM( GraphicsPowerPreference );
 
-enum class RenderTessellationPartitionType
+enum class GraphicsPredefinedColorSpace
 {
-	UNDEFINED,
-	INTEGER,
-	POW2,
-	FRACTIONAL_ODD,
-	FRACTIONAL_EVEN,
+    Undefined = 0x00000000,
+    Srgb = 0x00000001,
+    Force32 = 0x7FFFFFFF
 };
+DECL_XE_ENUM( GraphicsPredefinedColorSpace );
 
-
-enum class RenderPassFlag
+enum class GraphicsPresentMode
 {
-	NONE = 0,
-	ALLOW_UAV_WRITES = 1 << 0,
-	SUSPENDING_PASS = 1 << 1,
-	RESUMING_PASS = 1 << 2,
+    Immediate = 0x00000000,
+    Mailbox = 0x00000001,
+    Fifo = 0x00000002,
+    Force32 = 0x7FFFFFFF
 };
-DECL_FLAGS( RenderPassFlag, RenderPassFlags );
+DECL_XE_ENUM( GraphicsPresentMode );
 
-enum class RenderMiscFlag
+enum class GraphicsPrimitiveTopology
 {
-	DYNAMIC_USAGE =1 << 0,
-	FIXED_SAMPLES =1 << 1,
-	GENERATE_MIPS =1 << 2,
-	NOINITIAL_DATA =1 << 3,
-	APPEND =1 << 4,
-	COUNTER =1 << 5,
+    PointList = 0x00000000,
+    LineList = 0x00000001,
+    LineStrip = 0x00000002,
+    TriangleList = 0x00000003,
+    TriangleStrip = 0x00000004,
+    Force32 = 0x7FFFFFFF
 };
-DECL_FLAGS( RenderMiscFlag, RenderMiscFlags );
+DECL_XE_ENUM( GraphicsPrimitiveTopology );
 
-enum class RenderBindFlag
+enum class GraphicsQueryType
 {
-	VERTEX_BUFFER = 1 << 0,
-	INDEX_BUFFER = 1 << 1,
-	CONSTANT_BUFFER = 1 << 2,
-	STREAM_OUTPUT_BUFFER = 1 << 3,
-	INDIRECT_BUFFER = 1 << 4,
-	SAMPLED = 1 << 5,
-	STORAGE = 1 << 6,
-	COLOR_ATTACHMENT = 1 << 7,
-	DEPTH_STENCIL_ATTACHMENT = 1 << 8,
-	COMBINED_SAMPLER = 1 << 9,
-	COPY_SRC = 1 << 10,
-	COPY_DST = 1 << 11,
+    Occlusion = 0x00000000,
+    PipelineStatistics = 0x00000001,
+    Timestamp = 0x00000002,
+    Force32 = 0x7FFFFFFF
 };
-DECL_FLAGS( RenderBindFlag, RenderBindFlags );
+DECL_XE_ENUM( GraphicsQueryType );
 
-enum class RenderStageFlag
+enum class GraphicsQueueWorkDoneStatus
 {
-	VERTEX = 1 << 0,
-	TESS_CONTROL = 1 << 1,
-	TESS_EVALUATION = 1 << 2,
-	GEOMETRY = 1 << 3,
-	FRAGMENT = 1 << 4,
-	COMPUTE = 1 << 5,
-	ALL_TESS = TESS_CONTROL | TESS_EVALUATION,
-	ALL_GRAPHICS = VERTEX | ALL_TESS | GEOMETRY | FRAGMENT,
-	ALL = ALL_GRAPHICS | COMPUTE,
+    Success = 0x00000000,
+    Error = 0x00000001,
+    Unknown = 0x00000002,
+    DeviceLost = 0x00000003,
+    Force32 = 0x7FFFFFFF
 };
-DECL_FLAGS( RenderStageFlag, RenderStageFlags );
+DECL_XE_ENUM( GraphicsQueueWorkDoneStatus );
 
-enum class RenderClearFlag
+enum class GraphicsRenderPassTimestampLocation
 {
-	DEPTH = 1 << 1,
-	STENCIL = 1 << 2,
-	COLOR = 1 << 3,
+    Beginning = 0x00000000,
+    End = 0x00000001,
+    Force32 = 0x7FFFFFFF
 };
-DECL_FLAGS( RenderClearFlag, RenderClearFlags );
+DECL_XE_ENUM( GraphicsRenderPassTimestampLocation );
 
-
-struct XE_API RenderClear
+enum class GraphicsRequestAdapterStatus
 {
-	XE::RenderClearFlags Flags;
-	XE::FColor Color;
-	XE::float32 Depth;
-	XE::uint32 Stencil;
+    Success = 0x00000000,
+    Unavailable = 0x00000001,
+    Error = 0x00000002,
+    Unknown = 0x00000003,
+    Force32 = 0x7FFFFFFF
 };
+DECL_XE_ENUM( GraphicsRequestAdapterStatus );
 
-struct XE_API RenderPassDesc
+enum class GraphicsRequestDeviceStatus
 {
-	struct AttachmentDesc
-	{
-		XE::RenderFormatType Format;
-		XE::RenderTargetHandle RenderTarget;
-		XE::RenderAttachmentLoadOpType LoadOp;
-		XE::RenderAttachmentStoreOpType StoreOp;
-	};
-
-	XE::String Name;
-	XE::uint32 Samples;
-	XE::RenderClear Clear;
-	AttachmentDesc DepthStencil;
-	XE::Array< AttachmentDesc > Colors;
+    Success = 0x00000000,
+    Error = 0x00000001,
+    Unknown = 0x00000002,
+    Force32 = 0x7FFFFFFF
 };
+DECL_XE_ENUM( GraphicsRequestDeviceStatus );
 
-struct XE_API RenderQueryDesc
+enum class GraphicsSamplerBindingType
 {
-	XE::String Name;
-	RenderQueryType Type;
-	XE::uint32 NumQueries;
-	bool RenderCondition;
+    Undefined = 0x00000000,
+    Filtering = 0x00000001,
+    NonFiltering = 0x00000002,
+    Comparison = 0x00000003,
+    Force32 = 0x7FFFFFFF
 };
+DECL_XE_ENUM( GraphicsSamplerBindingType );
 
-struct XE_API RenderBufferDesc
+enum class GraphicsStencilOperation
 {
-	XE::String Name;
-	XE::uint64 Size;
-	XE::uint32 Stride;
-	XE::RenderFormatType Format;
-	XE::RenderBindFlags BindFlags;
-	XE::RenderAccessType CpuAccess;
+    Keep = 0x00000000,
+    Zero = 0x00000001,
+    Replace = 0x00000002,
+    Invert = 0x00000003,
+    IncrementClamp = 0x00000004,
+    DecrementClamp = 0x00000005,
+    IncrementWrap = 0x00000006,
+    DecrementWrap = 0x00000007,
+    Force32 = 0x7FFFFFFF
 };
+DECL_XE_ENUM( GraphicsStencilOperation );
 
-struct XE_API RenderTargetDesc
+enum class GraphicsStorageTextureAccess
 {
-	XE::String Name;
-	XE::Vec2i Resolution;
-	XE::RenderAttachmentType Type;
-	XE::RenderTextureHandle Texture;
-
-	bool CustomMultiSampling = false;
+    Undefined = 0x00000000,
+    WriteOnly = 0x00000001,
+    Force32 = 0x7FFFFFFF
 };
+DECL_XE_ENUM( GraphicsStorageTextureAccess );
 
-struct XE_API RenderShaderDesc
+enum class GraphicsStoreOp
 {
-	XE::RenderShaderType Type;
-	XE::String Name;
-	XE::String Enter;
-	XE::String Source;
+    Undefined = 0x00000000,
+    Store = 0x00000001,
+    Discard = 0x00000002,
+    Force32 = 0x7FFFFFFF
 };
+DECL_XE_ENUM( GraphicsStoreOp );
 
-struct XE_API RenderTextureDesc
+enum class GraphicsTextureAspect
 {
-	XE::String Name;
-	XE::RenderTextureType Type;
-	XE::RenderBindFlags BindFlags;
-	XE::RenderFormatType Format;
-	XE::uint32 Width, Height, Depth;
-	XE::uint32 MipLevels;
-	XE::RenderClear Clear;
+    All = 0x00000000,
+    StencilOnly = 0x00000001,
+    DepthOnly = 0x00000002,
+    Force32 = 0x7FFFFFFF
 };
+DECL_XE_ENUM( GraphicsTextureAspect );
 
-struct XE_API RenderSamplerDesc
+enum class GraphicsTextureComponentType
 {
-	XE::String Name;
-	XE::RenderSamplerAddressModeType AddressModeU;
-	XE::RenderSamplerAddressModeType AddressModeV;
-	XE::RenderSamplerAddressModeType AddressModeW;
-	XE::RenderSamplerFilterType MinFilter;
-	XE::RenderSamplerFilterType MagFilter;
-	XE::RenderSamplerFilterType MipMapFilter;
-	bool MipMapping;
-	XE::float32 MipMapLODBias;
-	XE::float32 MinLOD;
-	XE::float32 MaxLOD;
-	std::uint32_t MaxAnisotropy;
-	bool CompareEnabled;
-	XE::RenderCompareOpType CompareOp;
-	XE::FColor BorderColor;
+    Float = 0x00000000,
+    Sint = 0x00000001,
+    Uint = 0x00000002,
+    DepthComparison = 0x00000003,
+    Force32 = 0x7FFFFFFF
 };
+DECL_XE_ENUM( GraphicsTextureComponentType );
 
-struct XE_API RenderContextDesc
+enum class GraphicsTextureDimension
 {
-	XE::String Name;
-	XE::uint64 Vendor;
-	XE::uint64 Device;
-	XE::uint64 VideoMemory;
-	XE::uint64 SystemMemory;
-	XE::uint64 SharedMemory;
+    TextureDimension_1D = 0x00000000,
+    TextureDimension_2D = 0x00000001,
+    TextureDimension_3D = 0x00000002,
+    TextureDimension_Force32 = 0x7FFFFFFF
 };
+DECL_XE_ENUM( GraphicsTextureDimension );
 
-struct XE_API RenderDescriptorSetDesc
+enum class GraphicsTextureFormat
 {
-	struct BindingDesc
-	{
-		XE::String Name;
-		XE::uint32 Slot;
-		XE::uint32 ArraySize;
-		XE::RenderBindFlags Bind;
-		XE::RenderStageFlags Stage;
-		XE::RenderResourceType Type;
-	};
-
-	struct RenderResourceViewDesc
-	{
-		XE::String Name;
-		std::variant< std::monostate, XE::RenderBufferHandle, XE::RenderTextureHandle > Resource;
-
-		union
-		{
-			struct BufferView
-			{
-				XE::RenderFormatType Format;
-				XE::uint64 Offset;
-				XE::uint64 Size;
-			} Buffer;
-
-			struct TextureView
-			{
-				XE::RenderTextureType Type;
-				XE::RenderFormatType Format;
-				XE::uint32 BaseMipLevel = 0;
-				XE::uint32 NumMipLevels = 1;
-				XE::uint32 BaseArrayLayer = 0;
-				XE::uint32 NumArrayLayers = 1;
-				RenderTextureSwizzleType R;
-				RenderTextureSwizzleType G;
-				RenderTextureSwizzleType B;
-				RenderTextureSwizzleType A;
-			} Texture;
-		};
-	};
-
-	XE::String Name;
-	XE::Array< BindingDesc > Bindings;
-	XE::Array< RenderResourceViewDesc > ResourceViews;
+    Undefined = 0x00000000,
+    R8Unorm = 0x00000001,
+    R8Snorm = 0x00000002,
+    R8Uint = 0x00000003,
+    R8Sint = 0x00000004,
+    R16Uint = 0x00000005,
+    R16Sint = 0x00000006,
+    R16Float = 0x00000007,
+    RG8Unorm = 0x00000008,
+    RG8Snorm = 0x00000009,
+    RG8Uint = 0x0000000A,
+    RG8Sint = 0x0000000B,
+    R32Float = 0x0000000C,
+    R32Uint = 0x0000000D,
+    R32Sint = 0x0000000E,
+    RG16Uint = 0x0000000F,
+    RG16Sint = 0x00000010,
+    RG16Float = 0x00000011,
+    RGBA8Unorm = 0x00000012,
+    RGBA8UnormSrgb = 0x00000013,
+    RGBA8Snorm = 0x00000014,
+    RGBA8Uint = 0x00000015,
+    RGBA8Sint = 0x00000016,
+    BGRA8Unorm = 0x00000017,
+    BGRA8UnormSrgb = 0x00000018,
+    RGB10A2Unorm = 0x00000019,
+    RG11B10Ufloat = 0x0000001A,
+    RGB9E5Ufloat = 0x0000001B,
+    RG32Float = 0x0000001C,
+    RG32Uint = 0x0000001D,
+    RG32Sint = 0x0000001E,
+    RGBA16Uint = 0x0000001F,
+    RGBA16Sint = 0x00000020,
+    RGBA16Float = 0x00000021,
+    RGBA32Float = 0x00000022,
+    RGBA32Uint = 0x00000023,
+    RGBA32Sint = 0x00000024,
+    Stencil8 = 0x00000025,
+    Depth16Unorm = 0x00000026,
+    Depth24Plus = 0x00000027,
+    Depth24PlusStencil8 = 0x00000028,
+    Depth24UnormStencil8 = 0x00000029,
+    Depth32Float = 0x0000002A,
+    Depth32FloatStencil8 = 0x0000002B,
+    BC1RGBAUnorm = 0x0000002C,
+    BC1RGBAUnormSrgb = 0x0000002D,
+    BC2RGBAUnorm = 0x0000002E,
+    BC2RGBAUnormSrgb = 0x0000002F,
+    BC3RGBAUnorm = 0x00000030,
+    BC3RGBAUnormSrgb = 0x00000031,
+    BC4RUnorm = 0x00000032,
+    BC4RSnorm = 0x00000033,
+    BC5RGUnorm = 0x00000034,
+    BC5RGSnorm = 0x00000035,
+    BC6HRGBUfloat = 0x00000036,
+    BC6HRGBFloat = 0x00000037,
+    BC7RGBAUnorm = 0x00000038,
+    BC7RGBAUnormSrgb = 0x00000039,
+    ETC2RGB8Unorm = 0x0000003A,
+    ETC2RGB8UnormSrgb = 0x0000003B,
+    ETC2RGB8A1Unorm = 0x0000003C,
+    ETC2RGB8A1UnormSrgb = 0x0000003D,
+    ETC2RGBA8Unorm = 0x0000003E,
+    ETC2RGBA8UnormSrgb = 0x0000003F,
+    EACR11Unorm = 0x00000040,
+    EACR11Snorm = 0x00000041,
+    EACRG11Unorm = 0x00000042,
+    EACRG11Snorm = 0x00000043,
+    ASTC4x4Unorm = 0x00000044,
+    ASTC4x4UnormSrgb = 0x00000045,
+    ASTC5x4Unorm = 0x00000046,
+    ASTC5x4UnormSrgb = 0x00000047,
+    ASTC5x5Unorm = 0x00000048,
+    ASTC5x5UnormSrgb = 0x00000049,
+    ASTC6x5Unorm = 0x0000004A,
+    ASTC6x5UnormSrgb = 0x0000004B,
+    ASTC6x6Unorm = 0x0000004C,
+    ASTC6x6UnormSrgb = 0x0000004D,
+    ASTC8x5Unorm = 0x0000004E,
+    ASTC8x5UnormSrgb = 0x0000004F,
+    ASTC8x6Unorm = 0x00000050,
+    ASTC8x6UnormSrgb = 0x00000051,
+    ASTC8x8Unorm = 0x00000052,
+    ASTC8x8UnormSrgb = 0x00000053,
+    ASTC10x5Unorm = 0x00000054,
+    ASTC10x5UnormSrgb = 0x00000055,
+    ASTC10x6Unorm = 0x00000056,
+    ASTC10x6UnormSrgb = 0x00000057,
+    ASTC10x8Unorm = 0x00000058,
+    ASTC10x8UnormSrgb = 0x00000059,
+    ASTC10x10Unorm = 0x0000005A,
+    ASTC10x10UnormSrgb = 0x0000005B,
+    ASTC12x10Unorm = 0x0000005C,
+    ASTC12x10UnormSrgb = 0x0000005D,
+    ASTC12x12Unorm = 0x0000005E,
+    ASTC12x12UnormSrgb = 0x0000005F,
+    Force32 = 0x7FFFFFFF
 };
+DECL_XE_ENUM( GraphicsTextureFormat );
 
-struct XE_API RenderShaderProgramDesc
+enum class GraphicsTextureSampleType
 {
-	XE::String Name;
-	XE::RenderShaderHandle CS;
-	XE::RenderShaderHandle VS;
-	XE::RenderShaderHandle PS;
-	XE::RenderShaderHandle HS;
-	XE::RenderShaderHandle DS;
-	XE::RenderShaderHandle GS;
+    Undefined = 0x00000000,
+    Float = 0x00000001,
+    UnfilterableFloat = 0x00000002,
+    Depth = 0x00000003,
+    Sint = 0x00000004,
+    Uint = 0x00000005,
+    Force32 = 0x7FFFFFFF
 };
+DECL_XE_ENUM( GraphicsTextureSampleType );
 
-struct XE_API RenderCommandBundleDesc
+enum class GraphicsTextureViewDimension
 {
-	XE::String Name;
+    TextureViewDimension_Undefined = 0x00000000,
+    TextureViewDimension_1D = 0x00000001,
+    TextureViewDimension_2D = 0x00000002,
+    TextureViewDimension_2DArray = 0x00000003,
+    TextureViewDimension_Cube = 0x00000004,
+    TextureViewDimension_CubeArray = 0x00000005,
+    TextureViewDimension_3D = 0x00000006,
+    TextureViewDimension_Force32 = 0x7FFFFFFF
 };
+DECL_XE_ENUM( GraphicsTextureViewDimension );
 
-struct XE_API RenderVirtualBufferDesc
+enum class GraphicsVertexFormat
 {
-	XE::String Name;
-	XE::uint64 Size;
-	XE::uint64 Stride;
+    Undefined = 0x00000000,
+    Uint8x2 = 0x00000001,
+    Uint8x4 = 0x00000002,
+    Sint8x2 = 0x00000003,
+    Sint8x4 = 0x00000004,
+    Unorm8x2 = 0x00000005,
+    Unorm8x4 = 0x00000006,
+    Snorm8x2 = 0x00000007,
+    Snorm8x4 = 0x00000008,
+    Uint16x2 = 0x00000009,
+    Uint16x4 = 0x0000000A,
+    Sint16x2 = 0x0000000B,
+    Sint16x4 = 0x0000000C,
+    Unorm16x2 = 0x0000000D,
+    Unorm16x4 = 0x0000000E,
+    Snorm16x2 = 0x0000000F,
+    Snorm16x4 = 0x00000010,
+    Float16x2 = 0x00000011,
+    Float16x4 = 0x00000012,
+    Float32 = 0x00000013,
+    Float32x2 = 0x00000014,
+    Float32x3 = 0x00000015,
+    Float32x4 = 0x00000016,
+    Uint32 = 0x00000017,
+    Uint32x2 = 0x00000018,
+    Uint32x3 = 0x00000019,
+    Uint32x4 = 0x0000001A,
+    Sint32 = 0x0000001B,
+    Sint32x2 = 0x0000001C,
+    Sint32x3 = 0x0000001D,
+    Sint32x4 = 0x0000001E,
+    Force32 = 0x7FFFFFFF
 };
+DECL_XE_ENUM( GraphicsVertexFormat );
 
-struct XE_API RenderPipelineStateDesc
+enum class GraphicsVertexStepMode
 {
-	XE::String Name;
-	XE::RenderPipelineStateType Type;
-	XE::RenderDescriptorSetHandle DescriptorSet;
-	XE::RenderShaderProgramHandle ShaderProgram;
+    Vertex = 0x00000000,
+    Instance = 0x00000001,
+    Force32 = 0x7FFFFFFF
 };
+DECL_XE_ENUM( GraphicsVertexStepMode );
 
-struct XE_API RenderGraphicsPipelineStateDesc : public RenderPipelineStateDesc
+enum class GraphicsBufferUsage
 {
-	struct RenderDepthStateDesc
-	{
-		bool TestEnabled;
-		bool WriteEnabled;
-
-		XE::RenderCompareOpType Compare;
-	};
-
-	struct RenderBlendStateDesc
-	{
-		struct RenderBlendTargetDesc
-		{
-			bool BlendEnabled = false;
-			bool LogicOpEnable = false;
-			XE::RenderLogicOpType LogicOp = XE::RenderLogicOpType::NOOP;
-			XE::RenderBlendOpType SrcColor = XE::RenderBlendOpType::SRC_ALPHA;
-			XE::RenderBlendOpType DstColor = XE::RenderBlendOpType::INV_SRC_ALPHA;
-			XE::RenderBlendArithmeticType ColorArithmetic = XE::RenderBlendArithmeticType::ADD;
-			XE::RenderBlendOpType SrcAlpha = XE::RenderBlendOpType::SRC_ALPHA;
-			XE::RenderBlendOpType DstAlpha = XE::RenderBlendOpType::INV_SRC_ALPHA;
-			XE::RenderBlendArithmeticType AlphaArithmetic = XE::RenderBlendArithmeticType::ADD;
-			XE::Color ColorMask = { 1, 1, 1, 1 };
-		};
-
-		bool AlphaToCoverageEnabled = false;
-		bool IndependentBlendEnabled = false;
-		XE::uint32 SampleMask = ~0u;
-		XE::RenderLogicOpType LogicOp = XE::RenderLogicOpType::DISABLED;
-		XE::FColor BlendFactor = { 0, 0, 0, 0 };
-		bool BlendFactorDynamic = false;
-		RenderBlendTargetDesc BlendTargets[8];
-	};
-
-	struct RenderInputLayoutDesc
-	{
-		struct AttributeDesc
-		{
-			XE::String Name;
-			XE::RenderFormatType Format;
-			XE::uint32 Location;
-			XE::uint32 SemanticIndex;
-			XE::RenderAttributeType Type;
-			XE::uint32 Slot;
-			XE::uint32 Offset;
-			XE::uint32 Stride;
-			XE::uint32 InstanceDivisor;
-		};
-
-		XE::String Name;
-		XE::Array< AttributeDesc > Attributes;
-	};
-
-	struct RenderStencilStateDesc
-	{
-		bool TestEnabled;
-		bool ReferenceDynamic;
-
-		XE::uint32 FrontReadMask;
-		XE::uint32 FrontWriteMask;
-		XE::uint32 FrontReference;
-		XE::RenderStencilOpType FrontStencilFail;
-		XE::RenderStencilOpType FrontDepthFail;
-		XE::RenderStencilOpType FrontDepthPass;
-		XE::RenderCompareOpType FrontCompare;
-		XE::uint32 BackReadMask;
-		XE::uint32 BackWriteMask;
-		XE::uint32 BackReference;
-		XE::RenderStencilOpType BackStencilFail;
-		XE::RenderStencilOpType BackDepthFail;
-		XE::RenderStencilOpType BackDepthPass;
-		XE::RenderCompareOpType BackCompare;
-	};
-
-	struct RenderRasterizerStateDesc
-	{
-		XE::RenderCullType CullMode;
-		XE::RenderPolygonType PolygonMode;
-
-		XE::float32 DepthBiasClamp = 0.0f;
-		XE::float32 DepthBiasSlopeFactor = 0.0f;
-		XE::float32 DepthBiasConstantFactor = 0.0f;
-
-		bool FrontCCW = false;
-		bool DiscardEnabled = false;
-		bool DepthClampEnabled = false;
-		bool ScissorTestEnabled = false;
-		bool MultiSampleEnabled = false;
-		bool AntiAliasedLineEnabled = false;
-		bool ConservativeRasterization = false;
-		XE::float32 LineWidth = 1.0f;
-	};
-
-	struct RenderTessellationStateDesc
-	{
-		XE::RenderTessellationPartitionType Partition;
-		XE::RenderFormatType IndexFormat;
-		XE::uint32 MaxTessFactor;
-		bool OutputWindingCCW;
-	};
-
-	XE::RenderPrimitiveTopologyType Topology;
-
-	XE::uint32 SampleCount;
-	XE::RenderFormatType DepthStencil;
-	XE::Array< XE::RenderFormatType > RenderTargets;
-
-	RenderDepthStateDesc DepthState;
-	RenderBlendStateDesc BlendState;
-	RenderInputLayoutDesc InputLayout;
-	RenderStencilStateDesc StencilState;
-	RenderRasterizerStateDesc RasterizerState;
-	RenderTessellationStateDesc TessellationState;
+    None = 0x00000000,
+    MapRead = 0x00000001,
+    MapWrite = 0x00000002,
+    CopySrc = 0x00000004,
+    CopyDst = 0x00000008,
+    Index = 0x00000010,
+    Vertex = 0x00000020,
+    Uniform = 0x00000040,
+    Storage = 0x00000080,
+    Indirect = 0x00000100,
+    QueryResolve = 0x00000200,
+    Force32 = 0x7FFFFFFF
 };
+DECL_FLAGS( GraphicsBufferUsage ); DECL_XE_ENUM( GraphicsBufferUsage );
+
+enum class GraphicsColorWriteMask
+{
+    None = 0x00000000,
+    Red = 0x00000001,
+    Green = 0x00000002,
+    Blue = 0x00000004,
+    Alpha = 0x00000008,
+    All = 0x0000000F,
+    Force32 = 0x7FFFFFFF
+};
+DECL_FLAGS( GraphicsColorWriteMask ); DECL_XE_ENUM( GraphicsColorWriteMask );
+
+enum class GraphicsMapMode
+{
+    None = 0x00000000,
+    Read = 0x00000001,
+    Write = 0x00000002,
+    Force32 = 0x7FFFFFFF
+};
+DECL_FLAGS( GraphicsMapMode ); DECL_XE_ENUM( GraphicsMapMode );
+
+enum class GraphicsShaderStage
+{
+    None = 0x00000000,
+    Vertex = 0x00000001,
+    Fragment = 0x00000002,
+    Compute = 0x00000004,
+    Force32 = 0x7FFFFFFF
+};
+DECL_FLAGS( GraphicsShaderStage ); DECL_XE_ENUM( GraphicsShaderStage );
+
+enum class GraphicsTextureUsage
+{
+    None = 0x00000000,
+    CopySrc = 0x00000001,
+    CopyDst = 0x00000002,
+    TextureBinding = 0x00000004,
+    StorageBinding = 0x00000008,
+    RenderAttachment = 0x00000010,
+    Force32 = 0x7FFFFFFF
+};
+DECL_FLAGS( GraphicsTextureUsage ); DECL_XE_ENUM( GraphicsTextureUsage );
+
+
+struct XE_API GraphicsAdapterProperties
+{
+    XE::uint32 vendorID;
+    XE::uint32 deviceID;
+    XE::String name;
+    XE::String driverDescription;
+    XE::GraphicsAdapterType adapterType;
+    XE::GraphicsBackendType backendType;
+};
+
+struct XE_API GraphicsBindGroupEntry
+{
+    XE::uint32 binding;
+    XE::GraphicsBufferHandle buffer;
+    XE::uint64 offset;
+    XE::uint64 size;
+    XE::GraphicsSamplerHandle sampler;
+    XE::GraphicsTextureViewHandle textureView;
+};
+
+struct XE_API GraphicsBlendComponent
+{
+    XE::GraphicsBlendOperation operation;
+    XE::GraphicsBlendFactor srcFactor;
+    XE::GraphicsBlendFactor dstFactor;
+};
+
+struct XE_API GraphicsBufferBindingLayout
+{
+    XE::GraphicsBufferBindingType type;
+    bool hasDynamicOffset;
+    XE::uint64 minBindingSize;
+};
+
+struct XE_API GraphicsBufferDescriptor
+{
+    XE::String label;
+    XE::GraphicsBufferUsageFlags usage;
+    XE::uint64 size;
+    bool mappedAtCreation;
+};
+
+struct XE_API GraphicsCommandBufferDescriptor
+{
+    XE::String label;
+};
+
+struct XE_API GraphicsCommandEncoderDescriptor
+{
+    XE::String label;
+};
+
+struct XE_API GraphicsCompilationMessage
+{
+    XE::String message;
+    XE::GraphicsCompilationMessageType type;
+    XE::uint64 lineNum;
+    XE::uint64 linePos;
+    XE::uint64 offset;
+    XE::uint64 length;
+};
+
+struct XE_API GraphicsComputePassTimestampWrite
+{
+    XE::GraphicsQuerySetHandle querySet;
+    XE::uint32 queryIndex;
+    XE::GraphicsComputePassTimestampLocation location;
+};
+
+struct XE_API GraphicsConstantEntry
+{
+    XE::String key;
+    double value;
+};
+
+struct XE_API GraphicsExtent3D
+{
+    XE::uint32 width;
+    XE::uint32 height;
+    XE::uint32 depthOrArrayLayers;
+};
+
+struct XE_API GraphicsLimits
+{
+    XE::uint32 maxTextureDimension1D;
+    XE::uint32 maxTextureDimension2D;
+    XE::uint32 maxTextureDimension3D;
+    XE::uint32 maxTextureArrayLayers;
+    XE::uint32 maxBindGroups;
+    XE::uint32 maxDynamicUniformBuffersPerPipelineLayout;
+    XE::uint32 maxDynamicStorageBuffersPerPipelineLayout;
+    XE::uint32 maxSampledTexturesPerShaderStage;
+    XE::uint32 maxSamplersPerShaderStage;
+    XE::uint32 maxStorageBuffersPerShaderStage;
+    XE::uint32 maxStorageTexturesPerShaderStage;
+    XE::uint32 maxUniformBuffersPerShaderStage;
+    XE::uint64 maxUniformBufferBindingSize;
+    XE::uint64 maxStorageBufferBindingSize;
+    XE::uint32 minUniformBufferOffsetAlignment;
+    XE::uint32 minStorageBufferOffsetAlignment;
+    XE::uint32 maxVertexBuffers;
+    XE::uint32 maxVertexAttributes;
+    XE::uint32 maxVertexBufferArrayStride;
+    XE::uint32 maxInterStageShaderComponents;
+    XE::uint32 maxComputeWorkgroupStorageSize;
+    XE::uint32 maxComputeInvocationsPerWorkgroup;
+    XE::uint32 maxComputeWorkgroupSizeX;
+    XE::uint32 maxComputeWorkgroupSizeY;
+    XE::uint32 maxComputeWorkgroupSizeZ;
+    XE::uint32 maxComputeWorkgroupsPerDimension;
+};
+
+struct XE_API GraphicsMultisampleState
+{
+    XE::uint32 count;
+    XE::uint32 mask;
+    bool alphaToCoverageEnabled;
+};
+
+struct XE_API GraphicsOrigin3D
+{
+    XE::uint32 x;
+    XE::uint32 y;
+    XE::uint32 z;
+};
+
+struct XE_API GraphicsPipelineLayoutDescriptor
+{
+    XE::String label;
+    XE::uint32 bindGroupLayoutCount;
+    XE::GraphicsBindGroupLayout const * bindGroupLayouts;
+};
+
+struct XE_API GraphicsPrimitiveDepthClipControl
+{
+    bool unclippedDepth;
+};
+
+struct XE_API GraphicsPrimitiveState
+{
+    XE::GraphicsPrimitiveTopology topology;
+    XE::GraphicsIndexFormat stripIndexFormat;
+    XE::GraphicsFrontFace frontFace;
+    XE::GraphicsCullMode cullMode;
+};
+
+struct XE_API GraphicsQuerySetDescriptor
+{
+    XE::String label;
+    XE::GraphicsQueryType type;
+    XE::uint32 count;
+    XE::GraphicsPipelineStatisticName const * pipelineStatistics;
+    XE::uint32 pipelineStatisticsCount;
+};
+
+struct XE_API GraphicsQueueDescriptor
+{
+    XE::String label;
+};
+
+struct XE_API GraphicsRenderBundleDescriptor
+{
+    XE::String label;
+};
+
+struct XE_API GraphicsRenderBundleEncoderDescriptor
+{
+    XE::String label;
+    XE::uint32 colorFormatsCount;
+    XE::GraphicsTextureFormat const * colorFormats;
+    XE::GraphicsTextureFormat depthStencilFormat;
+    XE::uint32 sampleCount;
+    bool depthReadOnly;
+    bool stencilReadOnly;
+};
+
+struct XE_API GraphicsRenderPassDepthStencilAttachment
+{
+    XE::GraphicsTextureViewHandle view;
+    XE::GraphicsLoadOp depthLoadOp;
+    XE::GraphicsStoreOp depthStoreOp;
+    float depthClearValue;
+    bool depthReadOnly;
+    XE::GraphicsLoadOp stencilLoadOp;
+    XE::GraphicsStoreOp stencilStoreOp;
+    XE::uint32 stencilClearValue;
+    bool stencilReadOnly;
+};
+
+struct XE_API GraphicsRenderPassTimestampWrite
+{
+    XE::GraphicsQuerySetHandle querySet;
+    XE::uint32 queryIndex;
+    XE::GraphicsRenderPassTimestampLocation location;
+};
+
+struct XE_API GraphicsRequestAdapterOptions
+{
+    XE::GraphicsSurfaceHandle compatibleSurface;
+    XE::GraphicsPowerPreference powerPreference;
+    bool forceFallbackAdapter;
+};
+
+struct XE_API GraphicsSamplerBindingLayout
+{
+    XE::GraphicsSamplerBindingType type;
+};
+
+struct XE_API GraphicsSamplerDescriptor
+{
+    XE::String label;
+    XE::GraphicsAddressMode addressModeU;
+    XE::GraphicsAddressMode addressModeV;
+    XE::GraphicsAddressMode addressModeW;
+    XE::GraphicsFilterMode magFilter;
+    XE::GraphicsFilterMode minFilter;
+    XE::GraphicsMipmapFilterMode mipmapFilter;
+    float lodMinClamp;
+    float lodMaxClamp;
+    XE::GraphicsCompareFunction compare;
+    XE::uint16 maxAnisotropy;
+};
+
+struct XE_API GraphicsShaderModuleCompilationHint
+{
+    XE::String entryPoint;
+    XE::GraphicsPipelineLayoutHandle layout;
+};
+
+struct XE_API GraphicsShaderModuleCodeDescriptor
+{
+    XE::MemoryView code;
+};
+
+struct XE_API GraphicsStencilFaceState
+{
+    XE::GraphicsCompareFunction compare;
+    XE::GraphicsStencilOperation failOp;
+    XE::GraphicsStencilOperation depthFailOp;
+    XE::GraphicsStencilOperation passOp;
+};
+
+struct XE_API GraphicsStorageTextureBindingLayout
+{
+    XE::GraphicsStorageTextureAccess access;
+    XE::GraphicsTextureFormat format;
+    XE::GraphicsTextureViewDimension viewDimension;
+};
+
+struct XE_API GraphicsSurfaceDescriptor
+{
+    XE::String label;
+};
+
+struct XE_API GraphicsSurfaceDescriptorFromAndroidNativeWindow
+{
+    void * window;
+};
+
+struct XE_API GraphicsSurfaceDescriptorFromCanvasHTMLSelector
+{
+    XE::String selector;
+};
+
+struct XE_API GraphicsSurfaceDescriptorFromMetalLayer
+{
+    void * layer;
+};
+
+struct XE_API GraphicsSurfaceDescriptorFromWaylandSurface
+{
+    void * display;
+    void * surface;
+};
+
+struct XE_API GraphicsSurfaceDescriptorFromWindowsHWND
+{
+    void * hinstance;
+    void * hwnd;
+};
+
+struct XE_API GraphicsSurfaceDescriptorFromXcbWindow
+{
+    void * connection;
+    XE::uint32 window;
+};
+
+struct XE_API GraphicsSurfaceDescriptorFromXlibWindow
+{
+    void * display;
+    XE::uint32 window;
+};
+
+struct XE_API GraphicsSwapChainDescriptor
+{
+    XE::String label;
+    XE::GraphicsTextureUsageFlags usage;
+    XE::GraphicsTextureFormat format;
+    XE::uint32 width;
+    XE::uint32 height;
+    XE::GraphicsPresentMode presentMode;
+};
+
+struct XE_API GraphicsTextureBindingLayout
+{
+    XE::GraphicsTextureSampleType sampleType;
+    XE::GraphicsTextureViewDimension viewDimension;
+    bool multisampled;
+};
+
+struct XE_API GraphicsTextureDataLayout
+{
+    XE::uint64 offset;
+    XE::uint32 bytesPerRow;
+    XE::uint32 rowsPerImage;
+};
+
+struct XE_API GraphicsTextureViewDescriptor
+{
+    XE::String label;
+    XE::GraphicsTextureFormat format;
+    XE::GraphicsTextureViewDimension dimension;
+    XE::uint32 baseMipLevel;
+    XE::uint32 mipLevelCount;
+    XE::uint32 baseArrayLayer;
+    XE::uint32 arrayLayerCount;
+    XE::GraphicsTextureAspect aspect;
+};
+
+struct XE_API GraphicsVertexAttribute
+{
+    XE::GraphicsVertexFormat format;
+    XE::uint64 offset;
+    XE::uint32 shaderLocation;
+};
+
+struct XE_API GraphicsBindGroupDescriptor
+{
+    XE::String label;
+    XE::GraphicsBindGroupLayoutHandle layout;
+    XE::uint32 entryCount;
+    XE::GraphicsBindGroupEntry const * entries;
+};
+
+struct XE_API GraphicsBindGroupLayoutEntry
+{
+    XE::uint32 binding;
+    XE::GraphicsShaderStageFlags visibility;
+    XE::GraphicsBufferBindingLayout buffer;
+    XE::GraphicsSamplerBindingLayout sampler;
+    XE::GraphicsTextureBindingLayout texture;
+    XE::GraphicsStorageTextureBindingLayout storageTexture;
+};
+
+struct XE_API GraphicsBlendState
+{
+    XE::GraphicsBlendComponent color;
+    XE::GraphicsBlendComponent alpha;
+};
+
+struct XE_API GraphicsCompilationInfo
+{
+    XE::uint32 messageCount;
+    XE::GraphicsCompilationMessage const * messages;
+};
+
+struct XE_API GraphicsComputePassDescriptor
+{
+    XE::String label;
+    XE::uint32 timestampWriteCount;
+    XE::GraphicsComputePassTimestampWrite const * timestampWrites;
+};
+
+struct XE_API GraphicsDepthStencilState
+{
+    XE::GraphicsTextureFormat format;
+    bool depthWriteEnabled;
+    XE::GraphicsCompareFunction depthCompare;
+    XE::GraphicsStencilFaceState stencilFront;
+    XE::GraphicsStencilFaceState stencilBack;
+    XE::uint32 stencilReadMask;
+    XE::uint32 stencilWriteMask;
+    int32_t depthBias;
+    float depthBiasSlopeScale;
+    float depthBiasClamp;
+};
+
+struct XE_API GraphicsImageCopyBuffer
+{
+    XE::GraphicsTextureDataLayout layout;
+    XE::GraphicsBufferHandle buffer;
+};
+
+struct XE_API GraphicsImageCopyTexture
+{
+    XE::GraphicsTextureHandle texture;
+    XE::uint32 mipLevel;
+    XE::GraphicsOrigin3D origin;
+    XE::GraphicsTextureAspect aspect;
+};
+
+struct XE_API GraphicsProgrammableStageDescriptor
+{
+    XE::GraphicsShaderModuleHandle module;
+    XE::String entryPoint;
+    XE::uint32 constantCount;
+    XE::GraphicsConstantEntry const * constants;
+};
+
+struct XE_API GraphicsRenderPassColorAttachment
+{
+    XE::GraphicsTextureViewHandle view;
+    XE::GraphicsTextureViewHandle resolveTarget;
+    XE::GraphicsLoadOp loadOp;
+    XE::GraphicsStoreOp storeOp;
+    XE::Color clearValue;
+};
+
+struct XE_API GraphicsRequiredLimits
+{
+    XE::GraphicsLimits limits;
+};
+
+struct XE_API GraphicsShaderModuleDescriptor
+{
+    XE::String label;
+    XE::uint32 hintCount;
+    XE::GraphicsShaderModuleCompilationHint const * hints;
+};
+
+struct XE_API GraphicsSupportedLimits
+{
+    XE::GraphicsLimits limits;
+};
+
+struct XE_API GraphicsTextureDescriptor
+{
+    XE::String label;
+    XE::GraphicsTextureUsageFlags usage;
+    XE::GraphicsTextureDimension dimension;
+    XE::GraphicsExtent3D size;
+    XE::GraphicsTextureFormat format;
+    XE::uint32 mipLevelCount;
+    XE::uint32 sampleCount;
+    XE::uint32 viewFormatCount;
+    XE::GraphicsTextureFormat const * viewFormats;
+};
+
+struct XE_API GraphicsVertexBufferLayout
+{
+    XE::uint64 arrayStride;
+    XE::GraphicsVertexStepMode stepMode;
+    XE::uint32 attributeCount;
+    XE::GraphicsVertexAttribute const * attributes;
+};
+
+struct XE_API GraphicsBindGroupLayoutDescriptor
+{
+    XE::String label;
+    XE::uint32 entryCount;
+    XE::GraphicsBindGroupLayoutEntry const * entries;
+};
+
+struct XE_API GraphicsColorTargetState
+{
+    XE::GraphicsTextureFormat format;
+    XE::GraphicsBlendState const * blend;
+    XE::GraphicsColorWriteMaskFlags writeMask;
+};
+
+struct XE_API GraphicsComputePipelineDescriptor
+{
+    XE::String label;
+    XE::GraphicsPipelineLayoutHandle layout;
+    XE::GraphicsProgrammableStageDescriptor compute;
+};
+
+struct XE_API GraphicsDeviceDescriptor
+{
+    XE::String label;
+    XE::uint32 requiredFeaturesCount;
+    XE::GraphicsFeatureName const * requiredFeatures;
+    XE::GraphicsRequiredLimits const * requiredLimits;
+    XE::GraphicsQueueDescriptor defaultQueue;
+};
+
+struct XE_API GraphicsRenderPassDescriptor
+{
+    XE::String label;
+    XE::uint32 colorAttachmentCount;
+    XE::GraphicsRenderPassColorAttachment const * colorAttachments;
+    XE::GraphicsRenderPassDepthStencilAttachment const * depthStencilAttachment;
+    XE::GraphicsQuerySetHandle occlusionQuerySet;
+    XE::uint32 timestampWriteCount;
+    XE::GraphicsRenderPassTimestampWrite const * timestampWrites;
+};
+
+struct XE_API GraphicsVertexState
+{
+    XE::GraphicsShaderModuleHandle module;
+    XE::String entryPoint;
+    XE::uint32 constantCount;
+    XE::GraphicsConstantEntry const * constants;
+    XE::uint32 bufferCount;
+    XE::GraphicsVertexBufferLayout const * buffers;
+};
+
+struct XE_API GraphicsFragmentState
+{
+    XE::GraphicsShaderModuleHandle module;
+    XE::String entryPoint;
+    XE::uint32 constantCount;
+    XE::GraphicsConstantEntry const * constants;
+    XE::uint32 targetCount;
+    XE::GraphicsColorTargetState const * targets;
+};
+
+struct XE_API GraphicsRenderPipelineDescriptor
+{
+    XE::String label;
+    XE::GraphicsPipelineLayoutHandle layout;
+    XE::GraphicsVertexState vertex;
+    XE::GraphicsPrimitiveState primitive;
+    XE::GraphicsDepthStencilState const * depthStencil;
+    XE::GraphicsMultisampleState multisample;
+    XE::GraphicsFragmentState const * fragment;
+};
+
 
 // Render
 //////////////////////////////////////////////////////////////////////////
