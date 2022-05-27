@@ -21,15 +21,15 @@ private:
 	struct Private;
 
 public:
-	using ErrorCallback = XE::Delegate< void( XE::GraphicsErrorType type, XE::String message ) >;
+	using ErrorCallback = XE::Delegate< void( XE::GraphicsErrorType type, const XE::String & message ) >;
 	using BufferMapCallback = XE::Delegate< void( XE::GraphicsBufferMapAsyncStatus status ) >;
-	using DeviceLostCallback = XE::Delegate< void( XE::GraphicsDeviceLostReason reason, XE::String message ) >;
+	using DeviceLostCallback = XE::Delegate< void( XE::GraphicsDeviceLostReason reason, const XE::String & message ) >;
 	using QueueWorkDoneCallback = XE::Delegate< void( XE::GraphicsQueueWorkDoneStatus status ) >;
-	using RequestDeviceCallback = XE::Delegate< void( XE::GraphicsRequestDeviceStatus status, XE::GraphicsDeviceHandle device, XE::String message ) >;
-	using RequestAdapterCallback = XE::Delegate< void( XE::GraphicsRequestAdapterStatus status, XE::GraphicsAdapterHandle adapter, XE::String message ) >;
-	using CompilationInfoCallback = XE::Delegate< void( XE::GraphicsCompilationInfoRequestStatus status, const XE::GraphicsCompilationInfo & compilationInfo ) >;
-	using CreateRenderPipelineAsyncCallback = XE::Delegate< void( XE::GraphicsCreatePipelineAsyncStatus status, XE::GraphicsRenderPipelineHandle pipeline, XE::String message ) >;
-	using CreateComputePipelineAsyncCallback = XE::Delegate< void( XE::GraphicsCreatePipelineAsyncStatus status, XE::GraphicsComputePipelineHandle pipeline, XE::String message ) >;
+	using RequestDeviceCallback = XE::Delegate< void( XE::GraphicsRequestDeviceStatus status, XE::GraphicsDeviceHandle device, const XE::String & message ) >;
+	using RequestAdapterCallback = XE::Delegate< void( XE::GraphicsRequestAdapterStatus status, XE::GraphicsAdapterHandle adapter, const XE::String & message ) >;
+	using CompilationInfoCallback = XE::Delegate< void( XE::GraphicsCompilationInfoRequestStatus status, const XE::GraphicsCompilationInfo & compilation_info ) >;
+	using CreateRenderPipelineAsyncCallback = XE::Delegate< void( XE::GraphicsCreatePipelineAsyncStatus status, XE::GraphicsRenderPipelineHandle pipeline, const XE::String & message ) >;
+	using CreateComputePipelineAsyncCallback = XE::Delegate< void( XE::GraphicsCreatePipelineAsyncStatus status, XE::GraphicsComputePipelineHandle pipeline, const XE::String & message ) >;
 
 public:
 	GraphicsService();
@@ -51,43 +51,43 @@ public:
 	void AdapterGetProperties( XE::GraphicsAdapterHandle adapter, XE::GraphicsAdapterProperties & properties );
 	bool AdapterHasFeature( XE::GraphicsAdapterHandle adapter, XE::GraphicsFeatureName feature );
 	void AdapterRequestDevice( XE::GraphicsAdapterHandle adapter, const XE::GraphicsDeviceDescriptor & descriptor, RequestDeviceCallback callback );
-
+	
 public:
 	void BufferDestroy( XE::GraphicsBufferHandle buffer );
-	XE::MemoryView BufferGetMappedRange( XE::GraphicsBufferHandle buffer, XE::uint64 offset, XE::uint64 size );
+	std::span< XE::uint8 > BufferGetMappedRange( XE::GraphicsBufferHandle buffer, XE::uint64 offset, XE::uint64 size );
 	void BufferMapAsync( XE::GraphicsBufferHandle buffer, XE::GraphicsMapModeFlags mode, XE::uint64 offset, XE::uint64 size, BufferMapCallback callback );
 	void BufferUnmap( XE::GraphicsBufferHandle buffer );
 
 public:
-	XE::GraphicsComputePassEncoderHandle CommandEncoderBeginComputePass( XE::GraphicsCommandEncoderHandle commandEncoder, const XE::GraphicsComputePassDescriptor & descriptor );
-	XE::GraphicsRenderPassEncoderHandle CommandEncoderBeginRenderPass( XE::GraphicsCommandEncoderHandle commandEncoder, const XE::GraphicsRenderPassDescriptor & descriptor );
-	void CommandEncoderClearBuffer( XE::GraphicsCommandEncoderHandle commandEncoder, XE::GraphicsBufferHandle buffer, XE::uint64 offset, XE::uint64 size );
-	void CommandEncoderCopyBufferToBuffer( XE::GraphicsCommandEncoderHandle commandEncoder, XE::GraphicsBufferHandle source, XE::uint64 sourceOffset, XE::GraphicsBufferHandle destination, XE::uint64 destinationOffset, XE::uint64 size );
-	void CommandEncoderCopyBufferToTexture( XE::GraphicsCommandEncoderHandle commandEncoder, const XE::GraphicsImageCopyBuffer & source, const XE::GraphicsImageCopyTexture & destination, const XE::GraphicsExtent3D & copySize );
-	void CommandEncoderCopyTextureToBuffer( XE::GraphicsCommandEncoderHandle commandEncoder, const XE::GraphicsImageCopyTexture & source, const XE::GraphicsImageCopyBuffer & destination, const XE::GraphicsExtent3D & copySize );
-	void CommandEncoderCopyTextureToTexture( XE::GraphicsCommandEncoderHandle commandEncoder, const XE::GraphicsImageCopyTexture & source, const XE::GraphicsImageCopyTexture & destination, const  XE::GraphicsExtent3D & copySize );
-	XE::GraphicsCommandBufferHandle CommandEncoderFinish( XE::GraphicsCommandEncoderHandle commandEncoder, const XE::GraphicsCommandBufferDescriptor & descriptor );
-	void CommandEncoderInsertDebugMarker( XE::GraphicsCommandEncoderHandle commandEncoder, const XE::String & markerLabel );
-	void CommandEncoderPopDebugGroup( XE::GraphicsCommandEncoderHandle commandEncoder );
-	void CommandEncoderPushDebugGroup( XE::GraphicsCommandEncoderHandle commandEncoder, const XE::String & groupLabel );
-	void CommandEncoderResolveQuerySet( XE::GraphicsCommandEncoderHandle commandEncoder, XE::GraphicsQuerySetHandle querySet, XE::uint32 firstQuery, XE::uint32 queryCount, XE::GraphicsBufferHandle destination, XE::uint64 destinationOffset );
-	void CommandEncoderWriteTimestamp( XE::GraphicsCommandEncoderHandle commandEncoder, XE::GraphicsQuerySetHandle querySet, XE::uint32 queryIndex );
+	XE::GraphicsComputePassEncoderHandle CommandEncoderBeginComputePass( XE::GraphicsCommandEncoderHandle command_encoder, const XE::GraphicsComputePassDescriptor & descriptor );
+	XE::GraphicsRenderPassEncoderHandle CommandEncoderBeginRenderPass( XE::GraphicsCommandEncoderHandle command_encoder, const XE::GraphicsRenderPassDescriptor & descriptor );
+	void CommandEncoderClearBuffer( XE::GraphicsCommandEncoderHandle command_encoder, XE::GraphicsBufferHandle buffer, XE::uint64 offset, XE::uint64 size );
+	void CommandEncoderCopyBufferToBuffer( XE::GraphicsCommandEncoderHandle command_encoder, XE::GraphicsBufferHandle source, XE::uint64 source_offset, XE::GraphicsBufferHandle destination, XE::uint64 destination_offset, XE::uint64 size );
+	void CommandEncoderCopyBufferToTexture( XE::GraphicsCommandEncoderHandle command_encoder, const XE::GraphicsImageCopyBuffer & source, const XE::GraphicsImageCopyTexture & destination, const XE::Vec3f & copy_size );
+	void CommandEncoderCopyTextureToBuffer( XE::GraphicsCommandEncoderHandle command_encoder, const XE::GraphicsImageCopyTexture & source, const XE::GraphicsImageCopyBuffer & destination, const XE::Vec3f & copy_size );
+	void CommandEncoderCopyTextureToTexture( XE::GraphicsCommandEncoderHandle command_encoder, const XE::GraphicsImageCopyTexture & source, const XE::GraphicsImageCopyTexture & destination, const  XE::Vec3f & copy_size );
+	XE::GraphicsCommandBufferHandle CommandEncoderFinish( XE::GraphicsCommandEncoderHandle command_encoder, const XE::GraphicsCommandBufferDescriptor & descriptor );
+	void CommandEncoderInsertDebugMarker( XE::GraphicsCommandEncoderHandle command_encoder, const XE::String & marker_label );
+	void CommandEncoderPopDebugGroup( XE::GraphicsCommandEncoderHandle command_encoder );
+	void CommandEncoderPushDebugGroup( XE::GraphicsCommandEncoderHandle command_encoder, const XE::String & group_label );
+	void CommandEncoderResolveQuerySet( XE::GraphicsCommandEncoderHandle command_encoder, XE::GraphicsQuerySetHandle query_set, XE::uint32 first_query, XE::uint32 query_count, XE::GraphicsBufferHandle destination, XE::uint64 destination_offset );
+	void CommandEncoderWriteTimestamp( XE::GraphicsCommandEncoderHandle command_encoder, XE::GraphicsQuerySetHandle query_set, XE::uint32 query_index );
 
 public:
-	void ComputePassEncoderBeginPipelineStatisticsQuery( XE::GraphicsComputePassEncoderHandle computePassEncoder, XE::GraphicsQuerySetHandle querySet, XE::uint32 queryIndex );
-	void ComputePassEncoderDispatch( XE::GraphicsComputePassEncoderHandle computePassEncoder, XE::uint32 workgroupCountX, XE::uint32 workgroupCountY, XE::uint32 workgroupCountZ );
-	void ComputePassEncoderDispatchIndirect( XE::GraphicsComputePassEncoderHandle computePassEncoder, XE::GraphicsBufferHandle indirectBuffer, XE::uint64 indirectOffset );
-	void ComputePassEncoderEnd( XE::GraphicsComputePassEncoderHandle computePassEncoder );
-	void ComputePassEncoderEndPipelineStatisticsQuery( XE::GraphicsComputePassEncoderHandle computePassEncoder );
-	void ComputePassEncoderInsertDebugMarker( XE::GraphicsComputePassEncoderHandle computePassEncoder, const XE::String & markerLabel );
-	void ComputePassEncoderPopDebugGroup( XE::GraphicsComputePassEncoderHandle computePassEncoder );
-	void ComputePassEncoderPushDebugGroup( XE::GraphicsComputePassEncoderHandle computePassEncoder, const XE::String & groupLabel );
-	void ComputePassEncoderSetBindGroup( XE::GraphicsComputePassEncoderHandle computePassEncoder, XE::uint32 groupIndex, XE::GraphicsBindGroupHandle group, XE::uint32 dynamicOffsetCount, XE::uint32 & dynamicOffsets );
-	void ComputePassEncoderSetPipeline( XE::GraphicsComputePassEncoderHandle computePassEncoder, XE::GraphicsComputePipelineHandle pipeline );
+	void ComputePassEncoderBeginPipelineStatisticsQuery( XE::GraphicsComputePassEncoderHandle compute_pass_encoder, XE::GraphicsQuerySetHandle query_set, XE::uint32 query_index );
+	void ComputePassEncoderDispatch( XE::GraphicsComputePassEncoderHandle compute_pass_encoder, XE::uint32 workgroup_count_x, XE::uint32 workgroup_count_y, XE::uint32 workgroup_count_z );
+	void ComputePassEncoderDispatchIndirect( XE::GraphicsComputePassEncoderHandle compute_pass_encoder, XE::GraphicsBufferHandle indirect_buffer, XE::uint64 indirect_offset );
+	void ComputePassEncoderEnd( XE::GraphicsComputePassEncoderHandle compute_pass_encoder );
+	void ComputePassEncoderEndPipelineStatisticsQuery( XE::GraphicsComputePassEncoderHandle compute_pass_encoder );
+	void ComputePassEncoderInsertDebugMarker( XE::GraphicsComputePassEncoderHandle compute_pass_encoder, const XE::String & marker_label );
+	void ComputePassEncoderPopDebugGroup( XE::GraphicsComputePassEncoderHandle compute_pass_encoder );
+	void ComputePassEncoderPushDebugGroup( XE::GraphicsComputePassEncoderHandle compute_pass_encoder, const XE::String & group_label );
+	void ComputePassEncoderSetBindGroup( XE::GraphicsComputePassEncoderHandle compute_pass_encoder, XE::uint32 group_index, XE::GraphicsBindGroupHandle group, XE::uint32 dynamic_offset_count, XE::uint32 & dynamic_offsets );
+	void ComputePassEncoderSetPipeline( XE::GraphicsComputePassEncoderHandle compute_pass_encoder, XE::GraphicsComputePipelineHandle pipeline );
 
 public:
-	XE::GraphicsBindGroupLayoutHandle ComputePipelineGetBindGroupLayout( XE::GraphicsComputePipelineHandle computePipeline, XE::uint32 groupIndex );
-	void ComputePipelineSetLabel( XE::GraphicsComputePipelineHandle computePipeline, const XE::String & label );
+	XE::GraphicsBindGroupLayoutHandle ComputePipelineGetBindGroupLayout( XE::GraphicsComputePipelineHandle compute_pipeline, XE::uint32 group_index );
+	void ComputePipelineSetLabel( XE::GraphicsComputePipelineHandle compute_pipeline, const XE::String & label );
 
 public:
 	XE::GraphicsBindGroupHandle DeviceCreateBindGroup( XE::GraphicsDeviceHandle device, const XE::GraphicsBindGroupDescriptor & descriptor );
@@ -121,72 +121,69 @@ public:
 	void InstanceRequestAdapter( XE::GraphicsInstanceHandle instance, const XE::GraphicsRequestAdapterOptions & options, RequestAdapterCallback callback );
 
 public:
-	void QuerySetDestroy( XE::GraphicsQuerySetHandle querySet );
+	void QuerySetDestroy( XE::GraphicsQuerySetHandle query_set );
 
 public:
 	void QueueOnSubmittedWorkDone( XE::GraphicsQueueHandle queue, QueueWorkDoneCallback callback );
-	void QueueSubmit( XE::GraphicsQueueHandle queue, XE::uint32 commandCount, const XE::GraphicsCommandBufferHandle & commands );
-	void QueueWriteBuffer( XE::GraphicsQueueHandle queue, XE::GraphicsBufferHandle buffer, XE::uint64 bufferOffset, XE::MemoryView data );
-	void QueueWriteTexture( XE::GraphicsQueueHandle queue, const XE::GraphicsImageCopyTexture & destination, XE::MemoryView data, const XE::GraphicsTextureDataLayout & dataLayout, const XE::GraphicsExtent3D & writeSize );
+	void QueueSubmit( XE::GraphicsQueueHandle queue, const XE::Array< XE::GraphicsCommandBufferHandle > & commands );
+	void QueueWriteBuffer( XE::GraphicsQueueHandle queue, XE::GraphicsBufferHandle buffer, XE::uint64 buffer_offset, XE::MemoryView data );
+	void QueueWriteTexture( XE::GraphicsQueueHandle queue, const XE::GraphicsImageCopyTexture & destination, XE::MemoryView data, const XE::GraphicsTextureDataLayout & data_layout, const XE::Vec3f & write_size );
 
 public:
-	void RenderBundleEncoderDraw( XE::GraphicsRenderBundleEncoderHandle renderBundleEncoder, XE::uint32 vertexCount, XE::uint32 instanceCount, XE::uint32 firstVertex, XE::uint32 firstInstance );
-	void RenderBundleEncoderDrawIndexed( XE::GraphicsRenderBundleEncoderHandle renderBundleEncoder, XE::uint32 indexCount, XE::uint32 instanceCount, XE::uint32 firstIndex, XE::int32 baseVertex, XE::uint32 firstInstance );
-	void RenderBundleEncoderDrawIndexedIndirect( XE::GraphicsRenderBundleEncoderHandle renderBundleEncoder, XE::GraphicsBufferHandle indirectBuffer, XE::uint64 indirectOffset );
-	void RenderBundleEncoderDrawIndirect( XE::GraphicsRenderBundleEncoderHandle renderBundleEncoder, XE::GraphicsBufferHandle indirectBuffer, XE::uint64 indirectOffset );
-	XE::GraphicsRenderBundleHandle RenderBundleEncoderFinish( XE::GraphicsRenderBundleEncoderHandle renderBundleEncoder, const XE::GraphicsRenderBundleDescriptor & descriptor );
-	void RenderBundleEncoderInsertDebugMarker( XE::GraphicsRenderBundleEncoderHandle renderBundleEncoder, const XE::String & markerLabel );
-	void RenderBundleEncoderPopDebugGroup( XE::GraphicsRenderBundleEncoderHandle renderBundleEncoder );
-	void RenderBundleEncoderPushDebugGroup( XE::GraphicsRenderBundleEncoderHandle renderBundleEncoder, const XE::String & groupLabel );
-	void RenderBundleEncoderSetBindGroup( XE::GraphicsRenderBundleEncoderHandle renderBundleEncoder, XE::uint32 groupIndex, XE::GraphicsBindGroupHandle group, XE::uint32 dynamicOffsetCount, XE::uint32 & dynamicOffsets );
-	void RenderBundleEncoderSetIndexBuffer( XE::GraphicsRenderBundleEncoderHandle renderBundleEncoder, XE::GraphicsBufferHandle buffer, XE::GraphicsIndexFormat format, XE::uint64 offset, XE::uint64 size );
-	void RenderBundleEncoderSetPipeline( XE::GraphicsRenderBundleEncoderHandle renderBundleEncoder, XE::GraphicsRenderPipelineHandle pipeline );
-	void RenderBundleEncoderSetVertexBuffer( XE::GraphicsRenderBundleEncoderHandle renderBundleEncoder, XE::uint32 slot, XE::GraphicsBufferHandle buffer, XE::uint64 offset, XE::uint64 size );
+	void RenderBundleEncoderDraw( XE::GraphicsRenderBundleEncoderHandle render_bundle_encoder, XE::uint32 vertex_count, XE::uint32 instance_count, XE::uint32 first_vertex, XE::uint32 first_instance );
+	void RenderBundleEncoderDrawIndexed( XE::GraphicsRenderBundleEncoderHandle render_bundle_encoder, XE::uint32 index_count, XE::uint32 instance_count, XE::uint32 first_index, XE::int32 base_vertex, XE::uint32 first_instance );
+	void RenderBundleEncoderDrawIndexedIndirect( XE::GraphicsRenderBundleEncoderHandle render_bundle_encoder, XE::GraphicsBufferHandle indirect_buffer, XE::uint64 indirect_offset );
+	void RenderBundleEncoderDrawIndirect( XE::GraphicsRenderBundleEncoderHandle render_bundle_encoder, XE::GraphicsBufferHandle indirect_buffer, XE::uint64 indirect_offset );
+	XE::GraphicsRenderBundleHandle RenderBundleEncoderFinish( XE::GraphicsRenderBundleEncoderHandle render_bundle_encoder, const XE::GraphicsRenderBundleDescriptor & descriptor );
+	void RenderBundleEncoderInsertDebugMarker( XE::GraphicsRenderBundleEncoderHandle render_bundle_encoder, const XE::String & marker_label );
+	void RenderBundleEncoderPopDebugGroup( XE::GraphicsRenderBundleEncoderHandle render_bundle_encoder );
+	void RenderBundleEncoderPushDebugGroup( XE::GraphicsRenderBundleEncoderHandle render_bundle_encoder, const XE::String & group_label );
+	void RenderBundleEncoderSetBindGroup( XE::GraphicsRenderBundleEncoderHandle render_bundle_encoder, XE::uint32 group_index, XE::GraphicsBindGroupHandle group, XE::uint32 dynamic_offset_count, XE::uint32 & dynamic_offsets );
+	void RenderBundleEncoderSetIndexBuffer( XE::GraphicsRenderBundleEncoderHandle render_bundle_encoder, XE::GraphicsBufferHandle buffer, XE::GraphicsIndexFormat format, XE::uint64 offset, XE::uint64 size );
+	void RenderBundleEncoderSetPipeline( XE::GraphicsRenderBundleEncoderHandle render_bundle_encoder, XE::GraphicsRenderPipelineHandle pipeline );
+	void RenderBundleEncoderSetVertexBuffer( XE::GraphicsRenderBundleEncoderHandle render_bundle_encoder, XE::uint32 slot, XE::GraphicsBufferHandle buffer, XE::uint64 offset, XE::uint64 size );
 
 public:
-	void RenderPassEncoderBeginOcclusionQuery( XE::GraphicsRenderPassEncoderHandle renderPassEncoder, XE::uint32 queryIndex );
-	void RenderPassEncoderBeginPipelineStatisticsQuery( XE::GraphicsRenderPassEncoderHandle renderPassEncoder, XE::GraphicsQuerySetHandle querySet, XE::uint32 queryIndex );
-	void RenderPassEncoderDraw( XE::GraphicsRenderPassEncoderHandle renderPassEncoder, XE::uint32 vertexCount, XE::uint32 instanceCount, XE::uint32 firstVertex, XE::uint32 firstInstance );
-	void RenderPassEncoderDrawIndexed( XE::GraphicsRenderPassEncoderHandle renderPassEncoder, XE::uint32 indexCount, XE::uint32 instanceCount, XE::uint32 firstIndex, XE::int32 baseVertex, XE::uint32 firstInstance );
-	void RenderPassEncoderDrawIndexedIndirect( XE::GraphicsRenderPassEncoderHandle renderPassEncoder, XE::GraphicsBufferHandle indirectBuffer, XE::uint64 indirectOffset );
-	void RenderPassEncoderDrawIndirect( XE::GraphicsRenderPassEncoderHandle renderPassEncoder, XE::GraphicsBufferHandle indirectBuffer, XE::uint64 indirectOffset );
-	void RenderPassEncoderEnd( XE::GraphicsRenderPassEncoderHandle renderPassEncoder );
-	void RenderPassEncoderEndOcclusionQuery( XE::GraphicsRenderPassEncoderHandle renderPassEncoder );
-	void RenderPassEncoderEndPipelineStatisticsQuery( XE::GraphicsRenderPassEncoderHandle renderPassEncoder );
-	void RenderPassEncoderExecuteBundles( XE::GraphicsRenderPassEncoderHandle renderPassEncoder, XE::uint32 bundlesCount, XE::GraphicsRenderBundleHandle bundles );
-	void RenderPassEncoderInsertDebugMarker( XE::GraphicsRenderPassEncoderHandle renderPassEncoder, const XE::String & markerLabel );
-	void RenderPassEncoderPopDebugGroup( XE::GraphicsRenderPassEncoderHandle renderPassEncoder );
-	void RenderPassEncoderPushDebugGroup( XE::GraphicsRenderPassEncoderHandle renderPassEncoder, const XE::String & groupLabel );
-	void RenderPassEncoderSetBindGroup( XE::GraphicsRenderPassEncoderHandle renderPassEncoder, XE::uint32 groupIndex, XE::GraphicsBindGroupHandle group, XE::uint32 dynamicOffsetCount, XE::uint32 & dynamicOffsets );
-	void RenderPassEncoderSetBlendConstant( XE::GraphicsRenderPassEncoderHandle renderPassEncoder, const XE::Color & color );
-	void RenderPassEncoderSetIndexBuffer( XE::GraphicsRenderPassEncoderHandle renderPassEncoder, XE::GraphicsBufferHandle buffer, XE::GraphicsIndexFormat format, XE::uint64 offset, XE::uint64 size );
-	void RenderPassEncoderSetPipeline( XE::GraphicsRenderPassEncoderHandle renderPassEncoder, XE::GraphicsRenderPipelineHandle pipeline );
-	void RenderPassEncoderSetScissorRect( XE::GraphicsRenderPassEncoderHandle renderPassEncoder, XE::uint32 x, XE::uint32 y, XE::uint32 width, XE::uint32 height );
-	void RenderPassEncoderSetStencilReference( XE::GraphicsRenderPassEncoderHandle renderPassEncoder, XE::uint32 reference );
-	void RenderPassEncoderSetVertexBuffer( XE::GraphicsRenderPassEncoderHandle renderPassEncoder, XE::uint32 slot, XE::GraphicsBufferHandle buffer, XE::uint64 offset, XE::uint64 size );
-	void RenderPassEncoderSetViewport( XE::GraphicsRenderPassEncoderHandle renderPassEncoder, float x, float y, float width, float height, float minDepth, float maxDepth );
+	void RenderPassEncoderBeginOcclusionQuery( XE::GraphicsRenderPassEncoderHandle render_pass_encoder, XE::uint32 query_index );
+	void RenderPassEncoderBeginPipelineStatisticsQuery( XE::GraphicsRenderPassEncoderHandle render_pass_encoder, XE::GraphicsQuerySetHandle query_set, XE::uint32 query_index );
+	void RenderPassEncoderDraw( XE::GraphicsRenderPassEncoderHandle render_pass_encoder, XE::uint32 vertex_count, XE::uint32 instance_count, XE::uint32 first_vertex, XE::uint32 first_instance );
+	void RenderPassEncoderDrawIndexed( XE::GraphicsRenderPassEncoderHandle render_pass_encoder, XE::uint32 index_count, XE::uint32 instance_count, XE::uint32 first_index, XE::int32 base_vertex, XE::uint32 first_instance );
+	void RenderPassEncoderDrawIndexedIndirect( XE::GraphicsRenderPassEncoderHandle render_pass_encoder, XE::GraphicsBufferHandle indirect_buffer, XE::uint64 indirect_offset );
+	void RenderPassEncoderDrawIndirect( XE::GraphicsRenderPassEncoderHandle render_pass_encoder, XE::GraphicsBufferHandle indirect_buffer, XE::uint64 indirect_offset );
+	void RenderPassEncoderEnd( XE::GraphicsRenderPassEncoderHandle render_pass_encoder );
+	void RenderPassEncoderEndOcclusionQuery( XE::GraphicsRenderPassEncoderHandle render_pass_encoder );
+	void RenderPassEncoderEndPipelineStatisticsQuery( XE::GraphicsRenderPassEncoderHandle render_pass_encoder );
+	void RenderPassEncoderExecuteBundles( XE::GraphicsRenderPassEncoderHandle render_pass_encoder, const XE::Array< XE::GraphicsRenderBundleHandle > & bundles );
+	void RenderPassEncoderInsertDebugMarker( XE::GraphicsRenderPassEncoderHandle render_pass_encoder, const XE::String & marker_label );
+	void RenderPassEncoderPopDebugGroup( XE::GraphicsRenderPassEncoderHandle render_pass_encoder );
+	void RenderPassEncoderPushDebugGroup( XE::GraphicsRenderPassEncoderHandle render_pass_encoder, const XE::String & group_label );
+	void RenderPassEncoderSetBindGroup( XE::GraphicsRenderPassEncoderHandle render_pass_encoder, XE::uint32 group_index, XE::GraphicsBindGroupHandle group, XE::uint32 dynamic_offset_count, XE::uint32 & dynamic_offsets );
+	void RenderPassEncoderSetBlendConstant( XE::GraphicsRenderPassEncoderHandle render_pass_encoder, const XE::Color & color );
+	void RenderPassEncoderSetIndexBuffer( XE::GraphicsRenderPassEncoderHandle render_pass_encoder, XE::GraphicsBufferHandle buffer, XE::GraphicsIndexFormat format, XE::uint64 offset, XE::uint64 size );
+	void RenderPassEncoderSetPipeline( XE::GraphicsRenderPassEncoderHandle render_pass_encoder, XE::GraphicsRenderPipelineHandle pipeline );
+	void RenderPassEncoderSetScissorRect( XE::GraphicsRenderPassEncoderHandle render_pass_encoder, const XE::Recti & rect );
+	void RenderPassEncoderSetStencilReference( XE::GraphicsRenderPassEncoderHandle render_pass_encoder, XE::uint32 reference );
+	void RenderPassEncoderSetVertexBuffer( XE::GraphicsRenderPassEncoderHandle render_pass_encoder, XE::uint32 slot, XE::GraphicsBufferHandle buffer, XE::uint64 offset, XE::uint64 size );
+	void RenderPassEncoderSetViewport( XE::GraphicsRenderPassEncoderHandle render_pass_encoder, XE::float32 x, XE::float32 y, XE::float32 width, XE::float32 height, XE::float32 min_depth, XE::float32 max_depth );
 
 public:
-	XE::GraphicsBindGroupLayoutHandle RenderPipelineGetBindGroupLayout( XE::GraphicsRenderPipelineHandle renderPipeline, XE::uint32 groupIndex );
-	void RenderPipelineSetLabel( XE::GraphicsRenderPipelineHandle renderPipeline, const XE::String & label );
+	XE::GraphicsBindGroupLayoutHandle RenderPipelineGetBindGroupLayout( XE::GraphicsRenderPipelineHandle render_pipeline, XE::uint32 group_index );
+	void RenderPipelineSetLabel( XE::GraphicsRenderPipelineHandle render_pipeline, const XE::String & label );
 
 public:
-	void ShaderModuleGetCompilationInfo( XE::GraphicsShaderModuleHandle shaderModule, CompilationInfoCallback callback );
-	void ShaderModuleSetLabel( XE::GraphicsShaderModuleHandle shaderModule, const XE::String & label );
+	void ShaderModuleGetCompilationInfo( XE::GraphicsShaderModuleHandle shader_module, CompilationInfoCallback callback );
+	void ShaderModuleSetLabel( XE::GraphicsShaderModuleHandle shader_module, const XE::String & label );
 
 public:
 	XE::GraphicsTextureFormat SurfaceGetPreferredFormat( XE::GraphicsSurfaceHandle surface, XE::GraphicsAdapterHandle adapter );
 
 public:
-	XE::GraphicsTextureViewHandle SwapChainGetCurrentTextureView( XE::GraphicsSwapChainHandle swapChain );
-	void SwapChainPresent( XE::GraphicsSwapChainHandle swapChain );
+	XE::GraphicsTextureViewHandle SwapChainGetCurrentTextureView( XE::GraphicsSwapChainHandle swap_chain );
+	void SwapChainPresent( XE::GraphicsSwapChainHandle swap_chain );
 
 public:
 	XE::GraphicsTextureViewHandle TextureCreateView( XE::GraphicsTextureHandle texture, const XE::GraphicsTextureViewDescriptor & descriptor );
 	void TextureDestroy( XE::GraphicsTextureHandle texture );
-
-private:
-	void OnMainWindowResize();
 
 private:
 	Private * _p;
