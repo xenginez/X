@@ -64,6 +64,28 @@
 /////////////////////////////////////////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////////////////////////////////////////
+// GRAPHICS
+#define GRAPHICS_NULL      1 << 1
+#define GRAPHICS_D3D12     1 << 2
+#define GRAPHICS_METAL     1 << 3
+#define GRAPHICS_VULKAN    1 << 4
+#define GRAPHICS_WEBGPU    1 << 5
+
+#if defined( XE_NO_RENDER )
+#define GRAPHICS_API GRAPHICS_NULL
+#elif ( PLATFORM_OS & ( OS_WINDOWS | OS_XBOX ) )
+#define GRAPHICS_API GRAPHICS_D3D12
+#elif ( PLATFORM_OS & ( OS_MAC | OS_IOS ) )
+#define GRAPHICS_API GRAPHICS_METAL
+#elif ( PLATFORM_OS & ( OS_LINUX | OS_ANDROID ) )
+#define GRAPHICS_API GRAPHICS_VULKAN
+#elif ( PLATFORM_OS & OS_WASM )
+#define GRAPHICS_API GRAPHICS_WEBGPU
+#endif
+
+/////////////////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////////////////
 // COMPILER
 
 #define COMPILER_GCC 1

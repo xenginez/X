@@ -54,7 +54,7 @@ public:
 	
 public:
 	void BufferDestroy( XE::GraphicsBufferHandle buffer );
-	std::span< XE::uint8 > BufferGetMappedRange( XE::GraphicsBufferHandle buffer, XE::uint64 offset, XE::uint64 size );
+	XE::Span< XE::uint8 > BufferGetMappedRange( XE::GraphicsBufferHandle buffer, XE::uint64 offset, XE::uint64 size );
 	void BufferMapAsync( XE::GraphicsBufferHandle buffer, XE::GraphicsMapModeFlags mode, XE::uint64 offset, XE::uint64 size, BufferMapCallback callback );
 	void BufferUnmap( XE::GraphicsBufferHandle buffer );
 

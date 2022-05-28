@@ -1,6 +1,6 @@
 #include "GraphicsService.h"
 
-#if !defined( NULL_RENDER ) && ( PLATFORM_OS & OS_WASM )
+#if GRAPHICS_API == GRAPHICS_WEBGPU
 
 #include <webgpu/webgpu.h>
 
@@ -37,5 +37,5 @@ void XE::GraphicsService::Clearup()
 
 }
 
-#endif // !defined( NULL_RENDER ) && ( PLATFORM_OS & OS_EMSCRIPTEN )
+#endif // GRAPHICS_API == GRAPHICS_WEBGPU
 

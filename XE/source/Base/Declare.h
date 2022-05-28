@@ -11,7 +11,6 @@
 
 #include <set>
 #include <map>
-#include <span>
 #include <list>
 #include <deque>
 #include <stack>
@@ -64,6 +63,7 @@ template< typename T > using EnableSharedFromThis = std::enable_shared_from_this
 template< typename _Ty > class MultiArrayIterator;
 template< typename _Ty > class MultiArrayConstIterator;
 template< typename _Ty, typename ... _Size > class MultiArrayView;
+template <class _Ty, XE::uint64 _Extent> class Span;
 
 template< typename ... Args > class Delegate;
 

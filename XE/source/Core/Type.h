@@ -43,8 +43,8 @@ static constexpr char CACHES_DIRECTORY[] = "Caches";
 static constexpr char MODULES_DIRECTORY[] = "Modules";
 static constexpr char USERDATAS_DIRECTORY[] = "UserDatas";
 
-static constexpr char CONFIG_RENDER_VSYNC[] = "Render/VSync";
-static constexpr char CONFIG_RENDER_DEBUG[] = "Render/Debug";
+static constexpr char CONFIG_GRAPHICS_VSYNC[] = "Graphics/VSync";
+static constexpr char CONFIG_GRAPHICS_DEBUG[] = "Graphics/Debug";
 
 enum class ThreadType
 {
@@ -353,8 +353,8 @@ enum class GraphicsFeatureName
 {
     UNDEFINED = 0x00000000,
     DEPTH_CLIP_CONTROL = 0x00000001,
-    DEPTH24_UNORMSTENCIL8 = 0x00000002,
-    DEPTH32_FLOATSTENCIL8 = 0x00000003,
+    DEPTH24UNORM_STENCIL8 = 0x00000002,
+    DEPTH32FLOAT_STENCIL8 = 0x00000003,
     TIMESTAMP_QUERY = 0x00000004,
     PIPELINE_STATISTICS_QUERY = 0x00000005,
     TEXTURE_COMPRESSION_BC = 0x00000006,
@@ -541,9 +541,9 @@ DECL_XE_ENUM( GraphicsTextureComponentType );
 
 enum class GraphicsTextureDimension
 {
-	TEXTURE_DIMENSION_1D = 0x00000000,
-	TEXTURE_DIMENSION_2D = 0x00000001,
-	TEXTURE_DIMENSION_3D = 0x00000002,
+	D1 = 0x00000000,
+	D2 = 0x00000001,
+	D3 = 0x00000002,
 };
 DECL_XE_ENUM( GraphicsTextureDimension );
 
@@ -661,13 +661,13 @@ DECL_XE_ENUM( GraphicsTextureSampleType );
 
 enum class GraphicsTextureViewDimension
 {
-	TEXTURE_VIEW_DIMENSION_UNDEFINED = 0x00000000,
-	TEXTURE_VIEW_DIMENSION_1D = 0x00000001,
-	TEXTURE_VIEW_DIMENSION_2D = 0x00000002,
-	TEXTURE_VIEW_DIMENSION_2DARRAY = 0x00000003,
-	TEXTURE_VIEW_DIMENSION_CUBE = 0x00000004,
-	TEXTURE_VIEW_DIMENSION_CUBEARRAY = 0x00000005,
-	TEXTURE_VIEW_DIMENSION_3D = 0x00000006,
+	UNDEFINED = 0x00000000,
+	D1 = 0x00000001,
+	D2 = 0x00000002,
+	D2ARRAY = 0x00000003,
+	CUBE = 0x00000004,
+	CUBEARRAY = 0x00000005,
+	D3 = 0x00000006,
 };
 DECL_XE_ENUM( GraphicsTextureViewDimension );
 
@@ -847,32 +847,32 @@ struct XE_API GraphicsConstantEntry
 
 struct XE_API GraphicsLimits
 {
-	XE::uint32 MaxTextureDimension1D;
-	XE::uint32 MaxTextureDimension2D;
-	XE::uint32 MaxTextureDimension3D;
-	XE::uint32 MaxTextureArrayLayers;
-	XE::uint32 MaxBindGroups;
-	XE::uint32 MaxDynamicUniformBuffersPerPipelineLayout;
-	XE::uint32 MaxDynamicStorageBuffersPerPipelineLayout;
-	XE::uint32 MaxSampledTexturesPerShaderStage;
-	XE::uint32 MaxSamplersPerShaderStage;
-	XE::uint32 MaxStorageBuffersPerShaderStage;
-	XE::uint32 MaxStorageTexturesPerShaderStage;
-	XE::uint32 MaxUniformBuffersPerShaderStage;
-	XE::uint64 MaxUniformBufferBindingSize;
-	XE::uint64 MaxStorageBufferBindingSize;
-	XE::uint32 MinUniformBufferOffsetAlignment;
-	XE::uint32 MinStorageBufferOffsetAlignment;
-	XE::uint32 MaxVertexBuffers;
-	XE::uint32 MaxVertexAttributes;
-	XE::uint32 MaxVertexBufferArrayStride;
-	XE::uint32 MaxInterStageShaderComponents;
-	XE::uint32 MaxComputeWorkgroupStorageSize;
-	XE::uint32 MaxComputeInvocationsPerWorkgroup;
-	XE::uint32 MaxComputeWorkgroupSizeX;
-	XE::uint32 MaxComputeWorkgroupSizeY;
-	XE::uint32 MaxComputeWorkgroupSizeZ;
-	XE::uint32 MaxComputeWorkgroupsPerDimension;
+    XE::uint32 MaxTextureDimension1D = 8192;
+    XE::uint32 MaxTextureDimension2D = 8192;
+    XE::uint32 MaxTextureDimension3D = 2048;
+    XE::uint32 MaxTextureArrayLayers = 256;
+    XE::uint32 MaxBindGroups = 4;
+    XE::uint32 MaxDynamicUniformBuffersPerPipelineLayout = 8;
+    XE::uint32 MaxDynamicStorageBuffersPerPipelineLayout = 4;
+    XE::uint32 MaxSampledTexturesPerShaderStage = 16;
+    XE::uint32 MaxSamplersPerShaderStage = 16;
+    XE::uint32 MaxStorageBuffersPerShaderStage = 8;
+    XE::uint32 MaxStorageTexturesPerShaderStage = 8;
+    XE::uint32 MaxUniformBuffersPerShaderStage = 12;
+    XE::uint64 MaxUniformBufferBindingSize = 64 << 10;
+    XE::uint64 MaxStorageBufferBindingSize = 128 << 20;
+    XE::uint32 MinUniformBufferOffsetAlignment = 256;
+	XE::uint32 MinStorageBufferOffsetAlignment = 256;
+    XE::uint32 MaxVertexBuffers = 8;
+    XE::uint32 MaxVertexAttributes = 16;
+    XE::uint32 MaxVertexBufferArrayStride = 2048;
+    XE::uint32 MaxInterStageShaderComponents = 60;
+    XE::uint32 MaxComputeWorkgroupStorageSize = 16352;
+    XE::uint32 MaxComputeInvocationsPerWorkgroup = 256;
+    XE::uint32 MaxComputeWorkgroupSizeX = 256;
+    XE::uint32 MaxComputeWorkgroupSizeY = 256;
+    XE::uint32 MaxComputeWorkgroupSizeZ = 64;
+    XE::uint32 MaxComputeWorkgroupsPerDimension = 65535;
 };
 
 struct XE_API GraphicsMultisampleState

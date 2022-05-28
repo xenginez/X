@@ -28,9 +28,12 @@ else ()
 		tbbmalloc_proxy)
 endif ()
 
-
 FILE(GLOB_RECURSE SOURCE_FILES *.*)
 add_library(XE ${X_LIB_TYPE} ${SOURCE_FILES})
+
+if (X_NO_RENDER)
+target_compile_definitions(XE PRIVATE XE_NO_RENDER)
+endif()
 
 target_compile_definitions(XE PRIVATE -DXE_EXPORT)
 target_link_directories(XE PRIVATE ${CMAKE_SOURCE_DIR}/depends/lib/${X_PLATFORM}/${X_CONFIG})

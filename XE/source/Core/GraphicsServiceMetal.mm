@@ -1,6 +1,6 @@
 #include "GraphicsService.h"
 
-#if !defined( NULL_RENDER ) && ( PLATFORM_OS & ( OS_MAC | OS_IOS ) )
+#if GRAPHICS_API == GRAPHICS_METAL
 
 #import <Metal/Metal.h>
 #import <MetalKit/MetalKit.h>
@@ -53,4 +53,4 @@ void XE::GraphicsService::Clearup()
 
 }
 
-#endif // !defined( NULL_RENDER ) && ( PLATFORM_OS & ( OS_MAC | OS_IOS ) )
+#endif // GRAPHICS_API == GRAPHICS_METAL

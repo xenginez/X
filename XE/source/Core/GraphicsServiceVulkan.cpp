@@ -1,6 +1,6 @@
 #include "GraphicsService.h"
 
-#if !defined( NULL_RENDER ) && ( PLATFORM_OS & ( OS_LINUX | OS_ANDROID ) )
+#if GRAPHICS_API == GRAPHICS_VULKAN
 
 #if PLATFORM_OS == OS_ANDROID
 #	define VK_USE_PLATFORM_ANDROID_KHR
@@ -64,5 +64,5 @@ void XE::GraphicsService::Clearup()
 
 }
 
-#endif // !defined( NULL_RENDER ) && ( PLATFORM_OS & ( OS_LINUX | OS_ANDROID ) )
+#endif // GRAPHICS_API == GRAPHICS_VULKAN
 
