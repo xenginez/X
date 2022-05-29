@@ -592,18 +592,11 @@ public:
         return _Mypair.capacity();
     }
 
-    constexpr _Ty & operator[]( const size_type _Pos ) noexcept
+    constexpr const _Ty & operator[]( const size_type _Pos ) const
     {
         std::shared_lock< std::shared_mutex > lock( _Lock );
 
         return _Mypair[_Pos];
-    }
-
-    constexpr _Ty & at( const size_type _Pos )
-    {
-        std::shared_lock< std::shared_mutex > lock( _Lock );
-
-        return _Mypair.at( _Pos );
     }
 
     constexpr const _Ty & at( const size_type _Pos ) const
@@ -611,6 +604,13 @@ public:
         std::shared_lock< std::shared_mutex > lock( _Lock );
 
         return _Mypair.at( _Pos );
+    }
+
+    constexpr void set( const size_type _Pos, const value_type & _Val )
+	{
+		std::unique_lock< std::shared_mutex > lock( _Lock );
+
+        _Mypair[_Pos] = _Val;
     }
 
     constexpr _Ty & front() noexcept

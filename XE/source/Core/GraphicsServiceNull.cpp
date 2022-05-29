@@ -75,7 +75,7 @@ XE::Span< XE::uint8 > XE::GraphicsService::BufferGetMappedRange( XE::GraphicsBuf
 
 }
 
-void XE::GraphicsService::BufferMapAsync( XE::GraphicsBufferHandle buffer, XE::GraphicsMapModeFlags mode, XE::uint64 offset, XE::uint64 size, BufferMapCallback callback )
+void XE::GraphicsService::BufferMapAsync( XE::GraphicsBufferHandle buffer, XE::uint64 offset, XE::uint64 size, BufferMapCallback callback )
 {
 
 }

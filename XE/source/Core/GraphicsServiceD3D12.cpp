@@ -2,6 +2,8 @@
 
 #if GRAPHICS_API == GRAPHICS_D3D12
 
+#include <mutex>
+
 #include <d3d12.h>
 #include <dxgi1_6.h>
 #include <d3dcommon.h>
@@ -21,17 +23,226 @@
 #pragma comment(lib, "dxguid.lib")
 #pragma comment(lib, "d3dcompiler.lib")
 
+#undef ERROR
+
 IMPLEMENT_META( XE::GraphicsService );
 
 namespace
 {
-	template< typename T > T * HandleCast( XE::Handle< T > handle )
+	DXGI_FORMAT Cast( XE::GraphicsTextureFormat format )
 	{
-		return reinterpret_cast<T *>( handle.GetValue() );
+		switch ( format )
+		{
+		case XE::GraphicsTextureFormat::UNDEFINED:
+			break;
+		case XE::GraphicsTextureFormat::R8UNORM:
+			break;
+		case XE::GraphicsTextureFormat::R8SNORM:
+			break;
+		case XE::GraphicsTextureFormat::R8UINT:
+			break;
+		case XE::GraphicsTextureFormat::R8SINT:
+			break;
+		case XE::GraphicsTextureFormat::R16UINT:
+			break;
+		case XE::GraphicsTextureFormat::R16SINT:
+			break;
+		case XE::GraphicsTextureFormat::R16FLOAT:
+			break;
+		case XE::GraphicsTextureFormat::RG8UNORM:
+			break;
+		case XE::GraphicsTextureFormat::RG8SNORM:
+			break;
+		case XE::GraphicsTextureFormat::RG8UINT:
+			break;
+		case XE::GraphicsTextureFormat::RG8SINT:
+			break;
+		case XE::GraphicsTextureFormat::R32FLOAT:
+			break;
+		case XE::GraphicsTextureFormat::R32UINT:
+			break;
+		case XE::GraphicsTextureFormat::R32SINT:
+			break;
+		case XE::GraphicsTextureFormat::RG16UINT:
+			break;
+		case XE::GraphicsTextureFormat::RG16SINT:
+			break;
+		case XE::GraphicsTextureFormat::RG16FLOAT:
+			break;
+		case XE::GraphicsTextureFormat::RGBA8UNORM:
+			break;
+		case XE::GraphicsTextureFormat::RGBA8UNORMSRGB:
+			break;
+		case XE::GraphicsTextureFormat::RGBA8SNORM:
+			break;
+		case XE::GraphicsTextureFormat::RGBA8UINT:
+			break;
+		case XE::GraphicsTextureFormat::RGBA8SINT:
+			break;
+		case XE::GraphicsTextureFormat::BGRA8UNORM:
+			break;
+		case XE::GraphicsTextureFormat::BGRA8UNORMSRGB:
+			break;
+		case XE::GraphicsTextureFormat::RGB10A2UNORM:
+			break;
+		case XE::GraphicsTextureFormat::RG11B10UFLOAT:
+			break;
+		case XE::GraphicsTextureFormat::RGB9E5UFLOAT:
+			break;
+		case XE::GraphicsTextureFormat::RG32FLOAT:
+			break;
+		case XE::GraphicsTextureFormat::RG32UINT:
+			break;
+		case XE::GraphicsTextureFormat::RG32SINT:
+			break;
+		case XE::GraphicsTextureFormat::RGBA16UINT:
+			break;
+		case XE::GraphicsTextureFormat::RGBA16SINT:
+			break;
+		case XE::GraphicsTextureFormat::RGBA16FLOAT:
+			break;
+		case XE::GraphicsTextureFormat::RGBA32FLOAT:
+			break;
+		case XE::GraphicsTextureFormat::RGBA32UINT:
+			break;
+		case XE::GraphicsTextureFormat::RGBA32SINT:
+			break;
+		case XE::GraphicsTextureFormat::STENCIL8:
+			break;
+		case XE::GraphicsTextureFormat::DEPTH16UNORM:
+			break;
+		case XE::GraphicsTextureFormat::DEPTH24PLUS:
+			break;
+		case XE::GraphicsTextureFormat::DEPTH24PLUSSTENCIL8:
+			break;
+		case XE::GraphicsTextureFormat::DEPTH24UNORMSTENCIL8:
+			break;
+		case XE::GraphicsTextureFormat::DEPTH32FLOAT:
+			break;
+		case XE::GraphicsTextureFormat::DEPTH32FLOATSTENCIL8:
+			break;
+		case XE::GraphicsTextureFormat::BC1RGBAUNORM:
+			break;
+		case XE::GraphicsTextureFormat::BC1RGBAUNORMSRGB:
+			break;
+		case XE::GraphicsTextureFormat::BC2RGBAUNORM:
+			break;
+		case XE::GraphicsTextureFormat::BC2RGBAUNORMSRGB:
+			break;
+		case XE::GraphicsTextureFormat::BC3RGBAUNORM:
+			break;
+		case XE::GraphicsTextureFormat::BC3RGBAUNORMSRGB:
+			break;
+		case XE::GraphicsTextureFormat::BC4RUNORM:
+			break;
+		case XE::GraphicsTextureFormat::BC4RSNORM:
+			break;
+		case XE::GraphicsTextureFormat::BC5RGUNORM:
+			break;
+		case XE::GraphicsTextureFormat::BC5RGSNORM:
+			break;
+		case XE::GraphicsTextureFormat::BC6HRGBUFLOAT:
+			break;
+		case XE::GraphicsTextureFormat::BC6HRGBFLOAT:
+			break;
+		case XE::GraphicsTextureFormat::BC7RGBAUNORM:
+			break;
+		case XE::GraphicsTextureFormat::BC7RGBAUNORMSRGB:
+			break;
+		case XE::GraphicsTextureFormat::ETC2RGB8UNORM:
+			break;
+		case XE::GraphicsTextureFormat::ETC2RGB8UNORMSRGB:
+			break;
+		case XE::GraphicsTextureFormat::ETC2RGB8A1UNORM:
+			break;
+		case XE::GraphicsTextureFormat::ETC2RGB8A1UNORMSRGB:
+			break;
+		case XE::GraphicsTextureFormat::ETC2RGBA8UNORM:
+			break;
+		case XE::GraphicsTextureFormat::ETC2RGBA8UNORMSRGB:
+			break;
+		case XE::GraphicsTextureFormat::EACR11UNORM:
+			break;
+		case XE::GraphicsTextureFormat::EACR11SNORM:
+			break;
+		case XE::GraphicsTextureFormat::EACRG11UNORM:
+			break;
+		case XE::GraphicsTextureFormat::EACRG11SNORM:
+			break;
+		case XE::GraphicsTextureFormat::ASTC4X4UNORM:
+			break;
+		case XE::GraphicsTextureFormat::ASTC4X4UNORMSRGB:
+			break;
+		case XE::GraphicsTextureFormat::ASTC5X4UNORM:
+			break;
+		case XE::GraphicsTextureFormat::ASTC5X4UNORMSRGB:
+			break;
+		case XE::GraphicsTextureFormat::ASTC5X5UNORM:
+			break;
+		case XE::GraphicsTextureFormat::ASTC5X5UNORMSRGB:
+			break;
+		case XE::GraphicsTextureFormat::ASTC6X5UNORM:
+			break;
+		case XE::GraphicsTextureFormat::ASTC6X5UNORMSRGB:
+			break;
+		case XE::GraphicsTextureFormat::ASTC6X6UNORM:
+			break;
+		case XE::GraphicsTextureFormat::ASTC6X6UNORMSRGB:
+			break;
+		case XE::GraphicsTextureFormat::ASTC8X5UNORM:
+			break;
+		case XE::GraphicsTextureFormat::ASTC8X5UNORMSRGB:
+			break;
+		case XE::GraphicsTextureFormat::ASTC8X6UNORM:
+			break;
+		case XE::GraphicsTextureFormat::ASTC8X6UNORMSRGB:
+			break;
+		case XE::GraphicsTextureFormat::ASTC8X8UNORM:
+			break;
+		case XE::GraphicsTextureFormat::ASTC8X8UNORMSRGB:
+			break;
+		case XE::GraphicsTextureFormat::ASTC10x5UNORM:
+			break;
+		case XE::GraphicsTextureFormat::ASTC10x5UNORMSRGB:
+			break;
+		case XE::GraphicsTextureFormat::ASTC10x6UNORM:
+			break;
+		case XE::GraphicsTextureFormat::ASTC10x6UNORMSRGB:
+			break;
+		case XE::GraphicsTextureFormat::ASTC10x8UNORM:
+			break;
+		case XE::GraphicsTextureFormat::ASTC10x8UNORMSRGB:
+			break;
+		case XE::GraphicsTextureFormat::ASTC10x10UNORM:
+			break;
+		case XE::GraphicsTextureFormat::ASTC10x10UNORMSRGB:
+			break;
+		case XE::GraphicsTextureFormat::ASTC12X10UNORM:
+			break;
+		case XE::GraphicsTextureFormat::ASTC12X10UNORMSRGB:
+			break;
+		case XE::GraphicsTextureFormat::ASTC12X12UNORM:
+			break;
+		case XE::GraphicsTextureFormat::ASTC12X12UNORMSRGB:
+			break;
+		default:
+			break;
+		}
+		return DXGI_FORMAT_A8P8;
 	}
-	template< typename T > XE::Handle< T > HandleCast( T * ptr )
+	D3D12_QUERY_TYPE Cast( XE::GraphicsQueryType type )
 	{
-		return XE::HandleCast< T >( reinterpret_cast<XE::uint64>( ptr ) );
+		switch ( type )
+		{
+		case XE::GraphicsQueryType::OCCLUSION:
+			return D3D12_QUERY_TYPE_OCCLUSION;
+		case XE::GraphicsQueryType::PIPELINE_STATISTICS:
+			return D3D12_QUERY_TYPE_PIPELINE_STATISTICS;
+		case XE::GraphicsQueryType::TIMESTAMP:
+			return D3D12_QUERY_TYPE_TIMESTAMP;
+		}
+
+		return D3D12_QUERY_TYPE_OCCLUSION;
 	}
 }
 
@@ -47,6 +258,7 @@ namespace D3D12
 	using GraphicsCommandListPtr = ComPtr < ID3D12GraphicsCommandList >;
 	using PipelineStatePtr = ComPtr < ID3D12PipelineState >;
 	using SwapChainPtr = ComPtr < IDXGISwapChain4 >;
+	using CommandSignaturePtr = ComPtr< ID3D12CommandSignature >;
 	using RootSignaturePtr = ComPtr< ID3D12RootSignature >;
 	using QueryHeapPtr = ComPtr< ID3D12QueryHeap >;
 	using FactoryPtr = ComPtr< IDXGIFactory >;
@@ -79,10 +291,28 @@ namespace XE
 	DECL_PTR( GraphicsTexture );
 	DECL_PTR( GraphicsTextureView );
 
+	enum class PassKind
+	{
+		NONE,
+		RENDER,
+		BUNDLE,
+		COMPUTE,
+	};
+
 	class GraphicsInstance
 	{
 	public:
 
+	};
+	class GraphicsSurface
+	{
+	public:
+		XE::WindowPtr Window;
+	};
+	class GraphicsSwapChain
+	{
+	public:
+		D3D12::SwapChainPtr SwapChain = nullptr;
 	};
 	class GraphicsAdapter
 	{
@@ -94,12 +324,20 @@ namespace XE
 	{
 	public:
 		D3D12::DevicePtr Device = nullptr;
-		XE::GraphicsQueuePtr CommandQueue = nullptr;
+		XE::GraphicsAdapterHandle Adapter;
+		XE::GraphicsQueueHandle CommandQueue;
+	};
+	class GraphicsQueue
+	{
+	public:
+		XE::GraphicsDeviceHandle Device;
+		D3D12::CommandQueuePtr CommandQueue = nullptr;
 	};
 	class GraphicsBindGroup
 	{
 	public:
 		D3D12::RootSignaturePtr RootSignature = nullptr;
+		D3D12::CommandSignaturePtr CommandSignature = nullptr;
 	};
 	class GraphicsBindGroupLayout
 	{
@@ -109,23 +347,37 @@ namespace XE
 	class GraphicsBuffer
 	{
 	public:
+		D3D12_RANGE MapRange;
+		std::atomic< bool > IsMap = false;
 		D3D12::ResourcePtr Resource = nullptr;
+		std::recursive_mutex Lock;
+		XE::ConcurrentQueue< XE::Delegate< void() > > AsyncQueue;
 	};
 	class GraphicsCommandBuffer
 	{
 	public:
-		D3D12::CommandQueuePtr CommandQueue = nullptr;
+		XE::String MarkerLable;
+		D3D12::GraphicsCommandListPtr CommandList = nullptr;
 		D3D12::CommandAllocatorPtr CommandAllocator = nullptr;
 	};
 	class GraphicsCommandEncoder
 	{
 	public:
-		D3D12::CommandListPtr CommandList = nullptr;
+		XE::PassKind Kind = XE::PassKind::NONE;
+		XE::uint64 PassIndex = 0;
+		XE::GraphicsCommandBufferHandle CommandBuffer;
 	};
 	class GraphicsComputePassEncoder
 	{
 	public:
-		D3D12::GraphicsCommandListPtr CommandList = nullptr;
+		XE::GraphicsComputePassDescriptor Desc;
+		XE::GraphicsBindGroupHandle BindGroup;
+		XE::GraphicsCommandEncoderHandle Encoder;
+
+		XE::uint64 PiplineStatisticsQueryIndex;
+		XE::GraphicsQuerySetHandle PiplineStatisticsQuery;
+
+		XE::ConcurrentQueue< XE::Delegate< void() > > TaskQueue;
 	};
 	class GraphicsComputePipeline
 	{
@@ -140,12 +392,8 @@ namespace XE
 	class GraphicsQuerySet
 	{
 	public:
+		XE::GraphicsQuerySetDescriptor Desc;
 		D3D12::QueryHeapPtr QueryHeap = nullptr;
-	};
-	class GraphicsQueue
-	{
-	public:
-		D3D12::CommandQueuePtr CommandQueue = nullptr;
 	};
 	class GraphicsRenderBundle
 	{
@@ -155,12 +403,13 @@ namespace XE
 	class GraphicsRenderBundleEncoder
 	{
 	public:
-
+		XE::GraphicsCommandEncoderHandle Encoder;
 	};
 	class GraphicsRenderPassEncoder
 	{
 	public:
-		D3D12::GraphicsCommandListPtr CommandList = nullptr;
+		XE::GraphicsRenderPassDescriptor Desc;
+		XE::GraphicsCommandEncoderHandle Encoder;
 	};
 	class GraphicsRenderPipeline
 	{
@@ -177,20 +426,11 @@ namespace XE
 	public:
 		D3D12_SHADER_BYTECODE ShaderCode;
 	};
-	class GraphicsSurface
-	{
-	public:
-		XE::WindowPtr Window;
-	};
-	class GraphicsSwapChain
-	{
-	public:
-		D3D12::SwapChainPtr SwapChain = nullptr;
-	};
 	class GraphicsTexture
 	{
 	public:
-
+		XE::GraphicsTextureDescriptor Desc;
+		XE::GraphicsBufferHandle Buffer;
 	};
 	class GraphicsTextureView
 	{
@@ -204,8 +444,51 @@ struct XE::GraphicsService::Private
 	D3D12::DebugPtr _Debug;
 	D3D12::FactoryPtr _Factory;
 
+	XE::ConcurrentArray< XE::GraphicsInstancePtr > _Instances;
+	XE::ConcurrentArray< XE::GraphicsSurfacePtr > _Surfaces;
+	XE::ConcurrentArray< XE::GraphicsSwapChainPtr > _SwapChains;
 	XE::ConcurrentArray< XE::GraphicsAdapterPtr > _Adapters;
 	XE::ConcurrentArray< XE::GraphicsDevicePtr > _Devices;
+	XE::ConcurrentArray< XE::GraphicsQueuePtr > _Queues;
+	XE::ConcurrentArray< XE::GraphicsBindGroupPtr > _BindGroups;
+	XE::ConcurrentArray< XE::GraphicsBindGroupLayoutPtr > _BindGroupLayouts;
+	XE::ConcurrentArray< XE::GraphicsBufferPtr > _Buffers;
+	XE::ConcurrentArray< XE::GraphicsCommandBufferPtr > _CommandBuffers;
+	XE::ConcurrentArray< XE::GraphicsCommandEncoderPtr > _CommandEncoders;
+	XE::ConcurrentArray< XE::GraphicsComputePassEncoderPtr > _ComputePassEncoders;
+	XE::ConcurrentArray< XE::GraphicsComputePipelinePtr > _ComputePipelines;
+	XE::ConcurrentArray< XE::GraphicsPipelineLayoutPtr > _PipelineLayouts;
+	XE::ConcurrentArray< XE::GraphicsQuerySetPtr > _QuerySets;
+	XE::ConcurrentArray< XE::GraphicsRenderBundlePtr > _RenderBundles;
+	XE::ConcurrentArray< XE::GraphicsRenderBundleEncoderPtr > _RenderBundleEncoders;
+	XE::ConcurrentArray< XE::GraphicsRenderPassEncoderPtr > _RenderPassEncoders;
+	XE::ConcurrentArray< XE::GraphicsRenderPipelinePtr > _RenderPipelines;
+	XE::ConcurrentArray< XE::GraphicsShaderModulePtr > _ShaderModules;
+	XE::ConcurrentArray< XE::GraphicsTexturePtr > _Textures;
+	XE::ConcurrentArray< XE::GraphicsTextureViewPtr > _TextureViews;
+
+	XE::QueueHandleAllocator< XE::GraphicsInstanceHandle > _InstanceHandleAllocator;
+	XE::QueueHandleAllocator< XE::GraphicsSurfaceHandle > _SurfaceHandleAllocator;
+	XE::QueueHandleAllocator< XE::GraphicsSwapChainHandle > _SwapChainHandleAllocator;
+	XE::QueueHandleAllocator< XE::GraphicsAdapterHandle > _AdapterHandleAllocator;
+	XE::QueueHandleAllocator< XE::GraphicsDeviceHandle > _DeviceHandleAllocator;
+	XE::QueueHandleAllocator< XE::GraphicsQueueHandle > _QueueHandleAllocator;
+	XE::QueueHandleAllocator< XE::GraphicsBindGroupHandle > _BindGroupHandleAllocator;
+	XE::QueueHandleAllocator< XE::GraphicsBindGroupLayoutHandle > _BindGroupLayoutHandleAllocator;
+	XE::QueueHandleAllocator< XE::GraphicsBufferHandle > _BufferHandleAllocator;
+	XE::QueueHandleAllocator< XE::GraphicsCommandBufferHandle > _CommandBufferHandleAllocator;
+	XE::QueueHandleAllocator< XE::GraphicsCommandEncoderHandle > _CommandEncoderHandleAllocator;
+	XE::QueueHandleAllocator< XE::GraphicsComputePassEncoderHandle > _ComputePassEncoderHandleAllocator;
+	XE::QueueHandleAllocator< XE::GraphicsComputePipelineHandle > _ComputePipelineHandleAllocator;
+	XE::QueueHandleAllocator< XE::GraphicsPipelineLayoutHandle > _PipelineLayoutHandleAllocator;
+	XE::QueueHandleAllocator< XE::GraphicsQuerySetHandle > _QuerySetHandleAllocator;
+	XE::QueueHandleAllocator< XE::GraphicsRenderBundleHandle > _RenderBundleHandleAllocator;
+	XE::QueueHandleAllocator< XE::GraphicsRenderBundleEncoderHandle > _RenderBundleEncoderHandleAllocator;
+	XE::QueueHandleAllocator< XE::GraphicsRenderPassEncoderHandle > _RenderPassEncoderHandleAllocator;
+	XE::QueueHandleAllocator< XE::GraphicsRenderPipelineHandle > _RenderPipelineHandleAllocator;
+	XE::QueueHandleAllocator< XE::GraphicsShaderModuleHandle > _ShaderModuleHandleAllocator;
+	XE::QueueHandleAllocator< XE::GraphicsTextureHandle > _TextureHandleAllocator;
+	XE::QueueHandleAllocator< XE::GraphicsTextureViewHandle > _TextureViewHandleAllocator;
 };
 
 XE::GraphicsService::GraphicsService()
@@ -352,63 +635,314 @@ void XE::GraphicsService::AdapterRequestDevice( XE::GraphicsAdapterHandle adapte
 {
 	if ( auto ada = _p->_Adapters[adapter.GetValue()] )
 	{
-		
+		std::array< D3D_FEATURE_LEVEL, 4 > levels =
+		{
+			D3D_FEATURE_LEVEL_12_1,
+			D3D_FEATURE_LEVEL_12_0,
+			D3D_FEATURE_LEVEL_11_1,
+			D3D_FEATURE_LEVEL_11_0,
+		};
+
+		for ( size_t i = 0; i < levels.size(); i++ )
+		{
+			XE::GraphicsDevicePtr device = XE::MakeShared< XE::GraphicsDevice >();
+			if ( SUCCEEDED( ::D3D12CreateDevice( ada->Adapter.Get(), levels[i], IID_PPV_ARGS( device->Device.GetAddressOf() ) ) ) )
+			{
+				ada->Device = _p->_DeviceHandleAllocator.Alloc();
+				if ( ada->Device.GetValue() >= _p->_Devices.size() )
+				{
+					_p->_Devices.resize( ada->Device.GetValue() + 1 );
+				}
+				_p->_Devices.set( ada->Device.GetValue(), device );
+			}
+		}
+
+		if ( ada->Device )
+		{
+			callback( XE::GraphicsRequestDeviceStatus::SUCCESS, ada->Device, "" );
+		}
+		else
+		{
+			callback( XE::GraphicsRequestDeviceStatus::ERROR, ada->Device, "" );
+		}
 	}
 }
 
 void XE::GraphicsService::BufferDestroy( XE::GraphicsBufferHandle buffer )
 {
-
+	if ( auto buf = _p->_Buffers[buffer.GetValue()] )
+	{
+		_p->_Buffers.set( buffer.GetValue(), nullptr );
+		_p->_BufferHandleAllocator.Free( buffer );
+	}
 }
 
 XE::Span< XE::uint8 > XE::GraphicsService::BufferGetMappedRange( XE::GraphicsBufferHandle buffer, XE::uint64 offset, XE::uint64 size )
 {
+	if ( auto buf = _p->_Buffers[buffer.GetValue()] )
+	{
+		std::unique_lock< std::recursive_mutex > lock( buf->Lock );
+
+		buf->MapRange.Begin = offset;
+		buf->MapRange.End = offset + size;
+
+		void * data = nullptr;
+		if ( SUCCEEDED( buf->Resource->Map( 0, &buf->MapRange, &data ) ) )
+		{
+			buf->IsMap = true;
+
+			return { reinterpret_cast<XE::uint8 *>( data ), size };
+		}
+	}
+
 	return {};
 }
 
-void XE::GraphicsService::BufferMapAsync( XE::GraphicsBufferHandle buffer, XE::GraphicsMapModeFlags mode, XE::uint64 offset, XE::uint64 size, BufferMapCallback callback )
+void XE::GraphicsService::BufferMapAsync( XE::GraphicsBufferHandle buffer, XE::uint64 offset, XE::uint64 size, BufferMapCallback callback )
 {
+	if ( auto buf = _p->_Buffers[buffer.GetValue()] )
+	{
+		auto func = [=]()
+		{
+			if ( auto buf = _p->_Buffers[buffer.GetValue()] )
+			{
+				std::unique_lock< std::recursive_mutex > lock( buf->Lock );
 
+				callback( XE::GraphicsBufferMapAsyncStatus::SUCCESS, BufferGetMappedRange( buffer, offset, size ) );
+			}
+		};
+
+		if ( buf->IsMap )
+		{
+			buf->AsyncQueue.push( func );
+		}
+		else
+		{
+			try
+			{
+				if ( buf->Lock.try_lock() )
+				{
+					func();
+
+					buf->Lock.unlock();
+				}
+			}
+			catch ( ... )
+			{
+				buf->Lock.unlock();
+			}
+		}
+	}
 }
 
 void XE::GraphicsService::BufferUnmap( XE::GraphicsBufferHandle buffer )
 {
+	if ( auto buf = _p->_Buffers[buffer.GetValue()] )
+	{
+		if ( buf->IsMap )
+		{
+			buf->Resource->Unmap( 0, &buf->MapRange );
 
+			buf->IsMap = false;
+
+			XE::Delegate< void() > async;
+			if ( buf->AsyncQueue.try_pop( async ) )
+			{
+				async();
+			}
+		}
+	}
 }
 
 XE::GraphicsComputePassEncoderHandle XE::GraphicsService::CommandEncoderBeginComputePass( XE::GraphicsCommandEncoderHandle command_encoder, const XE::GraphicsComputePassDescriptor & descriptor )
 {
+	if ( auto cmd = _p->_CommandEncoders[command_encoder.GetValue()] )
+	{
+		if ( auto cmd_buf = _p->_CommandBuffers[cmd->CommandBuffer.GetValue()] )
+		{
+			auto handle = _p->_ComputePassEncoderHandleAllocator.Alloc();
+			if ( handle.GetValue() >= _p->_ComputePassEncoders.size() )
+			{
+				_p->_ComputePassEncoders.push_back( nullptr );
+			}
+
+			auto pass = XE::MakeShared< XE::GraphicsComputePassEncoder >();
+
+			pass->Desc = descriptor;
+			pass->Encoder = command_encoder;
+
+			_p->_ComputePassEncoders.set( handle.GetValue(), pass );
+
+			cmd->Kind = XE::PassKind::COMPUTE;
+			cmd->PassIndex = handle.GetValue();
+
+			cmd_buf->CommandList->BeginEvent( 0, pass->Desc.Label.c_str(), pass->Desc.Label.size() );
+
+			return handle;
+		}
+	}
+
 	return {};
 }
 
 XE::GraphicsRenderPassEncoderHandle XE::GraphicsService::CommandEncoderBeginRenderPass( XE::GraphicsCommandEncoderHandle command_encoder, const XE::GraphicsRenderPassDescriptor & descriptor )
 {
+	if ( auto cmd = _p->_CommandEncoders[command_encoder.GetValue()] )
+	{
+		if ( auto cmd_buf = _p->_CommandBuffers[cmd->CommandBuffer.GetValue()] )
+		{
+			auto handle = _p->_RenderPassEncoderHandleAllocator.Alloc();
+			if ( handle.GetValue() >= _p->_RenderPassEncoders.size() )
+			{
+				_p->_RenderPassEncoders.push_back( nullptr );
+			}
+
+			auto pass = XE::MakeShared< XE::GraphicsRenderPassEncoder >();
+
+			pass->Desc = descriptor;
+			pass->Encoder = command_encoder;
+
+			_p->_RenderPassEncoders.set( handle.GetValue(), pass );
+
+			cmd->Kind = XE::PassKind::RENDER;
+			cmd->PassIndex = handle.GetValue();
+
+			cmd_buf->CommandList->BeginEvent( 0, pass->Desc.Label.c_str(), pass->Desc.Label.size() );
+
+			return handle;
+		}
+	}
+
 	return {};
 }
 
 void XE::GraphicsService::CommandEncoderClearBuffer( XE::GraphicsCommandEncoderHandle command_encoder, XE::GraphicsBufferHandle buffer, XE::uint64 offset, XE::uint64 size )
 {
-
+	if ( auto cmd = _p->_CommandEncoders[command_encoder.GetValue()] )
+	{
+		if ( auto buf = _p->_Buffers[buffer.GetValue()] )
+		{
+			if ( auto cmd_buf = _p->_CommandBuffers[cmd->CommandBuffer.GetValue()] )
+			{
+				D3D12::GraphicsCommandListPtr list;
+				if ( SUCCEEDED( cmd_buf->CommandList.As< ID3D12GraphicsCommandList >( &list ) ) )
+				{
+					list->CopyBufferRegion( buf->Resource.Get(), offset, nullptr, 0, size );
+				}
+			}
+		}
+	}
 }
 
-void XE::GraphicsService::CommandEncoderCopyBufferToBuffer( XE::GraphicsCommandEncoderHandle command_encoder, XE::GraphicsBufferHandle source, XE::uint64 source_offset, XE::GraphicsBufferHandle destination, XE::uint64 destination_offset, XE::uint64 size )
+void XE::GraphicsService::CommandEncoderCopyBufferToBuffer( XE::GraphicsCommandEncoderHandle command_encoder, XE::GraphicsBufferHandle src, XE::uint64 src_offset, XE::GraphicsBufferHandle dst, XE::uint64 dst_offset, XE::uint64 size )
+{
+	if ( auto cmd = _p->_CommandEncoders[command_encoder.GetValue()] )
+	{
+		if ( auto src_buf = _p->_Buffers[src.GetValue()] )
+		{
+			if ( auto dst_buf = _p->_Buffers[dst.GetValue()] )
+			{
+				if ( auto cmd_buf = _p->_CommandBuffers[cmd->CommandBuffer.GetValue()] )
+				{
+					D3D12::GraphicsCommandListPtr list;
+					if ( SUCCEEDED( cmd_buf->CommandList.As< ID3D12GraphicsCommandList >( &list ) ) )
+					{
+						list->CopyBufferRegion( dst_buf->Resource.Get(), dst_offset, src_buf->Resource.Get(), src_offset, size );
+					}
+				}
+			}
+		}
+	}
+}
+
+void XE::GraphicsService::CommandEncoderCopyBufferToTexture( XE::GraphicsCommandEncoderHandle command_encoder, const XE::GraphicsImageCopyBuffer & src, const XE::GraphicsImageCopyTexture & dst, const XE::Vec3f & copy_size )
+{
+	if ( auto cmd = _p->_CommandEncoders[command_encoder.GetValue()] )
+	{
+		if ( auto src_buf = _p->_Buffers[src.Buffer.GetValue()] )
+		{
+			if ( auto dst_tex = _p->_Textures[dst.Texture.GetValue()] )
+			{
+				if ( auto dst_buf = _p->_Buffers[dst_tex->Buffer.GetValue()] )
+				{
+					if ( auto cmd_buf = _p->_CommandBuffers[cmd->CommandBuffer.GetValue()] )
+					{
+						D3D12::GraphicsCommandListPtr list;
+						if ( SUCCEEDED( cmd_buf->CommandList.As< ID3D12GraphicsCommandList >( &list ) ) )
+						{
+							D3D12_PLACED_SUBRESOURCE_FOOTPRINT src_footprint;
+							src_footprint.Offset = 0;
+							src_footprint.Footprint.Format = Cast( dst_tex->Desc.Format );
+							src_footprint.Footprint.Width = dst_tex->Desc.Size.x;
+							src_footprint.Footprint.Height = dst_tex->Desc.Size.y;
+							src_footprint.Footprint.Depth = dst_tex->Desc.Size.z;
+							//src_footprint.Footprint.RowPitch = dst_tex->Desc.
+
+							CD3DX12_TEXTURE_COPY_LOCATION src_location( src_buf->Resource.Get(), {} );
+
+							CD3DX12_TEXTURE_COPY_LOCATION dst_location;
+
+							D3D12_BOX box;
+
+							box.left = dst.Origin.x;
+							box.top = dst.Origin.y;
+							box.right = dst.Origin.x + copy_size.x;
+							box.bottom = dst.Origin.y + copy_size.y;
+							box.front = dst.Origin.z;
+							box.back = dst.Origin.z + copy_size.z;
+
+							list->CopyTextureRegion( &dst_location, dst.Origin.x, dst.Origin.y, dst.Origin.z, &src_location, &box );
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+void XE::GraphicsService::CommandEncoderCopyTextureToBuffer( XE::GraphicsCommandEncoderHandle command_encoder, const XE::GraphicsImageCopyTexture & src, const XE::GraphicsImageCopyBuffer & dst, const XE::Vec3f & copy_size )
 {
 
 }
 
-void XE::GraphicsService::CommandEncoderCopyBufferToTexture( XE::GraphicsCommandEncoderHandle command_encoder, const XE::GraphicsImageCopyBuffer & source, const XE::GraphicsImageCopyTexture & destination, const XE::Vec3f & copy_size )
+void XE::GraphicsService::CommandEncoderCopyTextureToTexture( XE::GraphicsCommandEncoderHandle command_encoder, const XE::GraphicsImageCopyTexture & src, const XE::GraphicsImageCopyTexture & dst, const XE::Vec3f & copy_size )
 {
+	if ( auto cmd = _p->_CommandEncoders[command_encoder.GetValue()] )
+	{
+		if ( auto src_tex = _p->_Textures[src.Texture.GetValue()] )
+		{
+			if ( auto src_buf = _p->_Buffers[src_tex->Buffer.GetValue()] )
+			{
+				if ( auto dst_tex = _p->_Textures[dst.Texture.GetValue()] )
+				{
+					if ( auto dst_buf = _p->_Buffers[dst_tex->Buffer.GetValue()] )
+					{
+						if ( auto cmd_buf = _p->_CommandBuffers[cmd->CommandBuffer.GetValue()] )
+						{
+							D3D12::GraphicsCommandListPtr list;
+							if ( SUCCEEDED( cmd_buf->CommandList.As< ID3D12GraphicsCommandList >( &list ) ) )
+							{
+								CD3DX12_TEXTURE_COPY_LOCATION src_location( src_buf->Resource.Get() );
 
-}
+								CD3DX12_TEXTURE_COPY_LOCATION dst_location( dst_buf->Resource.Get() );
 
-void XE::GraphicsService::CommandEncoderCopyTextureToBuffer( XE::GraphicsCommandEncoderHandle command_encoder, const XE::GraphicsImageCopyTexture & source, const XE::GraphicsImageCopyBuffer & destination, const XE::Vec3f & copy_size )
-{
+								D3D12_BOX box;
 
-}
+								box.left = src.Origin.x;
+								box.top = src.Origin.y;
+								box.right = src.Origin.x + copy_size.x;
+								box.bottom = src.Origin.y + copy_size.y;
+								box.front = src.Origin.z;
+								box.back = src.Origin.z + copy_size.z;
 
-void XE::GraphicsService::CommandEncoderCopyTextureToTexture( XE::GraphicsCommandEncoderHandle command_encoder, const XE::GraphicsImageCopyTexture & source, const XE::GraphicsImageCopyTexture & destination, const XE::Vec3f & copy_size )
-{
-
+								list->CopyTextureRegion( &dst_location, dst.Origin.x, dst.Origin.y, dst.Origin.z, &src_location, &box );
+							}
+						}
+					}
+				}
+			}
+		}
+	}
 }
 
 XE::GraphicsCommandBufferHandle XE::GraphicsService::CommandEncoderFinish( XE::GraphicsCommandEncoderHandle command_encoder, const XE::GraphicsCommandBufferDescriptor & descriptor )
@@ -418,67 +952,203 @@ XE::GraphicsCommandBufferHandle XE::GraphicsService::CommandEncoderFinish( XE::G
 
 void XE::GraphicsService::CommandEncoderInsertDebugMarker( XE::GraphicsCommandEncoderHandle command_encoder, const XE::String & marker_label )
 {
-
+	if ( auto cmd = _p->_CommandEncoders[command_encoder.GetValue()] )
+	{
+		if ( auto cmd_buf = _p->_CommandBuffers[cmd->CommandBuffer.GetValue()] )
+		{
+			cmd_buf->CommandList->SetMarker( 0, marker_label.c_str(), marker_label.size() );
+		}
+	}
 }
 
 void XE::GraphicsService::CommandEncoderPopDebugGroup( XE::GraphicsCommandEncoderHandle command_encoder )
 {
-
+	if ( auto cmd = _p->_CommandEncoders[command_encoder.GetValue()] )
+	{
+		if ( auto cmd_buf = _p->_CommandBuffers[cmd->CommandBuffer.GetValue()] )
+		{
+			cmd_buf->CommandList->EndEvent();
+		}
+	}
 }
 
 void XE::GraphicsService::CommandEncoderPushDebugGroup( XE::GraphicsCommandEncoderHandle command_encoder, const XE::String & group_label )
 {
-
+	if ( auto cmd = _p->_CommandEncoders[command_encoder.GetValue()] )
+	{
+		if ( auto cmd_buf = _p->_CommandBuffers[cmd->CommandBuffer.GetValue()] )
+		{
+			cmd_buf->CommandList->BeginEvent( 0, group_label.c_str(), group_label.size() );
+		}
+	}
 }
 
-void XE::GraphicsService::CommandEncoderResolveQuerySet( XE::GraphicsCommandEncoderHandle command_encoder, XE::GraphicsQuerySetHandle query_set, XE::uint32 first_query, XE::uint32 query_count, XE::GraphicsBufferHandle destination, XE::uint64 destination_offset )
+void XE::GraphicsService::CommandEncoderResolveQuerySet( XE::GraphicsCommandEncoderHandle command_encoder, XE::GraphicsQuerySetHandle query_set, XE::uint32 first_query, XE::uint32 query_count, XE::GraphicsBufferHandle dst, XE::uint64 dst_offset )
 {
-
+	if ( auto cmd = _p->_CommandEncoders[command_encoder.GetValue()] )
+	{
+		if ( auto cmd_buf = _p->_CommandBuffers[cmd->CommandBuffer.GetValue()] )
+		{
+			if ( auto query = _p->_QuerySets[query_set.GetValue()] )
+			{
+				if ( auto buf = _p->_Buffers[dst.GetValue()] )
+				{
+					cmd_buf->CommandList->ResolveQueryData( query->QueryHeap.Get(), Cast( query->Desc.Type ), first_query, query_count, buf->Resource.Get(), dst_offset );
+				}
+			}
+		}
+	}
 }
 
 void XE::GraphicsService::CommandEncoderWriteTimestamp( XE::GraphicsCommandEncoderHandle command_encoder, XE::GraphicsQuerySetHandle query_set, XE::uint32 query_index )
 {
-
+	if ( auto cmd = _p->_CommandEncoders[command_encoder.GetValue()] )
+	{
+		if ( auto cmd_buf = _p->_CommandBuffers[cmd->CommandBuffer.GetValue()] )
+		{
+			if ( auto query = _p->_QuerySets[query_set.GetValue()] )
+			{
+				cmd_buf->CommandList->EndQuery( query->QueryHeap.Get(), D3D12_QUERY_TYPE_TIMESTAMP, query_index );
+			}
+		}
+	}
 }
 
 void XE::GraphicsService::ComputePassEncoderBeginPipelineStatisticsQuery( XE::GraphicsComputePassEncoderHandle compute_pass_encoder, XE::GraphicsQuerySetHandle query_set, XE::uint32 query_index )
 {
-
+	if ( auto pass = _p->_ComputePassEncoders[compute_pass_encoder.GetValue()] )
+	{
+		pass->TaskQueue.push( [=]()
+		{
+			if ( auto cmd = _p->_CommandEncoders[pass->Encoder.GetValue()] )
+			{
+				if ( auto cmd_buf = _p->_CommandBuffers[cmd->CommandBuffer.GetValue()] )
+				{
+					if ( auto query = _p->_QuerySets[query_set.GetValue()] )
+					{
+						pass->PiplineStatisticsQuery = query_set;
+						pass->PiplineStatisticsQueryIndex = query_index;
+						cmd_buf->CommandList->BeginQuery( query->QueryHeap.Get(), D3D12_QUERY_TYPE_PIPELINE_STATISTICS, query_index );
+					}
+				}
+			}
+		} );
+	}
 }
 
 void XE::GraphicsService::ComputePassEncoderDispatch( XE::GraphicsComputePassEncoderHandle compute_pass_encoder, XE::uint32 workgroup_count_x, XE::uint32 workgroup_count_y, XE::uint32 workgroup_count_z )
 {
-
+	if ( auto pass = _p->_ComputePassEncoders[compute_pass_encoder.GetValue()] )
+	{
+		pass->TaskQueue.push( [=]()
+		{
+			if ( auto cmd = _p->_CommandEncoders[pass->Encoder.GetValue()] )
+			{
+				if ( auto cmd_buf = _p->_CommandBuffers[cmd->CommandBuffer.GetValue()] )
+				{
+					cmd_buf->CommandList->Dispatch( workgroup_count_x, workgroup_count_y, workgroup_count_z );
+				}
+			}
+		} );
+	}
 }
 
 void XE::GraphicsService::ComputePassEncoderDispatchIndirect( XE::GraphicsComputePassEncoderHandle compute_pass_encoder, XE::GraphicsBufferHandle indirect_buffer, XE::uint64 indirect_offset )
 {
-
+	if ( auto pass = _p->_ComputePassEncoders[compute_pass_encoder.GetValue()] )
+	{
+		pass->TaskQueue.push( [=]()
+		{
+			if ( auto cmd = _p->_CommandEncoders[pass->Encoder.GetValue()] )
+			{
+				if ( auto cmd_buf = _p->_CommandBuffers[cmd->CommandBuffer.GetValue()] )
+				{
+					if ( auto bind_group = _p->_BindGroups[pass->BindGroup.GetValue()] )
+					{
+						if ( auto buf = _p->_Buffers[indirect_buffer.GetValue()] )
+						{
+							cmd_buf->CommandList->ExecuteIndirect( bind_group->CommandSignature.Get(), 1, buf->Resource.Get(), indirect_offset, nullptr, 0 );
+						}
+					}
+				}
+			}
+		} );
+	}
 }
 
 void XE::GraphicsService::ComputePassEncoderEnd( XE::GraphicsComputePassEncoderHandle compute_pass_encoder )
 {
-
+	if ( auto pass = _p->_ComputePassEncoders[compute_pass_encoder.GetValue()] )
+	{
+		if ( auto cmd = _p->_CommandEncoders[pass->Encoder.GetValue()] )
+		{
+			if ( auto cmd_buf = _p->_CommandBuffers[cmd->CommandBuffer.GetValue()] )
+			{
+				cmd_buf->CommandList->EndEvent();
+				cmd->Kind = XE::PassKind::NONE;
+				cmd->PassIndex = 0;
+			}
+		}
+	}
 }
 
 void XE::GraphicsService::ComputePassEncoderEndPipelineStatisticsQuery( XE::GraphicsComputePassEncoderHandle compute_pass_encoder )
 {
-
+	if ( auto pass = _p->_ComputePassEncoders[compute_pass_encoder.GetValue()] )
+	{
+		if ( auto cmd = _p->_CommandEncoders[pass->Encoder.GetValue()] )
+		{
+			if ( auto cmd_buf = _p->_CommandBuffers[cmd->CommandBuffer.GetValue()] )
+			{
+				if ( auto query = _p->_QuerySets[pass->PiplineStatisticsQuery.GetValue()] )
+				{
+					cmd_buf->CommandList->EndQuery( query->QueryHeap.Get(), D3D12_QUERY_TYPE_PIPELINE_STATISTICS, pass->PiplineStatisticsQueryIndex );
+				}
+			}
+		}
+	}
 }
 
 void XE::GraphicsService::ComputePassEncoderInsertDebugMarker( XE::GraphicsComputePassEncoderHandle compute_pass_encoder, const XE::String & marker_label )
 {
-
+	if ( auto pass = _p->_ComputePassEncoders[compute_pass_encoder.GetValue()] )
+	{
+		if ( auto cmd = _p->_CommandEncoders[pass->Encoder.GetValue()] )
+		{
+			if ( auto cmd_buf = _p->_CommandBuffers[cmd->CommandBuffer.GetValue()] )
+			{
+				cmd_buf->CommandList->SetMarker( 0, marker_label.c_str(), marker_label.size() );
+			}
+		}
+	}
 }
 
 void XE::GraphicsService::ComputePassEncoderPopDebugGroup( XE::GraphicsComputePassEncoderHandle compute_pass_encoder )
 {
-
+	if ( auto pass = _p->_ComputePassEncoders[compute_pass_encoder.GetValue()] )
+	{
+		if ( auto cmd = _p->_CommandEncoders[pass->Encoder.GetValue()] )
+		{
+			if ( auto cmd_buf = _p->_CommandBuffers[cmd->CommandBuffer.GetValue()] )
+			{
+				cmd_buf->CommandList->EndEvent();
+			}
+		}
+	}
 }
 
 void XE::GraphicsService::ComputePassEncoderPushDebugGroup( XE::GraphicsComputePassEncoderHandle compute_pass_encoder, const XE::String & group_label )
 {
-
+	if ( auto pass = _p->_ComputePassEncoders[compute_pass_encoder.GetValue()] )
+	{
+		if ( auto cmd = _p->_CommandEncoders[pass->Encoder.GetValue()] )
+		{
+			if ( auto cmd_buf = _p->_CommandBuffers[cmd->CommandBuffer.GetValue()] )
+			{
+				cmd_buf->CommandList->BeginEvent( 0, group_label.c_str(), group_label.size() );
+			}
+		}
+	}
 }
 
 void XE::GraphicsService::ComputePassEncoderSetBindGroup( XE::GraphicsComputePassEncoderHandle compute_pass_encoder, XE::uint32 group_index, XE::GraphicsBindGroupHandle group, XE::uint32 dynamic_offset_count, XE::uint32 & dynamic_offsets )
@@ -656,7 +1326,7 @@ void XE::GraphicsService::QueueWriteBuffer( XE::GraphicsQueueHandle queue, XE::G
 
 }
 
-void XE::GraphicsService::QueueWriteTexture( XE::GraphicsQueueHandle queue, const XE::GraphicsImageCopyTexture & destination, XE::MemoryView data, const XE::GraphicsTextureDataLayout & data_layout, const XE::Vec3f & write_size )
+void XE::GraphicsService::QueueWriteTexture( XE::GraphicsQueueHandle queue, const XE::GraphicsImageCopyTexture & dst, XE::MemoryView data, const XE::GraphicsTextureDataLayout & data_layout, const XE::Vec3f & write_size )
 {
 
 }

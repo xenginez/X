@@ -22,7 +22,7 @@ private:
 
 public:
 	using ErrorCallback = XE::Delegate< void( XE::GraphicsErrorType type, const XE::String & message ) >;
-	using BufferMapCallback = XE::Delegate< void( XE::GraphicsBufferMapAsyncStatus status ) >;
+	using BufferMapCallback = XE::Delegate< void( XE::GraphicsBufferMapAsyncStatus status, XE::Span< XE::uint8 > ) >;
 	using DeviceLostCallback = XE::Delegate< void( XE::GraphicsDeviceLostReason reason, const XE::String & message ) >;
 	using QueueWorkDoneCallback = XE::Delegate< void( XE::GraphicsQueueWorkDoneStatus status ) >;
 	using RequestDeviceCallback = XE::Delegate< void( XE::GraphicsRequestDeviceStatus status, XE::GraphicsDeviceHandle device, const XE::String & message ) >;
@@ -55,7 +55,7 @@ public:
 public:
 	void BufferDestroy( XE::GraphicsBufferHandle buffer );
 	XE::Span< XE::uint8 > BufferGetMappedRange( XE::GraphicsBufferHandle buffer, XE::uint64 offset, XE::uint64 size );
-	void BufferMapAsync( XE::GraphicsBufferHandle buffer, XE::GraphicsMapModeFlags mode, XE::uint64 offset, XE::uint64 size, BufferMapCallback callback );
+	void BufferMapAsync( XE::GraphicsBufferHandle buffer, XE::uint64 offset, XE::uint64 size, BufferMapCallback callback );
 	void BufferUnmap( XE::GraphicsBufferHandle buffer );
 
 public:
