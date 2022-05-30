@@ -52,3 +52,6 @@
 [submodule "3rdparty/webgpu-headers"]
 	path = 3rdparty/webgpu-headers
 	url = https://github.com/webgpu-native/webgpu-headers.git
+[submodule "3rdparty/SPIRV-Cross"]
+	path = 3rdparty/SPIRV-Cross
+	url = https://github.com/KhronosGroup/SPIRV-Cross.git
