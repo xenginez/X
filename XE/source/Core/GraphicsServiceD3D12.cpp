@@ -244,6 +244,15 @@ namespace
 
 		return D3D12_QUERY_TYPE_OCCLUSION;
 	}
+	D3D12_RESOURCE_FLAGS Cast( XE::GraphicsBufferUsageFlags usage )
+	{
+		D3D12_RESOURCE_FLAGS flags = D3D12_RESOURCE_FLAG_NONE;
+
+		if ( usage || XE::GraphicsBufferUsage::STORAGE )
+			flags |= D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
+
+		return flags;
+	}
 }
 
 namespace D3D12
@@ -336,6 +345,8 @@ namespace XE
 	class GraphicsBindGroup
 	{
 	public:
+		XE::GraphicsBindGroupLayoutHandle Layout;
+
 		D3D12::RootSignaturePtr RootSignature = nullptr;
 		D3D12::CommandSignaturePtr CommandSignature = nullptr;
 	};
@@ -371,8 +382,10 @@ namespace XE
 	{
 	public:
 		XE::GraphicsComputePassDescriptor Desc;
+
 		XE::GraphicsBindGroupHandle BindGroup;
 		XE::GraphicsCommandEncoderHandle Encoder;
+		XE::GraphicsComputePipelineHandle Pipeline;
 
 		XE::uint64 PiplineStatisticsQueryIndex;
 		XE::GraphicsQuerySetHandle PiplineStatisticsQuery;
@@ -382,6 +395,12 @@ namespace XE
 	class GraphicsComputePipeline
 	{
 	public:
+		XE::GraphicsComputePipelineDescriptor Desc;
+
+		XE::GraphicsDeviceHandle Device;
+		XE::GraphicsPipelineLayoutHandle Layout;
+		std::array< XE::GraphicsBindGroupHandle, 4 > BindGroups;
+		
 		D3D12::PipelineStatePtr PipelineState = nullptr;
 	};
 	class GraphicsPipelineLayout
@@ -1153,22 +1172,43 @@ void XE::GraphicsService::ComputePassEncoderPushDebugGroup( XE::GraphicsComputeP
 
 void XE::GraphicsService::ComputePassEncoderSetBindGroup( XE::GraphicsComputePassEncoderHandle compute_pass_encoder, XE::uint32 group_index, XE::GraphicsBindGroupHandle group, XE::uint32 dynamic_offset_count, XE::uint32 & dynamic_offsets )
 {
+	if ( auto pass = _p->_ComputePassEncoders[compute_pass_encoder.GetValue()] )
+	{
+		pass->BindGroup = group;
 
+		// TODO: 
+	}
 }
 
 void XE::GraphicsService::ComputePassEncoderSetPipeline( XE::GraphicsComputePassEncoderHandle compute_pass_encoder, XE::GraphicsComputePipelineHandle pipeline )
 {
-
+	if ( auto pass = _p->_ComputePassEncoders[compute_pass_encoder.GetValue()] )
+	{
+		pass->Pipeline = pipeline;
+	}
 }
 
 XE::GraphicsBindGroupLayoutHandle XE::GraphicsService::ComputePipelineGetBindGroupLayout( XE::GraphicsComputePipelineHandle compute_pipeline, XE::uint32 group_index )
 {
+	if ( auto pipe = _p->_ComputePipelines[compute_pipeline.GetValue()] )
+	{
+		if ( auto bind = _p->_BindGroups[pipe->BindGroups[group_index].GetValue()] )
+		{
+			return bind->Layout;
+		}
+	}
+
 	return {};
 }
 
 void XE::GraphicsService::ComputePipelineSetLabel( XE::GraphicsComputePipelineHandle compute_pipeline, const XE::String & label )
 {
+	if ( auto pipe = _p->_ComputePipelines[compute_pipeline.GetValue()] )
+	{
+		pipe->Desc.Label = label;
 
+
+	}
 }
 
 XE::GraphicsBindGroupHandle XE::GraphicsService::DeviceCreateBindGroup( XE::GraphicsDeviceHandle device, const XE::GraphicsBindGroupDescriptor & descriptor )
@@ -1183,6 +1223,39 @@ XE::GraphicsBindGroupLayoutHandle XE::GraphicsService::DeviceCreateBindGroupLayo
 
 XE::GraphicsBufferHandle XE::GraphicsService::DeviceCreateBuffer( XE::GraphicsDeviceHandle device, const XE::GraphicsBufferDescriptor & descriptor )
 {
+	if ( auto dev = _p->_Devices[device.GetValue()] )
+	{
+		auto handle = _p->_BufferHandleAllocator.Alloc();
+		if ( handle.GetValue() >= _p->_Buffers.size() ) _p->_Buffers.push_back( nullptr );
+
+		auto buf = XE::MakeShared< XE::GraphicsBuffer >();
+		auto size = descriptor.Size;
+		XE::uint32 align_mask = 0;
+		if ( descriptor.Usage || XE::GraphicsBufferUsage::UNIFORM )
+		{
+			align_mask = D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT;
+			size = ( ( size - 1 ) | align_mask ) + 1;
+		}
+
+		CD3DX12_RESOURCE_DESC raw_desc
+		( D3D12_RESOURCE_DIMENSION_BUFFER, 0, size, 1, 1, 1, Cast( XE::GraphicsTextureFormat::UNDEFINED ), 1, 0, D3D12_TEXTURE_LAYOUT_ROW_MAJOR, Cast( descriptor.Usage ) );
+
+		bool is_cpu_read = descriptor.Usage || XE::GraphicsBufferUsage::MAP_READ;
+		bool is_cpu_write = descriptor.Usage || XE::GraphicsBufferUsage::MAP_WRITE;
+
+		CD3DX12_HEAP_PROPERTIES heap_properties(
+			is_cpu_read ? D3D12_CPU_PAGE_PROPERTY_WRITE_BACK : ( is_cpu_write ? D3D12_CPU_PAGE_PROPERTY_WRITE_COMBINE : D3D12_CPU_PAGE_PROPERTY_NOT_AVAILABLE ),
+			D3D12_MEMORY_POOL_L1,
+			0, 0 );
+
+		if ( SUCCEEDED( dev->Device->CreateCommittedResource( &heap_properties, D3D12_HEAP_FLAG_NONE, &raw_desc, D3D12_RESOURCE_STATE_COMMON, nullptr, IID_PPV_ARGS( buf->Resource.GetAddressOf() ) ) ) )
+		{
+			_p->_Buffers.set( handle.GetValue(), buf );
+
+			return handle;
+		}
+	}
+
 	return {};
 }
 
