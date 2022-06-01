@@ -235,11 +235,6 @@ XE::GraphicsComputePipelineHandle XE::GraphicsService::DeviceCreateComputePipeli
 
 }
 
-void XE::GraphicsService::DeviceCreateComputePipelineAsync( XE::GraphicsDeviceHandle device, const XE::GraphicsComputePipelineDescriptor & descriptor, CreateComputePipelineAsyncCallback callback )
-{
-
-}
-
 XE::GraphicsPipelineLayoutHandle XE::GraphicsService::DeviceCreatePipelineLayout( XE::GraphicsDeviceHandle device, const XE::GraphicsPipelineLayoutDescriptor & descriptor )
 {
 
@@ -256,11 +251,6 @@ XE::GraphicsRenderBundleEncoderHandle XE::GraphicsService::DeviceCreateRenderBun
 }
 
 XE::GraphicsRenderPipelineHandle XE::GraphicsService::DeviceCreateRenderPipeline( XE::GraphicsDeviceHandle device, const XE::GraphicsRenderPipelineDescriptor & descriptor )
-{
-
-}
-
-void XE::GraphicsService::DeviceCreateRenderPipelineAsync( XE::GraphicsDeviceHandle device, const XE::GraphicsRenderPipelineDescriptor & descriptor, CreateRenderPipelineAsyncCallback callback )
 {
 
 }

@@ -167,6 +167,30 @@ using UnqueBufferCallbackType = void( * )( void * userdata, XE::AudioBufferHandl
 //////////////////////////////////////////////////////////////////////////
 // Render
 
+static constexpr XE::uint64 GRAPHICS_MAX_INSTANCE = 0;
+static constexpr XE::uint64 GRAPHICS_MAX_SURFACE = 0;
+static constexpr XE::uint64 GRAPHICS_MAX_SWAP_CHAIN = 0;
+static constexpr XE::uint64 GRAPHICS_MAX_ADAPTER = 0;
+static constexpr XE::uint64 GRAPHICS_MAX_DEVICE = 0;
+static constexpr XE::uint64 GRAPHICS_MAX_QUEUE = 0;
+static constexpr XE::uint64 GRAPHICS_MAX_BIND_GROUP = 0;
+static constexpr XE::uint64 GRAPHICS_MAX_BIND_GROUP_LAYOUT = 0;
+static constexpr XE::uint64 GRAPHICS_MAX_BUFFER = 0;
+static constexpr XE::uint64 GRAPHICS_MAX_COMMAND_BUFFER = 0;
+static constexpr XE::uint64 GRAPHICS_MAX_COMMAND_ENCODER = 0;
+static constexpr XE::uint64 GRAPHICS_MAX_COMPUTE_PASS_ENCODER = 0;
+static constexpr XE::uint64 GRAPHICS_MAX_COMPUTE_PIPELINE = 0;
+static constexpr XE::uint64 GRAPHICS_MAX_PIPELINE_LAYOUT = 0;
+static constexpr XE::uint64 GRAPHICS_MAX_QUERY_SET = 0;
+static constexpr XE::uint64 GRAPHICS_MAX_RENDER_BUNDLE = 0;
+static constexpr XE::uint64 GRAPHICS_MAX_RENDER_BUNDLE_ENCODER = 0;
+static constexpr XE::uint64 GRAPHICS_MAX_RENDER_PASS_ENCODER = 0;
+static constexpr XE::uint64 GRAPHICS_MAX_RENDER_PIPELINE = 0;
+static constexpr XE::uint64 GRAPHICS_MAX_SAMPLER = 0;
+static constexpr XE::uint64 GRAPHICS_MAX_SHADER_MODULE = 0;
+static constexpr XE::uint64 GRAPHICS_MAX_TEXTURE = 0;
+static constexpr XE::uint64 GRAPHICS_MAX_TEXTURE_VIEW = 0;
+
 DECL_HANDLE( GraphicsInstance );
 DECL_HANDLE( GraphicsAdapter );
 DECL_HANDLE( GraphicsDevice );

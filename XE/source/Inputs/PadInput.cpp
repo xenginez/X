@@ -127,7 +127,7 @@ XE::uint64 PadInputHandleMessage( XE::InputState * cur_state, XE::InputState * p
 {
 	return 0;
 }
-#elif PLATFORM_OS & OS_WASM
+#elif PLATFORM_OS & OS_WEB
 XE::uint64 PadInputCapabilities( XE::uint64 start )
 {
 	return 0;

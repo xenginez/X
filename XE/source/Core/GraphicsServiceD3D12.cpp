@@ -316,11 +316,14 @@ namespace XE
 	class GraphicsSurface
 	{
 	public:
+		XE::GraphicsSurfaceDescriptor Desc;
 		XE::WindowPtr Window;
 	};
 	class GraphicsSwapChain
 	{
 	public:
+		XE::GraphicsSwapChainDescriptor Desc;
+
 		D3D12::SwapChainPtr SwapChain = nullptr;
 	};
 	class GraphicsAdapter
@@ -353,7 +356,7 @@ namespace XE
 	class GraphicsBindGroupLayout
 	{
 	public:
-
+		XE::GraphicsBindGroupLayoutDescriptor Desc;
 	};
 	class GraphicsBuffer
 	{
@@ -374,8 +377,11 @@ namespace XE
 	class GraphicsCommandEncoder
 	{
 	public:
+		XE::GraphicsCommandEncoderDescriptor Desc;
+
 		XE::PassKind Kind = XE::PassKind::NONE;
 		XE::uint64 PassIndex = 0;
+
 		XE::GraphicsCommandBufferHandle CommandBuffer;
 	};
 	class GraphicsComputePassEncoder
@@ -406,7 +412,7 @@ namespace XE
 	class GraphicsPipelineLayout
 	{
 	public:
-
+		XE::GraphicsPipelineLayoutDescriptor Desc;
 	};
 	class GraphicsQuerySet
 	{
@@ -417,11 +423,13 @@ namespace XE
 	class GraphicsRenderBundle
 	{
 	public:
-
+		XE::GraphicsRenderBundleDescriptor Desc;
 	};
 	class GraphicsRenderBundleEncoder
 	{
 	public:
+		XE::GraphicsRenderBundleEncoderDescriptor Desc;
+
 		XE::GraphicsCommandEncoderHandle Encoder;
 	};
 	class GraphicsRenderPassEncoder
@@ -433,16 +441,19 @@ namespace XE
 	class GraphicsRenderPipeline
 	{
 	public:
+		XE::GraphicsRenderPipelineDescriptor Desc;
+
 		D3D12::PipelineStatePtr PipelineState = nullptr;
 	};
 	class GraphicsSampler
 	{
 	public:
-
+		XE::GraphicsSamplerDescriptor Desc;
 	};
 	class GraphicsShaderModule
 	{
 	public:
+		XE::GraphicsShaderModuleDescriptor Desc;
 		D3D12_SHADER_BYTECODE ShaderCode;
 	};
 	class GraphicsTexture
@@ -463,51 +474,53 @@ struct XE::GraphicsService::Private
 	D3D12::DebugPtr _Debug;
 	D3D12::FactoryPtr _Factory;
 
-	XE::ConcurrentArray< XE::GraphicsInstancePtr > _Instances;
-	XE::ConcurrentArray< XE::GraphicsSurfacePtr > _Surfaces;
-	XE::ConcurrentArray< XE::GraphicsSwapChainPtr > _SwapChains;
-	XE::ConcurrentArray< XE::GraphicsAdapterPtr > _Adapters;
-	XE::ConcurrentArray< XE::GraphicsDevicePtr > _Devices;
-	XE::ConcurrentArray< XE::GraphicsQueuePtr > _Queues;
-	XE::ConcurrentArray< XE::GraphicsBindGroupPtr > _BindGroups;
-	XE::ConcurrentArray< XE::GraphicsBindGroupLayoutPtr > _BindGroupLayouts;
-	XE::ConcurrentArray< XE::GraphicsBufferPtr > _Buffers;
-	XE::ConcurrentArray< XE::GraphicsCommandBufferPtr > _CommandBuffers;
-	XE::ConcurrentArray< XE::GraphicsCommandEncoderPtr > _CommandEncoders;
-	XE::ConcurrentArray< XE::GraphicsComputePassEncoderPtr > _ComputePassEncoders;
-	XE::ConcurrentArray< XE::GraphicsComputePipelinePtr > _ComputePipelines;
-	XE::ConcurrentArray< XE::GraphicsPipelineLayoutPtr > _PipelineLayouts;
-	XE::ConcurrentArray< XE::GraphicsQuerySetPtr > _QuerySets;
-	XE::ConcurrentArray< XE::GraphicsRenderBundlePtr > _RenderBundles;
-	XE::ConcurrentArray< XE::GraphicsRenderBundleEncoderPtr > _RenderBundleEncoders;
-	XE::ConcurrentArray< XE::GraphicsRenderPassEncoderPtr > _RenderPassEncoders;
-	XE::ConcurrentArray< XE::GraphicsRenderPipelinePtr > _RenderPipelines;
-	XE::ConcurrentArray< XE::GraphicsShaderModulePtr > _ShaderModules;
-	XE::ConcurrentArray< XE::GraphicsTexturePtr > _Textures;
-	XE::ConcurrentArray< XE::GraphicsTextureViewPtr > _TextureViews;
+	std::array< XE::GraphicsInstancePtr, XE::GRAPHICS_MAX_INSTANCE > _Instances;
+	std::array< XE::GraphicsSurfacePtr, XE::GRAPHICS_MAX_SURFACE > _Surfaces;
+	std::array< XE::GraphicsSwapChainPtr, XE::GRAPHICS_MAX_SWAP_CHAIN > _SwapChains;
+	std::array< XE::GraphicsAdapterPtr, XE::GRAPHICS_MAX_ADAPTER > _Adapters;
+	std::array< XE::GraphicsDevicePtr, XE::GRAPHICS_MAX_DEVICE > _Devices;
+	std::array< XE::GraphicsQueuePtr, XE::GRAPHICS_MAX_QUEUE > _Queues;
+	std::array< XE::GraphicsBindGroupPtr, XE::GRAPHICS_MAX_BIND_GROUP > _BindGroups;
+	std::array< XE::GraphicsBindGroupLayoutPtr, XE::GRAPHICS_MAX_BIND_GROUP_LAYOUT > _BindGroupLayouts;
+	std::array< XE::GraphicsBufferPtr, XE::GRAPHICS_MAX_BUFFER > _Buffers;
+	std::array< XE::GraphicsCommandBufferPtr, XE::GRAPHICS_MAX_COMMAND_BUFFER > _CommandBuffers;
+	std::array< XE::GraphicsCommandEncoderPtr, XE::GRAPHICS_MAX_COMMAND_ENCODER > _CommandEncoders;
+	std::array< XE::GraphicsComputePassEncoderPtr, XE::GRAPHICS_MAX_COMPUTE_PASS_ENCODER > _ComputePassEncoders;
+	std::array< XE::GraphicsComputePipelinePtr, XE::GRAPHICS_MAX_COMPUTE_PIPELINE > _ComputePipelines;
+	std::array< XE::GraphicsPipelineLayoutPtr, XE::GRAPHICS_MAX_PIPELINE_LAYOUT > _PipelineLayouts;
+	std::array< XE::GraphicsQuerySetPtr, XE::GRAPHICS_MAX_QUERY_SET > _QuerySets;
+	std::array< XE::GraphicsRenderBundlePtr, XE::GRAPHICS_MAX_RENDER_BUNDLE > _RenderBundles;
+	std::array< XE::GraphicsRenderBundleEncoderPtr, XE::GRAPHICS_MAX_RENDER_BUNDLE_ENCODER > _RenderBundleEncoders;
+	std::array< XE::GraphicsRenderPassEncoderPtr, XE::GRAPHICS_MAX_RENDER_PASS_ENCODER > _RenderPassEncoders;
+	std::array< XE::GraphicsRenderPipelinePtr, XE::GRAPHICS_MAX_RENDER_PIPELINE > _RenderPipelines;
+	std::array< XE::GraphicsShaderModulePtr, XE::GRAPHICS_MAX_SHADER_MODULE > _ShaderModules;
+	std::array< XE::GraphicsSamplerPtr, XE::GRAPHICS_MAX_SAMPLER > _Samplers;
+	std::array< XE::GraphicsTexturePtr, XE::GRAPHICS_MAX_TEXTURE > _Textures;
+	std::array< XE::GraphicsTextureViewPtr, XE::GRAPHICS_MAX_TEXTURE_VIEW > _TextureViews;
 
-	XE::QueueHandleAllocator< XE::GraphicsInstanceHandle > _InstanceHandleAllocator;
-	XE::QueueHandleAllocator< XE::GraphicsSurfaceHandle > _SurfaceHandleAllocator;
-	XE::QueueHandleAllocator< XE::GraphicsSwapChainHandle > _SwapChainHandleAllocator;
-	XE::QueueHandleAllocator< XE::GraphicsAdapterHandle > _AdapterHandleAllocator;
-	XE::QueueHandleAllocator< XE::GraphicsDeviceHandle > _DeviceHandleAllocator;
-	XE::QueueHandleAllocator< XE::GraphicsQueueHandle > _QueueHandleAllocator;
-	XE::QueueHandleAllocator< XE::GraphicsBindGroupHandle > _BindGroupHandleAllocator;
-	XE::QueueHandleAllocator< XE::GraphicsBindGroupLayoutHandle > _BindGroupLayoutHandleAllocator;
-	XE::QueueHandleAllocator< XE::GraphicsBufferHandle > _BufferHandleAllocator;
-	XE::QueueHandleAllocator< XE::GraphicsCommandBufferHandle > _CommandBufferHandleAllocator;
-	XE::QueueHandleAllocator< XE::GraphicsCommandEncoderHandle > _CommandEncoderHandleAllocator;
-	XE::QueueHandleAllocator< XE::GraphicsComputePassEncoderHandle > _ComputePassEncoderHandleAllocator;
-	XE::QueueHandleAllocator< XE::GraphicsComputePipelineHandle > _ComputePipelineHandleAllocator;
-	XE::QueueHandleAllocator< XE::GraphicsPipelineLayoutHandle > _PipelineLayoutHandleAllocator;
-	XE::QueueHandleAllocator< XE::GraphicsQuerySetHandle > _QuerySetHandleAllocator;
-	XE::QueueHandleAllocator< XE::GraphicsRenderBundleHandle > _RenderBundleHandleAllocator;
-	XE::QueueHandleAllocator< XE::GraphicsRenderBundleEncoderHandle > _RenderBundleEncoderHandleAllocator;
-	XE::QueueHandleAllocator< XE::GraphicsRenderPassEncoderHandle > _RenderPassEncoderHandleAllocator;
-	XE::QueueHandleAllocator< XE::GraphicsRenderPipelineHandle > _RenderPipelineHandleAllocator;
-	XE::QueueHandleAllocator< XE::GraphicsShaderModuleHandle > _ShaderModuleHandleAllocator;
-	XE::QueueHandleAllocator< XE::GraphicsTextureHandle > _TextureHandleAllocator;
-	XE::QueueHandleAllocator< XE::GraphicsTextureViewHandle > _TextureViewHandleAllocator;
+	XE::QueueHandleAllocator< XE::GraphicsInstanceHandle, XE::GRAPHICS_MAX_INSTANCE > _InstanceHandleAllocator;
+	XE::QueueHandleAllocator< XE::GraphicsSurfaceHandle, XE::GRAPHICS_MAX_SURFACE > _SurfaceHandleAllocator;
+	XE::QueueHandleAllocator< XE::GraphicsSwapChainHandle, XE::GRAPHICS_MAX_SWAP_CHAIN > _SwapChainHandleAllocator;
+	XE::QueueHandleAllocator< XE::GraphicsAdapterHandle, XE::GRAPHICS_MAX_ADAPTER > _AdapterHandleAllocator;
+	XE::QueueHandleAllocator< XE::GraphicsDeviceHandle, XE::GRAPHICS_MAX_DEVICE > _DeviceHandleAllocator;
+	XE::QueueHandleAllocator< XE::GraphicsQueueHandle, XE::GRAPHICS_MAX_QUEUE > _QueueHandleAllocator;
+	XE::QueueHandleAllocator< XE::GraphicsBindGroupHandle, XE::GRAPHICS_MAX_BIND_GROUP > _BindGroupHandleAllocator;
+	XE::QueueHandleAllocator< XE::GraphicsBindGroupLayoutHandle, XE::GRAPHICS_MAX_BIND_GROUP_LAYOUT > _BindGroupLayoutHandleAllocator;
+	XE::QueueHandleAllocator< XE::GraphicsBufferHandle, XE::GRAPHICS_MAX_BUFFER > _BufferHandleAllocator;
+	XE::QueueHandleAllocator< XE::GraphicsCommandBufferHandle, XE::GRAPHICS_MAX_COMMAND_BUFFER > _CommandBufferHandleAllocator;
+	XE::QueueHandleAllocator< XE::GraphicsCommandEncoderHandle, XE::GRAPHICS_MAX_COMMAND_ENCODER > _CommandEncoderHandleAllocator;
+	XE::QueueHandleAllocator< XE::GraphicsComputePassEncoderHandle, XE::GRAPHICS_MAX_COMPUTE_PASS_ENCODER > _ComputePassEncoderHandleAllocator;
+	XE::QueueHandleAllocator< XE::GraphicsComputePipelineHandle, XE::GRAPHICS_MAX_COMPUTE_PIPELINE > _ComputePipelineHandleAllocator;
+	XE::QueueHandleAllocator< XE::GraphicsPipelineLayoutHandle, XE::GRAPHICS_MAX_PIPELINE_LAYOUT > _PipelineLayoutHandleAllocator;
+	XE::QueueHandleAllocator< XE::GraphicsQuerySetHandle, XE::GRAPHICS_MAX_QUERY_SET > _QuerySetHandleAllocator;
+	XE::QueueHandleAllocator< XE::GraphicsRenderBundleHandle, XE::GRAPHICS_MAX_RENDER_BUNDLE > _RenderBundleHandleAllocator;
+	XE::QueueHandleAllocator< XE::GraphicsRenderBundleEncoderHandle, XE::GRAPHICS_MAX_RENDER_BUNDLE_ENCODER > _RenderBundleEncoderHandleAllocator;
+	XE::QueueHandleAllocator< XE::GraphicsRenderPassEncoderHandle, XE::GRAPHICS_MAX_RENDER_PASS_ENCODER > _RenderPassEncoderHandleAllocator;
+	XE::QueueHandleAllocator< XE::GraphicsRenderPipelineHandle, XE::GRAPHICS_MAX_RENDER_PIPELINE > _RenderPipelineHandleAllocator;
+	XE::QueueHandleAllocator< XE::GraphicsShaderModuleHandle, XE::GRAPHICS_MAX_SHADER_MODULE > _ShaderModuleHandleAllocator;
+	XE::QueueHandleAllocator< XE::GraphicsSamplerHandle, XE::GRAPHICS_MAX_SAMPLER > _SamplerHandleAllocator;
+	XE::QueueHandleAllocator< XE::GraphicsTextureHandle, XE::GRAPHICS_MAX_TEXTURE > _TextureHandleAllocator;
+	XE::QueueHandleAllocator< XE::GraphicsTextureViewHandle, XE::GRAPHICS_MAX_TEXTURE_VIEW > _TextureViewHandleAllocator;
 };
 
 XE::GraphicsService::GraphicsService()
@@ -668,11 +681,8 @@ void XE::GraphicsService::AdapterRequestDevice( XE::GraphicsAdapterHandle adapte
 			if ( SUCCEEDED( ::D3D12CreateDevice( ada->Adapter.Get(), levels[i], IID_PPV_ARGS( device->Device.GetAddressOf() ) ) ) )
 			{
 				ada->Device = _p->_DeviceHandleAllocator.Alloc();
-				if ( ada->Device.GetValue() >= _p->_Devices.size() )
-				{
-					_p->_Devices.resize( ada->Device.GetValue() + 1 );
-				}
-				_p->_Devices.set( ada->Device.GetValue(), device );
+
+				_p->_Devices[ada->Device.GetValue()] = device;
 			}
 		}
 
@@ -691,7 +701,8 @@ void XE::GraphicsService::BufferDestroy( XE::GraphicsBufferHandle buffer )
 {
 	if ( auto buf = _p->_Buffers[buffer.GetValue()] )
 	{
-		_p->_Buffers.set( buffer.GetValue(), nullptr );
+		_p->_Buffers[buffer.GetValue()] = nullptr;
+
 		_p->_BufferHandleAllocator.Free( buffer );
 	}
 }
@@ -780,17 +791,13 @@ XE::GraphicsComputePassEncoderHandle XE::GraphicsService::CommandEncoderBeginCom
 		if ( auto cmd_buf = _p->_CommandBuffers[cmd->CommandBuffer.GetValue()] )
 		{
 			auto handle = _p->_ComputePassEncoderHandleAllocator.Alloc();
-			if ( handle.GetValue() >= _p->_ComputePassEncoders.size() )
-			{
-				_p->_ComputePassEncoders.push_back( nullptr );
-			}
 
 			auto pass = XE::MakeShared< XE::GraphicsComputePassEncoder >();
 
 			pass->Desc = descriptor;
 			pass->Encoder = command_encoder;
 
-			_p->_ComputePassEncoders.set( handle.GetValue(), pass );
+			_p->_ComputePassEncoders[handle.GetValue()] = pass;
 
 			cmd->Kind = XE::PassKind::COMPUTE;
 			cmd->PassIndex = handle.GetValue();
@@ -811,17 +818,13 @@ XE::GraphicsRenderPassEncoderHandle XE::GraphicsService::CommandEncoderBeginRend
 		if ( auto cmd_buf = _p->_CommandBuffers[cmd->CommandBuffer.GetValue()] )
 		{
 			auto handle = _p->_RenderPassEncoderHandleAllocator.Alloc();
-			if ( handle.GetValue() >= _p->_RenderPassEncoders.size() )
-			{
-				_p->_RenderPassEncoders.push_back( nullptr );
-			}
 
 			auto pass = XE::MakeShared< XE::GraphicsRenderPassEncoder >();
 
 			pass->Desc = descriptor;
 			pass->Encoder = command_encoder;
 
-			_p->_RenderPassEncoders.set( handle.GetValue(), pass );
+			_p->_RenderPassEncoders[handle.GetValue()] = pass;
 
 			cmd->Kind = XE::PassKind::RENDER;
 			cmd->PassIndex = handle.GetValue();
@@ -1226,7 +1229,6 @@ XE::GraphicsBufferHandle XE::GraphicsService::DeviceCreateBuffer( XE::GraphicsDe
 	if ( auto dev = _p->_Devices[device.GetValue()] )
 	{
 		auto handle = _p->_BufferHandleAllocator.Alloc();
-		if ( handle.GetValue() >= _p->_Buffers.size() ) _p->_Buffers.push_back( nullptr );
 
 		auto buf = XE::MakeShared< XE::GraphicsBuffer >();
 		auto size = descriptor.Size;
@@ -1250,7 +1252,7 @@ XE::GraphicsBufferHandle XE::GraphicsService::DeviceCreateBuffer( XE::GraphicsDe
 
 		if ( SUCCEEDED( dev->Device->CreateCommittedResource( &heap_properties, D3D12_HEAP_FLAG_NONE, &raw_desc, D3D12_RESOURCE_STATE_COMMON, nullptr, IID_PPV_ARGS( buf->Resource.GetAddressOf() ) ) ) )
 		{
-			_p->_Buffers.set( handle.GetValue(), buf );
+			_p->_Buffers[handle.GetValue()] = buf;
 
 			return handle;
 		}
@@ -1261,61 +1263,179 @@ XE::GraphicsBufferHandle XE::GraphicsService::DeviceCreateBuffer( XE::GraphicsDe
 
 XE::GraphicsCommandEncoderHandle XE::GraphicsService::DeviceCreateCommandEncoder( XE::GraphicsDeviceHandle device, const XE::GraphicsCommandEncoderDescriptor & descriptor )
 {
+	if ( auto dev = _p->_Devices[device.GetValue()] )
+	{
+		auto handle = _p->_CommandEncoderHandleAllocator.Alloc();
+
+		auto encoder = XE::MakeShared< XE::GraphicsCommandEncoder >();
+
+		encoder->Desc = descriptor;
+
+		_p->_CommandEncoders[handle.GetValue()] = encoder;
+
+		return handle;
+	}
+
 	return {};
 }
 
 XE::GraphicsComputePipelineHandle XE::GraphicsService::DeviceCreateComputePipeline( XE::GraphicsDeviceHandle device, const XE::GraphicsComputePipelineDescriptor & descriptor )
 {
+	if ( auto dev = _p->_Devices[device.GetValue()] )
+	{
+		auto handle = _p->_ComputePipelineHandleAllocator.Alloc();
+
+		auto pipe = XE::MakeShared< XE::GraphicsComputePipeline >();
+
+		pipe->Desc = descriptor;
+
+		_p->_ComputePipelines[handle.GetValue()] = pipe;
+	}
+
 	return {};
-}
-
-void XE::GraphicsService::DeviceCreateComputePipelineAsync( XE::GraphicsDeviceHandle device, const XE::GraphicsComputePipelineDescriptor & descriptor, CreateComputePipelineAsyncCallback callback )
-{
-
 }
 
 XE::GraphicsPipelineLayoutHandle XE::GraphicsService::DeviceCreatePipelineLayout( XE::GraphicsDeviceHandle device, const XE::GraphicsPipelineLayoutDescriptor & descriptor )
 {
+	if ( auto dev = _p->_Devices[device.GetValue()] )
+	{
+		auto handle = _p->_PipelineLayoutHandleAllocator.Alloc();
+
+		auto layout = XE::MakeShared< XE::GraphicsPipelineLayout >();
+
+		layout->Desc = descriptor;
+
+		_p->_PipelineLayouts[handle.GetValue()] = layout;
+
+		return handle;
+	}
+
 	return {};
 }
 
 XE::GraphicsQuerySetHandle XE::GraphicsService::DeviceCreateQuerySet( XE::GraphicsDeviceHandle device, const XE::GraphicsQuerySetDescriptor & descriptor )
 {
+	if ( auto dev = _p->_Devices[device.GetValue()] )
+	{
+		auto handle = _p->_QuerySetHandleAllocator.Alloc();
+
+		auto query = XE::MakeShared< XE::GraphicsQuerySet >();
+
+		query->Desc = descriptor;
+
+		_p->_QuerySets[handle.GetValue()] = query;
+
+		return handle;
+	}
+
 	return {};
 }
 
 XE::GraphicsRenderBundleEncoderHandle XE::GraphicsService::DeviceCreateRenderBundleEncoder( XE::GraphicsDeviceHandle device, const XE::GraphicsRenderBundleEncoderDescriptor & descriptor )
 {
+	if ( auto dev = _p->_Devices[device.GetValue()] )
+	{
+		auto handle = _p->_RenderBundleEncoderHandleAllocator.Alloc();
+
+		auto bundle = XE::MakeShared< XE::GraphicsRenderBundleEncoder >();
+
+		bundle->Desc = descriptor;
+
+		_p->_RenderBundleEncoders[handle.GetValue()] = bundle;
+
+		return handle;
+	}
+
 	return {};
 }
 
 XE::GraphicsRenderPipelineHandle XE::GraphicsService::DeviceCreateRenderPipeline( XE::GraphicsDeviceHandle device, const XE::GraphicsRenderPipelineDescriptor & descriptor )
 {
+	if ( auto dev = _p->_Devices[device.GetValue()] )
+	{
+		auto handle = _p->_RenderPipelineHandleAllocator.Alloc();
+
+		auto pipe = XE::MakeShared< XE::GraphicsRenderPipeline >();
+
+		pipe->Desc = descriptor;
+
+		_p->_RenderPipelines[handle.GetValue()] = pipe;
+
+		return handle;
+	}
+
 	return {};
-}
-
-void XE::GraphicsService::DeviceCreateRenderPipelineAsync( XE::GraphicsDeviceHandle device, const XE::GraphicsRenderPipelineDescriptor & descriptor, CreateRenderPipelineAsyncCallback callback )
-{
-
 }
 
 XE::GraphicsSamplerHandle XE::GraphicsService::DeviceCreateSampler( XE::GraphicsDeviceHandle device, const XE::GraphicsSamplerDescriptor & descriptor )
 {
+	if ( auto dev = _p->_Devices[device.GetValue()] )
+	{
+		auto handle = _p->_SamplerHandleAllocator.Alloc();
+
+		auto sampler = XE::MakeShared< XE::GraphicsSampler >();
+
+		sampler->Desc = descriptor;
+
+		_p->_Samplers[handle.GetValue()] = sampler;
+
+		return handle;
+	}
+
 	return {};
 }
 
 XE::GraphicsShaderModuleHandle XE::GraphicsService::DeviceCreateShaderModule( XE::GraphicsDeviceHandle device, const XE::GraphicsShaderModuleDescriptor & descriptor )
 {
+	if ( auto dev = _p->_Devices[device.GetValue()] )
+	{
+		auto handle = _p->_ShaderModuleHandleAllocator.Alloc();
+
+		auto shader = XE::MakeShared< XE::GraphicsShaderModule >();
+
+		shader->Desc = descriptor;
+
+		_p->_ShaderModules[handle.GetValue()] = shader;
+
+		return handle;
+	}
+
 	return {};
 }
 
 XE::GraphicsSwapChainHandle XE::GraphicsService::DeviceCreateSwapChain( XE::GraphicsDeviceHandle device, XE::GraphicsSurfaceHandle surface, const XE::GraphicsSwapChainDescriptor & descriptor )
 {
+	if ( auto dev = _p->_Devices[device.GetValue()] )
+	{
+		auto handle = _p->_SwapChainHandleAllocator.Alloc();
+
+		auto swap_chain = XE::MakeShared< XE::GraphicsSwapChain >();
+
+		swap_chain->Desc = descriptor;
+
+		_p->_SwapChains[handle.GetValue()] = swap_chain;
+
+		return handle;
+	}
+
 	return {};
 }
 
 XE::GraphicsTextureHandle XE::GraphicsService::DeviceCreateTexture( XE::GraphicsDeviceHandle device, const XE::GraphicsTextureDescriptor & descriptor )
 {
+	if ( auto dev = _p->_Devices[device.GetValue()] )
+	{
+		auto handle = _p->_TextureHandleAllocator.Alloc();
+
+		auto texture = XE::MakeShared< XE::GraphicsTexture >();
+
+		texture->Desc = descriptor;
+
+		_p->_Textures[handle.GetValue()] = texture;
+
+		return handle;
+	}
+
 	return {};
 }
 

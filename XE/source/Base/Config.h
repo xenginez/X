@@ -37,13 +37,13 @@
 #define OS_WINDOWS		1 << 5
 #define OS_ANDROID		1 << 6
 #define OS_NINTENDO		1 << 7
-#define OS_WASM	1 << 8
+#define OS_WEB			1 << 8
 #define OS_PLAY_STATION	1 << 9
 
 #ifdef _WIN32
 #		define PLATFORM_OS OS_WINDOWS
 #elif __EMSCRIPTEN__
-#		define PLATFORM_OS OS_WASM
+#		define PLATFORM_OS OS_WEB
 #elif __APPLE__
 #include "TargetConditionals.h"
 #if TARGET_IPHONE_SIMULATOR
@@ -79,7 +79,7 @@
 #define GRAPHICS_API GRAPHICS_METAL
 #elif ( PLATFORM_OS & ( OS_LINUX | OS_ANDROID ) )
 #define GRAPHICS_API GRAPHICS_VULKAN
-#elif ( PLATFORM_OS & OS_WASM )
+#elif ( PLATFORM_OS & OS_WEB )
 #define GRAPHICS_API GRAPHICS_WEBGPU
 #endif
 

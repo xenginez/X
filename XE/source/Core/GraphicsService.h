@@ -28,8 +28,6 @@ public:
 	using RequestDeviceCallback = XE::Delegate< void( XE::GraphicsRequestDeviceStatus status, XE::GraphicsDeviceHandle device, const XE::String & message ) >;
 	using RequestAdapterCallback = XE::Delegate< void( XE::GraphicsRequestAdapterStatus status, XE::GraphicsAdapterHandle adapter, const XE::String & message ) >;
 	using CompilationInfoCallback = XE::Delegate< void( XE::GraphicsCompilationInfoRequestStatus status, const XE::GraphicsCompilationInfo & compilation_info ) >;
-	using CreateRenderPipelineAsyncCallback = XE::Delegate< void( XE::GraphicsCreatePipelineAsyncStatus status, XE::GraphicsRenderPipelineHandle pipeline, const XE::String & message ) >;
-	using CreateComputePipelineAsyncCallback = XE::Delegate< void( XE::GraphicsCreatePipelineAsyncStatus status, XE::GraphicsComputePipelineHandle pipeline, const XE::String & message ) >;
 
 public:
 	GraphicsService();
@@ -95,12 +93,10 @@ public:
 	XE::GraphicsBufferHandle DeviceCreateBuffer( XE::GraphicsDeviceHandle device, const XE::GraphicsBufferDescriptor & descriptor );
 	XE::GraphicsCommandEncoderHandle DeviceCreateCommandEncoder( XE::GraphicsDeviceHandle device, const XE::GraphicsCommandEncoderDescriptor & descriptor );
 	XE::GraphicsComputePipelineHandle DeviceCreateComputePipeline( XE::GraphicsDeviceHandle device, const XE::GraphicsComputePipelineDescriptor & descriptor );
-	void DeviceCreateComputePipelineAsync( XE::GraphicsDeviceHandle device, const XE::GraphicsComputePipelineDescriptor & descriptor, CreateComputePipelineAsyncCallback callback );
 	XE::GraphicsPipelineLayoutHandle DeviceCreatePipelineLayout( XE::GraphicsDeviceHandle device, const XE::GraphicsPipelineLayoutDescriptor & descriptor );
 	XE::GraphicsQuerySetHandle DeviceCreateQuerySet( XE::GraphicsDeviceHandle device, const XE::GraphicsQuerySetDescriptor & descriptor );
 	XE::GraphicsRenderBundleEncoderHandle DeviceCreateRenderBundleEncoder( XE::GraphicsDeviceHandle device, const XE::GraphicsRenderBundleEncoderDescriptor & descriptor );
 	XE::GraphicsRenderPipelineHandle DeviceCreateRenderPipeline( XE::GraphicsDeviceHandle device, const XE::GraphicsRenderPipelineDescriptor & descriptor );
-	void DeviceCreateRenderPipelineAsync( XE::GraphicsDeviceHandle device, const XE::GraphicsRenderPipelineDescriptor & descriptor, CreateRenderPipelineAsyncCallback callback );
 	XE::GraphicsSamplerHandle DeviceCreateSampler( XE::GraphicsDeviceHandle device, const XE::GraphicsSamplerDescriptor & descriptor );
 	XE::GraphicsShaderModuleHandle DeviceCreateShaderModule( XE::GraphicsDeviceHandle device, const XE::GraphicsShaderModuleDescriptor & descriptor );
 	XE::GraphicsSwapChainHandle DeviceCreateSwapChain( XE::GraphicsDeviceHandle device, XE::GraphicsSurfaceHandle surface, const XE::GraphicsSwapChainDescriptor & descriptor );
