@@ -19,12 +19,6 @@ XE::Logger::~Logger()
 	XE::Delete( _p );
 }
 
-XE::Logger * XE::Logger::Instance()
-{
-	static XE::Logger instance;
-	return &instance;
-}
-
 #define _p XE::Logger::Instance()->_p
 
 #if __cplusplus > 202000L

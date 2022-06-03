@@ -46,12 +46,6 @@ XE::Reflection::~Reflection()
 	XE::Delete( _p );
 }
 
-XE::Reflection * XE::Reflection::Instance()
-{
-	static XE::Reflection instance;
-	return &instance;
-}
-
 #define _p XE::Reflection::Instance()->_p
 
 void XE::Reflection::RegisterMetaInfo( XE::MetaInfoPtr val )

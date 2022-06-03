@@ -17,19 +17,17 @@
 
 BEG_XE_NAMESPACE
 
-class XE_API Logger : public XE::NonCopyable
+class XE_API Logger : public XE::Singleton< XE::Logger >
 {
 public:
 	struct Private;
 
 	using ListenerType = XE::Delegate< void( std::chrono::system_clock::time_point, const char *, XE::uint32, const char *, XE::LoggerLevel, XE::Utf8String ) >;
 
-private:
+public:
 	Logger();
 
 	~Logger();
-
-	static Logger * Instance();
 
 public:
 #if __cplusplus > 202000L

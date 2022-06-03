@@ -25,12 +25,6 @@ XE::Order::~Order()
 	XE::Delete( _p );
 }
 
-XE::Order * XE::Order::Instance()
-{
-	static XE::Order instance;
-	return &instance;
-}
-
 #define _p XE::Order::Instance()->_p
 
 XE::String XE::Order::FindOrderName( XE::uint64 id )

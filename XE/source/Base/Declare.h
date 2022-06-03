@@ -50,22 +50,24 @@ class AnsiEncode;
 class WideEncode;
 class Utf8Encode;
 class StdStringConvert;
+template < typename T > class Singleton;
 template < typename Unit > class CodePointArrow;
 template < typename Encode, typename Alloc > class BasicString;
 template < typename Encode, typename Alloc > class BasicStringIterator;
 template < typename StringIterator > class BasicStringReverseIterator;
-template< typename FromEncode, typename ToEncode > class StringConvert;
+template < typename FromEncode, typename ToEncode > class StringConvert;
 
-template< typename T > using WeakPtr = std::weak_ptr< T >;
-template< typename T > using SharedPtr = std::shared_ptr< T >;
-template< typename T > using EnableSharedFromThis = std::enable_shared_from_this< T >;
+template < typename T > using WeakPtr = std::weak_ptr< T >;
+template < typename T > using SharedPtr = std::shared_ptr< T >;
+template < typename T > using EnableSharedFromThis = std::enable_shared_from_this< T >;
 
-template< typename _Ty > class MultiArrayIterator;
-template< typename _Ty > class MultiArrayConstIterator;
-template< typename _Ty, typename ... _Size > class MultiArrayView;
 template <class _Ty, XE::uint64 _Extent> class Span;
 
-template< typename ... Args > class Delegate;
+template < typename _Ty > class MultiArrayIterator;
+template < typename _Ty > class MultiArrayConstIterator;
+template < typename _Ty, typename ... _Size > class MultiArrayView;
+
+template < typename ... Args > class Delegate;
 
 END_XE_NAMESPACE
 

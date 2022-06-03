@@ -15,17 +15,15 @@ BEG_XE_NAMESPACE
 
 DECL_HANDLE( Library );
 
-class XE_API Library : public XE::NonCopyable
+class XE_API Library : public XE::Singleton< XE::Library >
 {
 private:
 	struct Private;
 
-private:
+public:
 	Library();
 
 	~Library();
-
-	static Library * Instance();
 
 public:
 	static LibraryHandle Open( const String& name );

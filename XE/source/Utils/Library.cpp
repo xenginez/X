@@ -16,12 +16,6 @@ XE::Library::~Library()
 	XE::Delete( _p );
 }
 
-XE::Library * XE::Library::Instance()
-{
-	static XE::Library instance;
-	return &instance;
-}
-
 #define _p XE::Library::Instance()->_p
 
 void XE::Library::RegisterEnvPath( const std::filesystem::path & path )

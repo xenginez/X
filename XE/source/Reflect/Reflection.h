@@ -14,19 +14,17 @@
 
 BEG_XE_NAMESPACE
 
-class XE_API Reflection : public XE::NonCopyable
+class XE_API Reflection : public XE::Singleton< XE::Reflection >
 {
 	friend class MetaInfo;
 
 private:
 	struct Private;
 
-private:
+public:
 	Reflection();
 
 	~Reflection();
-
-	static Reflection * Instance();
 
 private:
 	static void RegisterMetaInfo( XE::MetaInfoPtr val );
