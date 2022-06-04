@@ -26,12 +26,12 @@ public:
 	using ReceiveCallbackType = XE::Delegate< void( XE::ServerHandle, XE::SessionHandle, std::error_code, XE::MemoryView ) >;
 
 public:
-	Server();
+	Server( XE::ProtocolTypeFlags type );
 
 	virtual ~Server();
 
 public:
-	XE::ProtocolType GetProtocol() const;
+	XE::ProtocolTypeFlags GetProtocol() const;
 
 	XE::ServerHandle GetHandle() const;
 
@@ -40,20 +40,20 @@ public:
 	XE::Endpoint GetRemoteEndpoint( XE::SessionHandle val ) const;
 
 public:
-	void BindAcceptCallback( const AcceptCallbackType & callback );
+	virtual void BindAcceptCallback( const AcceptCallbackType & callback );
 
-	void BindConnectCallback( const ConnectCallbackType & callback );
+	virtual void BindConnectCallback( const ConnectCallbackType & callback );
 
-	void BindHandshakeCallback( const HandshakeCallbackType & callback );
+	virtual void BindHandshakeCallback( const HandshakeCallbackType & callback );
 
-	void BindDisconnectCallback( const DisconnectCallbackType & callback );
+	virtual void BindDisconnectCallback( const DisconnectCallbackType & callback );
 
-	void BindSendCallback( const SendCallbackType & callback );
+	virtual void BindSendCallback( const SendCallbackType & callback );
 
-	void BindReceiveCallback( const ReceiveCallbackType & callback );
+	virtual void BindReceiveCallback( const ReceiveCallbackType & callback );
 
 public:
-	void Send( XE::SessionHandle session, XE::MemoryView data );
+	virtual void Send( XE::SessionHandle session, XE::MemoryView data );
 
 public:
 	bool Close();
@@ -63,6 +63,8 @@ public:
 	void Disconnect( XE::SessionHandle session );
 
 protected:
+	virtual XE::uint64 NativeHandle() = 0;
+
 	virtual void Wirte( XE::SessionHandle session ) = 0;
 
 	virtual void Clear( XE::SessionHandle session ) = 0;
@@ -75,7 +77,7 @@ protected:
 protected:
 	bool _Close = true;
 	XE::ServerHandle _Handle;
-	XE::ProtocolType _Protocol;
+	XE::ProtocolTypeFlags _Protocol;
 
 	XE::Endpoint _LocalEndpoint;
 
@@ -116,6 +118,9 @@ public:
 protected:
 	void Read( XE::SessionHandle session );
 
+protected:
+	XE::uint64 NativeHandle() override;
+
 	void Wirte( XE::SessionHandle session ) override;
 
 	void Clear( XE::SessionHandle session ) override;
@@ -145,6 +150,9 @@ public:
 protected:
 	void Read();
 
+protected:
+	XE::uint64 NativeHandle() override;
+
 	void Wirte( XE::SessionHandle session ) override;
 
 	void Clear( XE::SessionHandle session ) override;
@@ -172,6 +180,9 @@ public:
 protected:
 	void Read();
 
+protected:
+	XE::uint64 NativeHandle() override;
+
 	void Wirte( XE::SessionHandle session ) override;
 
 	void Clear( XE::SessionHandle session ) override;
@@ -183,6 +194,57 @@ private:
 	Private * _p;
 };
 
+template< typename Protocol, typename SSL > class SSLServer : public Protocol
+{
+public:
+	using ProtocolType = Protocol;
+	using SSLContextType = SSL;
+	using ReceiveCallbackType = typename ProtocolType::ReceiveCallbackType;
+	using HandshakeCallbackType = typename ProtocolType::HandshakeCallbackType;
+
+public:
+	SSLServer()
+	{
+		ProtocolType::_Protocol |= XE::ProtocolType::SSL;
+		ProtocolType::BindReceiveCallback( { &SSLServer< Protocol, SSL >::OnProtocolReceive, this } );
+		ProtocolType::BindHandshakeCallback( { &SSLServer< Protocol, SSL >::OnProtocolHandshake, this } );
+	}
+
+	~SSLServer() override = default;
+
+public:
+	void BindReceiveCallback( const ReceiveCallbackType & callback ) override
+	{
+		_SSLReceiveCallback = callback;
+	}
+
+	void BindHandshakeCallback( const HandshakeCallbackType & callback ) override
+	{
+		_SSLHandshakeCallback = callback;
+	}
+
+public:
+	void Send( XE::SessionHandle session, XE::MemoryView data ) override
+	{
+		ProtocolType::Send( session, _SSL.Wirte( data ) );
+	}
+
+private:
+	void OnProtocolHandshake( XE::ServerHandle handle, XE::SessionHandle session, std::error_code code )
+	{
+		_SSLHandshakeCallback( handle, session, _SSL.Connect( ProtocolType::NativeHandle() ) );
+	}
+
+	void OnProtocolReceive( XE::ServerHandle handle, XE::SessionHandle session, std::error_code code, XE::MemoryView data )
+	{
+		_SSLReceiveCallback( handle, session, code, _SSL.Read( data ) );
+	}
+
+private:
+	SSLContextType _SSL;
+	ReceiveCallbackType _SSLReceiveCallback;
+	HandshakeCallbackType _SSLHandshakeCallback;
+};
 
 template< typename Protocol, typename IArchive, typename OArchive > class RPCServer : public Protocol
 {
@@ -200,7 +262,8 @@ private:
 public:
 	RPCServer()
 	{
-		BindReceiveCallback( { &RPCClient<Protocol>::OnReceive, this } );
+		ProtocolType::_Protocol |= XE::ProtocolType::RPC;
+		ProtocolType::BindReceiveCallback( { &RPCServer<Protocol>::OnProtocolReceive, this } );
 	}
 
 	~RPCServer() = default;
@@ -371,7 +434,7 @@ public:
 	}
 
 private:
-	void OnReceive( XE::ServerHandle handle, XE::SessionHandle session, std::error_code code, XE::MemoryView view )
+	void OnProtocolReceive( XE::ServerHandle handle, XE::SessionHandle session, std::error_code code, XE::MemoryView view )
 	{
 		if( !code )
 		{

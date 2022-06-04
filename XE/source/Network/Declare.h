@@ -14,7 +14,6 @@
 BEG_XE_NAMESPACE
 
 class RPC;
-
 class TCPClient;
 class UDPClient;
 class KCPClient;
@@ -28,6 +27,8 @@ class HttpResponse;
 
 class NetworkService;
 
+template< typename Protocol, typename SSL > class SSLClient;
+template< typename Protocol, typename SSL > class SSLServer;
 template< typename Protocol, typename IArchive = XE::BinaryIArchive, typename OArchive = XE::BinaryOArchive > class RPCClient;
 template< typename Protocol, typename IArchive = XE::BinaryIArchive, typename OArchive = XE::BinaryOArchive > class RPCServer;
 

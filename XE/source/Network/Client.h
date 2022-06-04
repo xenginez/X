@@ -25,14 +25,14 @@ public:
 	using ReceiveCallbackType = XE::Delegate< void( XE::ClientHandle, std::error_code, XE::MemoryView ) >;
 
 public:
-	Client( XE::ProtocolType type );
+	Client( XE::ProtocolTypeFlags type );
 
 	virtual ~Client();
 
 public:
 	XE::ClientHandle GetHandle() const;
 
-	XE::ProtocolType GetProtocol() const;
+	XE::ProtocolTypeFlags GetProtocol() const;
 
 	XE::Endpoint GetLocalEndpoint() const;
 
@@ -44,18 +44,18 @@ public:
 	void SetReconnect( const std::chrono::steady_clock::duration & val );
 
 public:
-	void BindConnectCallback( const ConnectCallbackType & callback );
+	virtual void BindConnectCallback( const ConnectCallbackType & callback );
 
-	void BindHandshakeCallback( const HandshakeCallbackType & callback );
+	virtual void BindHandshakeCallback( const HandshakeCallbackType & callback );
 
-	void BindDisconnectCallback( const DisconnectCallbackType & callback );
+	virtual void BindDisconnectCallback( const DisconnectCallbackType & callback );
 
-	void BindSendCallback( const SendCallbackType & callback );
+	virtual void BindSendCallback( const SendCallbackType & callback );
 
-	void BindReceiveCallback( const ReceiveCallbackType & callback );
+	virtual void BindReceiveCallback( const ReceiveCallbackType & callback );
 
 public:
-	void Send( XE::MemoryView data );
+	virtual void Send( XE::MemoryView data );
 
 public:
 	bool Close();
@@ -71,6 +71,8 @@ protected:
 
 	virtual void Connect() = 0;
 
+	virtual XE::uint64 NativeHandle() = 0;
+
 protected:
 	void AllocHandle();
 
@@ -80,7 +82,7 @@ protected:
 	bool _Close = true;
 
 	XE::ClientHandle _Handle;
-	XE::ProtocolType _Protocol;
+	XE::ProtocolTypeFlags _Protocol;
 
 	XE::Endpoint _LocalEndpoint;
 	XE::Endpoint _RemoteEndpoint;
@@ -129,6 +131,8 @@ private:
 
 	void Connect() override;
 
+	XE::uint64 NativeHandle() override;
+
 private:
 	Private * _p;
 };
@@ -154,6 +158,8 @@ private:
 	void Clear() override;
 
 	void Connect() override;
+
+	XE::uint64 NativeHandle() override;
 
 private:
 	void Handshake();
@@ -184,6 +190,8 @@ private:
 
 	void Connect() override;
 
+	XE::uint64 NativeHandle() override;
+
 private:
 	void Handshake();
 
@@ -191,6 +199,57 @@ private:
 	Private * _p;
 };
 
+template< typename Protocol, typename SSL > class SSLClient : public Protocol
+{
+public:
+	using ProtocolType = Protocol;
+	using SSLContextType = SSL;
+	using ReceiveCallbackType = typename ProtocolType::ReceiveCallbackType;
+	using HandshakeCallbackType = typename ProtocolType::HandshakeCallbackType;
+
+public:
+	SSLClient()
+	{
+		ProtocolType::_Protocol |= XE::ProtocolType::SSL;
+		ProtocolType::BindReceiveCallback( { &SSLClient< Protocol, SSL >::OnProtocolReceive, this } );
+		ProtocolType::BindHandshakeCallback( { &SSLClient< Protocol, SSL >::OnProtocolHandshake, this } );
+	}
+
+	~SSLClient() override = default;
+
+public:
+	void BindReceiveCallback( const ReceiveCallbackType & callback ) override
+	{
+		_SSLReceiveCallback = callback;
+	}
+
+	void BindHandshakeCallback( const HandshakeCallbackType & callback ) override
+	{
+		_SSLHandshakeCallback = callback;
+	}
+
+public:
+	void Send( XE::MemoryView data ) override
+	{
+		ProtocolType::Send( _SSL.Wirte( data ) );
+	}
+
+private:
+	void OnProtocolHandshake( XE::ServerHandle handle, std::error_code code )
+	{
+		_SSLHandshakeCallback( handle, _SSL.Connect( ProtocolType::NativeHandle() ) );
+	}
+
+	void OnProtocolReceive( XE::ServerHandle handle, std::error_code code, XE::MemoryView data )
+	{
+		_SSLReceiveCallback( handle, code, _SSL.Read( data ) );
+	}
+
+private:
+	SSLContextType _SSL;
+	ReceiveCallbackType _SSLReceiveCallback;
+	HandshakeCallbackType _SSLHandshakeCallback;
+};
 
 template< typename Protocol, typename IArchive, typename OArchive > class RPCClient : public Protocol
 {
@@ -208,10 +267,11 @@ private:
 public:
 	RPCClient()
 	{
-		BindReceiveCallback( { &RPCClient<Protocol>::OnReceive, this } );
+		ProtocolType::_Protocol |= XE::ProtocolType::RPC;
+		ProtocolType::BindReceiveCallback( { &RPCClient<Protocol>::OnProtocolReceive, this } );
 	}
 
-	~RPCClient() = default;
+	~RPCClient() override = default;
 
 public:
 	template< typename F > bool Bind( const XE::String & name, F && f )
@@ -379,7 +439,7 @@ public:
 	}
 
 private:
-	void OnReceive( XE::ClientHandle handle, std::error_code code, XE::MemoryView view )
+	void OnProtocolReceive( XE::ClientHandle handle, std::error_code code, XE::MemoryView view )
 	{
 		if( !code )
 		{

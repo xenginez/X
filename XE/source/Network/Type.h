@@ -11,6 +11,7 @@
 
 #include "Declare.h"
 
+#include "Utils/Flags.hpp"
 #include "Utils/Handle.hpp"
 
 BEG_XE_NAMESPACE
@@ -33,12 +34,16 @@ enum class ReadType
 
 enum class ProtocolType
 {
-	TCP,
-	UDP,
-	KCP,
-	WEB,
-	HTTP,
+	NONE = 0,
+	TCP = 1 << 1,
+	UDP = 1 << 2,
+	KCP = 1 << 3,
+	WEB = 1 << 4,
+	HTTP = 1 << 5,
+	SSL = 1 << 6,
+	RPC = 1 << 7,
 };
+DECL_FLAGS( ProtocolType );
 
 enum class HttpMethodType
 {
@@ -477,7 +482,6 @@ struct XE_API BufferIterator
 
 	std::array< char, 64 > _Ptr;
 };
-
 
 struct XE_API Match
 {

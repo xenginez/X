@@ -25,7 +25,7 @@ template< typename T > T ToEndpoint( const XE::Endpoint & endpoint )
 }
 
 
-XE::Client::Client( XE::ProtocolType type )
+XE::Client::Client( XE::ProtocolTypeFlags type )
 	:_Protocol( type )
 {
 
@@ -41,7 +41,7 @@ XE::ClientHandle XE::Client::GetHandle() const
 	return _Handle;
 }
 
-XE::ProtocolType XE::Client::GetProtocol() const
+XE::ProtocolTypeFlags XE::Client::GetProtocol() const
 {
 	return _Protocol;
 }
@@ -516,6 +516,10 @@ void XE::TCPClient::Connect()
 	}
 }
 
+XE::uint64 XE::TCPClient::NativeHandle()
+{
+	return ( XE::uint64 ) _p->_Socket->native_handle();
+}
 
 struct XE::UDPClient::Private
 {
@@ -716,6 +720,11 @@ void XE::UDPClient::Handshake()
 	} );
 
 	Read();
+}
+
+XE::uint64 XE::UDPClient::NativeHandle()
+{
+	return ( XE::uint64 ) _p->_Socket->native_handle();
 }
 
 
@@ -1019,4 +1028,9 @@ void XE::KCPClient::Handshake()
 	} );
 
 	Read();
+}
+
+XE::uint64 XE::KCPClient::NativeHandle()
+{
+	return ( XE::uint64 ) _p->_Socket->native_handle();
 }

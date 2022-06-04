@@ -74,7 +74,8 @@ namespace XE
 }
 
 
-XE::Server::Server()
+XE::Server::Server( XE::ProtocolTypeFlags type )
+	:_Protocol( type )
 {
 
 }
@@ -84,7 +85,7 @@ XE::Server::~Server()
 
 }
 
-XE::ProtocolType XE::Server::GetProtocol() const
+XE::ProtocolTypeFlags XE::Server::GetProtocol() const
 {
 	return _Protocol;
 }
@@ -225,7 +226,7 @@ struct XE::TCPServer::Private
 };
 
 XE::TCPServer::TCPServer()
-	:_p( XE::New< Private >() )
+	: Server( XE::ProtocolType::TCP ), _p( XE::New< Private >() )
 {
 
 }
@@ -533,6 +534,11 @@ void XE::TCPServer::Read( XE::SessionHandle session )
 	}
 }
 
+XE::uint64 XE::TCPServer::NativeHandle()
+{
+	return  ( XE::uint64 ) _p->_Acceptor->native_handle();
+}
+
 void XE::TCPServer::Wirte( XE::SessionHandle session )
 {
 	auto ptr = static_cast< TCPSession * >( _Sessions[session.GetValue()].get() );
@@ -614,7 +620,7 @@ struct XE::UDPServer::Private
 };
 
 XE::UDPServer::UDPServer()
-	:_p( XE::New< Private >() )
+	: Server( XE::ProtocolType::UDP ), _p( XE::New< Private >() )
 {
 
 }
@@ -766,6 +772,11 @@ void XE::UDPServer::Read()
 	} );
 }
 
+XE::uint64 XE::UDPServer::NativeHandle()
+{
+	return  ( XE::uint64 ) _p->_Socket->native_handle();
+}
+
 void XE::UDPServer::Wirte( XE::SessionHandle session )
 {
 	asio::ip::udp::endpoint endpoint(
@@ -839,7 +850,7 @@ struct XE::KCPServer::Private
 };
 
 XE::KCPServer::KCPServer()
-	:_p( XE::New< Private >() )
+	: Server( XE::ProtocolType::KCP ), _p( XE::New< Private >() )
 {
 
 }
@@ -1040,6 +1051,11 @@ void XE::KCPServer::Read()
 
 		Read();
 	} );
+}
+
+XE::uint64 XE::KCPServer::NativeHandle()
+{
+	return  ( XE::uint64 ) _p->_Socket->native_handle();
 }
 
 void XE::KCPServer::Wirte( XE::SessionHandle session )
