@@ -34,201 +34,202 @@ namespace
 		switch ( format )
 		{
 		case XE::GraphicsTextureFormat::UNDEFINED:
-			break;
+			return DXGI_FORMAT_UNKNOWN;
 		case XE::GraphicsTextureFormat::R8UNORM:
-			break;
+			return DXGI_FORMAT_R8_UNORM;
 		case XE::GraphicsTextureFormat::R8SNORM:
-			break;
+			return DXGI_FORMAT_R8_SNORM;
 		case XE::GraphicsTextureFormat::R8UINT:
-			break;
+			return DXGI_FORMAT_R8_UINT;
 		case XE::GraphicsTextureFormat::R8SINT:
-			break;
+			return DXGI_FORMAT_R8_SINT;
 		case XE::GraphicsTextureFormat::R16UINT:
-			break;
+			return DXGI_FORMAT_R16_UINT;
 		case XE::GraphicsTextureFormat::R16SINT:
-			break;
+			return DXGI_FORMAT_R16_SINT;
 		case XE::GraphicsTextureFormat::R16FLOAT:
-			break;
+			return DXGI_FORMAT_R16_FLOAT;
 		case XE::GraphicsTextureFormat::RG8UNORM:
-			break;
+			return DXGI_FORMAT_R8G8_UNORM;
 		case XE::GraphicsTextureFormat::RG8SNORM:
-			break;
+			return DXGI_FORMAT_R8G8_SNORM;
 		case XE::GraphicsTextureFormat::RG8UINT:
-			break;
+			return DXGI_FORMAT_R8G8_UINT;
 		case XE::GraphicsTextureFormat::RG8SINT:
-			break;
+			return DXGI_FORMAT_R8G8_SINT;
 		case XE::GraphicsTextureFormat::R32FLOAT:
-			break;
+			return DXGI_FORMAT_R32_FLOAT;
 		case XE::GraphicsTextureFormat::R32UINT:
-			break;
+			return DXGI_FORMAT_R32_UINT;
 		case XE::GraphicsTextureFormat::R32SINT:
-			break;
+			return DXGI_FORMAT_R32_SINT;
 		case XE::GraphicsTextureFormat::RG16UINT:
-			break;
+			return DXGI_FORMAT_R16G16_UINT;
 		case XE::GraphicsTextureFormat::RG16SINT:
-			break;
+			return DXGI_FORMAT_R16G16_SINT;
 		case XE::GraphicsTextureFormat::RG16FLOAT:
-			break;
+			return DXGI_FORMAT_R16G16_FLOAT;
 		case XE::GraphicsTextureFormat::RGBA8UNORM:
-			break;
+			return DXGI_FORMAT_R8G8B8A8_UNORM;
 		case XE::GraphicsTextureFormat::RGBA8UNORMSRGB:
-			break;
+			return DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
 		case XE::GraphicsTextureFormat::RGBA8SNORM:
-			break;
+			return DXGI_FORMAT_R8G8B8A8_SNORM;
 		case XE::GraphicsTextureFormat::RGBA8UINT:
-			break;
+			return DXGI_FORMAT_R8G8B8A8_UINT;
 		case XE::GraphicsTextureFormat::RGBA8SINT:
-			break;
+			return DXGI_FORMAT_R8G8B8A8_SINT;
 		case XE::GraphicsTextureFormat::BGRA8UNORM:
-			break;
+			return DXGI_FORMAT_B8G8R8A8_UNORM;
 		case XE::GraphicsTextureFormat::BGRA8UNORMSRGB:
-			break;
+			return DXGI_FORMAT_B8G8R8A8_UNORM_SRGB;
 		case XE::GraphicsTextureFormat::RGB10A2UNORM:
-			break;
+			return DXGI_FORMAT_R10G10B10A2_UNORM;
 		case XE::GraphicsTextureFormat::RG11B10UFLOAT:
-			break;
+			return DXGI_FORMAT_R11G11B10_FLOAT;
 		case XE::GraphicsTextureFormat::RGB9E5UFLOAT:
-			break;
+			return DXGI_FORMAT_R9G9B9E5_SHAREDEXP;
 		case XE::GraphicsTextureFormat::RG32FLOAT:
-			break;
+			return DXGI_FORMAT_R32G32_FLOAT;
 		case XE::GraphicsTextureFormat::RG32UINT:
-			break;
+			return DXGI_FORMAT_R32G32_UINT;
 		case XE::GraphicsTextureFormat::RG32SINT:
-			break;
+			return DXGI_FORMAT_R32G32_SINT;
 		case XE::GraphicsTextureFormat::RGBA16UINT:
-			break;
+			return DXGI_FORMAT_R16G16B16A16_UINT;
 		case XE::GraphicsTextureFormat::RGBA16SINT:
-			break;
+			return DXGI_FORMAT_R16G16B16A16_SINT;
 		case XE::GraphicsTextureFormat::RGBA16FLOAT:
-			break;
+			return DXGI_FORMAT_R16G16B16A16_FLOAT;
 		case XE::GraphicsTextureFormat::RGBA32FLOAT:
-			break;
+			return DXGI_FORMAT_R32G32B32A32_FLOAT;
 		case XE::GraphicsTextureFormat::RGBA32UINT:
-			break;
+			return DXGI_FORMAT_R32G32B32A32_UINT;
 		case XE::GraphicsTextureFormat::RGBA32SINT:
-			break;
+			return DXGI_FORMAT_R32G32B32A32_SINT;
 		case XE::GraphicsTextureFormat::STENCIL8:
-			break;
+			return DXGI_FORMAT_R8_UINT;
 		case XE::GraphicsTextureFormat::DEPTH16UNORM:
-			break;
+			return DXGI_FORMAT_R16_UNORM;
 		case XE::GraphicsTextureFormat::DEPTH24PLUS:
-			break;
+			return DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
 		case XE::GraphicsTextureFormat::DEPTH24PLUSSTENCIL8:
-			break;
+			return DXGI_FORMAT_R24G8_TYPELESS;
 		case XE::GraphicsTextureFormat::DEPTH24UNORMSTENCIL8:
-			break;
+			return DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
 		case XE::GraphicsTextureFormat::DEPTH32FLOAT:
-			break;
+			return DXGI_FORMAT_R32_FLOAT;
 		case XE::GraphicsTextureFormat::DEPTH32FLOATSTENCIL8:
-			break;
+			return DXGI_FORMAT_R32G8X24_TYPELESS;
 		case XE::GraphicsTextureFormat::BC1RGBAUNORM:
-			break;
+			return DXGI_FORMAT_BC1_UNORM;
 		case XE::GraphicsTextureFormat::BC1RGBAUNORMSRGB:
-			break;
+			return DXGI_FORMAT_BC1_UNORM_SRGB;
 		case XE::GraphicsTextureFormat::BC2RGBAUNORM:
-			break;
+			return DXGI_FORMAT_BC2_UNORM;
 		case XE::GraphicsTextureFormat::BC2RGBAUNORMSRGB:
-			break;
+			return DXGI_FORMAT_BC2_UNORM_SRGB;
 		case XE::GraphicsTextureFormat::BC3RGBAUNORM:
-			break;
+			return DXGI_FORMAT_BC3_UNORM;
 		case XE::GraphicsTextureFormat::BC3RGBAUNORMSRGB:
-			break;
+			return DXGI_FORMAT_BC3_UNORM_SRGB;
 		case XE::GraphicsTextureFormat::BC4RUNORM:
-			break;
+			return DXGI_FORMAT_BC4_UNORM;
 		case XE::GraphicsTextureFormat::BC4RSNORM:
-			break;
+			return DXGI_FORMAT_BC4_SNORM;
 		case XE::GraphicsTextureFormat::BC5RGUNORM:
-			break;
+			return DXGI_FORMAT_BC5_UNORM;
 		case XE::GraphicsTextureFormat::BC5RGSNORM:
-			break;
+			return DXGI_FORMAT_BC5_SNORM;
 		case XE::GraphicsTextureFormat::BC6HRGBUFLOAT:
-			break;
+			return DXGI_FORMAT_BC6H_UF16;
 		case XE::GraphicsTextureFormat::BC6HRGBFLOAT:
-			break;
+			return DXGI_FORMAT_BC6H_SF16;
 		case XE::GraphicsTextureFormat::BC7RGBAUNORM:
-			break;
+			return DXGI_FORMAT_BC7_UNORM;
 		case XE::GraphicsTextureFormat::BC7RGBAUNORMSRGB:
-			break;
+			return DXGI_FORMAT_BC7_UNORM_SRGB;
 		case XE::GraphicsTextureFormat::ETC2RGB8UNORM:
-			break;
+			return DXGI_FORMAT_UNKNOWN;
 		case XE::GraphicsTextureFormat::ETC2RGB8UNORMSRGB:
-			break;
+			return DXGI_FORMAT_UNKNOWN;
 		case XE::GraphicsTextureFormat::ETC2RGB8A1UNORM:
-			break;
+			return DXGI_FORMAT_UNKNOWN;
 		case XE::GraphicsTextureFormat::ETC2RGB8A1UNORMSRGB:
-			break;
+			return DXGI_FORMAT_UNKNOWN;
 		case XE::GraphicsTextureFormat::ETC2RGBA8UNORM:
-			break;
+			return DXGI_FORMAT_UNKNOWN;
 		case XE::GraphicsTextureFormat::ETC2RGBA8UNORMSRGB:
-			break;
+			return DXGI_FORMAT_UNKNOWN;
 		case XE::GraphicsTextureFormat::EACR11UNORM:
-			break;
+			return DXGI_FORMAT_UNKNOWN;
 		case XE::GraphicsTextureFormat::EACR11SNORM:
-			break;
+			return DXGI_FORMAT_UNKNOWN;
 		case XE::GraphicsTextureFormat::EACRG11UNORM:
-			break;
+			return DXGI_FORMAT_UNKNOWN;
 		case XE::GraphicsTextureFormat::EACRG11SNORM:
-			break;
+			return DXGI_FORMAT_UNKNOWN;
 		case XE::GraphicsTextureFormat::ASTC4X4UNORM:
-			break;
+			return DXGI_FORMAT_UNKNOWN;
 		case XE::GraphicsTextureFormat::ASTC4X4UNORMSRGB:
-			break;
+			return DXGI_FORMAT_UNKNOWN;
 		case XE::GraphicsTextureFormat::ASTC5X4UNORM:
-			break;
+			return DXGI_FORMAT_UNKNOWN;
 		case XE::GraphicsTextureFormat::ASTC5X4UNORMSRGB:
-			break;
+			return DXGI_FORMAT_UNKNOWN;
 		case XE::GraphicsTextureFormat::ASTC5X5UNORM:
-			break;
+			return DXGI_FORMAT_UNKNOWN;
 		case XE::GraphicsTextureFormat::ASTC5X5UNORMSRGB:
-			break;
+			return DXGI_FORMAT_UNKNOWN;
 		case XE::GraphicsTextureFormat::ASTC6X5UNORM:
-			break;
+			return DXGI_FORMAT_UNKNOWN;
 		case XE::GraphicsTextureFormat::ASTC6X5UNORMSRGB:
-			break;
+			return DXGI_FORMAT_UNKNOWN;
 		case XE::GraphicsTextureFormat::ASTC6X6UNORM:
-			break;
+			return DXGI_FORMAT_UNKNOWN;
 		case XE::GraphicsTextureFormat::ASTC6X6UNORMSRGB:
-			break;
+			return DXGI_FORMAT_UNKNOWN;
 		case XE::GraphicsTextureFormat::ASTC8X5UNORM:
-			break;
+			return DXGI_FORMAT_UNKNOWN;
 		case XE::GraphicsTextureFormat::ASTC8X5UNORMSRGB:
-			break;
+			return DXGI_FORMAT_UNKNOWN;
 		case XE::GraphicsTextureFormat::ASTC8X6UNORM:
-			break;
+			return DXGI_FORMAT_UNKNOWN;
 		case XE::GraphicsTextureFormat::ASTC8X6UNORMSRGB:
-			break;
+			return DXGI_FORMAT_UNKNOWN;
 		case XE::GraphicsTextureFormat::ASTC8X8UNORM:
-			break;
+			return DXGI_FORMAT_UNKNOWN;
 		case XE::GraphicsTextureFormat::ASTC8X8UNORMSRGB:
-			break;
+			return DXGI_FORMAT_UNKNOWN;
 		case XE::GraphicsTextureFormat::ASTC10x5UNORM:
-			break;
+			return DXGI_FORMAT_UNKNOWN;
 		case XE::GraphicsTextureFormat::ASTC10x5UNORMSRGB:
-			break;
+			return DXGI_FORMAT_UNKNOWN;
 		case XE::GraphicsTextureFormat::ASTC10x6UNORM:
-			break;
+			return DXGI_FORMAT_UNKNOWN;
 		case XE::GraphicsTextureFormat::ASTC10x6UNORMSRGB:
-			break;
+			return DXGI_FORMAT_UNKNOWN;
 		case XE::GraphicsTextureFormat::ASTC10x8UNORM:
-			break;
+			return DXGI_FORMAT_UNKNOWN;
 		case XE::GraphicsTextureFormat::ASTC10x8UNORMSRGB:
-			break;
+			return DXGI_FORMAT_UNKNOWN;
 		case XE::GraphicsTextureFormat::ASTC10x10UNORM:
-			break;
+			return DXGI_FORMAT_UNKNOWN;
 		case XE::GraphicsTextureFormat::ASTC10x10UNORMSRGB:
-			break;
+			return DXGI_FORMAT_UNKNOWN;
 		case XE::GraphicsTextureFormat::ASTC12X10UNORM:
-			break;
+			return DXGI_FORMAT_UNKNOWN;
 		case XE::GraphicsTextureFormat::ASTC12X10UNORMSRGB:
-			break;
+			return DXGI_FORMAT_UNKNOWN;
 		case XE::GraphicsTextureFormat::ASTC12X12UNORM:
-			break;
+			return DXGI_FORMAT_UNKNOWN;
 		case XE::GraphicsTextureFormat::ASTC12X12UNORMSRGB:
-			break;
+			return DXGI_FORMAT_UNKNOWN;
 		default:
-			break;
+			return DXGI_FORMAT_UNKNOWN;
 		}
-		return DXGI_FORMAT_A8P8;
+
+		return DXGI_FORMAT_UNKNOWN;
 	}
 	D3D12_QUERY_TYPE Cast( XE::GraphicsQueryType type )
 	{
