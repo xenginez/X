@@ -83,9 +83,9 @@ void XE::PhysicsService::Prepare()
 
 }
 
-bool XE::PhysicsService::Startup()
+void XE::PhysicsService::Startup()
 {
-	return true;
+
 }
 
 void XE::PhysicsService::Update()

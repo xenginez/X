@@ -44,9 +44,9 @@ void XE::LocalizationService::Prepare()
 	LoadLocalized();
 }
 
-bool XE::LocalizationService::Startup()
+void XE::LocalizationService::Startup()
 {
-	return true;
+
 }
 
 void XE::LocalizationService::Update()

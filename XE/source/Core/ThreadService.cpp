@@ -236,7 +236,7 @@ void XE::ThreadService::Prepare()
 
 }
 
-bool XE::ThreadService::Startup()
+void XE::ThreadService::Startup()
 {
 	MicroProfileOnThreadCreate( "Game" );
 
@@ -248,8 +248,6 @@ bool XE::ThreadService::Startup()
 	_p->_Threads[(XE::uint64)XE::ThreadType::AUDIO] = new XEPSpecialThread( "Audio" );
 	_p->_Threads[(XE::uint64)XE::ThreadType::RENDER] = new XEPSpecialThread( "Render" );
 	_p->_Threads[(XE::uint64)XE::ThreadType::PHYSICS] = new XEPSpecialThread( "Physics" );
-
-	return true;
 }
 
 void XE::ThreadService::Update()

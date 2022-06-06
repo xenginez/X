@@ -65,17 +65,7 @@ void XE::GraphicsService::AdapterRequestDevice( XE::GraphicsAdapterHandle adapte
 
 }
 
-void XE::GraphicsService::BufferDestroy( XE::GraphicsBufferHandle buffer )
-{
-
-}
-
 XE::Span< XE::uint8 > XE::GraphicsService::BufferGetMappedRange( XE::GraphicsBufferHandle buffer, XE::uint64 offset, XE::uint64 size )
-{
-
-}
-
-void XE::GraphicsService::BufferMapAsync( XE::GraphicsBufferHandle buffer, XE::uint64 offset, XE::uint64 size, BufferMapCallback callback )
 {
 
 }
@@ -275,11 +265,6 @@ XE::GraphicsTextureHandle XE::GraphicsService::DeviceCreateTexture( XE::Graphics
 
 }
 
-void XE::GraphicsService::DeviceDestroy( XE::GraphicsDeviceHandle device )
-{
-
-}
-
 void XE::GraphicsService::DeviceEnumerateFeatures( XE::GraphicsDeviceHandle device, XE::Array< XE::GraphicsFeatureName > & features )
 {
 
@@ -331,11 +316,6 @@ void XE::GraphicsService::InstanceProcessEvents( XE::GraphicsInstanceHandle inst
 }
 
 void XE::GraphicsService::InstanceRequestAdapter( XE::GraphicsInstanceHandle instance, const XE::GraphicsRequestAdapterOptions & options, RequestAdapterCallback callback )
-{
-
-}
-
-void XE::GraphicsService::QuerySetDestroy( XE::GraphicsQuerySetHandle query_set )
 {
 
 }
@@ -565,7 +545,129 @@ XE::GraphicsTextureViewHandle XE::GraphicsService::TextureCreateView( XE::Graphi
 
 }
 
+void XE::GraphicsService::InstanceDestroy( XE::GraphicsInstanceHandle instance )
+{
+
+}
+
+void XE::GraphicsService::DeviceDestroy( XE::GraphicsDeviceHandle device )
+{
+	if ( auto & dev = _p->_Devices[device.GetValue()] )
+	{
+
+	}
+}
+
+void XE::GraphicsService::AdapterDestroy( XE::GraphicsAdapterHandle adapter )
+{
+
+}
+
+void XE::GraphicsService::BindGroupDestroy( XE::GraphicsBindGroupHandle bind_group )
+{
+
+}
+
+void XE::GraphicsService::BindGroupLayoutDestroy( XE::GraphicsBindGroupLayoutHandle bind_group_layout )
+{
+
+}
+
+void XE::GraphicsService::BufferDestroy( XE::GraphicsBufferHandle buffer )
+{
+	if ( auto & buf = _p->_Buffers[buffer.GetValue()] )
+	{
+
+	}
+}
+
+void XE::GraphicsService::CommandBufferDestroy( XE::GraphicsCommandBufferHandle cmd_buf )
+{
+
+}
+
+void XE::GraphicsService::CommandEncoderDestroy( XE::GraphicsCommandEncoderHandle cmd_encoder )
+{
+
+}
+
+void XE::GraphicsService::ComputePassEncoderDestroy( XE::GraphicsComputePassEncoderHandle compute_pass_encoder )
+{
+
+}
+
+void XE::GraphicsService::ComputePipelineDestroy( XE::GraphicsComputePipelineHandle compute_pipeline )
+{
+
+}
+
+void XE::GraphicsService::PipelineLayoutDestroy( XE::GraphicsPipelineLayoutHandle pipeline_layout )
+{
+
+}
+
+void XE::GraphicsService::QuerySetDestroy( XE::GraphicsQuerySetHandle query_set )
+{
+	if ( auto & set = _p->_QuerySets[query_set.GetValue()] )
+	{
+
+	}
+}
+
+void XE::GraphicsService::QueueDestroy( XE::GraphicsQueueHandle queue )
+{
+
+}
+
+void XE::GraphicsService::RenderBundleDestroy( XE::GraphicsRenderBundleHandle render_bundle )
+{
+
+}
+
+void XE::GraphicsService::RenderBundleEncoderDestroy( XE::GraphicsRenderBundleEncoderHandle render_bundle_encoder )
+{
+
+}
+
+void XE::GraphicsService::RenderPassEncoderDestroy( XE::GraphicsRenderPassEncoderHandle render_pass_encoder )
+{
+
+}
+
+void XE::GraphicsService::RenderPipelineDestroy( XE::GraphicsRenderPipelineHandle render_pipeline )
+{
+
+}
+
+void XE::GraphicsService::SamplerDestroy( XE::GraphicsSamplerHandle sampler )
+{
+
+}
+
+void XE::GraphicsService::ShaderModuleDestroy( XE::GraphicsShaderModuleHandle shader_module )
+{
+
+}
+
+void XE::GraphicsService::SurfaceDestroy( XE::GraphicsSurfaceHandle surface )
+{
+
+}
+
+void XE::GraphicsService::SwapChainDestroy( XE::GraphicsSwapChainHandle swap_chain )
+{
+
+}
+
 void XE::GraphicsService::TextureDestroy( XE::GraphicsTextureHandle texture )
+{
+	if ( auto & view = _p->_TextureViews[texture.GetValue()] )
+	{
+
+	}
+}
+
+void XE::GraphicsService::TextureViewDestroy( XE::GraphicsTextureViewHandle texture_view )
 {
 
 }

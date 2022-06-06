@@ -24,10 +24,9 @@ void XE::SceneService::Prepare()
 
 }
 
-bool XE::SceneService::Startup()
+void XE::SceneService::Startup()
 {
 
-	return false;
 }
 
 void XE::SceneService::Update()

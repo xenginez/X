@@ -33,9 +33,9 @@ void XE::EventService::Prepare()
 
 }
 
-bool XE::EventService::Startup()
+void XE::EventService::Startup()
 {
-	return true;
+
 }
 
 void XE::EventService::Update()

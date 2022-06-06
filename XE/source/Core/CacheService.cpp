@@ -43,9 +43,9 @@ void XE::CacheService::Prepare()
 	Reset();
 }
 
-bool XE::CacheService::Startup()
+void XE::CacheService::Startup()
 {
-	return true;
+
 }
 
 void XE::CacheService::Update()

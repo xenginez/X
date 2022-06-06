@@ -29,7 +29,7 @@ void XE::WASMService::Prepare()
 
 }
 
-bool XE::WASMService::Startup()
+void XE::WASMService::Startup()
 {
 	if( auto asset = GetFramework()->GetServiceT < XE::AssetsService >() )
 	{
@@ -53,8 +53,6 @@ bool XE::WASMService::Startup()
 
 		}
 	}
-
-	return true;
 }
 
 void XE::WASMService::Update()

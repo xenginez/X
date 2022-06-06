@@ -31,7 +31,7 @@ public:
 public:
 	void Prepare()override;
 
-	bool Startup() override;
+	void Startup() override;
 
 	void Update() override;
 

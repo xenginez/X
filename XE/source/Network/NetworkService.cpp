@@ -42,11 +42,9 @@ void XE::NetworkService::Prepare()
 	_p->_Work = XE::MakeUnique< asio::io_service::work >( _p->_IOService );
 }
 
-bool XE::NetworkService::Startup()
+void XE::NetworkService::Startup()
 {
 	_p->_Thread = std::thread( [this]() { _p->_IOService.run(); } );
-
-	return false;
 }
 
 void XE::NetworkService::Update()

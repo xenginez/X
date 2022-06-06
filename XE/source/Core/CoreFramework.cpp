@@ -127,14 +127,8 @@ bool XE::CoreFramework::RegisterService( const XE::MetaClassPtr & val )
 		if( XE::ServicePtr service = val->ConstructPtr().Value< XE::ServicePtr >() )
 		{
 			service->SetFramework( this );
-
 			service->Prepare();
-
-			if( !service->Startup() )
-			{
-				XE_LOG( LoggerLevel::Error, "startup {%0} error!", service->GetMetaClass()->GetFullName() );
-				return false;
-			}
+			service->Startup();
 
 			_p->_Services.push_back( service );
 
@@ -236,12 +230,7 @@ void XE::CoreFramework::Startup()
 	{
 		if (i != std::numeric_limits< XE::uint64 >::max() )
 		{
-			if( !_p->_Services[i]->Startup() )
-			{
-				XE_LOG( LoggerLevel::Error, "startup {%0} error!", _p->_Services[i]->GetMetaClass()->GetFullName() );
-				_p->_Exit = true;
-				return;
-			}
+			_p->_Services[i]->Startup();
 		}
 	}
 }

@@ -30,7 +30,7 @@ public:
 public:
 	virtual void Prepare() = 0;
 
-	virtual bool Startup() = 0;
+	virtual void Startup() = 0;
 
 	virtual void Update() = 0;
 

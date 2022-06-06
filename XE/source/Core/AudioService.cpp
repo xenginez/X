@@ -62,7 +62,7 @@ void XE::AudioService::Prepare()
 
 }
 
-bool XE::AudioService::Startup()
+void XE::AudioService::Startup()
 {
 	auto submit = _p->_SubmitFrame;
 
@@ -77,8 +77,6 @@ bool XE::AudioService::Startup()
 	index = _p->_Frames[submit].CommandSize++;
 	_p->_Frames[submit].Command[index].Type = XE::AudioCommandType::DOPPLER_FACTOR;
 	_p->_Frames[submit].Command[index].Code = XE::BitCast< XE::uint64 >( _p->_DopplerFactor );
-
-	return true;
 }
 
 void XE::AudioService::Update()

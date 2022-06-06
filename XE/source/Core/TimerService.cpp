@@ -132,7 +132,7 @@ void XE::TimerService::Prepare()
 
 }
 
-bool XE::TimerService::Startup()
+void XE::TimerService::Startup()
 {
 	auto now_time = std::chrono::high_resolution_clock::now();
 	
@@ -141,8 +141,6 @@ bool XE::TimerService::Startup()
 
 	_p->_TimerWheel = std::make_unique<TimerWheel>();
 	_p->_UnscaleTimerWheel = std::make_unique<TimerWheel>();
-
-	return true;
 }
 
 void XE::TimerService::Update()

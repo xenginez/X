@@ -32,15 +32,13 @@ void XE::InputService::Prepare()
 
 }
 
-bool XE::InputService::Startup()
+void XE::InputService::Startup()
 {
 	for ( auto & it : _p->_Inputs )
 	{
 		it->Startup();
 	}
 	_p->_StateMap->Startup();
-
-	return true;
 }
 
 void XE::InputService::Update()

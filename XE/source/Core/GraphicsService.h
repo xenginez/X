@@ -22,7 +22,6 @@ private:
 
 public:
 	using ErrorCallback = XE::Delegate< void( XE::GraphicsErrorType type, const XE::String & message ) >;
-	using BufferMapCallback = XE::Delegate< void( XE::GraphicsBufferMapAsyncStatus status, XE::Span< XE::uint8 > ) >;
 	using DeviceLostCallback = XE::Delegate< void( XE::GraphicsDeviceLostReason reason, const XE::String & message ) >;
 	using QueueWorkDoneCallback = XE::Delegate< void( XE::GraphicsQueueWorkDoneStatus status ) >;
 	using RequestDeviceCallback = XE::Delegate< void( XE::GraphicsRequestDeviceStatus status, XE::GraphicsDeviceHandle device, const XE::String & message ) >;
@@ -37,11 +36,28 @@ public:
 public:
 	void Prepare() override;
 
-	bool Startup() override;
+	void Startup() override;
 
 	void Update() override;
 
 	void Clearup() override;
+
+public:
+	XE::GraphicsSurfaceHandle InstanceCreateSurface( XE::GraphicsInstanceHandle instance, const XE::GraphicsSurfaceDescriptor & descriptor );
+	XE::GraphicsBindGroupHandle DeviceCreateBindGroup( XE::GraphicsDeviceHandle device, const XE::GraphicsBindGroupDescriptor & descriptor );
+	XE::GraphicsBindGroupLayoutHandle DeviceCreateBindGroupLayout( XE::GraphicsDeviceHandle device, const XE::GraphicsBindGroupLayoutDescriptor & descriptor );
+	XE::GraphicsBufferHandle DeviceCreateBuffer( XE::GraphicsDeviceHandle device, const XE::GraphicsBufferDescriptor & descriptor );
+	XE::GraphicsCommandEncoderHandle DeviceCreateCommandEncoder( XE::GraphicsDeviceHandle device, const XE::GraphicsCommandEncoderDescriptor & descriptor );
+	XE::GraphicsComputePipelineHandle DeviceCreateComputePipeline( XE::GraphicsDeviceHandle device, const XE::GraphicsComputePipelineDescriptor & descriptor );
+	XE::GraphicsPipelineLayoutHandle DeviceCreatePipelineLayout( XE::GraphicsDeviceHandle device, const XE::GraphicsPipelineLayoutDescriptor & descriptor );
+	XE::GraphicsQuerySetHandle DeviceCreateQuerySet( XE::GraphicsDeviceHandle device, const XE::GraphicsQuerySetDescriptor & descriptor );
+	XE::GraphicsRenderBundleEncoderHandle DeviceCreateRenderBundleEncoder( XE::GraphicsDeviceHandle device, const XE::GraphicsRenderBundleEncoderDescriptor & descriptor );
+	XE::GraphicsRenderPipelineHandle DeviceCreateRenderPipeline( XE::GraphicsDeviceHandle device, const XE::GraphicsRenderPipelineDescriptor & descriptor );
+	XE::GraphicsSamplerHandle DeviceCreateSampler( XE::GraphicsDeviceHandle device, const XE::GraphicsSamplerDescriptor & descriptor );
+	XE::GraphicsShaderModuleHandle DeviceCreateShaderModule( XE::GraphicsDeviceHandle device, const XE::GraphicsShaderModuleDescriptor & descriptor );
+	XE::GraphicsSwapChainHandle DeviceCreateSwapChain( XE::GraphicsDeviceHandle device, XE::GraphicsSurfaceHandle surface, const XE::GraphicsSwapChainDescriptor & descriptor );
+	XE::GraphicsTextureHandle DeviceCreateTexture( XE::GraphicsDeviceHandle device, const XE::GraphicsTextureDescriptor & descriptor );
+	XE::GraphicsTextureViewHandle TextureCreateView( XE::GraphicsTextureHandle texture, const XE::GraphicsTextureViewDescriptor & descriptor );
 
 public:
 	void AdapterEnumerateFeatures( XE::GraphicsAdapterHandle adapter, XE::Array< XE::GraphicsFeatureName > & features );
@@ -51,9 +67,7 @@ public:
 	void AdapterRequestDevice( XE::GraphicsAdapterHandle adapter, const XE::GraphicsDeviceDescriptor & descriptor, RequestDeviceCallback callback );
 	
 public:
-	void BufferDestroy( XE::GraphicsBufferHandle buffer );
 	XE::Span< XE::uint8 > BufferGetMappedRange( XE::GraphicsBufferHandle buffer, XE::uint64 offset, XE::uint64 size );
-	void BufferMapAsync( XE::GraphicsBufferHandle buffer, XE::uint64 offset, XE::uint64 size, BufferMapCallback callback );
 	void BufferUnmap( XE::GraphicsBufferHandle buffer );
 
 public:
@@ -88,20 +102,6 @@ public:
 	void ComputePipelineSetLabel( XE::GraphicsComputePipelineHandle compute_pipeline, const XE::String & label );
 
 public:
-	XE::GraphicsBindGroupHandle DeviceCreateBindGroup( XE::GraphicsDeviceHandle device, const XE::GraphicsBindGroupDescriptor & descriptor );
-	XE::GraphicsBindGroupLayoutHandle DeviceCreateBindGroupLayout( XE::GraphicsDeviceHandle device, const XE::GraphicsBindGroupLayoutDescriptor & descriptor );
-	XE::GraphicsBufferHandle DeviceCreateBuffer( XE::GraphicsDeviceHandle device, const XE::GraphicsBufferDescriptor & descriptor );
-	XE::GraphicsCommandEncoderHandle DeviceCreateCommandEncoder( XE::GraphicsDeviceHandle device, const XE::GraphicsCommandEncoderDescriptor & descriptor );
-	XE::GraphicsComputePipelineHandle DeviceCreateComputePipeline( XE::GraphicsDeviceHandle device, const XE::GraphicsComputePipelineDescriptor & descriptor );
-	XE::GraphicsPipelineLayoutHandle DeviceCreatePipelineLayout( XE::GraphicsDeviceHandle device, const XE::GraphicsPipelineLayoutDescriptor & descriptor );
-	XE::GraphicsQuerySetHandle DeviceCreateQuerySet( XE::GraphicsDeviceHandle device, const XE::GraphicsQuerySetDescriptor & descriptor );
-	XE::GraphicsRenderBundleEncoderHandle DeviceCreateRenderBundleEncoder( XE::GraphicsDeviceHandle device, const XE::GraphicsRenderBundleEncoderDescriptor & descriptor );
-	XE::GraphicsRenderPipelineHandle DeviceCreateRenderPipeline( XE::GraphicsDeviceHandle device, const XE::GraphicsRenderPipelineDescriptor & descriptor );
-	XE::GraphicsSamplerHandle DeviceCreateSampler( XE::GraphicsDeviceHandle device, const XE::GraphicsSamplerDescriptor & descriptor );
-	XE::GraphicsShaderModuleHandle DeviceCreateShaderModule( XE::GraphicsDeviceHandle device, const XE::GraphicsShaderModuleDescriptor & descriptor );
-	XE::GraphicsSwapChainHandle DeviceCreateSwapChain( XE::GraphicsDeviceHandle device, XE::GraphicsSurfaceHandle surface, const XE::GraphicsSwapChainDescriptor & descriptor );
-	XE::GraphicsTextureHandle DeviceCreateTexture( XE::GraphicsDeviceHandle device, const XE::GraphicsTextureDescriptor & descriptor );
-	void DeviceDestroy( XE::GraphicsDeviceHandle device );
 	void DeviceEnumerateFeatures( XE::GraphicsDeviceHandle device, XE::Array< XE::GraphicsFeatureName > & features );
 	bool DeviceGetLimits( XE::GraphicsDeviceHandle device, XE::GraphicsSupportedLimits & limits );
 	XE::GraphicsQueueHandle DeviceGetQueue( XE::GraphicsDeviceHandle device );
@@ -112,12 +112,8 @@ public:
 	void DeviceSetUncapturedErrorCallback( XE::GraphicsDeviceHandle device, ErrorCallback callback );
 
 public:
-	XE::GraphicsSurfaceHandle InstanceCreateSurface( XE::GraphicsInstanceHandle instance, const XE::GraphicsSurfaceDescriptor & descriptor );
 	void InstanceProcessEvents( XE::GraphicsInstanceHandle instance );
 	void InstanceRequestAdapter( XE::GraphicsInstanceHandle instance, const XE::GraphicsRequestAdapterOptions & options, RequestAdapterCallback callback );
-
-public:
-	void QuerySetDestroy( XE::GraphicsQuerySetHandle query_set );
 
 public:
 	void QueueOnSubmittedWorkDone( XE::GraphicsQueueHandle queue, QueueWorkDoneCallback callback );
@@ -178,8 +174,29 @@ public:
 	void SwapChainPresent( XE::GraphicsSwapChainHandle swap_chain );
 
 public:
-	XE::GraphicsTextureViewHandle TextureCreateView( XE::GraphicsTextureHandle texture, const XE::GraphicsTextureViewDescriptor & descriptor );
+	void InstanceDestroy( XE::GraphicsInstanceHandle instance );
+	void AdapterDestroy( XE::GraphicsAdapterHandle adapter );
+	void DeviceDestroy( XE::GraphicsDeviceHandle device );
+	void BindGroupDestroy( XE::GraphicsBindGroupHandle bind_group );
+	void BindGroupLayoutDestroy( XE::GraphicsBindGroupLayoutHandle bind_group_layout );
+	void BufferDestroy( XE::GraphicsBufferHandle buffer );
+	void CommandBufferDestroy( XE::GraphicsCommandBufferHandle cmd_buf );
+	void CommandEncoderDestroy( XE::GraphicsCommandEncoderHandle cmd_encoder );
+	void ComputePassEncoderDestroy( XE::GraphicsComputePassEncoderHandle compute_pass_encoder );
+	void ComputePipelineDestroy( XE::GraphicsComputePipelineHandle compute_pipeline );
+	void PipelineLayoutDestroy( XE::GraphicsPipelineLayoutHandle pipeline_layout );
+	void QuerySetDestroy( XE::GraphicsQuerySetHandle query_set );
+	void QueueDestroy( XE::GraphicsQueueHandle queue );
+	void RenderBundleDestroy( XE::GraphicsRenderBundleHandle render_bundle );
+	void RenderBundleEncoderDestroy( XE::GraphicsRenderBundleEncoderHandle render_bundle_encoder );
+	void RenderPassEncoderDestroy( XE::GraphicsRenderPassEncoderHandle render_pass_encoder );
+	void RenderPipelineDestroy( XE::GraphicsRenderPipelineHandle render_pipeline );
+	void SamplerDestroy( XE::GraphicsSamplerHandle sampler );
+	void ShaderModuleDestroy( XE::GraphicsShaderModuleHandle shader_module );
+	void SurfaceDestroy( XE::GraphicsSurfaceHandle surface );
+	void SwapChainDestroy( XE::GraphicsSwapChainHandle swap_chain );
 	void TextureDestroy( XE::GraphicsTextureHandle texture );
+	void TextureViewDestroy( XE::GraphicsTextureViewHandle texture_view );
 
 private:
 	Private * _p;

@@ -39,7 +39,7 @@ void XE::AssetsService::Prepare()
 {
 }
 
-bool XE::AssetsService::Startup()
+void XE::AssetsService::Startup()
 {
 	std::filesystem::path path = std::filesystem::u8path( GetFramework()->GetString( "System/AssetsService/AssetsPath" ).c_str() );
 
@@ -49,8 +49,6 @@ bool XE::AssetsService::Startup()
 	{
 		XE_LOG( LoggerLevel::Error, "{%0} open failed!", path );
 	}
-
-	return true;
 }
 
 void XE::AssetsService::Update()
