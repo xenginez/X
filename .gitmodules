@@ -37,9 +37,6 @@
 [submodule "3rdparty/stb"]
 	path = 3rdparty/stb
 	url = https://github.com/nothings/stb.git
-[submodule "3rdparty/tbb"]
-	path = 3rdparty/tbb
-	url = https://github.com/wjakob/tbb.git
 [submodule "3rdparty/volk"]
 	path = 3rdparty/volk
 	url = https://github.com/zeux/volk.git

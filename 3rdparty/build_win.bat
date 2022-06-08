@@ -31,34 +31,6 @@ git submodule update --init --recursive
 
 
 
-:BUILD_TBB
-echo "build tbb debug"
-cd %RD3_PATH%
-mkdir .\tbb\build
-cd .\tbb\build
-cmake -DTBB_BUILD_STATIC=OFF -DTBB_BUILD_TESTS=OFF -DCMAKE_DEBUG_POSTFIX=_debug -DCMAKE_INSTALL_PREFIX=.\install\ .. -G "Visual Studio 16 2019" 
-msbuild.exe ".\INSTALL.vcxproj"  /m /nr:true ^
-    /p:Configuration=Debug ^
-    /p:Platform=x64 ^
-    /p:AppxBundlePlatforms=x64 ^
-    /p:UseSubFolderForOutputDirDuringMultiPlatformBuild=false
-echo "copy tbb debug file to depends"
-xcopy %cd%\install\lib\*.* %RD3_PATH%\..\depends\lib\win\debug\ /y
-xcopy %cd%\install\bin\*.* %RD3_PATH%\..\depends\bin\win\debug\ /y
-del %cd%\install\ /f /s /q
-echo "build tbb release"
-msbuild.exe ".\INSTALL.vcxproj"  /m /nr:true ^
-    /p:Configuration=Release ^
-    /p:Platform=x64 ^
-    /p:AppxBundlePlatforms=x64 ^
-    /p:UseSubFolderForOutputDirDuringMultiPlatformBuild=false
-echo "copy tbb release file to depends"
-xcopy %cd%\install\lib\*.* %RD3_PATH%\..\depends\lib\win\release\ /y
-xcopy %cd%\install\bin\*.* %RD3_PATH%\..\depends\bin\win\release\ /y
-xcopy %cd%\install\include\ %RD3_PATH%\..\depends\include\ /s /y
-
-
-
 :BUILD_GOOGLETEST
 cd %RD3_PATH%
 mkdir .\googletest\build
