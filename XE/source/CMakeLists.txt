@@ -16,18 +16,6 @@ if(X_PLATFORM MATCHES "win")
 	set(LINK_LIBS ${LINK_LIBS} xinput)
 endif()
 
-if (X_CONFIG MATCHES "debug")
-	set(LINK_LIBS ${LINK_LIBS} 
-		tbb_debug
-		tbbmalloc_debug
-		tbbmalloc_proxy_debug)
-else ()
-	set(LINK_LIBS ${LINK_LIBS} 
-		tbb
-		tbbmalloc
-		tbbmalloc_proxy)
-endif ()
-
 FILE(GLOB_RECURSE SOURCE_FILES *.*)
 add_library(XE ${X_LIB_TYPE} ${SOURCE_FILES})
 

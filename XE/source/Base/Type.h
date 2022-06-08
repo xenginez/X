@@ -409,13 +409,4 @@ constexpr XE::uint64 operator "" _hash( const char * p, size_t )
 	return XE::Hash( p );
 }
 
-namespace tbb
-{
-	template< typename Key > struct hash_compare
-	{
-		static size_t hash( const Key & a ) { return XE::Hash( a ); }
-		static bool equal( const Key & a, const Key & b ) { return a == b; }
-	};
-}
-
 #endif // __TYPE_H__B9857ED9_F6EE_4A0A_8E87_0DAA433A5E40
