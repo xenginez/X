@@ -2,10 +2,6 @@
 
 #include <fstream>
 
-#include <tbb/concurrent_hash_map.h>
-#define TBB_PREVIEW_CONCURRENT_LRU_CACHE 1
-#include <tbb/concurrent_lru_cache.h>
-
 #include "Utils/UUID.h"
 #include "Utils/Zipper.h"
 #include "Utils/Logger.h"
@@ -20,8 +16,8 @@ END_META()
 struct XE::AssetsService::Private
 {
 	XE::Zipper _Zipper;
-	tbb::concurrent_hash_map< XE::UUID, XE::ObjectWPtr, tbb::hash_compare< XE::UUID > > _ObjectCache;
-	tbb::concurrent_lru_cache< XE::UUID, XE::SharedPtr< XE::MemoryStream > > _MemoryCache = { []( XE::UUID ) { return XE::MakeShared< XE::MemoryStream >(); }, 1000 };
+	XE::ConcurrentHashMap< XE::UUID, XE::ObjectWPtr > _ObjectCache;
+	XE::ConcurrentLruCache< XE::UUID, XE::MemoryStream > _MemoryCache = { 1000 };
 };
 
 XE::AssetsService::AssetsService()
@@ -80,19 +76,19 @@ XE::Array< XE::UUID > XE::AssetsService::GetAssetsFromType( const XE::String & t
 
 XE::MemoryView XE::AssetsService::Load( const XE::UUID & uuid )
 {
-	auto handle = _p->_MemoryCache[uuid];
-	if( handle && handle.value()->view() )
+	auto handle = _p->_MemoryCache.find( uuid );
+	if( handle && handle.value().view() )
 	{
-		return handle.value()->view();
+		return handle.value().view();
 	}
 
 	auto suuid = XE::ToString( uuid );
 
 	if( _p->_Zipper.ExtractEntry( suuid ) )
 	{
-		handle.value()->clear();
-		_p->_Zipper.GetEntry( suuid, *( handle.value() ) );
-		return handle.value()->view();
+		handle.value().clear();
+		_p->_Zipper.GetEntry( suuid, handle.value() );
+		return handle.value().view();
 	}
 
 	XE_LOG( LoggerLevel::Error, "not find uuid: {%0}.", uuid.ToString() );
@@ -102,10 +98,10 @@ XE::MemoryView XE::AssetsService::Load( const XE::UUID & uuid )
 
 XE::MemoryView XE::AssetsService::Load( const XE::UUID & uuid, const XE::String & path )
 {
-	auto handle = _p->_MemoryCache[uuid];
-	if( handle && handle.value()->view() )
+	auto handle = _p->_MemoryCache.find( uuid );
+	if( handle && handle.value().view() )
 	{
-		return handle.value()->view();
+		return handle.value().view();
 	}
 
 	auto fullpath( GetFramework()->GetCachesPath() / path.c_str() );
@@ -114,16 +110,16 @@ XE::MemoryView XE::AssetsService::Load( const XE::UUID & uuid, const XE::String 
 		std::ifstream ifs( fullpath );
 		if( ifs.is_open() )
 		{
-			handle.value()->clear();
+			handle.value().clear();
 			char buf[2048];
 
 			while( !ifs.eof() )
 			{
 				auto sz = ifs.readsome( buf, 2048 );
-				handle.value()->write( buf, sz );
+				handle.value().write( buf, sz );
 			}
 
-			return handle.value()->view();
+			return handle.value().view();
 		}
 	}
 
@@ -131,9 +127,9 @@ XE::MemoryView XE::AssetsService::Load( const XE::UUID & uuid, const XE::String 
 
 	if( _p->_Zipper.ExtractEntry( suuid ) )
 	{
-		handle.value()->clear();
-		_p->_Zipper.GetEntry( suuid, *( handle.value() ) );
-		return handle.value()->view();
+		handle.value().clear();
+		_p->_Zipper.GetEntry( suuid, handle.value() );
+		return handle.value().view();
 	}
 
 	XE_LOG( LoggerLevel::Error, "not find uuid: {%0} file: {%1}.", uuid.ToString(), path );
@@ -163,37 +159,39 @@ void XE::AssetsService::AsyncLoad( const XE::UUID & uuid, const XE::String & pat
 
 XE::ObjectPtr XE::AssetsService::LoadObject( const XE::UUID & uuid )
 {
-	tbb::concurrent_hash_map< XE::UUID, XE::ObjectWPtr, tbb::hash_compare< XE::UUID > >::accessor it;
-	if( _p->_ObjectCache.find( it, uuid ) )
+	XE::ObjectWPtr accessor;
+	if( _p->_ObjectCache.find( uuid, accessor ) )
 	{
-		if( !it->second.expired() )
+		if( !accessor.expired() )
 		{
-			return it->second.lock();
+			return accessor.lock();
 		}
 	}
 
 	if( auto mem = Load( uuid ) )
 	{
-		XE::BinaryIArchive load( *( _p->_MemoryCache[uuid].value() ) );
+		XE::BinaryIArchive load( _p->_MemoryCache.find( uuid ).value() );
 
 		XE::ObjectPtr obj;
 
 		load & obj;
 
-		_p->_ObjectCache.insert( { uuid, obj } );
+		_p->_ObjectCache.insert( uuid, obj );
 
 		GetFramework()->GetServiceT< XE::TimerService >()->StartUnscaleTimer
 		( std::chrono::minutes( 1 ), [this, uuid]() -> bool
-		  {
-			  tbb::concurrent_hash_map< XE::UUID, XE::ObjectWPtr, tbb::hash_compare< XE::UUID > >::accessor accessor;
+		{
+			XE::ObjectWPtr accessor;
+			if ( _p->_ObjectCache.find( uuid, accessor ) )
+			{
+				if ( accessor.expired() )
+				{
+					_p->_ObjectCache.erase( uuid );
+				}
+			}
 
-			  if( _p->_ObjectCache.find( accessor, uuid ) )
-			  {
-				  return ( !accessor->second.expired() ? true : !_p->_ObjectCache.erase( accessor->first ) );
-			  }
-
-			  return false;
-		  } );
+			return false;
+		} );
 
 		return obj;
 	}
@@ -203,37 +201,39 @@ XE::ObjectPtr XE::AssetsService::LoadObject( const XE::UUID & uuid )
 
 XE::ObjectPtr XE::AssetsService::LoadObject( const XE::UUID & uuid, const XE::String & path )
 {
-	tbb::concurrent_hash_map< XE::UUID, XE::ObjectWPtr, tbb::hash_compare< XE::UUID > >::accessor it;
-	if( _p->_ObjectCache.find( it, uuid ) )
+	XE::ObjectWPtr accessor;
+	if( _p->_ObjectCache.find( uuid, accessor ) )
 	{
-		if( !it->second.expired() )
+		if( !accessor.expired() )
 		{
-			return it->second.lock();
+			return accessor.lock();
 		}
 	}
 
 	if( auto mem = Load( uuid, path ) )
 	{
-		XE::BinaryIArchive load( *( _p->_MemoryCache[uuid].value() ) );
+		XE::BinaryIArchive load( _p->_MemoryCache.find( uuid ).value() );
 
 		XE::ObjectPtr obj;
 
 		load & obj;
 
-		_p->_ObjectCache.insert( { uuid, obj } );
+		_p->_ObjectCache.insert( uuid, obj );
 
 		GetFramework()->GetServiceT< XE::TimerService >()->StartUnscaleTimer
 		( std::chrono::minutes( 1 ), [this, uuid]() -> bool
-		  {
-			  tbb::concurrent_hash_map< XE::UUID, XE::ObjectWPtr, tbb::hash_compare< XE::UUID > >::accessor accessor;
+		{
+			XE::ObjectWPtr accessor;
+			if ( _p->_ObjectCache.find( uuid, accessor ) )
+			{
+				if ( accessor.expired() )
+				{
+					_p->_ObjectCache.erase( uuid );
+				}
+			}
 
-			  if( _p->_ObjectCache.find( accessor, uuid ) )
-			  {
-				  return ( !accessor->second.expired() ? true : !_p->_ObjectCache.erase( accessor->first ) );
-			  }
-
-			  return false;
-		  } );
+			return false;
+		} );
 
 		return obj;
 	}
@@ -264,10 +264,10 @@ void XE::AssetsService::AsyncLoadObject( const XE::UUID & uuid, const XE::String
 bool XE::AssetsService::LoadStream( const XE::UUID & uuid, std::ostream & stream, XE::uint64 offset, XE::uint64 size )
 {
 	{
-		auto handle = _p->_MemoryCache[uuid];
-		if( handle && handle.value()->view() )
+		auto handle = _p->_MemoryCache.find( uuid );
+		if( handle && handle.value().view() )
 		{
-			auto v = handle.value()->view();
+			auto v = handle.value().view();
 
 			stream.write( v.data() + offset, std::min( v.size() - offset, size ) );
 
@@ -291,10 +291,10 @@ bool XE::AssetsService::LoadStream( const XE::UUID & uuid, std::ostream & stream
 bool XE::AssetsService::LoadStream( const XE::UUID & uuid, const XE::String & path, std::ostream & stream, XE::uint64 offset, XE::uint64 size )
 {
 	{
-		auto handle = _p->_MemoryCache[uuid];
-		if( handle && handle.value()->view() )
+		auto handle = _p->_MemoryCache.find( uuid );
+		if( handle && handle.value().view() )
 		{
-			auto v = handle.value()->view();
+			auto v = handle.value().view();
 
 			stream.write( v.data() + offset, std::min( v.size() - offset, size ) );
 

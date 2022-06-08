@@ -1,8 +1,5 @@
 #include "TimerService.h"
 
-#include <tbb/concurrent_vector.h>
-#include <tbb/concurrent_priority_queue.h>
-
 #include "Utils/Concurrent.hpp"
 
 BEG_META( XE::TimerService )
@@ -23,11 +20,13 @@ END_META()
 
 struct TimerWheel
 {
+	using CallbackListType = XE::ConcurrentList< XE::Delegate< void() > >;
+
 	struct Item
 	{
-		XE::uint64 _Idx = 0;
 		XE::uint32 _Tick = 0;
 		std::chrono::milliseconds _Expire;
+		CallbackListType::const_iterator _Idx;
 	};
 
 	XE::float32 _DeltaTime = 0;
@@ -35,8 +34,7 @@ struct TimerWheel
 	std::array< std::list< Item >, TF_SIZE > _First;
 	XE::MultiArray< std::list< Item >, TN_COUNT, TN_SIZE > _Second;
 
-	tbb::concurrent_priority_queue< std::size_t > _FreeIndexs;
-	tbb::concurrent_vector< XE::Delegate< void() > > _Callbacks;
+	CallbackListType _Callbacks;
 
 	void insert( Item && item )
 	{
@@ -81,9 +79,9 @@ struct TimerWheel
 
 		for( auto & it : lists1 )
 		{
-			if( _Callbacks[it._Idx] != nullptr )
+			if( *it._Idx != nullptr )
 			{
-				_Callbacks[it._Idx]();
+				( *it._Idx )();
 
 				it._Tick = _CurrentTick;
 
@@ -246,23 +244,17 @@ XE::Disposable XE::TimerService::StartTimer( const std::chrono::high_resolution_
 {
 	TimerWheel::Item item;
 
-	std::size_t index = 0;
-	if( !_p->_TimerWheel->_FreeIndexs.try_pop( index ) )
-	{
-		auto it = _p->_TimerWheel->_Callbacks.push_back( nullptr );
-		index = it - _p->_TimerWheel->_Callbacks.begin();
-	}
+	auto it = _p->_TimerWheel->_Callbacks.emplace_back( nullptr );
 
-	_p->_TimerWheel->_Callbacks[index] = [this, index, callback]()
+	*it = [this, it, callback]()
 	{
 		if( !callback() )
 		{
-			_p->_TimerWheel->_Callbacks[index] = nullptr;
-			_p->_TimerWheel->_FreeIndexs.push( index );
+			_p->_TimerWheel->_Callbacks.erase( it );
 		}
 	};
 
-	item._Idx = index;
+	item._Idx = it;
 	item._Tick = _p->_TimerWheel->_CurrentTick;
 	item._Expire = std::chrono::duration_cast< std::chrono::milliseconds >( duration );
 
@@ -272,30 +264,24 @@ XE::Disposable XE::TimerService::StartTimer( const std::chrono::high_resolution_
 		_p->_TimerWheel->insert( std::move( item ) );
 	}
 
-	return { [this, index]() { _p->_TimerWheel->_Callbacks[index] = nullptr; _p->_TimerWheel->_FreeIndexs.push( index ); } };
+	return { [this, it]() { _p->_TimerWheel->_Callbacks.erase( it ); } };
 }
 
 XE::Disposable XE::TimerService::StartUnscaleTimer( const std::chrono::high_resolution_clock::duration & duration, const XE::Delegate<bool()> & callback )
 {
 	TimerWheel::Item item;
 
-	std::size_t index = 0;
-	if( !_p->_UnscaleTimerWheel->_FreeIndexs.try_pop( index ) )
-	{
-		auto it = _p->_UnscaleTimerWheel->_Callbacks.push_back( nullptr );
-		index = it - _p->_UnscaleTimerWheel->_Callbacks.begin();
-	}
+	auto it = _p->_UnscaleTimerWheel->_Callbacks.emplace_back( nullptr );
 
-	_p->_TimerWheel->_Callbacks[index] = [this, index, callback]()
+	*it = [this, it, callback]()
 	{
 		if( !callback() )
 		{
-			_p->_TimerWheel->_Callbacks[index] = nullptr;
-			_p->_TimerWheel->_FreeIndexs.push( index );
+			_p->_TimerWheel->_Callbacks.erase( it );
 		}
 	};
 
-	item._Idx = index;
+	item._Idx = it;
 	item._Tick = _p->_UnscaleTimerWheel->_CurrentTick;
 	item._Expire = std::chrono::duration_cast< std::chrono::milliseconds >( duration );
 
@@ -305,5 +291,5 @@ XE::Disposable XE::TimerService::StartUnscaleTimer( const std::chrono::high_reso
 		_p->_UnscaleTimerWheel->insert( std::move( item ) );
 	}
 
-	return { [this, index]() { _p->_TimerWheel->_Callbacks[index] = nullptr; _p->_TimerWheel->_FreeIndexs.push( index ); } };
+	return { [this, it]() { _p->_TimerWheel->_Callbacks.erase( it ); } };
 }

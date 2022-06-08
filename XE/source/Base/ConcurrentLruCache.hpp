@@ -19,7 +19,13 @@ template< typename K, typename V, typename L = std::less< K >, typename A = std:
 class ConcurrentLruCache : public XE::NonCopyable
 {
 public:
-	struct map_value_type;
+	struct map_value_type
+	{
+		using value_type = V;
+
+		XE::int64 count;
+		value_type value;
+	};
 
 public:
 	using self_type = ConcurrentLruCache;
@@ -27,6 +33,7 @@ public:
 	using mapped_type = V;
 	using less_type = L;
 	using value_type = XE::Pair< const K, V >;
+	using mapped_value_type = V;
 	using allocator_type = A;
 	using size_type = XE::uint64;
 	using difference_type = std::ptrdiff_t;
@@ -39,13 +46,6 @@ public:
 	using lru_list_type = XE::List< typename map_storage_type::iterator >;
 
 public:
-	struct map_value_type
-	{
-		using value_type = V;
-
-		XE::int64 count;
-		value_type value;
-	};
 	struct handle
 	{
 		friend class ConcurrentLruCache;
@@ -115,7 +115,7 @@ public:
 			std::swap( _Cache, val._Cache );
 		}
 
-		typename iterator::second_type::value_type & value() const
+		typename mapped_value_type & value() const
 		{
 			return _Iter->second.value;
 		}
@@ -176,7 +176,8 @@ private:
 
 			if( _List.size() >= _MaxSize )
 			{
-				_Map.erase( _List.pop_back() );
+				_Map.erase( _List.back() );
+				_List.pop_back();
 			}
 
 			_List.push_front( iter );

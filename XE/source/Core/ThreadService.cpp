@@ -1,8 +1,6 @@
 #include "ThreadService.h"
 #undef OS_WINDOWS
 
-#include <tbb/concurrent_queue.h>
-
 #ifdef XE_PROFILING
 #define MICROPROFILE_ENABLED 1
 #else
@@ -41,7 +39,7 @@ struct XEPMainThread : public XEPThread
 
 	void Handler() override
 	{
-		tbb::concurrent_queue< XE::Delegate< void() > > * Tasks = _CurrentTasks == 0 ? &_FrontTasks : &_BackTasks;
+		XE::ConcurrentQueue< XE::Delegate< void() > > * Tasks = _CurrentTasks == 0 ? &_FrontTasks : &_BackTasks;
 		_CurrentTasks = ( _CurrentTasks + 1 ) % 2;
 
 		XE::Delegate< void() >  task;
@@ -66,8 +64,8 @@ struct XEPMainThread : public XEPThread
 
 	std::thread::id _ID;
 	std::atomic< XE::uint64 > _CurrentTasks;
-	tbb::concurrent_queue< XE::Delegate< void() > > _FrontTasks;
-	tbb::concurrent_queue< XE::Delegate< void() > > _BackTasks;
+	XE::ConcurrentQueue< XE::Delegate< void() > > _FrontTasks;
+	XE::ConcurrentQueue< XE::Delegate< void() > > _BackTasks;
 };
 
 struct XEPSpecialThread : public XEPThread
@@ -132,7 +130,7 @@ struct XEPSpecialThread : public XEPThread
 	std::mutex _Lock;
 	std::thread _Thread;
 	std::condition_variable _Variable;
-	tbb::concurrent_queue< XE::Delegate< void() > > _Tasks;
+	XE::ConcurrentQueue< XE::Delegate< void() > > _Tasks;
 };
 
 struct XEPWorkThread : public XEPThread
@@ -212,7 +210,7 @@ struct XEPWorkThread : public XEPThread
 	std::mutex _Lock;
 	XE::Array< std::thread > _Threads;
 	std::condition_variable _Variable;
-	tbb::concurrent_queue< XE::Delegate< void() > > _Tasks;
+	XE::ConcurrentQueue< XE::Delegate< void() > > _Tasks;
 };
 
 struct XE::ThreadService::Private

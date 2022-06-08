@@ -22,14 +22,14 @@ class XE_API ThreadService : public XE::Service
 private:
 	struct Private;
 
-	struct _RefCountFuture : public XE::EnableSharedFromThis< _RefCountFuture >
+	struct RefCountFuture : public XE::EnableSharedFromThis< RefCountFuture >
 	{
-		_RefCountFuture()
+		RefCountFuture()
 		{
 			future = promise.get_future().share();
 		}
 
-		~_RefCountFuture()
+		~RefCountFuture()
 		{
 			promise.set_value();
 		}
@@ -54,6 +54,16 @@ public:
 
 public:
 	XE::ThreadType GetCurrentThreadType() const;
+
+public:
+	template< typename ... Fs > std::shared_future< void > PostTasks( Fs && ... tasks )
+	{
+		XE::SharedPtr< RefCountFuture > _ref = XE::MakeShared< RefCountFuture >();
+
+		_PostTasks( _ref, tasks... );
+
+		return _ref->future;
+	}
 
 public:
 	std::shared_future< void > PostTask( ThreadType type, const XE::Delegate< void() > & task )
@@ -85,9 +95,10 @@ public:
 		return future;
 	}
 
+public:
 	std::shared_future< void > ParallelTask( XE::uint64 begin, XE::uint64 end, const XE::Delegate< void( XE::uint64 ) > & task )
 	{
-		XE::SharedPtr< _RefCountFuture > _ref = XE::MakeShared< _RefCountFuture >();
+		XE::SharedPtr< RefCountFuture > _ref = XE::MakeShared< RefCountFuture >();
 
 		for( ; begin != end; ++begin )
 		{
@@ -102,7 +113,7 @@ public:
 
 	template< typename Iterator > std::shared_future< void > ParallelTask( Iterator begin, Iterator end, const XE::Delegate< void( typename Iterator::value_type ) > & task )
 	{
-		XE::SharedPtr< _RefCountFuture > _ref = XE::MakeShared< _RefCountFuture >();
+		XE::SharedPtr< RefCountFuture > _ref = XE::MakeShared< RefCountFuture >();
 
 		for ( ; begin != end; ++begin )
 		{
@@ -115,9 +126,10 @@ public:
 		return _ref->future;
 	}
 
+public:
 	std::shared_future< void > ParallelStepTask( XE::uint64 begin, XE::uint64 end, XE::uint64 step, const XE::Delegate< void( XE::uint64, XE::uint64 ) > & task )
 	{
-		XE::SharedPtr< _RefCountFuture > _ref = XE::MakeShared< _RefCountFuture >();
+		XE::SharedPtr< RefCountFuture > _ref = XE::MakeShared< RefCountFuture >();
 
 		XE::uint64 current = begin;
 
@@ -138,7 +150,7 @@ public:
 
 	template< typename Iterator > std::shared_future< void > ParallelStepTask( Iterator begin, Iterator end, XE::uint64 step, const XE::Delegate< void( Iterator, Iterator ) > & task )
 	{
-		XE::SharedPtr< _RefCountFuture > _ref = XE::MakeShared< _RefCountFuture >();
+		XE::SharedPtr< RefCountFuture > _ref = XE::MakeShared< RefCountFuture >();
 
 		Iterator current = begin;
 
@@ -155,6 +167,24 @@ public:
 		}
 
 		return _ref->future;
+	}
+
+private:
+	void _PostTasks( const XE::SharedPtr< RefCountFuture > & _ref )
+	{
+
+	}
+
+	template< typename F > void _PostTasks( const XE::SharedPtr< RefCountFuture > & _ref, F && task )
+	{
+		_PostTask( ThreadType::WORKS, [task, _ref]() { task(); } );
+	}
+
+	template< typename F, typename ... Fs > void _PostTasks( const XE::SharedPtr< RefCountFuture > & _ref, F && task, Fs && ... tasks )
+	{
+		_PostTasks( _ref, task );
+
+		_PostTasks( _ref, tasks... );
 	}
 
 private:

@@ -38,12 +38,12 @@ public:
 	void Clearup() override;
 
 public:
-	virtual void PostEvent( const XE::EventPtr & val, const XE::String & group = "" );
+	virtual void PostEvent( const XE::EventPtr & val );
 
-	void PostEvent( XE::EventHandle handle, const XE::Variant & parameter = XE::Variant(), const XE::String & group = "" );
+	void PostEvent( XE::EventHandle handle, const XE::Variant & parameter = XE::Variant() );
 
 public:
-	virtual XE::Disposable RegisterListener( XE::EventHandle handle, ListenerType listener, const XE::String & group = "" );
+	virtual XE::Disposable RegisterListener( XE::EventHandle handle, ListenerType listener );
 
 private:
 	Private * _p;

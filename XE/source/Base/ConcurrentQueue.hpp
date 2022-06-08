@@ -38,26 +38,26 @@ private:
 
 public:
 	ConcurrentQueue( const allocator_type & alloc = allocator_type() )
-		:_alloc( alloc.resource() )
+		:_Alloc( alloc.resource() )
 	{
-		node * p = node_allocator_traits::allocate( _alloc, 1 ); node_allocator_traits::construct( _alloc, p );
+		node * p = node_allocator_traits::allocate( _Alloc, 1 ); node_allocator_traits::construct( _Alloc, p );
 
-		_head = p;
-		_tail = p;
+		_Head = p;
+		_Tail = p;
 	}
 
 	~ConcurrentQueue()
 	{
-		node * old_head = _head.load();
+		node * old_head = _Head.load();
 
 		while( old_head != nullptr )
 		{
-			_head = old_head->next.load();
+			_Head = old_head->next.load();
 
-			node_allocator_traits::destroy( _alloc, old_head );
-			node_allocator_traits::deallocate( _alloc, old_head, 1 );
+			node_allocator_traits::destroy( _Alloc, old_head );
+			node_allocator_traits::deallocate( _Alloc, old_head, 1 );
 
-			old_head = _head.load();
+			old_head = _Head.load();
 		}
 	}
 
@@ -66,11 +66,11 @@ public:
 	ConcurrentQueue( const ConcurrentQueue & ) = delete;
 
 public:
-	bool push( const T & val )
+	void push( const T & val )
 	{
 		node * t = nullptr;
-		node * q = node_allocator_traits::allocate( _alloc, 1 );
-		node_allocator_traits::construct( _alloc, q );
+		node * q = node_allocator_traits::allocate( _Alloc, 1 );
+		node_allocator_traits::construct( _Alloc, q );
 
 		q->value = val;
 
@@ -78,11 +78,11 @@ public:
 		{
 			if( t == nullptr )
 			{
-				t = _tail.load();
+				t = _Tail.load();
 				continue;
 			}
 
-			if( !_tail.compare_exchange_weak( t, nullptr ) )
+			if( !_Tail.compare_exchange_weak( t, nullptr ) )
 			{
 				continue;
 			}
@@ -91,12 +91,10 @@ public:
 		}
 
 		t->next.store( q );
-		++_size;
+		++_Size;
 
 		node * expected = nullptr;
-		_tail.compare_exchange_weak( expected, t->next );
-
-		return true;
+		_Tail.compare_exchange_weak( expected, t->next );
 	}
 
 	bool try_pop( T & val )
@@ -106,11 +104,11 @@ public:
 		{
 			if( head == nullptr )
 			{
-				head = _head.load();
+				head = _Head.load();
 				continue;
 			}
 
-			if( !_head.compare_exchange_weak( head, NULL ) )
+			if( !_Head.compare_exchange_weak( head, NULL ) )
 			{
 				continue;
 			}
@@ -119,7 +117,7 @@ public:
 
 			if( head_next != nullptr )
 			{
-				while( _size.load() == 0 )
+				while( _Size.load() == 0 )
 				{
 					std::this_thread::yield();
 				}
@@ -135,14 +133,14 @@ public:
 		{
 			val = head_next->value;
 
-			node_allocator_traits::destroy( _alloc, head );
-			node_allocator_traits::deallocate( _alloc, head, 1 );
+			node_allocator_traits::destroy( _Alloc, head );
+			node_allocator_traits::deallocate( _Alloc, head, 1 );
 
 			desired = head_next;
-			--_size;
+			--_Size;
 		}
 
-		_head.compare_exchange_weak( expected, desired );
+		_Head.compare_exchange_weak( expected, desired );
 
 		return head_next != nullptr;
 	}
@@ -150,19 +148,19 @@ public:
 public:
 	bool empty() const
 	{
-		return _size == 0;
+		return _Size == 0;
 	}
 
 	XE::uint64 unsafe_size() const
 	{
-		return _size.load();
+		return _Size.load();
 	}
 
 private:
-	node_allocator_type _alloc;
-	std::atomic< node * > _head;
-	std::atomic< node * > _tail;
-	std::atomic < size_type > _size = 0;
+	node_allocator_type _Alloc;
+	std::atomic< node * > _Head;
+	std::atomic< node * > _Tail;
+	std::atomic < size_type > _Size = 0;
 };
 
 END_XE_NAMESPACE

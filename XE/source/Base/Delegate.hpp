@@ -552,9 +552,14 @@ public:
 	template< XE::uint64 N > using argument_type = typename std::tuple_element< N, std::tuple< T... > >::type;
 
 public:
-	Delegate( const allocator_type & _Alloc = {} )
+	Delegate()
+	{
+	}
+
+	Delegate( const allocator_type & _Alloc )
 		:_Alloc( _Alloc )
-	{}
+	{
+	}
 
 	Delegate( std::nullptr_t, const allocator_type & _Alloc = {} )
 		:_Alloc( _Alloc )

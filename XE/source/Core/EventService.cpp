@@ -1,20 +1,19 @@
 #include "EventService.h"
 
-#include <tbb/concurrent_queue.h>
-#include <tbb/concurrent_vector.h>
-#include <tbb/concurrent_hash_map.h>
-
 BEG_META( XE::EventService )
 END_META()
 
-using ListenerMap = tbb::concurrent_hash_map< XE::EventHandle, tbb::concurrent_vector< XE::EventService::ListenerType > >;
-using GroupMap = XE::Map< XE::String, ListenerMap >;
-using EventPair = XE::Pair< XE::String, XE::EventPtr >;
+namespace
+{
+	using ListenerList = XE::ConcurrentList< XE::EventService::ListenerType >;
+	using ListenerListPtr = XE::SharedPtr< ListenerList >;
+	using ListenerMap = XE::ConcurrentHashMap< XE::EventHandle, ListenerListPtr >;
+}
 
 struct XE::EventService::Private
 {
-	GroupMap _Listeners;
-	tbb::concurrent_queue< EventPair > _Events;
+	ListenerMap _Listeners;
+	XE::ConcurrentQueue< XE::EventPtr > _Events;
 };
 
 XE::EventService::EventService()
@@ -40,25 +39,21 @@ void XE::EventService::Startup()
 
 void XE::EventService::Update()
 {
-	EventPair event;
+	XE::EventPtr event;
 	while( _p->_Events.try_pop( event ) )
 	{
-		auto it = _p->_Listeners.find( event.first );
-		if( it != _p->_Listeners.end() )
+		ListenerListPtr list;
+		if ( _p->_Listeners.find( event->handle, list ) )
 		{
-			ListenerMap::accessor accessor;
-			if( it->second.find( accessor, event.second->handle ) )
+			for ( auto var : *list )
 			{
-				for( auto var : accessor->second )
+				if ( var )
 				{
-					if( var )
-					{
-						var( event.second );
+					var( event );
 
-						if( event.second->accept )
-						{
-							return;
-						}
+					if ( event->accept )
+					{
+						return;
 					}
 				}
 			}
@@ -71,59 +66,38 @@ void XE::EventService::Clearup()
 	_p->_Listeners.clear();
 }
 
-void XE::EventService::PostEvent( const XE::EventPtr & val, const XE::String & group/* = ""*/ )
+void XE::EventService::PostEvent( const XE::EventPtr & val )
 {
-	_p->_Events.push( { group, val } );
+	_p->_Events.push( val );
 }
 
-void XE::EventService::PostEvent( XE::EventHandle handle, const XE::Variant & parameter /*= XE::Variant()*/, const XE::String & group /*= "" */ )
+void XE::EventService::PostEvent( XE::EventHandle handle, const XE::Variant & parameter /*= XE::Variant()*/ )
 {
-	XE::EventPtr event = XE::MakeShared< XE::Event >( handle, parameter );
-
-	PostEvent( event, group );
+	PostEvent( XE::MakeShared< XE::Event >( handle, parameter ) );
 }
 
-XE::Disposable XE::EventService::RegisterListener( XE::EventHandle handle, ListenerType listener, const XE::String & group/* = ""*/ )
+XE::Disposable XE::EventService::RegisterListener( XE::EventHandle handle, ListenerType listener )
 {
-	GroupMap::iterator it = _p->_Listeners.find( group );
-	if( it == _p->_Listeners.end() )
+	ListenerListPtr list;
+	ListenerList::iterator index;
+
+	if ( _p->_Listeners.find( handle, list ) )
 	{
-		it = _p->_Listeners.insert( { group, ListenerMap() } ).first;
+		index = list->emplace( list->end(), listener );
+	}
+	else
+	{
+		auto list = XE::MakeShared<ListenerList>();
+		index = list->emplace( list->end(), listener );
+		_p->_Listeners.insert( handle, list );
 	}
 
-	ListenerMap::accessor accessor;
-
-	if ( it->second.find( accessor, handle ) )
+	return { [this, handle, index]()
 	{
-		auto index = accessor->second.size();
-
-		accessor->second.push_back( listener );
-
-		return { [this, group, handle, index]()
+		ListenerListPtr list;
+		if ( _p->_Listeners.find( handle, list ) )
 		{
-			ListenerMap::accessor accessor;
-
-			if( _p->_Listeners[group].find( accessor, handle ) )
-			{
-				accessor->second[index] = nullptr;
-			}
-		} };
-	}
-
-	if ( it->second.insert( accessor, handle ) )
-	{
-		accessor->second.push_back( listener );
-
-		return { [this, group, handle]()
-		{
-			ListenerMap::accessor accessor;
-
-			if( _p->_Listeners[group].find( accessor, handle ) )
-			{
-				accessor->second[0] = nullptr;
-			}
-		} };
-	}
-
-	return {};
+			list->erase( index );
+		}
+	} };
 }

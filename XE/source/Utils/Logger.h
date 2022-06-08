@@ -30,10 +30,6 @@ public:
 	~Logger();
 
 public:
-#if __cplusplus > 202000L
-	static void Log( const std::source_location & location, XE::LoggerLevel level, const XE::Utf8String & text );
-#endif
-
 	static void Log( const char * file, XE::uint32 line, const char * func, XE::LoggerLevel level, const XE::Utf8String & text );
 
 public:
@@ -60,11 +56,7 @@ XE_INLINE XE::String ToString(XE::LoggerLevel _Val )
 
 END_XE_NAMESPACE
 
-#if __cplusplus > 202000L
-#define XE_LOG(LEVEL, FMT, ...) XE::Logger::Log( std::source_location::current(), LEVEL, XE::Format( FMT, __VA_ARGS__ ) )
-#else
 #define XE_LOG(LEVEL, FMT, ...) XE::Logger::Log( __FILE__, __LINE__, __FUNCTION__, LEVEL, XE::Format( FMT, __VA_ARGS__ ) )
-#endif
 
 #define XE_ERROR( FMT, ... ) XE_LOG( XE::LoggerLevel::Error, FMT, __VA_ARGS__ )
 #define XE_WARNING( FMT, ... ) XE_LOG( XE::LoggerLevel::Warning, FMT, __VA_ARGS__ )

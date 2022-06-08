@@ -36,6 +36,12 @@ private:
 		using list_type = XE::List< value_type >;
 
 	public:
+		HashMapBucket( const HashMapBucket & val )
+			:_list( val._list )
+		{
+
+		}
+
 		HashMapBucket( const std::pmr::polymorphic_allocator< value_type > & alloc = {} )
 			:_list( alloc )
 		{
@@ -129,6 +135,12 @@ public:
 public:
 	ConcurrentHashMap( size_type bucket_size = 61, const allocator_type & alloc = allocator_type() )
 		:_buckets( bucket_size, alloc.resource() )
+	{
+
+	}
+
+	ConcurrentHashMap( const ConcurrentHashMap & val )
+		:_buckets( val._buckets )
 	{
 
 	}
