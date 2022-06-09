@@ -23,6 +23,7 @@
 #include "MultiArray.hpp"
 #include "NonCopyable.hpp"
 #include "ConcurrentList.hpp"
+#include "ConcurrentArray.hpp"
 #include "ConcurrentQueue.hpp"
 #include "ConcurrentHashSet.hpp"
 #include "ConcurrentHashMap.hpp"
