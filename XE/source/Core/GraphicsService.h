@@ -43,7 +43,13 @@ public:
 	void Clearup() override;
 
 public:
-	XE::GraphicsSurfaceHandle InstanceCreateSurface( XE::GraphicsInstanceHandle instance, const XE::GraphicsSurfaceDescriptor & descriptor );
+	XE::GraphicsSurfaceHandle CreateSurface( const XE::GraphicsSurfaceDescriptor & descriptor );
+
+public:
+	void ProcessEvents();
+	void RequestAdapter( const XE::GraphicsRequestAdapterOptions & options, RequestAdapterCallback callback );
+
+public:
 	XE::GraphicsBindGroupHandle DeviceCreateBindGroup( XE::GraphicsDeviceHandle device, const XE::GraphicsBindGroupDescriptor & descriptor );
 	XE::GraphicsBindGroupLayoutHandle DeviceCreateBindGroupLayout( XE::GraphicsDeviceHandle device, const XE::GraphicsBindGroupLayoutDescriptor & descriptor );
 	XE::GraphicsBufferHandle DeviceCreateBuffer( XE::GraphicsDeviceHandle device, const XE::GraphicsBufferDescriptor & descriptor );
@@ -73,7 +79,6 @@ public:
 public:
 	XE::GraphicsComputePassEncoderHandle CommandEncoderBeginComputePass( XE::GraphicsCommandEncoderHandle command_encoder, const XE::GraphicsComputePassDescriptor & descriptor );
 	XE::GraphicsRenderPassEncoderHandle CommandEncoderBeginRenderPass( XE::GraphicsCommandEncoderHandle command_encoder, const XE::GraphicsRenderPassDescriptor & descriptor );
-	void CommandEncoderClearBuffer( XE::GraphicsCommandEncoderHandle command_encoder, XE::GraphicsBufferHandle buffer, XE::uint64 offset, XE::uint64 size );
 	void CommandEncoderCopyBufferToBuffer( XE::GraphicsCommandEncoderHandle command_encoder, XE::GraphicsBufferHandle source, XE::uint64 source_offset, XE::GraphicsBufferHandle destination, XE::uint64 destination_offset, XE::uint64 size );
 	void CommandEncoderCopyBufferToTexture( XE::GraphicsCommandEncoderHandle command_encoder, const XE::GraphicsImageCopyBuffer & source, const XE::GraphicsImageCopyTexture & destination, const XE::Vec3f & copy_size );
 	void CommandEncoderCopyTextureToBuffer( XE::GraphicsCommandEncoderHandle command_encoder, const XE::GraphicsImageCopyTexture & source, const XE::GraphicsImageCopyBuffer & destination, const XE::Vec3f & copy_size );
@@ -110,10 +115,6 @@ public:
 	void DevicePushErrorScope( XE::GraphicsDeviceHandle device, XE::GraphicsErrorFilter filter );
 	void DeviceSetDeviceLostCallback( XE::GraphicsDeviceHandle device, DeviceLostCallback callback );
 	void DeviceSetUncapturedErrorCallback( XE::GraphicsDeviceHandle device, ErrorCallback callback );
-
-public:
-	void InstanceProcessEvents( XE::GraphicsInstanceHandle instance );
-	void InstanceRequestAdapter( XE::GraphicsInstanceHandle instance, const XE::GraphicsRequestAdapterOptions & options, RequestAdapterCallback callback );
 
 public:
 	void QueueOnSubmittedWorkDone( XE::GraphicsQueueHandle queue, QueueWorkDoneCallback callback );
@@ -174,7 +175,6 @@ public:
 	void SwapChainPresent( XE::GraphicsSwapChainHandle swap_chain );
 
 public:
-	void InstanceDestroy( XE::GraphicsInstanceHandle instance );
 	void AdapterDestroy( XE::GraphicsAdapterHandle adapter );
 	void DeviceDestroy( XE::GraphicsDeviceHandle device );
 	void BindGroupDestroy( XE::GraphicsBindGroupHandle bind_group );

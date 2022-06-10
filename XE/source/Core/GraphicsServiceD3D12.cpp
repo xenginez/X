@@ -263,6 +263,14 @@ namespace
 
 		return flags;
 	}
+	template< typename T > XE::Handle< T > Cast( T * ptr )
+	{
+		return XE::HandleCast< T >( reinterpret_cast<XE::uint64>( ptr ) );
+	}
+	template< typename T > T * Cast( XE::Handle< T > handle )
+	{
+		return reinterpret_cast<T *>( handle.GetValue() );
+	}
 
 	template< typename T > class RefHandle : public XE::RefCount
 	{
@@ -270,6 +278,11 @@ namespace
 		operator bool() const
 		{
 			return Count();
+		}
+
+		operator XE::Handle< T >() const
+		{
+			return Handle;
 		}
 
 	public:
@@ -324,11 +337,6 @@ namespace D3D12
 
 namespace XE
 {
-	class GraphicsInstance : public RefHandle< XE::GraphicsInstance >
-	{
-	public:
-
-	};
 	class GraphicsSurface : public RefHandle< XE::GraphicsSurface >
 	{
 	public:
@@ -369,8 +377,6 @@ namespace XE
 	{
 	public:
 		XE::GraphicsBindGroupDescriptor Desc;
-
-		XE::GraphicsBindGroupLayoutHandle Layout;
 
 		D3D12::RootSignaturePtr RootSignature = nullptr;
 		D3D12::CommandSignaturePtr CommandSignature = nullptr;
@@ -495,7 +501,6 @@ struct XE::GraphicsService::Private
 	D3D12::DebugPtr _Debug;
 	D3D12::FactoryPtr _Factory;
 
-	RefHandleArray< XE::GraphicsInstance, XE::GRAPHICS_MAX_INSTANCE > _Instances;
 	RefHandleArray< XE::GraphicsSurface, XE::GRAPHICS_MAX_SURFACE > _Surfaces;
 	RefHandleArray< XE::GraphicsSwapChain, XE::GRAPHICS_MAX_SWAP_CHAIN > _SwapChains;
 	RefHandleArray< XE::GraphicsAdapter, XE::GRAPHICS_MAX_ADAPTER > _Adapters;
@@ -566,31 +571,66 @@ void XE::GraphicsService::Clearup()
 	_p->_Debug = nullptr;
 }
 
-XE::GraphicsSurfaceHandle XE::GraphicsService::InstanceCreateSurface( XE::GraphicsInstanceHandle instance, const XE::GraphicsSurfaceDescriptor & descriptor )
+XE::GraphicsSurfaceHandle XE::GraphicsService::CreateSurface( const XE::GraphicsSurfaceDescriptor & descriptor )
 {
-	auto & ins = _p->_Instances[instance.GetValue()];
-	{
+	auto & surface = _p->_Surfaces.Alloc();
 
-	}
+	surface.Desc = descriptor;
 
-	return {};
+	// TODO: 
+
+	return surface;
+}
+
+void XE::GraphicsService::ProcessEvents()
+{
+
+}
+
+void XE::GraphicsService::RequestAdapter( const XE::GraphicsRequestAdapterOptions & options, RequestAdapterCallback callback )
+{
+
 }
 
 XE::GraphicsBindGroupHandle XE::GraphicsService::DeviceCreateBindGroup( XE::GraphicsDeviceHandle device, const XE::GraphicsBindGroupDescriptor & descriptor )
 {
+	if ( auto & dev = _p->_Devices[device] )
+	{
+		auto & group = _p->_BindGroups.Alloc();
+
+		group.Desc = descriptor;
+
+		// TODO: 
+
+		return group;
+	}
+	
 	return {};
 }
 
 XE::GraphicsBindGroupLayoutHandle XE::GraphicsService::DeviceCreateBindGroupLayout( XE::GraphicsDeviceHandle device, const XE::GraphicsBindGroupLayoutDescriptor & descriptor )
 {
+	if ( auto & dev = _p->_Devices[device] )
+	{
+		auto & layout = _p->_BindGroupLayouts.Alloc();
+
+		layout.Desc = descriptor;
+
+		// TODO: 
+
+		return layout;
+	}
 	return {};
 }
 
 XE::GraphicsBufferHandle XE::GraphicsService::DeviceCreateBuffer( XE::GraphicsDeviceHandle device, const XE::GraphicsBufferDescriptor & descriptor )
 {
-	auto & dev = _p->_Devices[device.GetValue()];
+	if( auto & dev = _p->_Devices[device] )
 	{
 		auto & buf = _p->_Buffers.Alloc();
+
+		buf.Desc = descriptor;
+
 		auto size = descriptor.Size;
 		XE::uint32 align_mask = 0;
 		if ( descriptor.Usage || XE::GraphicsBufferUsage::UNIFORM )
@@ -612,7 +652,11 @@ XE::GraphicsBufferHandle XE::GraphicsService::DeviceCreateBuffer( XE::GraphicsDe
 
 		if ( SUCCEEDED( dev.Device->CreateCommittedResource( &heap_properties, D3D12_HEAP_FLAG_NONE, &raw_desc, D3D12_RESOURCE_STATE_COMMON, nullptr, IID_PPV_ARGS( buf.Resource.GetAddressOf() ) ) ) )
 		{
-			return buf.Handle;
+			return buf;
+		}
+		else
+		{
+			_p->_Buffers.Free( buf );
 		}
 	}
 
@@ -621,13 +665,15 @@ XE::GraphicsBufferHandle XE::GraphicsService::DeviceCreateBuffer( XE::GraphicsDe
 
 XE::GraphicsCommandEncoderHandle XE::GraphicsService::DeviceCreateCommandEncoder( XE::GraphicsDeviceHandle device, const XE::GraphicsCommandEncoderDescriptor & descriptor )
 {
-	auto & dev = _p->_Devices[device.GetValue()];
+	if ( auto & dev = _p->_Devices[device] )
 	{
 		auto & encoder = _p->_CommandEncoders.Alloc();
 
 		encoder.Desc = descriptor;
 
-		return encoder.Handle;
+		// TODO: 
+
+		return encoder;
 	}
 
 	return {};
@@ -635,11 +681,15 @@ XE::GraphicsCommandEncoderHandle XE::GraphicsService::DeviceCreateCommandEncoder
 
 XE::GraphicsComputePipelineHandle XE::GraphicsService::DeviceCreateComputePipeline( XE::GraphicsDeviceHandle device, const XE::GraphicsComputePipelineDescriptor & descriptor )
 {
-	auto & dev = _p->_Devices[device.GetValue()];
+	if ( auto & dev = _p->_Devices[device] )
 	{
 		auto & pipe = _p->_ComputePipelines.Alloc();
 
 		pipe.Desc = descriptor;
+
+		// TODO: 
+
+		return pipe;
 	}
 
 	return {};
@@ -647,13 +697,15 @@ XE::GraphicsComputePipelineHandle XE::GraphicsService::DeviceCreateComputePipeli
 
 XE::GraphicsPipelineLayoutHandle XE::GraphicsService::DeviceCreatePipelineLayout( XE::GraphicsDeviceHandle device, const XE::GraphicsPipelineLayoutDescriptor & descriptor )
 {
-	auto & dev = _p->_Devices[device.GetValue()];
+	if ( auto & dev = _p->_Devices[device] )
 	{
 		auto & layout = _p->_PipelineLayouts.Alloc();
 
 		layout.Desc = descriptor;
 
-		return layout.Handle;
+		// TODO: 
+
+		return layout;
 	}
 
 	return {};
@@ -661,13 +713,15 @@ XE::GraphicsPipelineLayoutHandle XE::GraphicsService::DeviceCreatePipelineLayout
 
 XE::GraphicsQuerySetHandle XE::GraphicsService::DeviceCreateQuerySet( XE::GraphicsDeviceHandle device, const XE::GraphicsQuerySetDescriptor & descriptor )
 {
-	auto & dev = _p->_Devices[device.GetValue()];
+	if ( auto & dev = _p->_Devices[device] )
 	{
-		auto & query = _p->_QuerySets.Alloc();
+		auto & query_set = _p->_QuerySets.Alloc();
 
-		query.Desc = descriptor;
+		query_set.Desc = descriptor;
 
-		return query.Handle;
+		// TODO: 
+
+		return query_set;
 	}
 
 	return {};
@@ -675,13 +729,15 @@ XE::GraphicsQuerySetHandle XE::GraphicsService::DeviceCreateQuerySet( XE::Graphi
 
 XE::GraphicsRenderBundleEncoderHandle XE::GraphicsService::DeviceCreateRenderBundleEncoder( XE::GraphicsDeviceHandle device, const XE::GraphicsRenderBundleEncoderDescriptor & descriptor )
 {
-	auto & dev = _p->_Devices[device.GetValue()];
+	if ( auto & dev = _p->_Devices[device] )
 	{
 		auto & bundle = _p->_RenderBundleEncoders.Alloc();
 
 		bundle.Desc = descriptor;
 
-		return bundle.Handle;
+		// TODO: 
+
+		return bundle;
 	}
 
 	return {};
@@ -689,13 +745,15 @@ XE::GraphicsRenderBundleEncoderHandle XE::GraphicsService::DeviceCreateRenderBun
 
 XE::GraphicsRenderPipelineHandle XE::GraphicsService::DeviceCreateRenderPipeline( XE::GraphicsDeviceHandle device, const XE::GraphicsRenderPipelineDescriptor & descriptor )
 {
-	auto & dev = _p->_Devices[device.GetValue()];
+	if ( auto & dev = _p->_Devices[device] )
 	{
 		auto & pipe = _p->_RenderPipelines.Alloc();
 
 		pipe.Desc = descriptor;
 
-		return pipe.Handle;
+		// TODO: 
+
+		return pipe;
 	}
 
 	return {};
@@ -703,13 +761,15 @@ XE::GraphicsRenderPipelineHandle XE::GraphicsService::DeviceCreateRenderPipeline
 
 XE::GraphicsSamplerHandle XE::GraphicsService::DeviceCreateSampler( XE::GraphicsDeviceHandle device, const XE::GraphicsSamplerDescriptor & descriptor )
 {
-	auto & dev = _p->_Devices[device.GetValue()];
+	if ( auto & dev = _p->_Devices[device] )
 	{
 		auto & sampler = _p->_Samplers.Alloc();
 
 		sampler.Desc = descriptor;
 
-		return sampler.Handle;
+		// TODO: 
+
+		return sampler;
 	}
 
 	return {};
@@ -717,13 +777,15 @@ XE::GraphicsSamplerHandle XE::GraphicsService::DeviceCreateSampler( XE::Graphics
 
 XE::GraphicsShaderModuleHandle XE::GraphicsService::DeviceCreateShaderModule( XE::GraphicsDeviceHandle device, const XE::GraphicsShaderModuleDescriptor & descriptor )
 {
-	auto & dev = _p->_Devices[device.GetValue()];
+	if ( auto & dev = _p->_Devices[device] )
 	{
 		auto & shader = _p->_ShaderModules.Alloc();
 
 		shader.Desc = descriptor;
 
-		return shader.Handle;
+		// TODO: 
+
+		return shader;
 	}
 
 	return {};
@@ -731,13 +793,15 @@ XE::GraphicsShaderModuleHandle XE::GraphicsService::DeviceCreateShaderModule( XE
 
 XE::GraphicsSwapChainHandle XE::GraphicsService::DeviceCreateSwapChain( XE::GraphicsDeviceHandle device, XE::GraphicsSurfaceHandle surface, const XE::GraphicsSwapChainDescriptor & descriptor )
 {
-	auto & dev = _p->_Devices[device.GetValue()];
+	if ( auto & dev = _p->_Devices[device] )
 	{
 		auto & swap_chain = _p->_SwapChains.Alloc();
 
 		swap_chain.Desc = descriptor;
 
-		return swap_chain.Handle;
+		// TODO: 
+
+		return swap_chain;
 	}
 
 	return {};
@@ -745,13 +809,15 @@ XE::GraphicsSwapChainHandle XE::GraphicsService::DeviceCreateSwapChain( XE::Grap
 
 XE::GraphicsTextureHandle XE::GraphicsService::DeviceCreateTexture( XE::GraphicsDeviceHandle device, const XE::GraphicsTextureDescriptor & descriptor )
 {
-	auto & dev = _p->_Devices[device.GetValue()];
+	if ( auto & dev = _p->_Devices[device] )
 	{
 		auto & texture = _p->_Textures.Alloc();
 
 		texture.Desc = descriptor;
 
-		return texture.Handle;
+		// TODO: 
+
+		return texture;
 	}
 
 	return {};
@@ -759,9 +825,15 @@ XE::GraphicsTextureHandle XE::GraphicsService::DeviceCreateTexture( XE::Graphics
 
 XE::GraphicsTextureViewHandle XE::GraphicsService::TextureCreateView( XE::GraphicsTextureHandle texture, const XE::GraphicsTextureViewDescriptor & descriptor )
 {
-	auto & tex = _p->_Textures[texture.GetValue()];
+	if ( auto & tex = _p->_Textures[texture] )
 	{
+		auto & view = _p->_TextureViews.Alloc();
 
+		view.Desc = descriptor;
+
+		// TODO: 
+
+		return view;
 	}
 
 	return {};
@@ -961,24 +1033,6 @@ XE::GraphicsRenderPassEncoderHandle XE::GraphicsService::CommandEncoderBeginRend
 	}
 
 	return {};
-}
-
-void XE::GraphicsService::CommandEncoderClearBuffer( XE::GraphicsCommandEncoderHandle command_encoder, XE::GraphicsBufferHandle buffer, XE::uint64 offset, XE::uint64 size )
-{
-	auto & cmd = _p->_CommandEncoders[command_encoder.GetValue()];
-	{
-		auto & buf = _p->_Buffers[buffer.GetValue()];
-		{
-			auto & cmd_buf = _p->_CommandBuffers[cmd.CommandBuffer.GetValue()];
-			{
-				D3D12::GraphicsCommandListPtr list;
-				if ( SUCCEEDED( cmd_buf.CommandList.As< ID3D12GraphicsCommandList >( &list ) ) )
-				{
-					list->CopyBufferRegion( buf.Resource.Get(), offset, nullptr, 0, size );
-				}
-			}
-		}
-	}
 }
 
 void XE::GraphicsService::CommandEncoderCopyBufferToBuffer( XE::GraphicsCommandEncoderHandle command_encoder, XE::GraphicsBufferHandle src, XE::uint64 src_offset, XE::GraphicsBufferHandle dst, XE::uint64 dst_offset, XE::uint64 size )
@@ -1311,7 +1365,7 @@ XE::GraphicsBindGroupLayoutHandle XE::GraphicsService::ComputePipelineGetBindGro
 	{
 		auto & bind = _p->_BindGroups[pipe.BindGroups[group_index].GetValue()];
 		{
-			return bind.Layout;
+			return bind.Desc.Layout;
 		}
 	}
 
@@ -1395,22 +1449,6 @@ void XE::GraphicsService::DeviceSetDeviceLostCallback( XE::GraphicsDeviceHandle 
 void XE::GraphicsService::DeviceSetUncapturedErrorCallback( XE::GraphicsDeviceHandle device, ErrorCallback callback )
 {
 	auto & dev = _p->_Devices[device.GetValue()];
-	{
-
-	}
-}
-
-void XE::GraphicsService::InstanceProcessEvents( XE::GraphicsInstanceHandle instance )
-{
-	auto & ins = _p->_Instances[instance.GetValue()];
-	{
-
-	}
-}
-
-void XE::GraphicsService::InstanceRequestAdapter( XE::GraphicsInstanceHandle instance, const XE::GraphicsRequestAdapterOptions & options, RequestAdapterCallback callback )
-{
-	auto & ins = _p->_Instances[instance.GetValue()];
 	{
 
 	}
@@ -1776,131 +1814,290 @@ void XE::GraphicsService::SwapChainPresent( XE::GraphicsSwapChainHandle swap_cha
 	}
 }
 
-void XE::GraphicsService::InstanceDestroy( XE::GraphicsInstanceHandle instance )
-{
-
-}
-
 void XE::GraphicsService::DeviceDestroy( XE::GraphicsDeviceHandle device )
 {
-	if ( auto & dev = _p->_Devices[device.GetValue()] )
+	if ( auto & dev = _p->_Devices[device] )
 	{
+		if ( dev.Dec() == 0 )
+		{
+			// TODO: 
 
+			_p->_Devices.Free( dev );
+		}
 	}
 }
 
 void XE::GraphicsService::AdapterDestroy( XE::GraphicsAdapterHandle adapter )
 {
+	if ( auto & ada = _p->_Adapters[adapter] )
+	{
+		if ( ada.Dec() == 0 )
+		{
+			// TODO: 
 
+			_p->_Adapters.Free( ada );
+		}
+	}
 }
 
 void XE::GraphicsService::BindGroupDestroy( XE::GraphicsBindGroupHandle bind_group )
 {
+	if ( auto & group = _p->_BindGroups[bind_group] )
+	{
+		if ( group.Dec() == 0 )
+		{
+			// TODO: 
 
+			_p->_BindGroups.Free( group );
+		}
+	}
 }
 
 void XE::GraphicsService::BindGroupLayoutDestroy( XE::GraphicsBindGroupLayoutHandle bind_group_layout )
 {
+	if ( auto & layout = _p->_BindGroupLayouts[bind_group_layout] )
+	{
+		if ( layout.Dec() == 0 )
+		{
+			// TODO: 
 
+			_p->_BindGroupLayouts.Free( layout );
+		}
+	}
 }
 
 void XE::GraphicsService::BufferDestroy( XE::GraphicsBufferHandle buffer )
 {
-	if ( auto & buf = _p->_Buffers[buffer.GetValue()] )
+	if ( auto & buf = _p->_Buffers[buffer] )
 	{
+		if ( buf.Dec() == 0 )
+		{
+			// TODO: 
 
+			_p->_Buffers.Free( buf );
+		}
 	}
 }
 
 void XE::GraphicsService::CommandBufferDestroy( XE::GraphicsCommandBufferHandle cmd_buf )
 {
+	if ( auto & cmd = _p->_CommandBuffers[cmd_buf] )
+	{
+		if ( cmd.Dec() == 0 )
+		{
+			// TODO: 
 
+			_p->_CommandBuffers.Free( cmd );
+		}
+	}
 }
 
 void XE::GraphicsService::CommandEncoderDestroy( XE::GraphicsCommandEncoderHandle cmd_encoder )
 {
+	if ( auto & encoder = _p->_CommandEncoders[cmd_encoder] )
+	{
+		if ( encoder.Dec() == 0 )
+		{
+			// TODO: 
 
+			_p->_CommandEncoders.Free( encoder );
+		}
+	}
 }
 
 void XE::GraphicsService::ComputePassEncoderDestroy( XE::GraphicsComputePassEncoderHandle compute_pass_encoder )
 {
+	if ( auto & pass = _p->_ComputePassEncoders[compute_pass_encoder] )
+	{
+		if ( pass.Dec() == 0 )
+		{
+			// TODO: 
 
+			_p->_ComputePassEncoders.Free( pass );
+		}
+	}
 }
 
 void XE::GraphicsService::ComputePipelineDestroy( XE::GraphicsComputePipelineHandle compute_pipeline )
 {
+	if ( auto & pipe = _p->_ComputePipelines[compute_pipeline] )
+	{
+		if ( pipe.Dec() == 0 )
+		{
+			// TODO: 
 
+			_p->_ComputePipelines.Free( pipe );
+		}
+	}
 }
 
 void XE::GraphicsService::PipelineLayoutDestroy( XE::GraphicsPipelineLayoutHandle pipeline_layout )
 {
+	if ( auto & layout = _p->_PipelineLayouts[pipeline_layout] )
+	{
+		if ( layout.Dec() == 0 )
+		{
+			// TODO: 
 
+			_p->_PipelineLayouts.Free( layout );
+		}
+	}
 }
 
 void XE::GraphicsService::QuerySetDestroy( XE::GraphicsQuerySetHandle query_set )
 {
-	if ( auto & set = _p->_QuerySets[query_set.GetValue()] )
+	if ( auto & set = _p->_QuerySets[query_set] )
 	{
+		if ( set.Dec() == 0 )
+		{
+			// TODO: 
 
+			_p->_QuerySets.Free( set );
+		}
 	}
 }
 
 void XE::GraphicsService::QueueDestroy( XE::GraphicsQueueHandle queue )
 {
+	if ( auto & q = _p->_Queues[queue] )
+	{
+		if ( q.Dec() == 0 )
+		{
+			// TODO: 
 
+			_p->_Queues.Free( q );
+		}
+	}
 }
 
 void XE::GraphicsService::RenderBundleDestroy( XE::GraphicsRenderBundleHandle render_bundle )
 {
+	if ( auto & bundle = _p->_RenderBundles[render_bundle] )
+	{
+		if ( bundle.Dec() == 0 )
+		{
+			// TODO: 
 
+			_p->_RenderBundles.Free( bundle );
+		}
+	}
 }
 
 void XE::GraphicsService::RenderBundleEncoderDestroy( XE::GraphicsRenderBundleEncoderHandle render_bundle_encoder )
 {
+	if ( auto & encoder = _p->_RenderBundleEncoders[render_bundle_encoder] )
+	{
+		if ( encoder.Dec() == 0 )
+		{
+			// TODO: 
 
+			_p->_RenderBundleEncoders.Free( encoder );
+		}
+	}
 }
 
 void XE::GraphicsService::RenderPassEncoderDestroy( XE::GraphicsRenderPassEncoderHandle render_pass_encoder )
 {
+	if ( auto & pass = _p->_RenderPassEncoders[render_pass_encoder] )
+	{
+		if ( pass.Dec() == 0 )
+		{
+			// TODO: 
 
+			_p->_RenderPassEncoders.Free( pass );
+		}
+	}
 }
 
 void XE::GraphicsService::RenderPipelineDestroy( XE::GraphicsRenderPipelineHandle render_pipeline )
 {
+	if ( auto & pipe = _p->_RenderPipelines[render_pipeline] )
+	{
+		if ( pipe.Dec() == 0 )
+		{
+			// TODO: 
 
+			_p->_RenderPipelines.Free( pipe );
+		}
+	}
 }
 
 void XE::GraphicsService::SamplerDestroy( XE::GraphicsSamplerHandle sampler )
 {
+	if ( auto & sam = _p->_Samplers[sampler] )
+	{
+		if ( sam.Dec() == 0 )
+		{
+			// TODO: 
 
+			_p->_Samplers.Free( sam );
+		}
+	}
 }
 
 void XE::GraphicsService::ShaderModuleDestroy( XE::GraphicsShaderModuleHandle shader_module )
 {
+	if ( auto & shader = _p->_ShaderModules[shader_module] )
+	{
+		if ( shader.Dec() == 0 )
+		{
+			// TODO: 
 
+			_p->_ShaderModules.Free( shader );
+		}
+	}
 }
 
 void XE::GraphicsService::SurfaceDestroy( XE::GraphicsSurfaceHandle surface )
 {
+	if ( auto & sur = _p->_Surfaces[surface] )
+	{
+		if ( sur.Dec() == 0 )
+		{
+			// TODO: 
 
+			_p->_Surfaces.Free( sur );
+		}
+	}
 }
 
 void XE::GraphicsService::SwapChainDestroy( XE::GraphicsSwapChainHandle swap_chain )
 {
+	if ( auto & swap = _p->_SwapChains[swap_chain] )
+	{
+		if ( swap.Dec() == 0 )
+		{
+			// TODO: 
 
+			_p->_SwapChains.Free( swap );
+		}
+	}
 }
 
 void XE::GraphicsService::TextureDestroy( XE::GraphicsTextureHandle texture )
 {
-	if ( auto & view = _p->_TextureViews[texture.GetValue()] )
+	if ( auto & tex = _p->_Textures[texture] )
 	{
+		if ( tex.Dec() == 0 )
+		{
+			// TODO: 
 
+			_p->_Textures.Free( tex );
+		}
 	}
 }
 
 void XE::GraphicsService::TextureViewDestroy( XE::GraphicsTextureViewHandle texture_view )
 {
+	if ( auto & view = _p->_TextureViews[texture_view] )
+	{
+		if ( view.Dec() == 0 )
+		{
+			// TODO: 
 
+			_p->_TextureViews.Free( view );
+		}
+	}
 }
 
 #endif // GRAPHICS_API == GRAPHICS_D3D12

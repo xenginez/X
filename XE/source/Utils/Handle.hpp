@@ -76,6 +76,11 @@ public:
 		return _value != std::numeric_limits< XE::uint64 >::max();
 	}
 
+	operator XE::uint64() const
+	{
+		return GetValue();
+	}
+
 public:
 	bool operator< ( XE::uint64 val ) const
 	{

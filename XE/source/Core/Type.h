@@ -167,7 +167,6 @@ using UnqueBufferCallbackType = void( * )( void * userdata, XE::AudioBufferHandl
 //////////////////////////////////////////////////////////////////////////
 // Render
 
-static constexpr XE::uint64 GRAPHICS_MAX_INSTANCE = 0;
 static constexpr XE::uint64 GRAPHICS_MAX_SURFACE = 0;
 static constexpr XE::uint64 GRAPHICS_MAX_SWAP_CHAIN = 0;
 static constexpr XE::uint64 GRAPHICS_MAX_ADAPTER = 0;
@@ -191,7 +190,6 @@ static constexpr XE::uint64 GRAPHICS_MAX_SHADER_MODULE = 0;
 static constexpr XE::uint64 GRAPHICS_MAX_TEXTURE = 0;
 static constexpr XE::uint64 GRAPHICS_MAX_TEXTURE_VIEW = 0;
 
-DECL_HANDLE( GraphicsInstance );
 DECL_HANDLE( GraphicsAdapter );
 DECL_HANDLE( GraphicsDevice );
 DECL_HANDLE( GraphicsBindGroup );
@@ -849,11 +847,11 @@ struct XE_API GraphicsCommandEncoderDescriptor
 struct XE_API GraphicsCompilationMessage
 {
     XE::String Message;
-    XE::GraphicsCompilationMessageType Type;
     XE::uint64 LineNum;
     XE::uint64 LinePos;
     XE::uint64 Offset;
-    XE::uint64 Length;
+	XE::uint64 Length;
+	XE::GraphicsCompilationMessageType Type;
 };
 
 struct XE_API GraphicsComputePassTimestampWrite
