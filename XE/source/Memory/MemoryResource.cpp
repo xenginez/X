@@ -1,5 +1,15 @@
 #include "MemoryResource.h"
 
+void * XE::MemoryResource::Alloc( XE::uint64 size )
+{
+	return ::malloc( size );
+}
+
+void XE::MemoryResource::Free( void * ptr )
+{
+	::free( ptr );
+}
+
 XE::FrameMemoryResource * XE::MemoryResource::GetFrameMemoryResource()
 {
 	thread_local XE::FrameMemoryResource resource;

@@ -10,6 +10,10 @@ BEG_XE_NAMESPACE
 class XE_API MemoryResource
 {
 public:
+	static void * Alloc( XE::uint64 size );
+
+	static void Free( void * ptr );
+
 	static XE::FrameMemoryResource * GetFrameMemoryResource();
 
 	static XE::ObjectMemoryResource * GetObjectMemoryResource();

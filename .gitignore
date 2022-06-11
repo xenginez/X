@@ -42,3 +42,9 @@
 
 # Files
 /CMakeSettings.json
+/XE/source/GUI/imgui.cpp
+/XE/source/GUI/imgui.h
+/XE/source/GUI/imgui_draw.cpp
+/XE/source/GUI/imgui_internal.h
+/XE/source/GUI/imgui_tables.cpp
+/XE/source/GUI/imgui_widgets.cpp
