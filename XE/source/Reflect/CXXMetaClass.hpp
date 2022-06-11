@@ -895,6 +895,16 @@ template<> struct ::ClassID< _MODULE::_CLASS > \
 		return meta; \
 	} \
 }
+#define DECL_META_CLASS_1( _CLASS ) \
+template<> struct ::ClassID< _CLASS > \
+{ \
+	static XE::MetaClassCPtr Get( const _CLASS * val = nullptr ) \
+	{ \
+		static constexpr char __xe__sig__[] = __FUNCTION__; \
+		static auto meta = XE::MetaInfo::NewMetaInfo< XE::CXXMetaClass< _CLASS > >( XE::Hash( __xe__sig__ ), #_CLASS, nullptr, nullptr, ::GetModule() ); \
+		return meta; \
+	} \
+}
 #define DECL_META_CLASS( ... ) MACRO_EXP_(MACRO_GLUE(DECL_META_CLASS_,MACRO_ARGS_CONTER(__VA_ARGS__))(__VA_ARGS__))
 
 

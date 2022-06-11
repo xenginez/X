@@ -48,3 +48,6 @@
 /XE/source/GUI/imgui_internal.h
 /XE/source/GUI/imgui_tables.cpp
 /XE/source/GUI/imgui_widgets.cpp
+/XE/source/GUI/imstb_truetype.h
+/XE/source/GUI/imstb_textedit.h
+/XE/source/GUI/imstb_rectpack.h

@@ -5,7 +5,7 @@ project(XE)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 if (WIN32)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj /MP")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj /MP /Zc:char8_t")
 endif ()
 
 set(LINK_LIBS 
@@ -36,7 +36,7 @@ install(TARGETS XE
         ARCHIVE DESTINATION lib
         )
 
-set(PUBLIC_HEADER_DIRS Base Core Inputs Math Memory Network Reflect Utils Scene WASM)
+set(PUBLIC_HEADER_DIRS Base Core GUI Inputs Math Memory Network Reflect Render Scene Utils WASM)
 foreach(PUBLIC_HEADER_DIR ${PUBLIC_HEADER_DIRS})
 	FILE(GLOB_RECURSE PUBLIC_HEADER_FILES ${PUBLIC_HEADER_DIR}/*.h ${PUBLIC_HEADER_DIR}/*.hpp ${PUBLIC_HEADER_DIR}/*.inc)
 	install(FILES ${PUBLIC_HEADER_FILES} DESTINATION include/XE/${PUBLIC_HEADER_DIR}/)

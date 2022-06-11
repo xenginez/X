@@ -23,6 +23,14 @@ XE::CodePoint::CodePoint( wchar_t c )
 
 }
 
+#ifdef __cpp_char8_t
+XE::CodePoint::CodePoint( char8_t c )
+	: _unicode( c )
+{
+
+}
+#endif
+
 XE::CodePoint::CodePoint( char16_t c )
 	: _unicode( c )
 {
@@ -241,6 +249,119 @@ std::string XE::StdStringConvert::wide_2_ansi( const std::wstring & wstr )
 	return result;
 }
 
+#ifdef __cpp_char8_t
+std::u8string XE::StdStringConvert::ansi_2_utf8( const std::string & str )
+{
+	std::u8string result;
+
+#if PLATFORM_OS & ( OS_WINDOWS | OS_XBOX )
+	std::wstring wstr = ansi_2_wide( str );
+
+	auto len = WideCharToMultiByte( CP_UTF8, 0, wstr.c_str(), static_cast<int>( wstr.size() ), nullptr, 0, nullptr, nullptr );
+	if ( len > 0 )
+	{
+		result.resize( len );
+
+		int size = WideCharToMultiByte( CP_UTF8, 0, wstr.c_str(), static_cast<int>( wstr.size() ), reinterpret_cast<char *>( result.data() ), len, nullptr, nullptr );
+		if ( size == 0 )
+		{
+			result.clear();
+		}
+		else
+		{
+			result.resize( size );
+		}
+	}
+#else
+	// TODO: 
+#endif
+
+	return result;
+}
+
+std::string XE::StdStringConvert::utf8_2_ansi( const std::u8string & str )
+{
+	std::string result;
+
+#if PLATFORM_OS & ( OS_WINDOWS | OS_XBOX )
+	std::wstring wstr = utf8_2_wide( str );
+
+	auto len = WideCharToMultiByte( CP_ACP, 0, wstr.c_str(), static_cast<int>( wstr.size() ), nullptr, 0, nullptr, nullptr );
+	if ( len > 0 )
+	{
+		result.resize( len );
+
+		int size = WideCharToMultiByte( CP_ACP, 0, wstr.c_str(), static_cast<int>( wstr.size() ), result.data(), len, nullptr, nullptr );
+		if ( size == 0 )
+		{
+			result.clear();
+		}
+		else
+		{
+			result.resize( size );
+		}
+	}
+#else
+	// TODO: 
+#endif
+
+	return result;
+}
+
+std::u8string XE::StdStringConvert::wide_2_utf8( const std::wstring & wstr )
+{
+	std::u8string result;
+
+#if PLATFORM_OS & ( OS_WINDOWS | OS_XBOX )
+	auto len = WideCharToMultiByte( CP_UTF8, 0, wstr.c_str(), static_cast<int>( wstr.size() ), nullptr, 0, nullptr, nullptr );
+	if ( len > 0 )
+	{
+		result.resize( len );
+
+		int size = WideCharToMultiByte( CP_UTF8, 0, wstr.c_str(), static_cast<int>( wstr.size() ), reinterpret_cast<char *>( result.data() ), len, nullptr, nullptr );
+		if ( size == 0 )
+		{
+			result.clear();
+		}
+		else
+		{
+			result.resize( size );
+		}
+	}
+#else
+	// TODO: 
+#endif
+
+	return result;
+}
+
+std::wstring XE::StdStringConvert::utf8_2_wide( const std::u8string & str )
+{
+	std::wstring result;
+
+#if PLATFORM_OS & ( OS_WINDOWS | OS_XBOX )
+	auto len = MultiByteToWideChar( CP_UTF8, 0, reinterpret_cast<const char *>( str.c_str() ), static_cast<int>( str.size() ), nullptr, 0 );
+	if ( len > 0 )
+	{
+		result.resize( len );
+
+		int size = MultiByteToWideChar( CP_UTF8, 0, reinterpret_cast<const char *>( str.c_str() ), static_cast<int>( str.size() ), reinterpret_cast<wchar_t *>( result.data() ), len );
+		if ( size == 0 )
+		{
+			result.clear();
+		}
+		else
+		{
+			result.resize( size );
+		}
+	}
+#else
+	// TODO: 
+#endif
+
+	return result;
+}
+#else
 std::string XE::StdStringConvert::ansi_2_utf8( const std::string & str )
 {
 	std::string result;
@@ -309,7 +430,7 @@ std::string XE::StdStringConvert::wide_2_utf8( const std::wstring & wstr )
 	{
 		result.resize( len );
 
-		int size = WideCharToMultiByte( CP_UTF8, 0, wstr.c_str(), static_cast<int>( wstr.size() ), (char *)result.data(), len, nullptr, nullptr );
+		int size = WideCharToMultiByte( CP_UTF8, 0, wstr.c_str(), static_cast<int>( wstr.size() ), reinterpret_cast<char *>( result.data() ), len, nullptr, nullptr );
 		if( size == 0 )
 		{
 			result.clear();
@@ -336,7 +457,7 @@ std::wstring XE::StdStringConvert::utf8_2_wide( const std::string & str )
 	{
 		result.resize( len );
 
-		int size = MultiByteToWideChar( CP_UTF8, 0, str.c_str(), static_cast<int>( str.size() ), (wchar_t *)result.data(), len );
+		int size = MultiByteToWideChar( CP_UTF8, 0, str.c_str(), static_cast<int>( str.size() ), reinterpret_cast<wchar_t *>( result.data() ), len );
 		if( size == 0 )
 		{
 			result.clear();
@@ -352,3 +473,4 @@ std::wstring XE::StdStringConvert::utf8_2_wide( const std::string & str )
 
 	return result;
 }
+#endif

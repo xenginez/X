@@ -96,59 +96,22 @@ public:
 	}
 
 public:
-	std::shared_future< void > ParallelTask( XE::uint64 begin, XE::uint64 end, const XE::Delegate< void( XE::uint64 ) > & task )
-	{
-		XE::SharedPtr< RefCountFuture > _ref = XE::MakeShared< RefCountFuture >();
-
-		for( ; begin != end; ++begin )
-		{
-			_PostTask( ThreadType::WORKS, [begin, task, _ref]()
-					  {
-						  task( begin );
-					  } );
-		}
-
-		return _ref->future;
-	}
-
-	template< typename Iterator > std::shared_future< void > ParallelTask( Iterator begin, Iterator end, const XE::Delegate< void( typename Iterator::value_type ) > & task )
+	template< typename Iterator, typename F > std::shared_future< void > ParallelTask( Iterator begin, Iterator end, F && task )
 	{
 		XE::SharedPtr< RefCountFuture > _ref = XE::MakeShared< RefCountFuture >();
 
 		for ( ; begin != end; ++begin )
 		{
-			_PostTask( ThreadType::WORKS, [begin, task, _ref]()
+			_PostTask( ThreadType::WORKS, [begin, task = std::move( task ), _ref]() mutable
 				{
-					task( *begin );
+					task( begin );
 				} );
 		}
 
 		return _ref->future;
 	}
 
-public:
-	std::shared_future< void > ParallelStepTask( XE::uint64 begin, XE::uint64 end, XE::uint64 step, const XE::Delegate< void( XE::uint64, XE::uint64 ) > & task )
-	{
-		XE::SharedPtr< RefCountFuture > _ref = XE::MakeShared< RefCountFuture >();
-
-		XE::uint64 current = begin;
-
-		while ( current != end )
-		{
-			for ( XE::uint64 i = 0; i < step && current != end; ++i, ++current );
-
-			_PostTask( ThreadType::WORKS, [begin, current, task, _ref]()
-				{
-					task( begin, current );
-				} );
-
-			begin = current;
-		}
-
-		return _ref->future;
-	}
-
-	template< typename Iterator > std::shared_future< void > ParallelStepTask( Iterator begin, Iterator end, XE::uint64 step, const XE::Delegate< void( Iterator, Iterator ) > & task )
+	template< typename Iterator, typename F > std::shared_future< void > ParallelStepTask( Iterator begin, Iterator end, XE::uint64 step, F && task )
 	{
 		XE::SharedPtr< RefCountFuture > _ref = XE::MakeShared< RefCountFuture >();
 
@@ -158,7 +121,7 @@ public:
 		{
 			for( XE::uint64 i = 0; i < step && current != end; ++i, ++current );
 
-			_PostTask( ThreadType::WORKS, [begin, current, task, _ref]()
+			_PostTask( ThreadType::WORKS, [begin, current, task = std::move( task ), _ref]() mutable
 					  {
 						  task( begin, current );
 					  } );

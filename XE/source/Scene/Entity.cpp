@@ -84,10 +84,10 @@ void XE::EntitySystemGroup::Execute( XE::World * world, XE::float32 dt ) const
 	{
 		for ( auto layer : _Paths )
 		{
-			thread->ParallelTask( layer.begin(), layer.end(), [world, dt]( XE::EntitySystemGraph::vertex_const_iterator it )
+			thread->ParallelTask( layer.begin(), layer.end(), [world, dt]( XE::Array< XE::EntitySystemGraph::vertex_const_iterator >::iterator it )
 				{
-					( *it )->Execute( world, dt );
-				} ).get();
+					( **it )->Execute( world, dt );
+				} ).wait();
 		}
 	}
 }

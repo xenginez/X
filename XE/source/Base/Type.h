@@ -329,7 +329,7 @@ XE_INLINE constexpr XE::uint64 Hash( const wchar_t * str, XE::uint64 value = 146
 	return *str != 0 ? Hash( ++str, ( value ^ static_cast< XE::uint64 >( *str ) ) * 1099511628211ULL ) : value;
 }
 
-#if defined(__cpp_char8_t)
+#ifdef __cpp_char8_t
 XE_INLINE constexpr XE::uint64 Hash( const char8_t * str, XE::uint64 value = 14695981039346656037ULL )
 {
 	return *str != 0 ? Hash( ++str, ( value ^ static_cast< XE::uint64 >( *str ) ) * 1099511628211ULL ) : value;

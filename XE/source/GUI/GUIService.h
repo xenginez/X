@@ -36,7 +36,9 @@ public:
 	void Clearup() override;
 
 public:
-	ImGuiContext * GetImGuiContext();
+	XE::CanvasPtr FindCanvas( const XE::String & val );
+
+	XE::Disposable RegisterCanvas( const XE::CanvasPtr & val );
 
 private:
 	Private * _p;

@@ -24,6 +24,10 @@ public:
 
 	CodePoint( wchar_t c );
 
+#ifdef __cpp_char8_t
+	CodePoint( char8_t c );
+#endif
+
 	CodePoint( char16_t c );
 
 	CodePoint( char32_t c );
@@ -56,6 +60,9 @@ private:
 	{
 		char c;
 		wchar_t wc;
+#ifdef __cpp_char8_t
+		char8_t c8;
+#endif
 		char16_t c16;
 		char32_t c32;
 		XE::uint32 _unicode;
@@ -233,7 +240,11 @@ class XE_API Utf8Encode
 {
 public:
 	using size_type = std::size_t;
+#ifdef __cpp_char8_t
+	using storage_unit = char8_t;
+#else
 	using storage_unit = char;
+#endif
 
 public:
 	template <typename Iterator >
@@ -370,6 +381,19 @@ public:
 	// local wide char code point to local multi byte code point
 	static std::string wide_2_ansi( const std::wstring & str );
 
+#ifdef __cpp_char8_t
+	// local multi byte code point to unicode utf-8
+	static std::u8string ansi_2_utf8( const std::string & str );
+
+	// unicode utf-8 to local multi byte code point
+	static std::string utf8_2_ansi( const std::u8string & str );
+
+	// local wide char code point to unicode utf-8
+	static std::u8string wide_2_utf8( const std::wstring & str );
+
+	// unicode utf-8 code point to local wide char
+	static std::wstring utf8_2_wide( const std::u8string & str );
+#else
 	// local multi byte code point to unicode utf-8
 	static std::string ansi_2_utf8( const std::string & str );
 
@@ -381,6 +405,8 @@ public:
 
 	// unicode utf-8 code point to local wide char
 	static std::wstring utf8_2_wide( const std::string & str );
+
+#endif
 };
 
 template< typename Unit > class CodePointArrow
@@ -799,6 +825,44 @@ public:
 	{
 	}
 
+	template< typename T, std::enable_if_t< !std::is_same_v<T, storage_unit> && std::is_same_v<T, char>, int > = 0 > BasicString( const T * str, const Alloc & a = Alloc() )
+		:_string( a )
+	{
+		_string.assign( StringConvert<AnsiEncode, encode_type>::convert( str ) );
+	}
+
+	template< typename T, typename C, typename A, std::enable_if_t< !std::is_same_v<T, storage_unit> && std::is_same_v<T, char>, int > = 0 > BasicString( const std::basic_string<T, C, A> & str, const Alloc & a = Alloc() )
+		: _string( a )
+	{
+		_string.assign( StringConvert<AnsiEncode, encode_type>::convert( str ) );
+	}
+
+#ifdef __cpp_char8_t
+	template< typename T, std::enable_if_t< !std::is_same_v<T, storage_unit> && std::is_same_v<T, char8_t>, int > = 0 > BasicString( const T * str, const Alloc & a = Alloc() )
+		: _string( a )
+	{
+		_string.assign( StringConvert<Utf8Encode, encode_type>::convert( str ) );
+	}
+
+	template< typename T, typename C, typename A, std::enable_if_t< !std::is_same_v<T, storage_unit> && std::is_same_v<T, char8_t>, int > = 0 > BasicString( const std::basic_string<T, C, A> & str, const Alloc & a = Alloc() )
+		: _string( a )
+	{
+		_string.assign( StringConvert<Utf8Encode, encode_type>::convert( str ) );
+	}
+#endif
+
+	template< typename T, std::enable_if_t< !std::is_same_v<T, storage_unit> && std::is_same_v<T, wchar_t>, int > = 0 > BasicString( const T * str, const Alloc & a = Alloc() )
+		: _string( a )
+	{
+		_string.assign( StringConvert<WideEncode, encode_type>::convert( str ) );
+	}
+
+	template< typename T, typename C, typename A, std::enable_if_t< !std::is_same_v<T, storage_unit> && std::is_same_v<T, wchar_t>, int > = 0 > BasicString( const std::basic_string<T, C, A> & str, const Alloc & a = Alloc() )
+		: _string( a )
+	{
+		_string.assign( StringConvert<WideEncode, encode_type>::convert( str ) );
+	}
+
 public:
 	BasicString & operator=( CodePoint c )
 	{
@@ -831,6 +895,50 @@ public:
 	{
 		_string.clear();
 		_string.insert( _string.end(), str.begin(), str.end() );
+
+		return *this;
+	}
+
+	template< typename T, std::enable_if_t< !std::is_same_v<T, storage_unit> && std::is_same_v<T, char>, int > = 0 > BasicString & operator=( const T * str )
+	{
+		_string.assign( StringConvert<AnsiEncode, encode_type>::convert( str ) );
+
+		return *this;
+	}
+
+	template< typename T, typename C, typename A, std::enable_if_t< !std::is_same_v<T, storage_unit> && std::is_same_v<T, char>, int > = 0 > BasicString & operator=( const std::basic_string<T, C, A> & str )
+	{
+		_string.assign( StringConvert<AnsiEncode, encode_type>::convert( str ) );
+
+		return *this;
+	}
+
+#ifdef __cpp_char8_t
+	template< typename T, std::enable_if_t< !std::is_same_v<T, storage_unit> && std::is_same_v<T, char8_t>, int > = 0 > BasicString & operator=( const T * str )
+	{
+		_string.assign( StringConvert<Utf8Encode, encode_type>::convert( str ) );
+
+		return *this;
+	}
+
+	template< typename T, typename C, typename A, std::enable_if_t< !std::is_same_v<T, storage_unit> && std::is_same_v<T, char8_t>, int > = 0 > BasicString & operator=( const std::basic_string<T, C, A> & str )
+	{
+		_string.assign( StringConvert<Utf8Encode, encode_type>::convert( str ) );
+
+		return *this;
+	}
+#endif
+
+	template< typename T, std::enable_if_t< !std::is_same_v<T, storage_unit> && std::is_same_v<T, wchar_t>, int > = 0 > BasicString & operator=( const T * str )
+	{
+		_string.assign( StringConvert<WideEncode, encode_type>::convert( str ) );
+
+		return *this;
+	}
+
+	template< typename T, typename C, typename A, std::enable_if_t< !std::is_same_v<T, storage_unit> && std::is_same_v<T, wchar_t>, int > = 0 > BasicString & operator=( const std::basic_string<T, C, A> & str )
+	{
+		_string.assign( StringConvert<WideEncode, encode_type>::convert( str ) );
 
 		return *this;
 	}
@@ -2096,13 +2204,13 @@ public:
 		return _string;
 	}
 
-	std::vector< BasicString > split( const BasicString & sep ) const
+	XE::Array< BasicString > split( const BasicString & sep ) const
 	{
 		using string_type = std::basic_string< typename Encode::storage_unit >;
 
 		std::basic_regex< typename Encode::storage_unit > re{ sep.c_str() };
 
-		std::vector< BasicString > result;
+		XE::Array< BasicString > result;
 		std::regex_token_iterator< typename string_type::const_pointer > beg( _string.data(), _string.data() + _string.size(), re, -1 );
 		std::regex_token_iterator< typename string_type::const_pointer > end;
 		for( ; beg != end; ++beg )
@@ -2247,77 +2355,77 @@ XE_INLINE bool FromString( const XE::String & _Str, bool & _Val )
 
 XE_INLINE bool FromString( const XE::String & _Str, XE::int8 & _Val )
 {
-	_Val = std::atol( _Str.c_str() );
+	_Val = std::atol( reinterpret_cast<const char *>( _Str.c_str() ) );
 
 	return true;
 }
 
 XE_INLINE bool FromString( const XE::String & _Str, XE::int16 & _Val )
 {
-	_Val = std::atol( _Str.c_str() );
+	_Val = std::atol( reinterpret_cast<const char *>( _Str.c_str() ) );
 
 	return true;
 }
 
 XE_INLINE bool FromString( const XE::String & _Str, XE::int32 & _Val )
 {
-	_Val = std::stol( _Str.c_str() );
+	_Val = std::stol( reinterpret_cast<const char *>( _Str.c_str() ) );
 
 	return true;
 }
 
 XE_INLINE bool FromString( const XE::String & _Str, long & _Val )
 {
-	_Val = std::stol( _Str.c_str() );
+	_Val = std::stol( reinterpret_cast<const char *>( _Str.c_str() ) );
 
 	return true;
 }
 
 XE_INLINE bool FromString( const XE::String & _Str, XE::int64 & _Val )
 {
-	_Val = std::stol( _Str.c_str() );
+	_Val = std::stol( reinterpret_cast<const char *>( _Str.c_str() ) );
 
 	return true;
 }
 
 XE_INLINE bool FromString( const XE::String & _Str, XE::uint8 & _Val )
 {
-	_Val = std::stoul( _Str.c_str() );
+	_Val = std::stoul( reinterpret_cast<const char *>( _Str.c_str() ) );
 
 	return true;
 }
 
 XE_INLINE bool FromString( const XE::String & _Str, XE::uint16 & _Val )
 {
-	_Val = std::stoul( _Str.c_str() );
+	_Val = std::stoul( reinterpret_cast<const char *>( _Str.c_str() ) );
 
 	return true;
 }
 
 XE_INLINE bool FromString( const XE::String & _Str, XE::uint32 & _Val )
 {
-	_Val = std::stoul( _Str.c_str() );
+	_Val = std::stoul( reinterpret_cast<const char *>( _Str.c_str() ) );
 
 	return true;
 }
 
 XE_INLINE bool FromString( const XE::String & _Str, XE::uint64 & _Val )
 {
-	_Val = std::stoul( _Str.c_str() );
+	_Val = std::stoul( reinterpret_cast<const char *>( _Str.c_str() ) );
 
 	return true;
 }
 
 XE_INLINE bool FromString( const XE::String & _Str, XE::float32 & _Val )
 {
-	_Val = std::atof( _Str.c_str() );
+	_Val = std::atof( reinterpret_cast<const char *>( _Str.c_str() ) );
 
 	return true;
 }
 
 XE_INLINE bool FromString( const XE::String & _Str, XE::float64 & _Val )
 {
-	_Val = std::stod( _Str.c_str() );
+	_Val = std::stod( reinterpret_cast<const char *>( _Str.c_str() ) );
 
 	return true;
 }
@@ -2342,12 +2450,12 @@ XE_INLINE bool FromString( const XE::String & _Str, std::chrono::system_clock::t
 	{
 		std::tm _tm;
 
-		_tm.tm_year = std::atoi( _Str.substr( 0, 4 ).c_str() ) - 1900;
-		_tm.tm_mon =  std::atoi( _Str.substr( 5, 2 ).c_str() ) - 1;
-		_tm.tm_mday = std::atoi( _Str.substr( 8, 2 ).c_str() );
-		_tm.tm_hour = std::atoi( _Str.substr( 11, 2 ).c_str() );
-		_tm.tm_min =  std::atoi( _Str.substr( 14, 2 ).c_str() );
-		_tm.tm_sec =  std::atoi( _Str.substr( 17, 2 ).c_str() );
+		_tm.tm_year = std::atoi( reinterpret_cast<const char *>( _Str.substr( 0, 4 ).c_str() ) ) - 1900;
+		_tm.tm_mon = std::atoi( reinterpret_cast<const char *>( _Str.substr( 5, 2 ).c_str() ) ) - 1;
+		_tm.tm_mday = std::atoi( reinterpret_cast<const char *>( _Str.substr( 8, 2 ).c_str() ) );
+		_tm.tm_hour = std::atoi( reinterpret_cast<const char *>( _Str.substr( 11, 2 ).c_str() ) );
+		_tm.tm_min = std::atoi( reinterpret_cast<const char *>( _Str.substr( 14, 2 ).c_str() ) );
+		_tm.tm_sec = std::atoi( reinterpret_cast<const char *>( _Str.substr( 17, 2 ).c_str() ) );
 
 		_Val = std::chrono::system_clock::from_time_t( std::mktime( &_tm ) );
 

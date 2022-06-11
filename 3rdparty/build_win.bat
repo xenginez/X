@@ -245,6 +245,9 @@ echo "copy imgui head file to depends"
 cd %RD3_PATH%
 xcopy %cd%\imgui\imgui.h %RD3_PATH%\..\XE\source\GUI\ /y
 xcopy %cd%\imgui\imconfig.h %RD3_PATH%\..\XE\source\GUI\ /y
+xcopy %cd%\imgui\imstb_textedit.h %RD3_PATH%\..\XE\source\GUI\ /y
+xcopy %cd%\imgui\imstb_rectpack.h %RD3_PATH%\..\XE\source\GUI\ /y
+xcopy %cd%\imgui\imstb_truetype.h %RD3_PATH%\..\XE\source\GUI\ /y
 xcopy %cd%\imgui\imgui_internal.h %RD3_PATH%\..\XE\source\GUI\ /y
 xcopy %cd%\imgui\imgui.cpp %RD3_PATH%\..\XE\source\GUI\ /y
 xcopy %cd%\imgui\imgui_draw.cpp %RD3_PATH%\..\XE\source\GUI\ /y
