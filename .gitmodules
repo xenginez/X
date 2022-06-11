@@ -52,3 +52,6 @@
 [submodule "3rdparty/SPIRV-Cross"]
 	path = 3rdparty/SPIRV-Cross
 	url = https://github.com/KhronosGroup/SPIRV-Cross.git
+[submodule "3rdparty/imgui"]
+	path = 3rdparty/imgui
+	url = https://github.com/ocornut/imgui.git

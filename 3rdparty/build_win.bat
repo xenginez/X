@@ -220,12 +220,6 @@ xcopy %cd%\microprofile\microprofile.h %RD3_PATH%\..\depends\include\microprofil
 xcopy %cd%\microprofile\microprofile.cpp %RD3_PATH%\..\depends\include\microprofile\ /y
 xcopy %cd%\microprofile\microprofile_html.h %RD3_PATH%\..\depends\include\microprofile\ /y
 
-:BUILD_IMGUI
-echo "copy imgui head file to depends"
-cd %RD3_PATH%
-xcopy %cd%\imgui\*.h %RD3_PATH%\..\depends\include\imgui\ /y
-xcopy %cd%\imgui\*.cpp %RD3_PATH%\..\depends\include\imgui\ /y
-
 
 :BUILD_ASIO
 echo "copy asio head file to depends"
@@ -246,6 +240,16 @@ cd %RD3_PATH%
 xcopy %cd%\webgpu-headers\webgpu.h %RD3_PATH%\..\depends\include\webgpu\ /s /y
 
 
+:BUILD_IMGUI
+echo "copy imgui head file to depends"
+cd %RD3_PATH%
+xcopy %cd%\imgui\imgui.h %RD3_PATH%\..\XE\source\GUI\ /y
+xcopy %cd%\imgui\imconfig.h %RD3_PATH%\..\XE\source\GUI\ /y
+xcopy %cd%\imgui\imgui_internal.h %RD3_PATH%\..\XE\source\GUI\ /y
+xcopy %cd%\imgui\imgui.cpp %RD3_PATH%\..\XE\source\GUI\ /y
+xcopy %cd%\imgui\imgui_draw.cpp %RD3_PATH%\..\XE\source\GUI\ /y
+xcopy %cd%\imgui\imgui_tables.cpp %RD3_PATH%\..\XE\source\GUI\ /y
+xcopy %cd%\imgui\imgui_widgets.cpp %RD3_PATH%\..\XE\source\GUI\ /y
 
 
 :EXIT
