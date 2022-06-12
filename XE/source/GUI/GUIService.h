@@ -10,7 +10,6 @@
 #define GUISERVICE_H__59B6C5BA_686C_4552_889E_194404FDDE5A
 
 #include "Type.h"
-#include "Core/Service.h"
 
 BEG_XE_NAMESPACE
 
@@ -34,6 +33,9 @@ public:
 	void Update() override;
 
 	void Clearup() override;
+
+public:
+	XE::Vec2i GetScreenSize() const;
 
 public:
 	XE::CanvasPtr FindCanvas( const XE::String & val );

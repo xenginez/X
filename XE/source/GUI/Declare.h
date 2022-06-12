@@ -15,12 +15,15 @@ struct ImGuiContext;
 
 BEG_XE_NAMESPACE
 
+class Model;
 class Canvas;
 class Widget;
+class Layout;
 class ImGuiImpl;
 class GUIService;
+template< typename ... T > class Action;
 
-static thread_local ImGuiContext * _ImGuiContext = nullptr;
+static thread_local ImGuiContext * G_ImGuiContext = nullptr;
 
 END_XE_NAMESPACE
 

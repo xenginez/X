@@ -1,5 +1,6 @@
 #include "GUIService.h"
 
+#include "Utils/Window.h"
 #include "Core/CoreFramework.h"
 #include "Core/ThreadService.h"
 
@@ -49,6 +50,7 @@ void XE::GUIService::Update()
 		if ( it->second == false )
 		{
 			it->first->SetImpl( _p->_Impl );
+			it->first->SetRect( { XE::Vec2i::Zero, GetScreenSize() } );
 
 			it->first->Startup();
 
@@ -85,6 +87,13 @@ void XE::GUIService::Clearup()
 	_p->_Impl->Clearup();
 
 	_p->_Impl = nullptr;
+}
+
+XE::Vec2i XE::GUIService::GetScreenSize() const
+{
+	auto sz = GetFramework()->GetMainWindow()->GetScreenSize();
+
+	return { static_cast<XE::int32>( sz.first ), static_cast<XE::int32>( sz.second ) };
 }
 
 XE::CanvasPtr XE::GUIService::FindCanvas( const XE::String & val )

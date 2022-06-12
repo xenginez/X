@@ -9,8 +9,6 @@
 #ifndef WIDGET_H__EE35767C_971B_43A8_8B3F_9278900E2FAE
 #define WIDGET_H__EE35767C_971B_43A8_8B3F_9278900E2FAE
 
-#include "Math/Rect.h"
-
 #include "Type.h"
 
 BEG_XE_NAMESPACE
@@ -58,6 +56,26 @@ public:
 
 	void SetName( const XE::String & val );
 
+	const XE::Vec2i & GetMinSize() const;
+
+	void SetMinSize( const XE::Vec2i & val );
+
+	const XE::Vec2i & GetMaxSize() const;
+
+	void SetMaxSize( const XE::Vec2i & val );
+
+	const XE::LayoutPtr & GetLayout() const;
+
+	void SetLayout( const XE::LayoutPtr & val );
+
+	XE::SizePolicy GetVerticalSizePolicy() const;
+
+	void SetVerticalSizePolicy( XE::SizePolicy val );
+
+	XE::SizePolicy GetHorizontalSizePolicy() const;
+
+	void SetHorizontalSizePolicy( XE::SizePolicy val );
+
 public:
 	XE::CanvasPtr GetCanvas() const;
 
@@ -68,12 +86,19 @@ public:
 	const XE::Array< XE::WidgetPtr > & GetChildren( XE::uint64 val ) const;
 
 protected:
-	void Rebuild();
+	virtual XE::Vec2i GetSizeHint() const;
 
 private:
 	bool _Enable = true;
-	XE::Recti _Rect;
 	XE::String _Name;
+
+	XE::Recti _Rect;
+	XE::Vec2i _MinSize = { 0, 0 };
+	XE::Vec2i _MaxSize = { std::numeric_limits<XE::int32>::max(), std::numeric_limits<XE::int32>::max() };
+	XE::LayoutPtr _Layout;
+	XE::SizePolicy _VerticalSizePolicy = SizePolicy::PREFERRED;
+	XE::SizePolicy _HorizontalSizePolicy = SizePolicy::PREFERRED;
+
 	XE::CanvasWPtr _Canvas;
 	XE::WidgetWPtr _Parent;
 	XE::Array< XE::WidgetPtr > _Children;

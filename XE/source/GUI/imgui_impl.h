@@ -9,8 +9,6 @@
 #ifndef IMGUI_IMPL_H__CD8160B4_FC65_4B9A_9A82_F9948618AFA2
 #define IMGUI_IMPL_H__CD8160B4_FC65_4B9A_9A82_F9948618AFA2
 
-#include "Core/GraphicsService.h"
-
 #include "Type.h"
 
 BEG_XE_NAMESPACE

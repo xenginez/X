@@ -11,13 +11,41 @@
 
 #include "Declare.h"
 
+#include "Math/Rect.h"
+#include "Utils/Flags.hpp"
+#include "Core/GraphicsService.h"
+
 #include "imgui.h"
 
 BEG_XE_NAMESPACE
 
+DECL_PTR( Model );
 DECL_PTR( Canvas );
 DECL_PTR( Widget );
+DECL_PTR( Layout );
 DECL_PTR( ImGuiImpl );
+
+enum class SizePolicy
+{
+	FIXED,
+	MINIMUM,
+	MAXIMUM,
+	PREFERRED,
+	EXPANDING,
+	IGNORED,
+};
+DECL_XE_ENUM( SizePolicy );
+
+enum class Alignment
+{
+	LEFT = 1 << 1,
+	RIGHT = 1 << 2,
+	TOP = 1 << 3,
+	BOTTOM = 1 << 4,
+	VERTICAL_CENTER = 1 << 5,
+	HORIZONTAL_CENTER = 1 << 6,
+};
+DECL_XE_ENUM( Alignment ); DECL_FLAGS( Alignment );
 
 END_XE_NAMESPACE
 
@@ -193,4 +221,5 @@ template<> struct XE::Serializable< ImGuiStyle >
 #undef V2_NVP
 #undef V3_NVP
 };
+
 #endif//TYPE_H__90AFD9B0_70C7_4A6D_8903_53584B412E43

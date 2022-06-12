@@ -9,14 +9,11 @@
 #ifndef CANVAS_H__9ADE5F45_80AB_424C_AFFA_C5DDC5B28E2D
 #define CANVAS_H__9ADE5F45_80AB_424C_AFFA_C5DDC5B28E2D
 
-#include "Math/Rect.h"
-#include "Core/GraphicsService.h"
-
 #include "Type.h"
 
 BEG_XE_NAMESPACE
 
-class XE_API Canvas : public XE::Object
+class XE_API Canvas final : public XE::Object
 {
 	OBJECT( Canvas, XE::Object )
 
@@ -49,6 +46,10 @@ public:
 
 	void SetStyle( const ImGuiStyle & val );
 
+	const XE::ModelPtr & GetModel() const;
+
+	void SetModel( const XE::ModelPtr & val );
+
 	const XE::ImGuiImplPtr & GetImpl() const;
 
 	void SetImpl( const XE::ImGuiImplPtr & val );
@@ -68,6 +69,7 @@ private:
 	XE::Recti _Rect;
 	XE::String _Name;
 	ImGuiStyle _Style;
+	XE::ModelPtr _Model;
 	XE::ImGuiImplPtr _Impl;
 	ImGuiContext * _Context = nullptr;
 	XE::Array< XE::WidgetPtr > _Widgets;

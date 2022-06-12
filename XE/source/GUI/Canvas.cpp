@@ -1,5 +1,6 @@
 #include "Canvas.h"
 
+#include "Model.h"
 #include "Widget.h"
 #include "imgui_impl.h"
 
@@ -7,6 +8,7 @@ BEG_META( XE::Canvas )
 type->Property( "Enable", &XE::Canvas::_Enable );
 type->Property( "Name", &XE::Canvas::_Name );
 type->Property( "Rect", &XE::Canvas::_Rect );
+type->Property( "Model", &XE::Canvas::_Model );
 type->Property( "Style", &XE::Canvas::_Style );
 type->Property( "Widgets", &XE::Canvas::_Widgets )->Attribute( XE::NonEditorAttribute() );
 END_META()
@@ -33,6 +35,8 @@ void XE::Canvas::Startup()
 
 		it->Startup();
 	}
+
+	_Model->Startup();
 }
 
 void XE::Canvas::Update()
@@ -77,12 +81,17 @@ void XE::Canvas::Clearup()
 	}
 
 	_Impl->ClearupContext( _Context );
-
-	ImGui::DestroyContext( _Context ); _Context = nullptr;
+	ImGui::DestroyContext( _Context );
 
 	_Widgets.clear();
 
+	_Model->Clearup();
+
+	_Context = nullptr;
+	_Model = nullptr;
+	_Impl = nullptr;
 	_Dirty = false;
+	_Enable = true;
 }
 
 bool XE::Canvas::GetEnable() const
@@ -127,6 +136,16 @@ const XE::String & XE::Canvas::GetName() const
 void XE::Canvas::SetName( const XE::String & val )
 {
 	_Name = val;
+}
+
+const XE::ModelPtr & XE::Canvas::GetModel() const
+{
+	return _Model;
+}
+
+void XE::Canvas::SetModel( const XE::ModelPtr & val )
+{
+	_Model = val;
 }
 
 const XE::ImGuiImplPtr & XE::Canvas::GetImpl() const
