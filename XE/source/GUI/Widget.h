@@ -63,11 +63,9 @@ public:
 
 	XE::WidgetPtr GetParent() const;
 
-	XE::uint64 GetChildCount() const;
-
-	XE::WidgetPtr GetChild( XE::uint64 val ) const;
-
 	XE::WidgetPtr FindChild( const XE::String & val ) const;
+
+	const XE::Array< XE::WidgetPtr > & GetChildren( XE::uint64 val ) const;
 
 protected:
 	void Rebuild();

@@ -17,6 +17,7 @@ BEG_XE_NAMESPACE
 
 class Canvas;
 class Widget;
+class ImGuiImpl;
 class GUIService;
 
 static thread_local ImGuiContext * _ImGuiContext = nullptr;

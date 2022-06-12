@@ -28,7 +28,6 @@
 #include "RefCount.h"
 #include "Handle.hpp"
 #include "TaskGuard.h"
-#include "Signals.hpp"
 #include "Promise.hpp"
 #include "Disposable.h"
 #include "Concurrent.hpp"

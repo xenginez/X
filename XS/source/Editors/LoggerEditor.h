@@ -41,7 +41,7 @@ private slots:
 	void OnListViewItemDoubleClicked( const QModelIndex & index );
 
 private:
-	void OnLoggerListener( std::chrono::system_clock::time_point time, const char * file, XE::uint32 line, const char * func, XE::LoggerLevel level, XE::Utf8String msg );
+	void OnLoggerListener( std::chrono::system_clock::time_point time, const char * file, XE::uint32 line, const char * func, XE::LoggerLevel level, const XE::Utf8String & msg );
 
 private:
 	Ui::LoggerEditor * ui;

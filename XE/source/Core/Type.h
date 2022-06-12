@@ -1158,7 +1158,8 @@ struct XE_API GraphicsRequiredLimits
 
 struct XE_API GraphicsShaderModuleDescriptor
 {
-    XE::String Label;
+	XE::String Label;
+	XE::MemoryView Code;
     XE::Array< XE::GraphicsShaderModuleCompilationHint > Hints;
 };
 

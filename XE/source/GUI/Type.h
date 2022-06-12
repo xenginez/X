@@ -17,6 +17,7 @@ BEG_XE_NAMESPACE
 
 DECL_PTR( Canvas );
 DECL_PTR( Widget );
+DECL_PTR( ImGuiImpl );
 
 END_XE_NAMESPACE
 

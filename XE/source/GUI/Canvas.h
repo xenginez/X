@@ -10,6 +10,7 @@
 #define CANVAS_H__9ADE5F45_80AB_424C_AFFA_C5DDC5B28E2D
 
 #include "Math/Rect.h"
+#include "Core/GraphicsService.h"
 
 #include "Type.h"
 
@@ -18,9 +19,6 @@ BEG_XE_NAMESPACE
 class XE_API Canvas : public XE::Object
 {
 	OBJECT( Canvas, XE::Object )
-
-private:
-	struct Private;
 
 public:
 	Canvas();
@@ -51,6 +49,10 @@ public:
 
 	void SetStyle( const ImGuiStyle & val );
 
+	const XE::ImGuiImplPtr & GetImpl() const;
+
+	void SetImpl( const XE::ImGuiImplPtr & val );
+
 public:
 	const XE::Array< XE::WidgetPtr > & GetWidgets() const;
 
@@ -60,10 +62,16 @@ public:
 	void Rebuild();
 
 private:
-	void SetWidgets( const XE::Array< XE::WidgetPtr > & val );
+	bool _Dirty = false;
 
-private:
-	Private * _p;
+	bool _Enable = true;
+	XE::Recti _Rect;
+	XE::String _Name;
+	ImGuiStyle _Style;
+	XE::ImGuiImplPtr _Impl;
+	ImGuiContext * _Context = nullptr;
+	XE::Array< XE::WidgetPtr > _Widgets;
+	XE::GraphicsRenderPassEncoderHandle _PassEncoder;
 };
 
 END_XE_NAMESPACE

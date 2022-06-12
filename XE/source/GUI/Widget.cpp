@@ -102,6 +102,8 @@ const XE::Recti & XE::Widget::GetRect() const
 void XE::Widget::SetRect( const XE::Recti & val )
 {
 	_Rect = val;
+
+	Rebuild();
 }
 
 const XE::String & XE::Widget::GetName() const
@@ -124,16 +126,6 @@ XE::WidgetPtr XE::Widget::GetParent() const
 	return _Parent.lock();
 }
 
-XE::uint64 XE::Widget::GetChildCount() const
-{
-	return _Children.size();
-}
-
-XE::WidgetPtr XE::Widget::GetChild( XE::uint64 val ) const
-{
-	return _Children[val];
-}
-
 XE::WidgetPtr XE::Widget::FindChild( const XE::String & val ) const
 {
 	auto end = val.find( '/' );
@@ -146,6 +138,11 @@ XE::WidgetPtr XE::Widget::FindChild( const XE::String & val ) const
 	}
 
 	return nullptr;
+}
+
+const XE::Array< XE::WidgetPtr > & XE::Widget::GetChildren( XE::uint64 val ) const
+{
+	return _Children;
 }
 
 void XE::Widget::Rebuild()

@@ -4,11 +4,13 @@
 #include "Core/ThreadService.h"
 
 #include "Canvas.h"
+#include "imgui_impl.h"
 
 IMPLEMENT_META( XE::GUIService );
 
 struct XE::GUIService::Private
 {
+	XE::ImGuiImplPtr _Impl;
 	XE::ConcurrentQueue< XE::CanvasPtr > _FreeCanvas;
 	XE::ConcurrentList< XE::Pair< XE::CanvasPtr, bool > > _Canvas;
 };
@@ -34,7 +36,9 @@ void XE::GUIService::Prepare()
 
 void XE::GUIService::Startup()
 {
+	_p->_Impl = XE::MakeShared< XE::ImGuiImpl >();
 
+	_p->_Impl->Startup( {}, 2, GraphicsTextureFormat::RGBA8UNORM );
 }
 
 void XE::GUIService::Update()
@@ -44,14 +48,14 @@ void XE::GUIService::Update()
 	{
 		if ( it->second == false )
 		{
+			it->first->SetImpl( _p->_Impl );
+
 			it->first->Startup();
+
 			it->second = true;
 		}
 
 		it->first->Update();
-
-		// TODO: ImGui::GetDrawData();
-
 	} ).wait();
 
 	XE::CanvasPtr canvas;
@@ -77,6 +81,10 @@ void XE::GUIService::Clearup()
 	{
 		canvas->Clearup();
 	}
+
+	_p->_Impl->Clearup();
+
+	_p->_Impl = nullptr;
 }
 
 XE::CanvasPtr XE::GUIService::FindCanvas( const XE::String & val )
