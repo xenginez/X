@@ -9,9 +9,7 @@
 #ifndef GUI_H__73BFD81B_D82C_49DA_91F8_CEC734E9BA7A
 #define GUI_H__73BFD81B_D82C_49DA_91F8_CEC734E9BA7A
 
-#include "imgui.h"
 #include "imgui_impl.h"
-#include "imgui_internal.h"
 
 #include "Model.h"
 #include "Canvas.h"

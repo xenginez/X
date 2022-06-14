@@ -75,6 +75,47 @@ public:
 	}
 
 public:
+	value_type GetLeft() const
+	{
+		return x;
+	}
+
+	void SetLeft( value_type val )
+	{
+		x = val;
+	}
+
+	value_type GetRight() const
+	{
+		return x + width;
+	}
+
+	void SetRight( value_type val )
+	{
+		width = val - x;
+	}
+
+	value_type GetTop() const
+	{
+		return y;
+	}
+
+	void SetTop( value_type val )
+	{
+		y = val;
+	}
+
+	value_type GetBottom() const
+	{
+		return y + height;
+	}
+
+	void SetBottom( value_type val )
+	{
+		height = val - y;
+	}
+
+public:
 	Vec2< value_type > GetMin() const
 	{
 		return { x, y };

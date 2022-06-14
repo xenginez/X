@@ -1,8 +1,8 @@
 #include "imgui_impl.h"
 
-#include "imgui_internal.h"
-
 #include "Core/CoreFramework.h"
+
+IMPLEMENT_META( ImGuiStyle );
 
 #define GRAPHICS_SERVICE (XE::CoreFramework::GetCurrentFramework()->GetServiceT< XE::GraphicsService >())
 

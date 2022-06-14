@@ -2,6 +2,7 @@
 
 #include "Model.h"
 #include "Widget.h"
+#include "Layout.h"
 #include "imgui_impl.h"
 
 BEG_META( XE::Canvas )
@@ -9,18 +10,20 @@ type->Property( "Enable", &XE::Canvas::_Enable );
 type->Property( "Name", &XE::Canvas::_Name );
 type->Property( "Rect", &XE::Canvas::_Rect );
 type->Property( "Model", &XE::Canvas::_Model );
-type->Property( "Style", &XE::Canvas::_Style );
+type->Property( "Style", &XE::Canvas::GetStyle, &XE::Canvas::SetStyle );
+type->Property( "Layout", &XE::Canvas::_Layout );
 type->Property( "Widgets", &XE::Canvas::_Widgets )->Attribute( XE::NonEditorAttribute() );
 END_META()
 
 XE::Canvas::Canvas()
+	: _Style( XE::New< ImGuiStyle >() )
 {
 
 }
 
 XE::Canvas::~Canvas()
 {
-
+	XE::Delete( _Style );
 }
 
 void XE::Canvas::Startup()
@@ -43,9 +46,11 @@ void XE::Canvas::Update()
 {
 	if ( GetEnable() && _Dirty )
 	{
+		_Layout->Rebuild( this );
+
 		ImGui::SetCurrentContext( _Context );
 		{
-			ImGui::GetStyle() = _Style;
+			ImGui::GetStyle() = GetStyle();
 
 			ImGui::NewFrame();
 			{
@@ -108,12 +113,12 @@ void XE::Canvas::SetEnable( bool val )
 
 const ImGuiStyle & XE::Canvas::GetStyle() const
 {
-	return _Style;
+	return *_Style;
 }
 
 void XE::Canvas::SetStyle( const ImGuiStyle & val )
 {
-	_Style = val;
+	*_Style = val;
 }
 
 const XE::Recti & XE::Canvas::GetRect() const
@@ -146,6 +151,16 @@ const XE::ModelPtr & XE::Canvas::GetModel() const
 void XE::Canvas::SetModel( const XE::ModelPtr & val )
 {
 	_Model = val;
+}
+
+const XE::LayoutPtr & XE::Canvas::GetLayout() const
+{
+	return _Layout;
+}
+
+void XE::Canvas::SetLayout( const XE::LayoutPtr & val )
+{
+	_Layout = val;
 }
 
 const XE::ImGuiImplPtr & XE::Canvas::GetImpl() const

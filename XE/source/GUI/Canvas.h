@@ -50,6 +50,10 @@ public:
 
 	void SetModel( const XE::ModelPtr & val );
 
+	const XE::LayoutPtr & GetLayout() const;
+
+	void SetLayout( const XE::LayoutPtr & val );
+
 	const XE::ImGuiImplPtr & GetImpl() const;
 
 	void SetImpl( const XE::ImGuiImplPtr & val );
@@ -68,12 +72,14 @@ private:
 	bool _Enable = true;
 	XE::Recti _Rect;
 	XE::String _Name;
-	ImGuiStyle _Style;
 	XE::ModelPtr _Model;
+	XE::LayoutPtr _Layout;
 	XE::ImGuiImplPtr _Impl;
-	ImGuiContext * _Context = nullptr;
 	XE::Array< XE::WidgetPtr > _Widgets;
 	XE::GraphicsRenderPassEncoderHandle _PassEncoder;
+
+	ImGuiStyle * _Style = nullptr;
+	ImGuiContext * _Context = nullptr;
 };
 
 END_XE_NAMESPACE

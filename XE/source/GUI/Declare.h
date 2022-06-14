@@ -11,6 +11,7 @@
 
 #include "Utils/Declare.h"
 
+struct ImGuiStyle;
 struct ImGuiContext;
 
 BEG_XE_NAMESPACE

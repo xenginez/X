@@ -56,52 +56,147 @@ public:
 
 	void SetName( const XE::String & val );
 
-	const XE::Vec2i & GetMinSize() const;
+	const XE::Recti & GetPadding() const;
 
-	void SetMinSize( const XE::Vec2i & val );
+	void SetPadding( const XE::Recti & val );
 
-	const XE::Vec2i & GetMaxSize() const;
+	const XE::Recti & GetMargins() const;
 
-	void SetMaxSize( const XE::Vec2i & val );
+	void SetMargins( const XE::Recti & val );
 
-	const XE::LayoutPtr & GetLayout() const;
+	XE::int32 GetWidth() const;
 
-	void SetLayout( const XE::LayoutPtr & val );
+	void SetWidth( XE::int32 val );
 
-	XE::SizePolicy GetVerticalSizePolicy() const;
+	XE::int32 GetHeight() const;
 
-	void SetVerticalSizePolicy( XE::SizePolicy val );
+	void SetHeight( XE::int32 val );
 
-	XE::SizePolicy GetHorizontalSizePolicy() const;
+	XE::int32 GetLeft() const;
 
-	void SetHorizontalSizePolicy( XE::SizePolicy val );
+	void SetLeft( XE::int32 val );
+
+	XE::int32 GetRight() const;
+
+	void SetRight( XE::int32 val );
+
+	XE::int32 GetTop() const;
+
+	void SetTop( XE::int32 val );
+
+	XE::int32 GetBottom() const;
+
+	void SetBottom( XE::int32 val );
+
+	XE::int32 GetPaddingLeft() const;
+
+	void SetPaddingLeft( XE::int32 val );
+
+	XE::int32 GetPaddingRight() const;
+
+	void SetPaddingRight( XE::int32 val );
+
+	XE::int32 GetPaddingTop() const;
+
+	void SetPaddingTop( XE::int32 val );
+
+	XE::int32 GetPaddingBottom() const;
+
+	void SetPaddingBottom( XE::int32 val );
+
+	XE::int32 GetMarginLeft() const;
+
+	void SetMarginLeft( XE::int32 val );
+
+	XE::int32 GetMarginRight() const;
+
+	void SetMarginRight( XE::int32 val );
+
+	XE::int32 GetMarginTop() const;
+
+	void SetMarginTop( XE::int32 val );
+
+	XE::int32 GetMarginBottom() const;
+
+	void SetMarginBottom( XE::int32 val );
+
+	XE::FlexAlign GetJustifyContent() const;
+
+	void SetJustifyContent( XE::FlexAlign val );
+
+	XE::FlexAlign GetAlignContent() const;
+
+	void SetAlignContent( XE::FlexAlign val );
+
+	XE::FlexAlign GetAlignItems() const;
+
+	void SetAlignItems( XE::FlexAlign val );
+
+	XE::FlexAlign GetAlignSelf() const;
+
+	void SetAlignSelf( XE::FlexAlign val );
+
+	XE::FlexPosition GetFlexPosition() const;
+
+	void SetFlexPosition( XE::FlexPosition val );
+
+	XE::FlexDirection GetFlexDirection() const;
+
+	void SetFlexDirection( XE::FlexDirection val );
+
+	XE::FlexWrap GetFlexWrap() const;
+
+	void SetFlexWrap( XE::FlexWrap val );
+
+	XE::float32 GetGrow() const;
+
+	void SetGrow( XE::float32 val );
+
+	XE::float32 GetShrink() const;
+
+	void SetShrink( XE::float32 val );
+
+	XE::int32 GetOrder() const;
+
+	void SetOrder( XE::int32 val );
+
+	XE::float32 GetBasis() const;
+
+	void SetBasis( XE::float32 val );
 
 public:
+	XE::Recti GetFrameRect() const;
+
 	XE::CanvasPtr GetCanvas() const;
 
 	XE::WidgetPtr GetParent() const;
 
+	const XE::Array< XE::WidgetPtr > & GetChildren() const;
+
 	XE::WidgetPtr FindChild( const XE::String & val ) const;
-
-	const XE::Array< XE::WidgetPtr > & GetChildren( XE::uint64 val ) const;
-
-protected:
-	virtual XE::Vec2i GetSizeHint() const;
 
 private:
 	bool _Enable = true;
 	XE::String _Name;
 
 	XE::Recti _Rect;
-	XE::Vec2i _MinSize = { 0, 0 };
-	XE::Vec2i _MaxSize = { std::numeric_limits<XE::int32>::max(), std::numeric_limits<XE::int32>::max() };
-	XE::LayoutPtr _Layout;
-	XE::SizePolicy _VerticalSizePolicy = SizePolicy::PREFERRED;
-	XE::SizePolicy _HorizontalSizePolicy = SizePolicy::PREFERRED;
-
 	XE::CanvasWPtr _Canvas;
 	XE::WidgetWPtr _Parent;
 	XE::Array< XE::WidgetPtr > _Children;
+
+	XE::Recti _Padding;
+	XE::Recti _Margins;
+	XE::FlexAlign _JustifyContent = XE::FlexAlign::START;
+	XE::FlexAlign _AlignContent = XE::FlexAlign::STRETCH;
+	XE::FlexAlign _AlignItems = XE::FlexAlign::STRETCH;
+	XE::FlexAlign _AlignSelf = XE::FlexAlign::AUTO;
+	XE::FlexPosition _Position = XE::FlexPosition::RELATIVE;
+	XE::FlexDirection _Direction = XE::FlexDirection::COLUMN;
+	XE::FlexWrap _Wrap = XE::FlexWrap::NO_WRAP;
+	XE::float32 _Grow = 0.0f;
+	XE::float32 _Shrink = 1.0f;
+	XE::int32 _Order = 0;
+	XE::float32 _Basis = std::numeric_limits<XE::float32>::quiet_NaN();
 };
 
 END_XE_NAMESPACE

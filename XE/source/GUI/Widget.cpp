@@ -1,17 +1,12 @@
 #include "Widget.h"
 
-#include "Layout.h"
 #include "Canvas.h"
+#include "Layout.h"
 
 BEG_META( XE::Widget )
 type->Property( "Name", &XE::Widget::_Name );
 type->Property( "Enable", &XE::Widget::_Enable );
 type->Property( "Rect", &XE::Widget::_Rect );
-type->Property( "MinSize", &XE::Widget::_MinSize );
-type->Property( "MaxSize", &XE::Widget::_MaxSize );
-type->Property( "VerticalSizePolicy", &XE::Widget::_VerticalSizePolicy );
-type->Property( "HorizontalSizePolicy", &XE::Widget::_HorizontalSizePolicy );
-type->Property( "Layout", &XE::Widget::_Layout );
 type->Property( "Children", &XE::Widget::_Children )->Attribute( XE::NonEditorAttribute() );
 END_META()
 
@@ -42,15 +37,6 @@ void XE::Widget::Update()
 	if ( GetEnable() )
 	{
 		OnUpdate();
-
-		if ( _Layout )
-		{
-			auto rects = _Layout->CalcContentRects( _Rect, _Children );
-			for ( size_t i = 0; i < _Children.size(); i++ )
-			{
-				_Children[i]->SetRect( rects[i] );
-			}
-		}
 
 		for ( const auto & it : _Children )
 		{
@@ -140,54 +126,287 @@ void XE::Widget::SetName( const XE::String & val )
 	_Name = val;
 }
 
-const XE::Vec2i & XE::Widget::GetMinSize() const
+const XE::Recti & XE::Widget::GetPadding() const
 {
-	return _MinSize;
+	return _Padding;
 }
 
-void XE::Widget::SetMinSize( const XE::Vec2i & val )
+void XE::Widget::SetPadding( const XE::Recti & val )
 {
-	_MinSize = val;
+	_Padding = val;
 }
 
-const XE::Vec2i & XE::Widget::GetMaxSize() const
+const XE::Recti & XE::Widget::GetMargins() const
 {
-	return _MaxSize;
+	return _Margins;
 }
 
-void XE::Widget::SetMaxSize( const XE::Vec2i & val )
+void XE::Widget::SetMargins( const XE::Recti & val )
 {
-	_MaxSize = val;
+	_Margins = val;
 }
 
-const XE::LayoutPtr & XE::Widget::GetLayout() const
+XE::int32 XE::Widget::GetWidth() const
 {
-	return _Layout;
+	return _Rect.width;
 }
 
-void XE::Widget::SetLayout( const XE::LayoutPtr & val )
+void XE::Widget::SetWidth( XE::int32 val )
 {
-	_Layout = val;
+	_Rect.width = val;
 }
 
-XE::SizePolicy XE::Widget::GetVerticalSizePolicy() const
+XE::int32 XE::Widget::GetHeight() const
 {
-	return _VerticalSizePolicy;
+	return _Rect.height;
 }
 
-void XE::Widget::SetVerticalSizePolicy( XE::SizePolicy val )
+void XE::Widget::SetHeight( XE::int32 val )
 {
-	_VerticalSizePolicy = val;
+	_Rect.height = val;
 }
 
-XE::SizePolicy XE::Widget::GetHorizontalSizePolicy() const
+XE::int32 XE::Widget::GetLeft() const
 {
-	return _HorizontalSizePolicy;
+	return _Rect.GetLeft();
 }
 
-void XE::Widget::SetHorizontalSizePolicy( XE::SizePolicy val )
+void XE::Widget::SetLeft( XE::int32 val )
 {
-	_HorizontalSizePolicy = val;
+	_Rect.SetLeft( val );
+}
+
+XE::int32 XE::Widget::GetRight() const
+{
+	return _Rect.GetRight();
+}
+
+void XE::Widget::SetRight( XE::int32 val )
+{
+	_Rect.SetRight( val );
+}
+
+XE::int32 XE::Widget::GetTop() const
+{
+	return _Rect.GetTop();
+}
+
+void XE::Widget::SetTop( XE::int32 val )
+{
+	_Rect.SetTop( val );
+}
+
+XE::int32 XE::Widget::GetBottom() const
+{
+	return _Rect.GetBottom();
+}
+
+void XE::Widget::SetBottom( XE::int32 val )
+{
+	_Rect.SetBottom( val );
+}
+
+XE::int32 XE::Widget::GetPaddingLeft() const
+{
+	return _Padding.GetLeft();
+}
+
+void XE::Widget::SetPaddingLeft( XE::int32 val )
+{
+	_Padding.SetLeft( val );
+}
+
+XE::int32 XE::Widget::GetPaddingRight() const
+{
+	return _Padding.GetRight();
+}
+
+void XE::Widget::SetPaddingRight( XE::int32 val )
+{
+	_Padding.SetRight( val );
+}
+
+XE::int32 XE::Widget::GetPaddingTop() const
+{
+	return _Padding.GetTop();
+}
+
+void XE::Widget::SetPaddingTop( XE::int32 val )
+{
+	_Padding.SetTop( val );
+}
+
+XE::int32 XE::Widget::GetPaddingBottom() const
+{
+	return _Padding.GetBottom();
+}
+
+void XE::Widget::SetPaddingBottom( XE::int32 val )
+{
+	_Padding.SetBottom( val );
+}
+
+XE::int32 XE::Widget::GetMarginLeft() const
+{
+	return _Margins.GetLeft();
+}
+
+void XE::Widget::SetMarginLeft( XE::int32 val )
+{
+	_Margins.SetLeft( val );
+}
+
+XE::int32 XE::Widget::GetMarginRight() const
+{
+	return _Margins.GetRight();
+}
+
+void XE::Widget::SetMarginRight( XE::int32 val )
+{
+	_Margins.SetRight( val );
+}
+
+XE::int32 XE::Widget::GetMarginTop() const
+{
+	return _Margins.GetTop();
+}
+
+void XE::Widget::SetMarginTop( XE::int32 val )
+{
+	_Margins.SetTop( val );
+}
+
+XE::int32 XE::Widget::GetMarginBottom() const
+{
+	return _Margins.GetBottom();
+}
+
+void XE::Widget::SetMarginBottom( XE::int32 val )
+{
+	_Margins.SetBottom( val );
+}
+
+XE::FlexAlign XE::Widget::GetJustifyContent() const
+{
+	return _JustifyContent;
+}
+
+void XE::Widget::SetJustifyContent( XE::FlexAlign val )
+{
+	_JustifyContent = val;
+}
+
+XE::FlexAlign XE::Widget::GetAlignContent() const
+{
+	return _AlignContent;
+}
+
+void XE::Widget::SetAlignContent( XE::FlexAlign val )
+{
+	_AlignContent = val;
+}
+
+XE::FlexAlign XE::Widget::GetAlignItems() const
+{
+	return _AlignItems;
+}
+
+void XE::Widget::SetAlignItems( XE::FlexAlign val )
+{
+	_AlignItems = val;
+}
+
+XE::FlexAlign XE::Widget::GetAlignSelf() const
+{
+	return _AlignSelf;
+}
+
+void XE::Widget::SetAlignSelf( XE::FlexAlign val )
+{
+	_AlignSelf = val;
+}
+
+XE::FlexPosition XE::Widget::GetFlexPosition() const
+{
+	return _Position;
+}
+
+void XE::Widget::SetFlexPosition( XE::FlexPosition val )
+{
+	_Position = val;
+}
+
+XE::FlexDirection XE::Widget::GetFlexDirection() const
+{
+	return _Direction;
+}
+
+void XE::Widget::SetFlexDirection( XE::FlexDirection val )
+{
+	_Direction = val;
+}
+
+XE::FlexWrap XE::Widget::GetFlexWrap() const
+{
+	return _Wrap;
+}
+
+void XE::Widget::SetFlexWrap( XE::FlexWrap val )
+{
+	_Wrap = val;
+}
+
+XE::float32 XE::Widget::GetGrow() const
+{
+	return _Grow;
+}
+
+void XE::Widget::SetGrow( XE::float32 val )
+{
+	_Grow = val;
+}
+
+XE::float32 XE::Widget::GetShrink() const
+{
+	return _Shrink;
+}
+
+void XE::Widget::SetShrink( XE::float32 val )
+{
+	_Shrink = val;
+}
+
+XE::int32 XE::Widget::GetOrder() const
+{
+	return _Order;
+}
+
+void XE::Widget::SetOrder( XE::int32 val )
+{
+	_Order = val;
+}
+
+XE::float32 XE::Widget::GetBasis() const
+{
+	return _Basis;
+}
+
+void XE::Widget::SetBasis( XE::float32 val )
+{
+	_Basis = val;
+}
+
+XE::Recti XE::Widget::GetFrameRect() const
+{
+	if ( auto canvas = GetCanvas() )
+	{
+		if ( auto layout = canvas->GetLayout() )
+		{
+			return layout->GetFrameRect( this );
+		}
+	}
+
+	return _Rect;
 }
 
 XE::CanvasPtr XE::Widget::GetCanvas() const
@@ -198,6 +417,11 @@ XE::CanvasPtr XE::Widget::GetCanvas() const
 XE::WidgetPtr XE::Widget::GetParent() const
 {
 	return _Parent.lock();
+}
+
+const XE::Array< XE::WidgetPtr > & XE::Widget::GetChildren() const
+{
+	return _Children;
 }
 
 XE::WidgetPtr XE::Widget::FindChild( const XE::String & val ) const
@@ -212,57 +436,4 @@ XE::WidgetPtr XE::Widget::FindChild( const XE::String & val ) const
 	}
 
 	return nullptr;
-}
-
-const XE::Array< XE::WidgetPtr > & XE::Widget::GetChildren( XE::uint64 val ) const
-{
-	return _Children;
-}
-
-XE::Vec2i XE::Widget::GetSizeHint() const
-{
-	XE::Vec2i size;
-
-	for ( const auto & it : _Children )
-	{
-		auto sz = it->GetSizeHint();
-		size.x = std::max( size.x, sz.x );
-		size.y = std::max( size.y, sz.y );
-	}
-
-	switch ( _HorizontalSizePolicy )
-	{
-	case XE::SizePolicy::FIXED:
-		size.x = _Rect.width;
-		break;
-	case XE::SizePolicy::MINIMUM:
-		size.x = _MinSize.x;
-		break;
-	case XE::SizePolicy::MAXIMUM:
-		size.x = _MaxSize.x;
-		break;
-	case XE::SizePolicy::PREFERRED:
-	case XE::SizePolicy::EXPANDING:
-	case XE::SizePolicy::IGNORED:
-		break;
-	}
-
-	switch ( _VerticalSizePolicy )
-	{
-	case XE::SizePolicy::FIXED:
-		size.y = _Rect.height;
-		break;
-	case XE::SizePolicy::MINIMUM:
-		size.y = _MinSize.y;
-		break;
-	case XE::SizePolicy::MAXIMUM:
-		size.y = _MaxSize.y;
-		break;
-	case XE::SizePolicy::PREFERRED:
-	case XE::SizePolicy::EXPANDING:
-	case XE::SizePolicy::IGNORED:
-		break;
-	}
-
-	return size;
 }
