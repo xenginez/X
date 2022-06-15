@@ -59,9 +59,9 @@ public:
 	void SetImpl( const XE::ImGuiImplPtr & val );
 
 public:
-	const XE::Array< XE::WidgetPtr > & GetWidgets() const;
+	const XE::Array< XE::WidgetPtr > & GetChildren() const;
 
-	XE::WidgetPtr FindWidget( const XE::String & val ) const;
+	XE::WidgetPtr FindChild( const XE::String & val ) const;
 
 public:
 	void Rebuild();
@@ -75,11 +75,12 @@ private:
 	XE::ModelPtr _Model;
 	XE::LayoutPtr _Layout;
 	XE::ImGuiImplPtr _Impl;
-	XE::Array< XE::WidgetPtr > _Widgets;
-	XE::GraphicsRenderPassEncoderHandle _PassEncoder;
+	XE::Array< XE::WidgetPtr > _Children;
 
 	ImGuiStyle * _Style = nullptr;
 	ImGuiContext * _Context = nullptr;
+
+	XE::GraphicsRenderPassEncoderHandle _PassEncoder;
 };
 
 END_XE_NAMESPACE

@@ -22,6 +22,7 @@ DECL_PTR( Canvas );
 DECL_PTR( Widget );
 DECL_PTR( Layout );
 DECL_PTR( ImGuiImpl );
+DECL_PTR( LayoutItem );
 
 enum class FlexWrap
 {

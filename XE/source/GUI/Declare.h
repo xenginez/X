@@ -12,6 +12,7 @@
 #include "Utils/Declare.h"
 
 struct ImGuiStyle;
+struct ImFontAtlas;
 struct ImGuiContext;
 
 BEG_XE_NAMESPACE
@@ -21,10 +22,9 @@ class Canvas;
 class Widget;
 class Layout;
 class ImGuiImpl;
+class LayoutItem;
 class GUIService;
 template< typename ... T > class Action;
-
-static thread_local ImGuiContext * G_ImGuiContext = nullptr;
 
 END_XE_NAMESPACE
 

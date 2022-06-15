@@ -37,6 +37,8 @@ public:
 public:
 	XE::Vec2i GetScreenSize() const;
 
+	ImFontAtlas * GetFontAtlas() const;
+
 public:
 	XE::CanvasPtr FindCanvas( const XE::String & val );
 

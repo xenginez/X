@@ -11,6 +11,7 @@ IMPLEMENT_META( XE::GUIService );
 
 struct XE::GUIService::Private
 {
+	ImFontAtlas _FontAtlas;
 	XE::ImGuiImplPtr _Impl;
 	XE::ConcurrentQueue< XE::CanvasPtr > _FreeCanvas;
 	XE::ConcurrentList< XE::Pair< XE::CanvasPtr, bool > > _Canvas;
@@ -94,6 +95,11 @@ XE::Vec2i XE::GUIService::GetScreenSize() const
 	auto sz = GetFramework()->GetMainWindow()->GetScreenSize();
 
 	return { static_cast<XE::int32>( sz.first ), static_cast<XE::int32>( sz.second ) };
+}
+
+ImFontAtlas * XE::GUIService::GetFontAtlas() const
+{
+	return &_p->_FontAtlas;
 }
 
 XE::CanvasPtr XE::GUIService::FindCanvas( const XE::String & val )

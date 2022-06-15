@@ -29,6 +29,8 @@ template< typename T > operator XE::Vec2<T>() const { return XE::Vec2<T>( x, y )
 template< typename T > constexpr ImVec4( const XE::Vec4<T> & f ) : x( f.x ), y( f.y ), z( f.z ), w( f.w ) {} \
 template< typename T > operator XE::Vec4<T>() const { return XE::Vec4<T>( x, y, z, w ); }
 
-#define GImGui XE::G_ImGuiContext
+static thread_local ImGuiContext * G_XE_ImGuiContext = nullptr;
+
+#define GImGui G_XE_ImGuiContext
 
 #endif//IMCONFIG_H__C69A0346_AA03_492B_B19D_55EF0C654605
