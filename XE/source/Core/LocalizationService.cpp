@@ -14,7 +14,7 @@ END_META()
 struct XE::LocalizationService::Private
 {
 	XE::Language _Language;
-	std::array< XE::UnorderedMap< XE::String, XE::String >, ( XE::uint64 )XE::Language::UNKNOWN > _Maps;
+	std::array< XE::UnorderedMap< XE::Utf8String, XE::Utf8String >, ( XE::uint64 )XE::Language::UNKNOWN > _Maps;
 };
 
 XE::LocalizationService::LocalizationService()
@@ -74,7 +74,7 @@ void XE::LocalizationService::SetCurrentLanguage( XE::Language val )
 	GetFramework()->SetString( "System/Language", EnumID< XE::Language >::Get()->FindName( _p->_Language ) );
 }
 
-const XE::String & XE::LocalizationService::LocalizedString( const XE::String & key ) const
+const XE::Utf8String & XE::LocalizationService::LocalizedString( const XE::Utf8String & key ) const
 {
 	auto it = _p->_Maps[( XE::uint64 )_p->_Language].find( key );
 

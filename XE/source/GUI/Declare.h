@@ -11,12 +11,14 @@
 
 #include "Utils/Declare.h"
 
+struct ImFont;
 struct ImGuiStyle;
 struct ImFontAtlas;
 struct ImGuiContext;
 
 BEG_XE_NAMESPACE
 
+class Font;
 class Model;
 class Canvas;
 class Widget;

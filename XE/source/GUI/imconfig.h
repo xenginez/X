@@ -27,7 +27,9 @@ template< typename T > constexpr ImVec2( const XE::Vec2<T> & f ) : x( f.x ), y( 
 template< typename T > operator XE::Vec2<T>() const { return XE::Vec2<T>( x, y ); }
 #define IM_VEC4_CLASS_EXTRA \
 template< typename T > constexpr ImVec4( const XE::Vec4<T> & f ) : x( f.x ), y( f.y ), z( f.z ), w( f.w ) {} \
-template< typename T > operator XE::Vec4<T>() const { return XE::Vec4<T>( x, y, z, w ); }
+template< typename T > operator XE::Vec4<T>() const { return XE::Vec4<T>( x, y, z, w ); } \
+template< typename T > constexpr ImVec4( const XE::Color & f ) : x( f.r ), y( f.g ), z( f.b ), w( f.a ) {} \
+template< typename T > operator XE::Color() const { return XE::Color( x, y, z, w ); }
 
 static thread_local ImGuiContext * G_XE_ImGuiContext = nullptr;
 

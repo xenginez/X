@@ -40,7 +40,7 @@ public:
 	virtual void SetCurrentLanguage( XE::Language val );
 
 public:
-	virtual const String & LocalizedString( const XE::String & key ) const;
+	virtual const XE::Utf8String & LocalizedString( const XE::Utf8String & key ) const;
 
 private:
 	void LoadLocalized();

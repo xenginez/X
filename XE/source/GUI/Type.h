@@ -24,6 +24,20 @@ DECL_PTR( Layout );
 DECL_PTR( ImGuiImpl );
 DECL_PTR( LayoutItem );
 
+enum class VAlignment
+{
+	TOP,
+	BOTTOM,
+	CENTER,
+};
+
+enum class HAlignment
+{
+	LEFT,
+	RIGHT,
+	CENTER,
+};
+
 enum class FlexWrap
 {
 	NO_WRAP,

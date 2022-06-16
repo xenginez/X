@@ -141,6 +141,8 @@ const XE::LayoutPtr & XE::Widget::GetLayout() const
 void XE::Widget::SetLayout( const XE::LayoutPtr & val )
 {
 	_Layout = val;
+
+	GetCanvas()->Rebuild();
 }
 
 const XE::LayoutItemPtr & XE::Widget::GetLayoutItem() const
@@ -151,6 +153,8 @@ const XE::LayoutItemPtr & XE::Widget::GetLayoutItem() const
 void XE::Widget::SetLayoutItem( const XE::LayoutItemPtr & val )
 {
 	_LayoutItem = val;
+
+	GetCanvas()->Rebuild();
 }
 
 const XE::Recti & XE::Widget::GetRect() const
@@ -207,6 +211,11 @@ XE::CanvasPtr XE::Widget::GetCanvas() const
 XE::WidgetPtr XE::Widget::GetParent() const
 {
 	return _Parent.lock();
+}
+
+XE::CoreFrameworkPtr XE::Widget::GetFramework() const
+{
+	return XE::CoreFramework::GetCurrentFramework();
 }
 
 const XE::Array< XE::WidgetPtr > & XE::Widget::GetChildren() const

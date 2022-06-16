@@ -11,8 +11,9 @@ IMPLEMENT_META( XE::GUIService );
 
 struct XE::GUIService::Private
 {
-	ImFontAtlas _FontAtlas;
 	XE::ImGuiImplPtr _Impl;
+	ImFontAtlas _FontAtlas;
+	XE::Map<XE::Utf8String, ImFont * > _Fonts;
 	XE::ConcurrentQueue< XE::CanvasPtr > _FreeCanvas;
 	XE::ConcurrentList< XE::Pair< XE::CanvasPtr, bool > > _Canvas;
 };
@@ -39,6 +40,8 @@ void XE::GUIService::Prepare()
 void XE::GUIService::Startup()
 {
 	_p->_Impl = XE::MakeShared< XE::ImGuiImpl >();
+
+	// TODO: fonts
 
 	_p->_Impl->Startup( {}, 2, GraphicsTextureFormat::RGBA8UNORM );
 }
@@ -100,6 +103,13 @@ XE::Vec2i XE::GUIService::GetScreenSize() const
 ImFontAtlas * XE::GUIService::GetFontAtlas() const
 {
 	return &_p->_FontAtlas;
+}
+
+ImFont * XE::GUIService::FindFont( const XE::Utf8String & val ) const
+{
+	auto it = _p->_Fonts.find( val );
+
+	return it != _p->_Fonts.end() ? it->second : nullptr;
 }
 
 XE::CanvasPtr XE::GUIService::FindCanvas( const XE::String & val )

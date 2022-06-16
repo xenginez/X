@@ -9,6 +9,8 @@
 #ifndef WIDGET_H__EE35767C_971B_43A8_8B3F_9278900E2FAE
 #define WIDGET_H__EE35767C_971B_43A8_8B3F_9278900E2FAE
 
+#include "Core/CoreFramework.h"
+
 #include "Type.h"
 
 BEG_XE_NAMESPACE
@@ -81,6 +83,8 @@ public:
 	XE::CanvasPtr GetCanvas() const;
 
 	XE::WidgetPtr GetParent() const;
+
+	XE::CoreFrameworkPtr GetFramework() const;
 
 	const XE::Array< XE::WidgetPtr > & GetChildren() const;
 
