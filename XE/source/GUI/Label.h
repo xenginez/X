@@ -24,13 +24,7 @@ public:
 	~Label() override;
 
 protected:
-	virtual void OnStartup();
-
-	virtual void OnUpdate();
-
-	virtual void OnRender();
-
-	virtual void OnClearup();
+	void OnRender() override;
 
 public:
 	const XE::Color & GetColor() const;

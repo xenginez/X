@@ -14,13 +14,15 @@ XE::ActionBase::~ActionBase()
 
 }
 
-void XE::ActionBase::Call( const XE::MetaClassCPtr & cls, XE::InvokeStack & args ) const
+XE::Variant XE::ActionBase::Call( const XE::MetaClassCPtr & cls, XE::InvokeStack & args ) const
 {
+	XE::Variant result;
 	for ( auto code : _Callbacks )
 	{
 		if ( auto method = cls->FindMethod( code ) )
 		{
-			method->Invoke( args );
+			result = method->Invoke( args );
 		}
 	}
+	return result;
 }

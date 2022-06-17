@@ -35,30 +35,10 @@ public:
 
 	void SetPixelSize( XE::uint32 val );
 
-	bool GetFontBold() const;
-
-	void SetFontBold( bool val );
-
-	bool GetFontItalic() const;
-
-	void SetFontItalic( bool val );
-
-	bool GetUnderline() const;
-
-	void SetUnderline( bool val );
-
-	bool GetStrikeout() const;
-
-	void SetStrikeout( bool val );
-
 private:
 	XE::Utf8String _Name;
 	XE::uint32 _FontSize = 12;
 	XE::uint32 _PixelSize = 12;
-	bool _FontBold = false;
-	bool _FontItalic = false;
-	bool _Underline = false;
-	bool _Strikeout = false;
 };
 
 END_XE_NAMESPACE

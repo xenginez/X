@@ -71,15 +71,9 @@ public:
 
 	void SetFrame( const XE::Recti & val );
 
-	const XE::Recti & GetPadding() const;
-
-	void SetPadding( const XE::Recti & val );
-
-	const XE::Recti & GetMargins() const;
-
-	void SetMargins( const XE::Recti & val );
-
 public:
+	XE::ModelPtr GetModel() const;
+
 	XE::CanvasPtr GetCanvas() const;
 
 	XE::WidgetPtr GetParent() const;
@@ -96,8 +90,6 @@ private:
 
 	XE::Recti _Rect;
 	XE::Recti _Frame;
-	XE::Recti _Padding;
-	XE::Recti _Margins;
 
 	XE::LayoutPtr _Layout;
 	XE::LayoutItemPtr _LayoutItem;

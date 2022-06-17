@@ -20,16 +20,6 @@ XE::Label::~Label()
 
 }
 
-void XE::Label::OnStartup()
-{
-
-}
-
-void XE::Label::OnUpdate()
-{
-
-}
-
 void XE::Label::OnRender()
 {
 	if ( auto local = GetFramework()->GetServiceT< XE::LocalizationService >() )
@@ -41,7 +31,7 @@ void XE::Label::OnRender()
 				const auto & str = local->LocalizedString( _Text );
 
 				auto w_size = ImGui::GetWindowSize();
-				auto t_size = ImGui::CalcTextSize( str.char_str() );
+				auto t_size = ImGui::CalcTextSize( reinterpret_cast<const char *>( str.c_str() ) );
 
 				XE::float32 x, y;
 				switch ( _HAlignment )
@@ -76,13 +66,13 @@ void XE::Label::OnRender()
 				if ( !_WordWarp )
 				{
 					ImGui::SetCursorPos( { x, y } );
-					ImGui::Text( str.char_str() );
+					ImGui::Text( reinterpret_cast<const char *>( str.c_str() ) );
 				}
 				else
 				{
 					ImGui::SameLine( x );
 					ImGui::PushTextWrapPos( w_size.x - x );
-					ImGui::TextWrapped( str.char_str() );
+					ImGui::TextWrapped( reinterpret_cast<const char *>( str.c_str() ) );
 					ImGui::PopTextWrapPos();
 				}
 			}
@@ -90,11 +80,6 @@ void XE::Label::OnRender()
 		}
 		ImGui::PopFont();
 	}
-}
-
-void XE::Label::OnClearup()
-{
-
 }
 
 const XE::Utf8String & XE::Label::GetFont() const

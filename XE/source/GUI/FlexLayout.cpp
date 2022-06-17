@@ -523,6 +523,8 @@ type->Property( "AlignContent", &XE::FlexLayout::_AlignContent );
 type->Property( "JustifyContent", &XE::FlexLayout::_JustifyContent );
 type->Property( "FlexPosition", &XE::FlexLayout::_FlexPosition );
 type->Property( "FlexDirection", &XE::FlexLayout::_FlexDirection );
+type->Property( "Padding", &XE::FlexLayout::_Padding );
+type->Property( "Margins", &XE::FlexLayout::_Margins );
 END_META()
 
 XE::FlexLayout::FlexLayout()
@@ -542,15 +544,6 @@ void XE::FlexLayout::Rebuild( XE::int32 width, XE::int32 height, const XE::Array
 		item->width = child->GetRect().width;
 		item->height = child->GetRect().height;
 
-		item->padding_left = child->GetPadding().GetLeft();
-		item->padding_right = child->GetPadding().GetRight();
-		item->padding_top = child->GetPadding().GetTop();
-		item->padding_bottom = child->GetPadding().GetBottom();
-		item->margin_left = child->GetMargins().GetLeft();
-		item->margin_right = child->GetMargins().GetRight();
-		item->margin_top = child->GetMargins().GetTop();
-		item->margin_bottom = child->GetMargins().GetBottom();
-
 		if ( auto _item = DP_CAST< XE::FlexLayoutItem>( child->GetLayoutItem() ) )
 		{
 			item->grow = _item->GetGrow();
@@ -558,6 +551,7 @@ void XE::FlexLayout::Rebuild( XE::int32 width, XE::int32 height, const XE::Array
 			item->shrink = _item->GetShrink();
 			item->align_self = _item->GetAlignSelf();
 		}
+
 		return item;
 	};
 
@@ -574,6 +568,14 @@ void XE::FlexLayout::Rebuild( XE::int32 width, XE::int32 height, const XE::Array
 		root->direction = this->GetFlexDirection();
 		root->align_content = this->GetAlignContent();
 		root->justify_content = this->GetJustifyContent();
+		root->padding_left = this->GetPadding().GetLeft();
+		root->padding_right = this->GetPadding().GetRight();
+		root->padding_top = this->GetPadding().GetTop();
+		root->padding_bottom = this->GetPadding().GetBottom();
+		root->margin_left = this->GetMargins().GetLeft();
+		root->margin_right = this->GetMargins().GetRight();
+		root->margin_top = this->GetMargins().GetTop();
+		root->margin_bottom = this->GetMargins().GetBottom();
 	}
 
 	for ( size_t i = 0; i < children.size(); i++ )
@@ -659,6 +661,26 @@ XE::FlexDirection XE::FlexLayout::GetFlexDirection() const
 void XE::FlexLayout::SetFlexDirection( XE::FlexDirection val )
 {
 	_FlexDirection = val;
+}
+
+const XE::Recti & XE::FlexLayout::GetPadding() const
+{
+	return _Padding;
+}
+
+void XE::FlexLayout::SetPadding( const XE::Recti & val )
+{
+	_Padding = val;
+}
+
+const XE::Recti & XE::FlexLayout::GetMargins() const
+{
+	return _Margins;
+}
+
+void XE::FlexLayout::SetMargins( const XE::Recti & val )
+{
+	_Margins = val;
 }
 
 BEG_META( XE::FlexLayoutItem )

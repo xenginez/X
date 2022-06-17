@@ -50,7 +50,18 @@ public:
 
 	void SetFlexDirection( XE::FlexDirection val );
 
+public:
+	const XE::Recti & GetPadding() const;
+
+	void SetPadding( const XE::Recti & val );
+
+	const XE::Recti & GetMargins() const;
+
+	void SetMargins( const XE::Recti & val );
+
 private:
+	XE::Recti _Padding;
+	XE::Recti _Margins;
 	XE::FlexWrap _FlexWrap = XE::FlexWrap::NO_WRAP;
 	XE::FlexAlign _AlignItems = XE::FlexAlign::STRETCH;
 	XE::FlexAlign _AlignContent = XE::FlexAlign::STRETCH;

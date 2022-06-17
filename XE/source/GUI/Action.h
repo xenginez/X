@@ -23,30 +23,50 @@ public:
 	~ActionBase() override;
 
 protected:
-	void Call( const XE::MetaClassCPtr & cls, XE::InvokeStack & args ) const;
+	XE::Variant Call( const XE::MetaClassCPtr & cls, XE::InvokeStack & args ) const;
 
 private:
 	XE::Array< XE::uint64 > _Callbacks;
 };
 
-template< typename ... T > class Action : public XE::ActionBase
+template< typename R, typename ... T > class Action< R( T ... ) > : public XE::ActionBase
 {
 public:
 	Action() = default;
 
+	Action( const ActionBase & val )
+		: ActionBase( val )
+	{
+
+	}
+
+	Action & operator=( const ActionBase & val )
+	{
+		ActionBase::operator=( val );
+
+		return *this;
+	}
+
 	~Action() override = default;
 
 public:
-	void Call( const XE::ModelPtr & model, T &&...args ) const
+	R operator()( const XE::ModelPtr & model, T ... args ) const
 	{
 		XE::InvokeStack stack;
-		stack.Push( model );
-		stack.Push( args... );
 
-		ActionBase::Call( model->GetMetaClass(), stack );
+		stack.Push( model );
+		stack.Push( std::forward< T >( args )... );
+
+		if constexpr ( std::is_void_v< R > )
+		{
+			ActionBase::Call( model->GetMetaClass(), stack );
+		}
+		else
+		{
+			return ActionBase::Call( model->GetMetaClass(), stack ).Value< R >();
+		}
 	}
 };
-IMPLEMENT_XE_TEMPLATE_CLASS( Action );
 
 END_XE_NAMESPACE
 

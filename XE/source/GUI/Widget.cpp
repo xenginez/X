@@ -8,8 +8,6 @@ type->Property( "Name", &XE::Widget::_Name );
 type->Property( "Enable", &XE::Widget::_Enable );
 type->Property( "Rect", &XE::Widget::_Rect );
 type->Property( "Frame", &XE::Widget::_Frame )->Attribute( XE::NonEditorAttribute() );
-type->Property( "Padding", &XE::Widget::_Padding );
-type->Property( "Margins", &XE::Widget::_Margins );
 type->Property( "Layout", &XE::Widget::_Layout );
 type->Property( "LayoutItem", &XE::Widget::_LayoutItem );
 type->Property( "Children", &XE::Widget::_Children )->Attribute( XE::NonEditorAttribute() );
@@ -179,28 +177,9 @@ void XE::Widget::SetFrame( const XE::Recti & val )
 	_Frame = val;
 }
 
-const XE::Recti & XE::Widget::GetPadding() const
+XE::ModelPtr XE::Widget::GetModel() const
 {
-	return _Padding;
-}
-
-void XE::Widget::SetPadding( const XE::Recti & val )
-{
-	_Padding = val;
-
-	GetCanvas()->Rebuild();
-}
-
-const XE::Recti & XE::Widget::GetMargins() const
-{
-	return _Margins;
-}
-
-void XE::Widget::SetMargins( const XE::Recti & val )
-{
-	_Margins = val;
-
-	GetCanvas()->Rebuild();
+	return GetCanvas()->GetModel();
 }
 
 XE::CanvasPtr XE::Widget::GetCanvas() const

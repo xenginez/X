@@ -2204,12 +2204,6 @@ public:
 		return _string;
 	}
 
-	template< typename std::enable_if_t<std::is_same_v<Utf8Encode::storage_unit, typename encode_type::storage_unit>, int > = 0 >
-	const AnsiEncode::storage_unit * char_str() const
-	{
-		return reinterpret_cast<const char *>( c_str() );
-	}
-
 	XE::Array< BasicString > split( const BasicString & sep ) const
 	{
 		using string_type = std::basic_string< typename Encode::storage_unit >;
