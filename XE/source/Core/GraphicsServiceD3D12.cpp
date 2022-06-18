@@ -314,25 +314,23 @@ namespace
 		std::array< T, S > _Datas;
 		XE::QueueHandleAllocator< XE::Handle< T >, S > _Handles;
 	};
-}
 
-namespace D3D12
-{
 	template< typename T > using ComPtr = Microsoft::WRL::ComPtr< T >;
-	using AdapterPtr = ComPtr < IDXGIAdapter4 >;
-	using DevicePtr = ComPtr < ID3D12Device >;
-	using ResourcePtr = ComPtr < ID3D12Resource >;
-	using CommandQueuePtr = ComPtr < ID3D12CommandQueue >;
-	using CommandAllocatorPtr = ComPtr < ID3D12CommandAllocator >;
-	using CommandListPtr = ComPtr < ID3D12CommandList >;
-	using GraphicsCommandListPtr = ComPtr < ID3D12GraphicsCommandList >;
-	using PipelineStatePtr = ComPtr < ID3D12PipelineState >;
-	using SwapChainPtr = ComPtr < IDXGISwapChain4 >;
-	using CommandSignaturePtr = ComPtr< ID3D12CommandSignature >;
-	using RootSignaturePtr = ComPtr< ID3D12RootSignature >;
-	using QueryHeapPtr = ComPtr< ID3D12QueryHeap >;
-	using FactoryPtr = ComPtr< IDXGIFactory >;
-	using DebugPtr = ComPtr< ID3D12Debug >;
+
+	using D3D12AdapterPtr = ComPtr < IDXGIAdapter4 >;
+	using D3D12DevicePtr = ComPtr < ID3D12Device >;
+	using D3D12ResourcePtr = ComPtr < ID3D12Resource >;
+	using D3D12CommandQueuePtr = ComPtr < ID3D12CommandQueue >;
+	using D3D12CommandAllocatorPtr = ComPtr < ID3D12CommandAllocator >;
+	using D3D12CommandListPtr = ComPtr < ID3D12CommandList >;
+	using D3D12GraphicsCommandListPtr = ComPtr < ID3D12GraphicsCommandList >;
+	using D3D12PipelineStatePtr = ComPtr < ID3D12PipelineState >;
+	using D3D12SwapChainPtr = ComPtr < IDXGISwapChain4 >;
+	using D3D12CommandSignaturePtr = ComPtr< ID3D12CommandSignature >;
+	using D3D12RootSignaturePtr = ComPtr< ID3D12RootSignature >;
+	using D3D12QueryHeapPtr = ComPtr< ID3D12QueryHeap >;
+	using D3D12FactoryPtr = ComPtr< IDXGIFactory >;
+	using D3D12DebugPtr = ComPtr< ID3D12Debug >;
 }
 
 namespace XE
@@ -347,12 +345,12 @@ namespace XE
 	public:
 		XE::GraphicsSwapChainDescriptor Desc;
 
-		D3D12::SwapChainPtr SwapChain = nullptr;
+		D3D12SwapChainPtr SwapChain = nullptr;
 	};
 	class GraphicsAdapter : public RefHandle< XE::GraphicsAdapter >
 	{
 	public:
-		D3D12::AdapterPtr Adapter = nullptr;
+		D3D12AdapterPtr Adapter = nullptr;
 
 		XE::GraphicsDeviceHandle Device;
 	};
@@ -361,7 +359,7 @@ namespace XE
 	public:
 		XE::GraphicsDeviceDescriptor Desc;
 
-		D3D12::DevicePtr Device = nullptr;
+		D3D12DevicePtr Device = nullptr;
 		XE::GraphicsAdapterHandle Adapter;
 		XE::GraphicsQueueHandle Queue;
 	};
@@ -371,15 +369,15 @@ namespace XE
 		XE::GraphicsQueueDescriptor Desc;
 
 		XE::GraphicsDeviceHandle Device;
-		D3D12::CommandQueuePtr CommandQueue = nullptr;
+		D3D12CommandQueuePtr CommandQueue = nullptr;
 	};
 	class GraphicsBindGroup : public RefHandle< XE::GraphicsBindGroup >
 	{
 	public:
 		XE::GraphicsBindGroupDescriptor Desc;
 
-		D3D12::RootSignaturePtr RootSignature = nullptr;
-		D3D12::CommandSignaturePtr CommandSignature = nullptr;
+		D3D12RootSignaturePtr RootSignature = nullptr;
+		D3D12CommandSignaturePtr CommandSignature = nullptr;
 	};
 	class GraphicsBindGroupLayout : public RefHandle< XE::GraphicsBindGroupLayout >
 	{
@@ -392,15 +390,15 @@ namespace XE
 		XE::GraphicsBufferDescriptor Desc;
 
 		D3D12_RANGE MapRange = {};
-		D3D12::ResourcePtr Resource = nullptr;
+		D3D12ResourcePtr Resource = nullptr;
 	};
 	class GraphicsCommandBuffer : public RefHandle< XE::GraphicsCommandBuffer >
 	{
 	public:
 		XE::GraphicsCommandBufferDescriptor Desc;
 
-		D3D12::GraphicsCommandListPtr CommandList = nullptr;
-		D3D12::CommandAllocatorPtr CommandAllocator = nullptr;
+		D3D12GraphicsCommandListPtr CommandList = nullptr;
+		D3D12CommandAllocatorPtr CommandAllocator = nullptr;
 	};
 	class GraphicsCommandEncoder : public RefHandle< XE::GraphicsCommandEncoder >
 	{
@@ -430,7 +428,7 @@ namespace XE
 		XE::GraphicsPipelineLayoutHandle Layout;
 		std::array< XE::GraphicsBindGroupHandle, 4 > BindGroups;
 		
-		D3D12::PipelineStatePtr PipelineState = nullptr;
+		D3D12PipelineStatePtr PipelineState = nullptr;
 	};
 	class GraphicsPipelineLayout : public RefHandle< XE::GraphicsPipelineLayout >
 	{
@@ -442,7 +440,7 @@ namespace XE
 	public:
 		XE::GraphicsQuerySetDescriptor Desc;
 
-		D3D12::QueryHeapPtr QueryHeap = nullptr;
+		D3D12QueryHeapPtr QueryHeap = nullptr;
 	};
 	class GraphicsRenderBundle : public RefHandle< XE::GraphicsRenderBundle >
 	{
@@ -468,7 +466,7 @@ namespace XE
 	public:
 		XE::GraphicsRenderPipelineDescriptor Desc;
 
-		D3D12::PipelineStatePtr PipelineState = nullptr;
+		D3D12PipelineStatePtr PipelineState = nullptr;
 	};
 	class GraphicsSampler : public RefHandle< XE::GraphicsSampler >
 	{
@@ -498,8 +496,8 @@ namespace XE
 
 struct XE::GraphicsService::Private
 {
-	D3D12::DebugPtr _Debug;
-	D3D12::FactoryPtr _Factory;
+	D3D12DebugPtr _Debug;
+	D3D12FactoryPtr _Factory;
 
 	RefHandleArray< XE::GraphicsSurface, XE::GRAPHICS_MAX_SURFACE > _Surfaces;
 	RefHandleArray< XE::GraphicsSwapChain, XE::GRAPHICS_MAX_SWAP_CHAIN > _SwapChains;
@@ -1045,7 +1043,7 @@ void XE::GraphicsService::CommandEncoderCopyBufferToBuffer( XE::GraphicsCommandE
 			{
 				auto & cmd_buf = _p->_CommandBuffers[cmd.CommandBuffer.GetValue()];
 				{
-					D3D12::GraphicsCommandListPtr list;
+					D3D12GraphicsCommandListPtr list;
 					if ( SUCCEEDED( cmd_buf.CommandList.As< ID3D12GraphicsCommandList >( &list ) ) )
 					{
 						list->CopyBufferRegion( dst_buf.Resource.Get(), dst_offset, src_buf.Resource.Get(), src_offset, size );
@@ -1068,7 +1066,7 @@ void XE::GraphicsService::CommandEncoderCopyBufferToTexture( XE::GraphicsCommand
 				{
 					auto & cmd_buf = _p->_CommandBuffers[cmd.CommandBuffer.GetValue()];
 					{
-						D3D12::GraphicsCommandListPtr list;
+						D3D12GraphicsCommandListPtr list;
 						if ( SUCCEEDED( cmd_buf.CommandList.As< ID3D12GraphicsCommandList >( &list ) ) )
 						{
 							D3D12_PLACED_SUBRESOURCE_FOOTPRINT src_footprint;
@@ -1120,7 +1118,7 @@ void XE::GraphicsService::CommandEncoderCopyTextureToTexture( XE::GraphicsComman
 					{
 						auto & cmd_buf = _p->_CommandBuffers[cmd.CommandBuffer.GetValue()];
 						{
-							D3D12::GraphicsCommandListPtr list;
+							D3D12GraphicsCommandListPtr list;
 							if ( SUCCEEDED( cmd_buf.CommandList.As< ID3D12GraphicsCommandList >( &list ) ) )
 							{
 								CD3DX12_TEXTURE_COPY_LOCATION src_location( src_buf.Resource.Get() );

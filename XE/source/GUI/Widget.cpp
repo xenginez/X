@@ -61,7 +61,7 @@ void XE::Widget::Update()
 
 void XE::Widget::Render()
 {
-	if ( GetEnable() )
+	if ( GetEnable() && _Hidden == false )
 	{
 		OnRender();
 
@@ -214,4 +214,19 @@ XE::WidgetPtr XE::Widget::FindChild( const XE::String & val ) const
 	}
 
 	return nullptr;
+}
+
+void XE::Widget::Show()
+{
+	_Hidden = false;
+}
+
+void XE::Widget::Hide()
+{
+	_Hidden = true;
+}
+
+bool XE::Widget::IsHidden() const
+{
+	return _Hidden;
 }

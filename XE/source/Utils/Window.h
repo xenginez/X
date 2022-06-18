@@ -53,8 +53,13 @@ public:
 
 #elif PLATFORM_OS & OS_WINDOWS
 
+private:
+	void * _Instance;
+
 public:
-	Window( XE::WindowHandle window );
+	Window( XE::WindowHandle window, void * instance );
+
+	void * GetInstance() { return _Instance; }
 
 #endif
 

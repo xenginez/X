@@ -165,12 +165,6 @@ cd %RD3_PATH%
 xcopy %cd%\bundle\bundle.h %RD3_PATH%\..\depends\include\bundle\ /y
 xcopy %cd%\bundle\bundle.cpp %RD3_PATH%\..\depends\include\bundle\ /y
 
-:BUILD_D3D12ALLOCATOR
-echo "copy D3D12MemoryAllocator head file to depends"
-cd %RD3_PATH%
-xcopy %cd%\D3D12MemoryAllocator\include\D3D12MemAlloc.h %RD3_PATH%\..\depends\include\D3D12MemAlloc\ /s /y
-xcopy %cd%\D3D12MemoryAllocator\src\D3D12MemAlloc.cpp %RD3_PATH%\..\depends\include\D3D12MemAlloc\ /s /y
-
 :BUILD_STB
 echo "copy stb head file to depends"
 cd %RD3_PATH%
@@ -207,12 +201,6 @@ cd %RD3_PATH%
 xcopy %cd%\volk\volk.h %RD3_PATH%\..\depends\include\volk\ /s /y
 xcopy %cd%\volk\volk.c %RD3_PATH%\..\depends\include\volk\ /s /y
 
-:BUILD_VULKANALLOCATOR
-echo "copy VulkanMemoryAllocator head file to depends"
-cd %RD3_PATH%
-xcopy %cd%\VulkanMemoryAllocator\include\vk_mem_alloc.h %RD3_PATH%\..\depends\include\VulkanMemAlloc\ /s /y
-ren %RD3_PATH%\..\depends\include\VulkanMemAlloc\vk_mem_alloc.h VulkanMemAlloc.h
-
 :BUILD_MICROPROFILE
 echo "copy microprofile head file to depends"
 cd %RD3_PATH%
@@ -220,25 +208,21 @@ xcopy %cd%\microprofile\microprofile.h %RD3_PATH%\..\depends\include\microprofil
 xcopy %cd%\microprofile\microprofile.cpp %RD3_PATH%\..\depends\include\microprofile\ /y
 xcopy %cd%\microprofile\microprofile_html.h %RD3_PATH%\..\depends\include\microprofile\ /y
 
-
 :BUILD_ASIO
 echo "copy asio head file to depends"
 cd %RD3_PATH%
 xcopy %cd%\asio\asio\include\asio\*.* %RD3_PATH%\..\depends\include\asio\ /s /y
 xcopy %cd%\asio\asio\include\asio.hpp %RD3_PATH%\..\depends\include\asio\ /s /y
 
-
 :BUILD_KCP
 echo "copy kcp head file to depends"
 cd %RD3_PATH%
 xcopy %cd%\kcp\ikcp.* %RD3_PATH%\..\depends\include\kcp\ /s /y
 
-
 :BUILD_WEBGPU
 echo "copy webgpu head file to depends"
 cd %RD3_PATH%
 xcopy %cd%\webgpu-headers\webgpu.h %RD3_PATH%\..\depends\include\webgpu\ /s /y
-
 
 :BUILD_IMGUI
 echo "copy imgui head file to depends"

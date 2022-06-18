@@ -8,8 +8,8 @@
 
 #include <Windows.h>
 
-XE::Window::Window( XE::WindowHandle window )
-	:_Window( window )
+XE::Window::Window( XE::WindowHandle window, void * instance )
+	:_Window( window ), _Instance( instance )
 {
 
 }

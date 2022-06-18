@@ -10,9 +10,6 @@
 [submodule "3rdparty/csv2"]
 	path = 3rdparty/csv2
 	url = https://github.com/p-ranav/csv2.git
-[submodule "3rdparty/D3D12MemoryAllocator"]
-	path = 3rdparty/D3D12MemoryAllocator
-	url = https://github.com/GPUOpen-LibrariesAndSDKs/D3D12MemoryAllocator.git
 [submodule "3rdparty/D3DX12"]
 	path = 3rdparty/D3DX12
 	url = https://github.com/vilbeyli/D3DX12.git
@@ -43,9 +40,6 @@
 [submodule "3rdparty/Vulkan-Headers"]
 	path = 3rdparty/Vulkan-Headers
 	url = https://github.com/KhronosGroup/Vulkan-Headers.git
-[submodule "3rdparty/VulkanMemoryAllocator"]
-	path = 3rdparty/VulkanMemoryAllocator
-	url = https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git
 [submodule "3rdparty/webgpu-headers"]
 	path = 3rdparty/webgpu-headers
 	url = https://github.com/webgpu-native/webgpu-headers.git

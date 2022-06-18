@@ -86,8 +86,17 @@ public:
 
 	XE::WidgetPtr FindChild( const XE::String & val ) const;
 
+public:
+	void Show();
+
+	void Hide();
+
+	bool IsHidden() const;
+
 private:
 	bool _Enable = true;
+	bool _Hidden = false;
+
 	XE::String _Name;
 
 	XE::Recti _Rect;

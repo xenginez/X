@@ -47,7 +47,7 @@ INT WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 
 	XE::CoreFramework framework;
 
-	int result = framework.Exec( XE::MakeShared< XE::Window >( XE::HandleCast< XE::Window >( reinterpret_cast< XE::uint64 >( hwnd ) ) ) );
+	int result = framework.Exec( XE::MakeShared< XE::Window >( XE::HandleCast< XE::Window >( reinterpret_cast< XE::uint64 >( hwnd ) ), hInstance ) );
 
 	DestroyWindow( hwnd );
 
