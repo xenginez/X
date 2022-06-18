@@ -177,11 +177,6 @@ void XE::Widget::SetFrame( const XE::Recti & val )
 	_Frame = val;
 }
 
-XE::ModelPtr XE::Widget::GetModel() const
-{
-	return GetCanvas()->GetModel();
-}
-
 XE::CanvasPtr XE::Widget::GetCanvas() const
 {
 	return _Canvas.lock();
@@ -190,6 +185,11 @@ XE::CanvasPtr XE::Widget::GetCanvas() const
 XE::WidgetPtr XE::Widget::GetParent() const
 {
 	return _Parent.lock();
+}
+
+XE::ControllerPtr XE::Widget::GetController() const
+{
+	return GetCanvas()->GetController();
 }
 
 XE::CoreFrameworkPtr XE::Widget::GetFramework() const

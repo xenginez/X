@@ -2,17 +2,17 @@
 
 #include "Core/CoreFramework.h"
 
-#include "Model.h"
 #include "Widget.h"
 #include "Layout.h"
 #include "GUIService.h"
 #include "imgui_impl.h"
+#include "Controller.h"
 
 BEG_META( XE::Canvas )
 type->Property( "Enable", &XE::Canvas::_Enable );
 type->Property( "Name", &XE::Canvas::_Name );
 type->Property( "Rect", &XE::Canvas::_Rect );
-type->Property( "Model", &XE::Canvas::_Model );
+type->Property( "Model", &XE::Canvas::_Controller );
 type->Property( "Style", &XE::Canvas::GetStyle, &XE::Canvas::SetStyle );
 type->Property( "Layout", &XE::Canvas::_Layout );
 type->Property( "Children", &XE::Canvas::_Children )->Attribute( XE::NonEditorAttribute() );
@@ -47,7 +47,7 @@ void XE::Canvas::Startup()
 		it->Startup();
 	}
 
-	_Model->Startup();
+	_Controller->Startup();
 }
 
 void XE::Canvas::Update()
@@ -105,11 +105,11 @@ void XE::Canvas::Clearup()
 
 	_Children.clear();
 
-	_Model->Clearup();
+	_Controller->Clearup();
 
 	_Context = nullptr;
 	_Layout = nullptr;
-	_Model = nullptr;
+	_Controller = nullptr;
 	_Impl = nullptr;
 	_Dirty = false;
 	_Enable = true;
@@ -161,14 +161,14 @@ void XE::Canvas::SetName( const XE::String & val )
 	_Name = val;
 }
 
-const XE::ModelPtr & XE::Canvas::GetModel() const
+const XE::ControllerPtr & XE::Canvas::GetController() const
 {
-	return _Model;
+	return _Controller;
 }
 
-void XE::Canvas::SetModel( const XE::ModelPtr & val )
+void XE::Canvas::SetController( const XE::ControllerPtr & val )
 {
-	_Model = val;
+	_Controller = val;
 }
 
 const XE::LayoutPtr & XE::Canvas::GetLayout() const

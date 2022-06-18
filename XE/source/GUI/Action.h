@@ -9,7 +9,7 @@
 #ifndef ACTION_H__1D7FD514_7486_4A9C_83D7_917E66F1822A
 #define ACTION_H__1D7FD514_7486_4A9C_83D7_917E66F1822A
 
-#include "Model.h"
+#include "Controller.h"
 
 BEG_XE_NAMESPACE
 
@@ -23,7 +23,7 @@ public:
 	~ActionBase() override;
 
 protected:
-	XE::Variant Call( const XE::MetaClassCPtr & cls, XE::InvokeStack & args ) const;
+	XE::Variant Call( const XE::WidgetPtr & widget, const XE::ControllerPtr & controller, XE::InvokeStack & args ) const;
 
 private:
 	XE::Array< XE::uint64 > _Callbacks;
@@ -50,20 +50,19 @@ public:
 	~Action() override = default;
 
 public:
-	R operator()( const XE::ModelPtr & model, T ... args ) const
+	R operator()( const XE::WidgetPtr & widget, const XE::ControllerPtr & controller, T ... args ) const
 	{
 		XE::InvokeStack stack;
 
-		stack.Push( model );
 		stack.Push( std::forward< T >( args )... );
 
 		if constexpr ( std::is_void_v< R > )
 		{
-			ActionBase::Call( model->GetMetaClass(), stack );
+			ActionBase::Call( widget, controller, stack );
 		}
 		else
 		{
-			return ActionBase::Call( model->GetMetaClass(), stack ).Value< R >();
+			return ActionBase::Call( widget, controller, stack ).Value< R >();
 		}
 	}
 };

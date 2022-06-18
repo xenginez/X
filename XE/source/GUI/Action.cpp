@@ -14,15 +14,22 @@ XE::ActionBase::~ActionBase()
 
 }
 
-XE::Variant XE::ActionBase::Call( const XE::MetaClassCPtr & cls, XE::InvokeStack & args ) const
+XE::Variant XE::ActionBase::Call( const XE::WidgetPtr & widget, const XE::ControllerPtr & controller, XE::InvokeStack & args ) const
 {
 	XE::Variant result;
-	for ( auto code : _Callbacks )
+	if ( auto cls = controller->GetMetaClass() )
 	{
-		if ( auto method = cls->FindMethod( code ) )
+		controller->SetWidget( widget );
+
+		for ( auto code : _Callbacks )
 		{
-			result = method->Invoke( args );
+			if ( auto method = cls->FindMethod( code ) )
+			{
+				result = method->Invoke( controller, args );
+			}
 		}
+
+		controller->SetWidget( nullptr );
 	}
 	return result;
 }

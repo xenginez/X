@@ -9,9 +9,11 @@
 #ifndef WIDGET_H__EE35767C_971B_43A8_8B3F_9278900E2FAE
 #define WIDGET_H__EE35767C_971B_43A8_8B3F_9278900E2FAE
 
+#include "Utils/Picture.h"
+#include "Core/Asset.h"
 #include "Core/CoreFramework.h"
 
-#include "Type.h"
+#include "Action.h"
 
 BEG_XE_NAMESPACE
 
@@ -72,11 +74,11 @@ public:
 	void SetFrame( const XE::Recti & val );
 
 public:
-	XE::ModelPtr GetModel() const;
-
 	XE::CanvasPtr GetCanvas() const;
 
 	XE::WidgetPtr GetParent() const;
+
+	XE::ControllerPtr GetController() const;
 
 	XE::CoreFrameworkPtr GetFramework() const;
 

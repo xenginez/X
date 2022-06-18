@@ -46,9 +46,9 @@ public:
 
 	void SetStyle( const ImGuiStyle & val );
 
-	const XE::ModelPtr & GetModel() const;
+	const XE::ControllerPtr & GetController() const;
 
-	void SetModel( const XE::ModelPtr & val );
+	void SetController( const XE::ControllerPtr & val );
 
 	const XE::LayoutPtr & GetLayout() const;
 
@@ -72,9 +72,9 @@ private:
 	bool _Enable = true;
 	XE::Recti _Rect;
 	XE::String _Name;
-	XE::ModelPtr _Model;
 	XE::LayoutPtr _Layout;
 	XE::ImGuiImplPtr _Impl;
+	XE::ControllerPtr _Controller;
 	XE::Array< XE::WidgetPtr > _Children;
 
 	ImGuiStyle * _Style = nullptr;

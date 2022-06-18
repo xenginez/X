@@ -19,11 +19,11 @@ struct ImGuiContext;
 BEG_XE_NAMESPACE
 
 class Font;
-class Model;
 class Canvas;
 class Widget;
 class Layout;
 class ImGuiImpl;
+class Controller;
 class LayoutItem;
 class GUIService;
 template< typename ... T > class Action;
