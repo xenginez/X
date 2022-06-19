@@ -9,7 +9,7 @@
 #ifndef AUDIOSERVICE_H__6493958D_0974_419F_9E77_7AC16A850EDB
 #define AUDIOSERVICE_H__6493958D_0974_419F_9E77_7AC16A850EDB
 
-#include "Service.h"
+#include "Type.h"
 
 BEG_XE_NAMESPACE
 
@@ -65,7 +65,7 @@ public:
 	const XE::AudioSourceDesc & GetDesc( XE::AudioSourceHandle handle ) const;
 
 public:
-	void ListenerTransform( const XE::Vec3f & position, const XE::Vec3f & velocity, const XE::Vec3f & orientation, const XE::Vec3f & up = XE::Vec3f::Up );
+	void ListenerTransform( const XE::Transform & transform );
 
 public:
 	void BufferRefill( AudioBufferHandle handle, XE::MemoryView data );
@@ -73,7 +73,7 @@ public:
 public:
 	void SourceQueueBuffer( AudioSourceHandle handle, AudioBufferHandle buffer );
 
-	void SourceUnqueBuffer( AudioSourceHandle handle, void * userdata, UnqueBufferCallbackType callback );
+	void SourceUnqueBuffer( AudioSourceHandle handle, UnqueBufferCallbackType callback, void * userdata );
 
 	void SourcePlay( AudioSourceHandle handle );
 
@@ -81,17 +81,19 @@ public:
 
 	void SourceStop( AudioSourceHandle handle );
 
-	void SourceRelative( AudioSourceHandle handle, bool relative );
+	void SourceLoop( AudioSourceHandle handle, bool loop );
 
-	void SourceConeAngle( AudioSourceHandle handle, XE::float32 inner, XE::float32 outer );
+	void SourceGain( AudioSourceHandle handle, XE::float32 gain );
 
 	void SourcePitch( AudioSourceHandle handle, XE::float32 pitch );
 
-	void SourceGain( AudioSourceHandle handle, XE::float32 min, XE::float32 max );
+	void SourceTransform( AudioSourceHandle handle, const XE::Transform & transform );
 
-	void SourceDistance( AudioSourceHandle handle, XE::float32 min, XE::float32 max );
+	void SourceGainRange( AudioSourceHandle handle, XE::float32 min, XE::float32 max );
 
-	void SourceTransform( AudioSourceHandle handle, const XE::Vec3f & position, const XE::Vec3f & verlocity, const XE::Vec3f & orientation, const XE::Vec3f & up = XE::Vec3f::Up );
+	void SourceDistanceRange( AudioSourceHandle handle, XE::float32 min, XE::float32 max );
+
+	void SourceConeAngleRange( AudioSourceHandle handle, XE::float32 inner, XE::float32 outer );
 
 public:
 	void Destroy( AudioBufferHandle handle );
@@ -101,7 +103,9 @@ public:
 public:
 	bool IsCapture() const;
 
-	void CaptureStart( XE::uint32 Bits, XE::uint32 Channels, XE::uint32 Frequency, ReadBufferCallbackType callback );
+	void CaptureStart( XE::uint32 Bits, XE::uint32 Channels, XE::uint32 Frequency );
+
+	void CaptureSample( CaptureBufferCallbackType callback, void * userdata );
 
 	void CaptureStop();
 

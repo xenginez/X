@@ -200,7 +200,10 @@ void XE::GameObjectComponent::Startup()
 
 void XE::GameObjectComponent::Update( XE::float32 dt )
 {
-	OnUpdate( dt );
+	if ( GetEnable() )
+	{
+		OnUpdate( dt );
+	}
 }
 
 void XE::GameObjectComponent::Clearup()
@@ -250,22 +253,22 @@ XE::GameObjectPtr XE::GameObjectComponent::GetGameObject() const
 	return _GameObject.lock();
 }
 
+XE::CoreFrameworkPtr XE::GameObjectComponent::GetFramework() const
+{
+	return XE::CoreFramework::GetCurrentFramework();
+}
+
 XE::GameObjectPtr XE::GameObjectComponent::GetParentGameObject() const
 {
 	return GetGameObject()->GetParent();
 }
 
-XE::CoreFrameworkPtr XE::GameObjectComponent::GetCoreFramework() const
-{
-	return XE::CoreFramework::GetCurrentFramework();
-}
-
 XE::ServicePtr XE::GameObjectComponent::GetService( const XE::String & val ) const
 {
-	return GetCoreFramework()->GetService( XE::Reflection::FindClass( val ) );
+	return GetFramework()->GetService( XE::Reflection::FindClass( val ) );
 }
 
 XE::ServicePtr XE::GameObjectComponent::GetService( const XE::MetaClassCPtr & val ) const
 {
-	return GetCoreFramework()->GetService( val );
+	return GetFramework()->GetService( val );
 }
