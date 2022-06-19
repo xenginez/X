@@ -35,14 +35,16 @@ public:
 
 	void SetUUID( const XE::UUID & val );
 
-	const XE::String & GetPath() const;
-
-	void SetPath( const XE::String & val );
-
 public:
 	void Load();
 
 	void AsyncLoad();
+
+public:
+	XE::ObjectPtr Get() const
+	{
+		return _Ptr;
+	}
 
 protected:
 	virtual void LoadFinish( const XE::ObjectPtr & val );
@@ -52,7 +54,6 @@ protected:
 
 private:
 	XE::UUID _UUID;
-	XE::String _Path;
 };
 
 template< typename T > class AssetPtr : public XE::Asset

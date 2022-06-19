@@ -111,7 +111,7 @@ void XE::MMapFile::Reset()
 }
 
 #if PLATFORM_OS & ( OS_WINDOWS | OS_XBOX )
-void XE::MMapFile::Open( XE::uint64 size )
+bool XE::MMapFile::Open( XE::uint64 size )
 {
 	Close();
 
@@ -128,10 +128,14 @@ void XE::MMapFile::Open( XE::uint64 size )
 		_p->_Mapping = mapping_;
 
 		_p->_Path = "";
+
+		return true;
 	}
+
+	return false;
 }
 
-void XE::MMapFile::Open( const std::filesystem::path & path )
+bool XE::MMapFile::Open( const std::filesystem::path & path )
 {
 	Close();
 
@@ -151,13 +155,15 @@ void XE::MMapFile::Open( const std::filesystem::path & path )
 
 			_p->_Path = path;
 
-			return;
+			return true;
 		}
 		else
 		{
 			::CloseHandle( file_ );
 		}
 	}
+
+	return false;
 }
 
 void XE::MMapFile::Close()
@@ -188,7 +194,7 @@ void XE::MMapFile::Close()
 	}
 }
 #else
-void XE::MMapFile::Open( XE::uint64 size )
+bool XE::MMapFile::Open( XE::uint64 size )
 {
 	Close();
 
@@ -206,16 +212,18 @@ void XE::MMapFile::Open( XE::uint64 size )
 
 			_p->_File = reinterpret_cast< void * >( file_ );
 
-			return;
+			return true;
 		}
 		else
 		{
 			close( file_ );
 		}
 	}
+
+	return false;
 }
 
-void XE::MMapFile::Open( const std::filesystem::path & path )
+bool XE::MMapFile::Open( const std::filesystem::path & path )
 {
 	Close();
 
@@ -233,13 +241,15 @@ void XE::MMapFile::Open( const std::filesystem::path & path )
 
 			_p->_File = reinterpret_cast< void * >( file_ );
 
-			return;
+			return true;
 		}
 		else
 		{
 			close( file_ );
 		}
 	}
+
+	return false;
 }
 
 void XE::MMapFile::Close()

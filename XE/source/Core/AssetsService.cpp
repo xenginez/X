@@ -1,13 +1,9 @@
 #include "AssetsService.h"
 
-#include <fstream>
-
-#include "Utils/UUID.h"
-#include "Utils/Zipper.h"
 #include "Utils/Logger.h"
+#include "Utils/Package.h"
 
 #include "CoreFramework.h"
-#include "TimerService.h"
 #include "ThreadService.h"
 
 BEG_META( XE::AssetsService )
@@ -15,13 +11,12 @@ END_META()
 
 struct XE::AssetsService::Private
 {
-	XE::Zipper _Zipper;
-	XE::ConcurrentHashMap< XE::UUID, XE::ObjectWPtr > _ObjectCache;
-	XE::ConcurrentLruCache< XE::UUID, XE::MemoryStream > _MemoryCache = { 1000 };
+	XE::Array< XE::SharedPtr< XE::Package > > _Packages;
+	XE::ConcurrentLruCache< XE::String, XE::MemoryStream > _LruCache = { 500 };
 };
 
 XE::AssetsService::AssetsService()
-	:_p( XE::New< Private >() )
+	:_p( XE::New<Private>() )
 {
 
 }
@@ -33,18 +28,31 @@ XE::AssetsService::~AssetsService()
 
 void XE::AssetsService::Prepare()
 {
+
 }
 
 void XE::AssetsService::Startup()
 {
-	std::filesystem::path path = std::filesystem::u8path( GetFramework()->GetString( "System/AssetsService/AssetsPath" ).c_str() );
+	auto path = GetFramework()->GetAssetsPath();
 
-	_p->_Zipper.Open( path );
-
-	if( !_p->_Zipper.IsOpen() )
+	for ( auto & it : std::filesystem::directory_iterator( path ) )
 	{
-		XE_LOG( LoggerLevel::Error, "{%0} open failed!", path );
+		auto p = it.path();
+		if ( p.extension() == ".pak" )
+		{
+			auto pak = XE::MakeShared< XE::Package >();
+
+			if ( !pak->Open( p ) )
+			{
+				XE_ERROR( "{%0} failed to open!", p );
+				continue;
+			}
+
+			_p->_Packages.push_back( pak );
+		}
 	}
+
+	std::sort( _p->_Packages.begin(), _p->_Packages.end(), []( const auto & left, const auto & right ) { return left->GetVersion() > right->GetVersion(); } );
 }
 
 void XE::AssetsService::Update()
@@ -54,333 +62,97 @@ void XE::AssetsService::Update()
 
 void XE::AssetsService::Clearup()
 {
-	_p->_Zipper.Close();
-	_p->_ObjectCache.clear();
-}
-
-XE::Array< XE::UUID > XE::AssetsService::GetAssetsFromType( const XE::String & type ) const
-{
-	XE::Array< XE::UUID > result;
-
-	XE::Array< XE::String > names( XE::MemoryResource::GetFrameMemoryResource() );
-	_p->_Zipper.GetEntryNamesFromType( type, names );
-	result.resize( names.size() );
-
-	for( size_t i = 0; i < names.size(); i++ )
-	{
-		result[i].FromString( names[i] );
-	}
-
-	return result;
+	_p->_LruCache.clear();
+	_p->_Packages.clear();
 }
 
 XE::MemoryView XE::AssetsService::Load( const XE::UUID & uuid )
 {
-	auto handle = _p->_MemoryCache.find( uuid );
-	if( handle && handle.value().view() )
-	{
-		return handle.value().view();
-	}
-
-	auto suuid = XE::ToString( uuid );
-
-	if( _p->_Zipper.ExtractEntry( suuid ) )
-	{
-		handle.value().clear();
-		_p->_Zipper.GetEntry( suuid, handle.value() );
-		return handle.value().view();
-	}
-
-	XE_LOG( LoggerLevel::Error, "not find uuid: {%0}.", uuid.ToString() );
-
-	return nullptr;
+	return Load( uuid.ToString() );
 }
 
-XE::MemoryView XE::AssetsService::Load( const XE::UUID & uuid, const XE::String & path )
+XE::MemoryView XE::AssetsService::Load( const XE::String & name )
 {
-	auto handle = _p->_MemoryCache.find( uuid );
-	if( handle && handle.value().view() )
-	{
-		return handle.value().view();
-	}
+	auto it = _p->_LruCache.find( name );
 
-	auto fullpath( GetFramework()->GetCachesPath() / path.c_str() );
-	if( std::filesystem::exists( fullpath ) )
+	if ( it.value().width() == 0 )
 	{
-		std::ifstream ifs( fullpath );
-		if( ifs.is_open() )
+		for ( const auto & pak : _p->_Packages )
 		{
-			handle.value().clear();
-			char buf[2048];
-
-			while( !ifs.eof() )
+			if ( pak->ExistsEntry( name ) )
 			{
-				auto sz = ifs.readsome( buf, 2048 );
-				handle.value().write( buf, sz );
+				if ( pak->GetEntry( name, it.value() ) )
+				{
+					break;
+				}
 			}
-
-			return handle.value().view();
 		}
 	}
 
-	auto suuid = XE::ToString( uuid );
-
-	if( _p->_Zipper.ExtractEntry( suuid ) )
-	{
-		handle.value().clear();
-		_p->_Zipper.GetEntry( suuid, handle.value() );
-		return handle.value().view();
-	}
-
-	XE_LOG( LoggerLevel::Error, "not find uuid: {%0} file: {%1}.", uuid.ToString(), path );
-
-	return nullptr;
+	return it.value().view();
 }
 
 void XE::AssetsService::AsyncLoad( const XE::UUID & uuid, const LoadFinishCallback & callback )
 {
-	if( CHECK_THREAD( ThreadType::IO ) )
-		callback( Load( uuid ) );
-	else GetFramework()->GetServiceT< XE::ThreadService >()->PostTask( ThreadType::IO, [=]()
-																	   {
-																		   callback( Load( uuid ) );
-																	   } );
+	AsyncLoad( uuid.ToString(), callback );
 }
 
-void XE::AssetsService::AsyncLoad( const XE::UUID & uuid, const XE::String & path, const LoadFinishCallback & callback )
+void XE::AssetsService::AsyncLoad( const XE::String & name, const LoadFinishCallback & callback )
 {
-	if( CHECK_THREAD( ThreadType::IO ) )
-		callback( Load( uuid, path ) );
-	else GetFramework()->GetServiceT< XE::ThreadService >()->PostTask( ThreadType::IO, [=]()
-																		 {
-																			 callback( Load( uuid, path ) );
-																		 } );
+	if ( !CHECK_THREAD( XE::ThreadType::IO ) )
+	{
+		GetFramework()->GetServiceT< XE::ThreadService >()->PostTask( XE::ThreadType::IO, [=]() { callback( Load( name ) ); } );
+	}
+	else
+	{
+		callback( Load( name ) );
+	}
 }
 
 XE::ObjectPtr XE::AssetsService::LoadObject( const XE::UUID & uuid )
 {
-	XE::ObjectWPtr accessor;
-	if( _p->_ObjectCache.find( uuid, accessor ) )
-	{
-		if( !accessor.expired() )
-		{
-			return accessor.lock();
-		}
-	}
-
-	if( auto mem = Load( uuid ) )
-	{
-		XE::BinaryIArchive load( _p->_MemoryCache.find( uuid ).value() );
-
-		XE::ObjectPtr obj;
-
-		load & obj;
-
-		_p->_ObjectCache.insert( uuid, obj );
-
-		GetFramework()->GetServiceT< XE::TimerService >()->StartUnscaleTimer
-		( std::chrono::minutes( 1 ), [this, uuid]() -> bool
-		{
-			XE::ObjectWPtr accessor;
-			if ( _p->_ObjectCache.find( uuid, accessor ) )
-			{
-				if ( accessor.expired() )
-				{
-					_p->_ObjectCache.erase( uuid );
-				}
-			}
-
-			return false;
-		} );
-
-		return obj;
-	}
-
-	return nullptr;
+	return LoadObject( uuid.ToString() );
 }
 
-XE::ObjectPtr XE::AssetsService::LoadObject( const XE::UUID & uuid, const XE::String & path )
+XE::ObjectPtr XE::AssetsService::LoadObject( const XE::String & name )
 {
-	XE::ObjectWPtr accessor;
-	if( _p->_ObjectCache.find( uuid, accessor ) )
+	auto it = _p->_LruCache.find( name );
+
+	if ( it.value().width() == 0 )
 	{
-		if( !accessor.expired() )
+		for ( const auto & pak : _p->_Packages )
 		{
-			return accessor.lock();
+			if ( pak->ExistsEntry( name ) )
+			{
+				if ( pak->GetEntry( name, it.value() ) )
+				{
+					break;
+				}
+			}
 		}
 	}
 
-	if( auto mem = Load( uuid, path ) )
-	{
-		XE::BinaryIArchive load( _p->_MemoryCache.find( uuid ).value() );
+	XE::ObjectPtr obj;
+	XE::BinaryIArchive archive( it.value() );
 
-		XE::ObjectPtr obj;
+	archive & obj;
 
-		load & obj;
-
-		_p->_ObjectCache.insert( uuid, obj );
-
-		GetFramework()->GetServiceT< XE::TimerService >()->StartUnscaleTimer
-		( std::chrono::minutes( 1 ), [this, uuid]() -> bool
-		{
-			XE::ObjectWPtr accessor;
-			if ( _p->_ObjectCache.find( uuid, accessor ) )
-			{
-				if ( accessor.expired() )
-				{
-					_p->_ObjectCache.erase( uuid );
-				}
-			}
-
-			return false;
-		} );
-
-		return obj;
-	}
-
-	return nullptr;
+	return obj;
 }
 
 void XE::AssetsService::AsyncLoadObject( const XE::UUID & uuid, const LoadObjectFinishCallback & callback )
 {
-	if( CHECK_THREAD( ThreadType::IO ) )
-		callback( LoadObject( uuid ) );
-	else GetFramework()->GetServiceT< XE::ThreadService >()->PostTask( ThreadType::IO, [=]()
-																	   {
-																		   callback( LoadObject( uuid ) );
-																	   } );
+	AsyncLoadObject( uuid.ToString(), callback );
 }
 
-void XE::AssetsService::AsyncLoadObject( const XE::UUID & uuid, const XE::String & path, const LoadObjectFinishCallback & callback )
+void XE::AssetsService::AsyncLoadObject( const XE::String & name, const LoadObjectFinishCallback & callback )
 {
-	if( CHECK_THREAD( ThreadType::IO ) )
-		callback( LoadObject( uuid, path ) );
-	else GetFramework()->GetServiceT< XE::ThreadService >()->PostTask( ThreadType::IO, [=]()
-																		 {
-																			 callback( LoadObject( uuid, path ) );
-																		 } );
-}
-
-bool XE::AssetsService::LoadStream( const XE::UUID & uuid, std::ostream & stream, XE::uint64 offset, XE::uint64 size )
-{
+	if ( !CHECK_THREAD( XE::ThreadType::IO ) )
 	{
-		auto handle = _p->_MemoryCache.find( uuid );
-		if( handle && handle.value().view() )
-		{
-			auto v = handle.value().view();
-
-			stream.write( v.data() + offset, std::min( v.size() - offset, size ) );
-
-			return true;
-		}
-	}
-
-	{
-		auto suuid = XE::ToString( uuid );
-		if( _p->_Zipper.ExtractEntry( suuid ) )
-		{
-			return _p->_Zipper.GetEntryStream( suuid, stream, offset, size );
-		}
-	}
-
-	XE_LOG( LoggerLevel::Error, "not find uuid: {%0}.", uuid.ToString() );
-
-	return false;
-}
-
-bool XE::AssetsService::LoadStream( const XE::UUID & uuid, const XE::String & path, std::ostream & stream, XE::uint64 offset, XE::uint64 size )
-{
-	{
-		auto handle = _p->_MemoryCache.find( uuid );
-		if( handle && handle.value().view() )
-		{
-			auto v = handle.value().view();
-
-			stream.write( v.data() + offset, std::min( v.size() - offset, size ) );
-
-			return true;
-		}
-	}
-
-	{
-		auto fullpath( GetFramework()->GetCachesPath() / path.c_str() );
-		if( std::filesystem::exists( fullpath ) )
-		{
-			std::ifstream ifs( fullpath, std::ios::binary );
-			if( ifs.is_open() )
-			{
-				XE::Array< char > buf( size, XE::MemoryResource::GetFrameMemoryResource() );
-
-				ifs.seekg( offset, std::ios::beg );
-				size = ifs.readsome( buf.data(), size );
-				stream.write( buf.data(), size );
-
-				return true;
-			}
-		}
-	}
-
-	{
-		auto suuid = XE::ToString( uuid );
-		if( _p->_Zipper.ExtractEntry( suuid ) )
-		{
-			return _p->_Zipper.GetEntryStream( suuid, stream, offset, size );
-		}
-	}
-
-	XE_LOG( LoggerLevel::Error, "not find uuid: {%0} file: {%0}.", uuid.ToString(), path );
-
-	return false;
-}
-
-void XE::AssetsService::AsyncLoadStream( const XE::UUID & uuid, XE::uint64 offset, XE::uint64 size, const LoadStreamFinishCallback & callback )
-{
-	if( CHECK_THREAD( ThreadType::IO ) )
-	{
-		XE::MemoryStream stream( XE::MemoryResource::GetFrameMemoryResource() );
-
-		if( LoadStream( uuid, stream, offset, size ) )
-		{
-			callback( stream.view() );
-		}
+		GetFramework()->GetServiceT< XE::ThreadService >()->PostTask( XE::ThreadType::IO, [=]() { callback( LoadObject( name ) ); } );
 	}
 	else
 	{
-		GetFramework()->GetServiceT< XE::ThreadService >()->PostTask
-		( ThreadType::IO, [this, uuid, offset, size, callback]()
-		  {
-			  XE::MemoryStream stream( XE::MemoryResource::GetFrameMemoryResource() );
-
-			  if( LoadStream( uuid, stream, offset, size ) )
-			  {
-				  callback( stream.view() );
-			  }
-		  } );
-	}
-}
-
-void XE::AssetsService::AsyncLoadStream( const XE::UUID & uuid, const XE::String & path, XE::uint64 offset, XE::uint64 size, const LoadStreamFinishCallback & callback )
-{
-	if( CHECK_THREAD( ThreadType::IO ) )
-	{
-		XE::MemoryStream stream( XE::MemoryResource::GetFrameMemoryResource() );
-
-		if ( LoadStream( uuid, path, stream, offset, size ) )
-		{
-			callback( stream.view() );
-		}
-	}
-	else
-	{
-		GetFramework()->GetServiceT< XE::ThreadService >()->PostTask
-		( ThreadType::IO, [this, uuid, path, offset, size, callback]()
-		  {
-			  XE::MemoryStream stream( XE::MemoryResource::GetFrameMemoryResource() );
-
-			  if( LoadStream( uuid, path, stream, offset, size ) )
-			  {
-				  callback( stream.view() );
-			  }
-		  } );
+		callback( LoadObject( name ) );
 	}
 }

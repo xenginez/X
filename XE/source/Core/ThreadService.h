@@ -159,10 +159,10 @@ private:
 
 END_XE_NAMESPACE
 
-#define ASSERT_THREAD( TYPE ) \
-XE_ASSERT( XE::CoreFramework::GetCurrentFramework()->GetServiceT< XE::ThreadService >()->GetCurrentThreadType() != TYPE )
+#define ASSERT_THREAD( TYPE, MSG ) \
+XE_ASSERT( (XE::CoreFramework::GetCurrentFramework()->GetServiceT< XE::ThreadService >()->GetCurrentThreadType() != TYPE ) && MSG )
 
 #define CHECK_THREAD( TYPE ) \
-XE::CoreFramework::GetCurrentFramework()->GetServiceT< XE::ThreadService >()->GetCurrentThreadType() == TYPE
+(XE::CoreFramework::GetCurrentFramework()->GetServiceT< XE::ThreadService >()->GetCurrentThreadType() == TYPE)
 
 #endif // __THREADSERVICE_H__5E718656_36CC_4C4A_9077_F6887B508EC8

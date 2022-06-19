@@ -17,16 +17,13 @@ class XE_API AssetsService : public XE::Service
 {
 	OBJECT( AssetsService, Service )
 
-public:
-	using LoadFinishCallback = XE::Delegate< void( XE::MemoryView ) >;
-
-	using LoadObjectFinishCallback = XE::Delegate< void( XE::ObjectPtr ) >;
-
-	using LoadStreamFinishCallback = XE::Delegate< void( XE::MemoryView ) >;
-
 private:
 	struct Private;
 
+public:
+	using LoadFinishCallback = XE::Delegate< void( XE::MemoryView ) >;
+	using LoadObjectFinishCallback = XE::Delegate< void( XE::ObjectPtr ) >;
+	
 public:
 	AssetsService();
 
@@ -42,44 +39,48 @@ public:
 	void Clearup() override;
 
 public:
-	XE::Array< XE::UUID > GetAssetsFromType( const XE::String & type ) const;
-
-public:
 	virtual XE::MemoryView Load( const XE::UUID & uuid );
 
-	virtual XE::MemoryView Load( const XE::UUID & uuid, const XE::String & path );
+	virtual XE::MemoryView Load( const XE::String & name );
 
 	virtual void AsyncLoad( const XE::UUID & uuid, const LoadFinishCallback & callback );
 
-	virtual void AsyncLoad( const XE::UUID & uuid, const XE::String & path, const LoadFinishCallback & callback );
+	virtual void AsyncLoad( const XE::String & name, const LoadFinishCallback & callback );
 
 public:
 	virtual XE::ObjectPtr LoadObject( const XE::UUID & uuid );
 
-	virtual XE::ObjectPtr LoadObject( const XE::UUID & uuid, const XE::String & path );
+	virtual XE::ObjectPtr LoadObject( const XE::String & name );
 
 	virtual void AsyncLoadObject( const XE::UUID & uuid, const LoadObjectFinishCallback & callback );
 
-	virtual void AsyncLoadObject( const XE::UUID & uuid, const XE::String & path, const LoadObjectFinishCallback & callback );
+	virtual void AsyncLoadObject( const XE::String & name, const LoadObjectFinishCallback & callback );
 
 public:
-	virtual bool LoadStream( const XE::UUID & uuid, std::ostream & stream, XE::uint64 offset = 0, XE::uint64 size = std::numeric_limits< XE::uint64 >::max() );
-
-	virtual bool LoadStream( const XE::UUID & uuid, const XE::String & path, std::ostream & stream, XE::uint64 offset = 0, XE::uint64 size = std::numeric_limits< XE::uint64 >::max() );
-
-	virtual void AsyncLoadStream( const XE::UUID & uuid, XE::uint64 offset, XE::uint64 size, const LoadStreamFinishCallback & callback );
-
-	virtual void AsyncLoadStream( const XE::UUID & uuid, const XE::String & path, XE::uint64 offset, XE::uint64 size, const LoadStreamFinishCallback & callback );
-
-public:
-	template< typename T > T LoadObjectT( const XE::UUID & uuid, const XE::String & path )
+	template< typename T > T LoadObjectT( const XE::UUID & uuid )
 	{
-		return DP_CAST< T::element_type >( LoadObject( uuid, path ) );
+		return DP_CAST< T::element_type >( LoadObject( uuid ) );
 	}
 
-	template< typename T > void AsyncLoadObjectT( const XE::UUID & uuid, const XE::String & path, const XE::Delegate< void( T ) > & callback )
+	template< typename T > T LoadObjectT( const XE::String & name )
 	{
-		AsyncLoadObject( uuid, path, [callback]( XE::ObjectPtr obj )
+		return DP_CAST< T::element_type >( LoadObject( name ) );
+	}
+
+	template< typename T > void AsyncLoadObjectT( const XE::UUID & uuid, const XE::Delegate< void( T ) > & callback )
+	{
+		AsyncLoadObject( uuid, [callback]( XE::ObjectPtr obj )
+		{
+			if ( callback )
+			{
+				callback( DP_CAST< T::element_type >( obj ) );
+			}
+		} );
+	}
+
+	template< typename T > void AsyncLoadObjectT( const XE::String & name, const XE::Delegate< void( T ) > & callback )
+	{
+		AsyncLoadObject( name, [callback]( XE::ObjectPtr obj )
 						 {
 							 if( callback )
 							 {

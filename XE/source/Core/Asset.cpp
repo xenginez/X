@@ -5,7 +5,6 @@
 
 BEG_META( XE::Asset )
 REG_PROPERTY( "UUID", &XE::Asset::GetUUID, &XE::Asset::SetUUID );
-REG_PROPERTY( "Path", &XE::Asset::GetPath, &XE::Asset::SetPath );
 END_META()
 
 XE::Asset::Asset()
@@ -14,7 +13,7 @@ XE::Asset::Asset()
 }
 
 XE::Asset::Asset( const Asset & val )
-	:_Ptr( val._Ptr ), _UUID( val._UUID ), _Path( val._Path )
+	:_Ptr( val._Ptr ), _UUID( val._UUID )
 {
 
 }
@@ -32,6 +31,8 @@ XE::Asset::operator bool() const
 XE::Asset & XE::Asset::operator=( std::nullptr_t )
 {
 	_Ptr = nullptr;
+	_UUID = {};
+
 	return *this;
 }
 
@@ -39,7 +40,6 @@ XE::Asset & XE::Asset::operator=( const Asset & val )
 {
 	_Ptr = val._Ptr;
 	_UUID = val._UUID;
-	_Path = val._Path;
 
 	return *this;
 }
@@ -54,21 +54,11 @@ void XE::Asset::SetUUID( const XE::UUID & val )
 	_UUID = val;
 }
 
-const XE::String & XE::Asset::GetPath() const
-{
-	return _Path;
-}
-
-void XE::Asset::SetPath( const XE::String & val )
-{
-	_Path = val;
-}
-
 void XE::Asset::Load()
 {
 	if( _Ptr == nullptr )
 	{
-		LoadFinish( XE::CoreFramework::GetCurrentFramework()->GetServiceT< XE::AssetsService >()->LoadObject( _UUID, _Path ) );
+		LoadFinish( XE::CoreFramework::GetCurrentFramework()->GetServiceT< XE::AssetsService >()->LoadObject( _UUID ) );
 	}
 }
 
@@ -76,10 +66,7 @@ void XE::Asset::AsyncLoad()
 {
 	if( _Ptr == nullptr )
 	{
-		XE::CoreFramework::GetCurrentFramework()->GetServiceT< XE::AssetsService >()->AsyncLoadObject( _UUID, _Path, [this]( XE::ObjectPtr obj )
-																									 {
-																										 LoadFinish( obj );
-																									 } );
+		XE::CoreFramework::GetCurrentFramework()->GetServiceT< XE::AssetsService >()->AsyncLoadObject( _UUID, [this]( XE::ObjectPtr obj ){ LoadFinish( obj ); } );
 	}
 }
 

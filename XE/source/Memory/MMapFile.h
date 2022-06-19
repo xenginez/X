@@ -47,9 +47,9 @@ public:
 	const std::filesystem::path & GetFilePath() const;
 
 public:
-	void Open( XE::uint64 size );
+	bool Open( XE::uint64 size );
 
-	void Open( const std::filesystem::path & path );
+	bool Open( const std::filesystem::path & path );
 
 	void Close();
 

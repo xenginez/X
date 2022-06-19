@@ -33,25 +33,25 @@ void XE::WASMService::Startup()
 {
 	if( auto asset = GetFramework()->GetServiceT < XE::AssetsService >() )
 	{
-		auto uuids = asset->GetAssetsFromType( "wasm" );
-
-		for( const auto & it : uuids )
-		{
-			auto view = asset->Load( it );
-			if( view.size() != 0 )
-			{
-				XE::WASMModulePtr mod = XE::MakeShared< XE::WASMModule >();
-
-				mod->Load( view );
-
-				_p->_Modules.push_back( mod );
-			}
-		}
-
-		for( const auto & it : _p->_Modules )
-		{
-
-		}
+// 		auto uuids = asset->GetAssetsFromType( "wasm" );
+// 
+// 		for( const auto & it : uuids )
+// 		{
+// 			auto view = asset->Load( it );
+// 			if( view.size() != 0 )
+// 			{
+// 				XE::WASMModulePtr mod = XE::MakeShared< XE::WASMModule >();
+// 
+// 				mod->Load( view );
+// 
+// 				_p->_Modules.push_back( mod );
+// 			}
+// 		}
+// 
+// 		for( const auto & it : _p->_Modules )
+// 		{
+// 
+// 		}
 	}
 }
 
