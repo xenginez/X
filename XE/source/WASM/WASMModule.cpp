@@ -2,7 +2,7 @@
 
 namespace
 {
-	XE::uint64 read_str( const void * buffer, XE::Utf8String & str )
+	XE::uint64 read_str( const void * buffer, XE::String & str )
 	{
 		XE::uint64 res = 0;
 		XE::uint64 size = 0;

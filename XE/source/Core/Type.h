@@ -75,25 +75,25 @@ DECL_HANDLE( AudioSource );
 struct XE_API AudioBufferDesc
 {
 	XE::String Name;
-	XE::uint32 Bits = 8;		// 8 16 32
-	XE::uint32 Channels = 1;		// 1 2
-	XE::uint32 Frequency = 44100;	// 8000 11025 16000 22050 37800 44100 48000
+	XE::uint32 Bits = 8;		
+	XE::uint32 Channels = 1;	
+	XE::uint32 Frequency = 44100;
 };
 
 struct XE_API AudioSourceDesc
 {
 	XE::String Name;
 
-	bool Pause = true;		// 暂停,默认暂停
-	bool Relative = false;	// 指示Position是否是相对于Listener
-	bool Looping = false;	// 循环播放
-	XE::float32 InnerConeAngle = 360.0f;	// 内锥覆盖的角度
-	XE::float32 OuterConeAngle = 360.0f;	// 外锥覆盖的角度
-	XE::float32 Pitch = 1.0f;		// 采样倍增,应为正数
-	XE::float32 MinGain = 0.0f;		// 最小音量,应为正数
-	XE::float32 MaxGain = 1.0f;		// 最大音量,应为正数
-	XE::float32 MinDistance = 0.0f;		// 音量开始衰减的距离
-	XE::float32 MaxDistance = 1.0f;		// 音量彻底消失的距离
+	bool Pause = true;		
+	bool Relative = false;	
+	bool Looping = false;	
+	XE::float32 InnerConeAngle = 360.0f;
+	XE::float32 OuterConeAngle = 360.0f;
+	XE::float32 Pitch = 1.0f;		
+	XE::float32 MinGain = 0.0f;		
+	XE::float32 MaxGain = 1.0f;		
+	XE::float32 MinDistance = 0.0f;
+	XE::float32 MaxDistance = 1.0f;
 };
 
 

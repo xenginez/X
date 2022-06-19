@@ -13,7 +13,7 @@ struct XE::GUIService::Private
 {
 	XE::ImGuiImplPtr _Impl;
 	ImFontAtlas _FontAtlas;
-	XE::Map<XE::Utf8String, ImFont * > _Fonts;
+	XE::Map<XE::String, ImFont * > _Fonts;
 	XE::ConcurrentQueue< XE::CanvasPtr > _FreeCanvas;
 	XE::ConcurrentList< XE::Pair< XE::CanvasPtr, bool > > _Canvas;
 };
@@ -105,7 +105,7 @@ ImFontAtlas * XE::GUIService::GetFontAtlas() const
 	return &_p->_FontAtlas;
 }
 
-ImFont * XE::GUIService::FindFont( const XE::Utf8String & val ) const
+ImFont * XE::GUIService::FindFont( const XE::String & val ) const
 {
 	auto it = _p->_Fonts.find( val );
 

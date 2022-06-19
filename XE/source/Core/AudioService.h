@@ -101,14 +101,12 @@ public:
 public:
 	bool IsCapture() const;
 
-	void CaptureStart( XE::uint32 Bits, XE::uint32 Channels, XE::uint32 Frequency );
-
-	void CaptureSamples( void * userdata, ReadBufferCallbackType callback );
+	void CaptureStart( XE::uint32 Bits, XE::uint32 Channels, XE::uint32 Frequency, ReadBufferCallbackType callback );
 
 	void CaptureStop();
 
 protected:
-	virtual void OnRender( XE::AudioFrame * frame ) = 0;
+	void OnUpdate( XE::AudioFrame * frame );
 
 private:
 	Private * _p;

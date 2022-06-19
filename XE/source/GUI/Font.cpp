@@ -16,12 +16,12 @@ XE::Font::~Font()
 
 }
 
-const XE::Utf8String & XE::Font::GetName() const
+const XE::String & XE::Font::GetName() const
 {
 	return _Name;
 }
 
-void XE::Font::SetName( const XE::Utf8String & val )
+void XE::Font::SetName( const XE::String & val )
 {
 	_Name = val;
 }

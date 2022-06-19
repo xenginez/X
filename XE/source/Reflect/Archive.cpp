@@ -300,7 +300,7 @@ void XE::XmlOArchive::Serialize( const XE::Variant & val )
 			if( val.GetType() == ClassID< XE::String >::Get() )
 			{
 				_p->_Stack.back()->append_attribute( "type" ).set_value( val.GetType()->GetFullName().c_str() );
-				_p->_Stack.back()->text().set( val.Value< XE::Utf8String >().c_str() );
+				_p->_Stack.back()->text().set( val.Value< XE::String >().c_str() );
 			}
 			else if( val.GetType() == ClassID< XE::ArchiveNameVariant >::Get() )
 			{
@@ -429,7 +429,7 @@ XE::Variant XE::XmlIArchive::Deserialize( const XE::String & name /*= "" */ )
 		}
 		else if( type == ::TypeID< XE::String >::Get() )
 		{
-			result = XE::Utf8String( _p->_Stack.back()->text().as_string() );
+			result = XE::String( _p->_Stack.back()->text().as_string() );
 		}
 		else if( type->GetType() == XE::MetaInfoType::ENUM )
 		{

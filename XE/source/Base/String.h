@@ -24,10 +24,6 @@ public:
 
 	CodePoint( wchar_t c );
 
-#ifdef __cpp_char8_t
-	CodePoint( char8_t c );
-#endif
-
 	CodePoint( char16_t c );
 
 	CodePoint( char32_t c );
@@ -60,9 +56,6 @@ private:
 	{
 		char c;
 		wchar_t wc;
-#ifdef __cpp_char8_t
-		char8_t c8;
-#endif
 		char16_t c16;
 		char32_t c32;
 		XE::uint32 _unicode;
@@ -240,11 +233,7 @@ class XE_API Utf8Encode
 {
 public:
 	using size_type = std::size_t;
-#ifdef __cpp_char8_t
-	using storage_unit = char8_t;
-#else
 	using storage_unit = char;
-#endif
 
 public:
 	template <typename Iterator >
@@ -381,19 +370,6 @@ public:
 	// local wide char code point to local multi byte code point
 	static std::string wide_2_ansi( const std::wstring & str );
 
-#ifdef __cpp_char8_t
-	// local multi byte code point to unicode utf-8
-	static std::u8string ansi_2_utf8( const std::string & str );
-
-	// unicode utf-8 to local multi byte code point
-	static std::string utf8_2_ansi( const std::u8string & str );
-
-	// local wide char code point to unicode utf-8
-	static std::u8string wide_2_utf8( const std::wstring & str );
-
-	// unicode utf-8 code point to local wide char
-	static std::wstring utf8_2_wide( const std::u8string & str );
-#else
 	// local multi byte code point to unicode utf-8
 	static std::string ansi_2_utf8( const std::string & str );
 
@@ -405,8 +381,6 @@ public:
 
 	// unicode utf-8 code point to local wide char
 	static std::wstring utf8_2_wide( const std::string & str );
-
-#endif
 };
 
 template< typename Unit > class CodePointArrow
@@ -838,16 +812,16 @@ public:
 	}
 
 #ifdef __cpp_char8_t
-	template< typename T, std::enable_if_t< !std::is_same_v<T, storage_unit> && std::is_same_v<T, char8_t>, int > = 0 > BasicString( const T * str, const Alloc & a = Alloc() )
+	template< typename T, std::enable_if_t< std::is_same_v<T, char8_t>, int > = 0 > BasicString( const T * str, const Alloc & a = Alloc() )
 		: _string( a )
 	{
-		_string.assign( StringConvert<Utf8Encode, encode_type>::convert( str ) );
+		_string.assign( StringConvert<Utf8Encode, encode_type>::convert( reinterpret_cast<const char *>( str ) ) );
 	}
 
-	template< typename T, typename C, typename A, std::enable_if_t< !std::is_same_v<T, storage_unit> && std::is_same_v<T, char8_t>, int > = 0 > BasicString( const std::basic_string<T, C, A> & str, const Alloc & a = Alloc() )
+	template< typename T, typename C, typename A, std::enable_if_t< std::is_same_v<T, char8_t>, int > = 0 > BasicString( const std::basic_string<T, C, A> & str, const Alloc & a = Alloc() )
 		: _string( a )
 	{
-		_string.assign( StringConvert<Utf8Encode, encode_type>::convert( str ) );
+		_string.assign( StringConvert<Utf8Encode, encode_type>::convert( reinterpret_cast<const char *>( str.c_str() ) ) );
 	}
 #endif
 
@@ -914,16 +888,16 @@ public:
 	}
 
 #ifdef __cpp_char8_t
-	template< typename T, std::enable_if_t< !std::is_same_v<T, storage_unit> && std::is_same_v<T, char8_t>, int > = 0 > BasicString & operator=( const T * str )
+	template< typename T, std::enable_if_t< std::is_same_v<T, char8_t>, int > = 0 > BasicString & operator=( const T * str )
 	{
-		_string.assign( StringConvert<Utf8Encode, encode_type>::convert( str ) );
+		_string.assign( StringConvert<Utf8Encode, encode_type>::convert( reinterpret_cast<const char *>( str ) ) );
 
 		return *this;
 	}
 
-	template< typename T, typename C, typename A, std::enable_if_t< !std::is_same_v<T, storage_unit> && std::is_same_v<T, char8_t>, int > = 0 > BasicString & operator=( const std::basic_string<T, C, A> & str )
+	template< typename T, typename C, typename A, std::enable_if_t< std::is_same_v<T, char8_t>, int > = 0 > BasicString & operator=( const std::basic_string<T, C, A> & str )
 	{
-		_string.assign( StringConvert<Utf8Encode, encode_type>::convert( str ) );
+		_string.assign( StringConvert<Utf8Encode, encode_type>::convert( reinterpret_cast<const char *>( str.c_str() ) ) );
 
 		return *this;
 	}
@@ -2241,7 +2215,7 @@ using AnsiString = XE::BasicString< XE::AnsiEncode, std::pmr::polymorphic_alloca
 using WideString = XE::BasicString< XE::WideEncode, std::pmr::polymorphic_allocator< XE::WideEncode::storage_unit > >;
 using Utf8String = XE::BasicString< XE::Utf8Encode, std::pmr::polymorphic_allocator< XE::Utf8Encode::storage_unit > >;
 
-using String = XE::AnsiString;
+using String = XE::Utf8String;
 
 
 XE_INLINE XE::String ToString( bool _Val )

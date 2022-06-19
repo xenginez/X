@@ -17,7 +17,7 @@ XE::Logger::~Logger()
 
 #define _p XE::Logger::Instance()->_p
 
-void XE::Logger::Log( const char * file, XE::uint32 line, const char * func, XE::LoggerLevel level, const XE::Utf8String & text )
+void XE::Logger::Log( const char * file, XE::uint32 line, const char * func, XE::LoggerLevel level, const XE::String & text )
 {
 	auto time = std::chrono::system_clock::now();
 

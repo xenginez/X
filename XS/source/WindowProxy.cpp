@@ -8,7 +8,7 @@ XS::WindowProxy::WindowProxy( XS::MainWindow * window )
 #elif PLATFORM_OS & OS_MAC
 	: XE::Window( XE::HandleCast< XE::Window >( reinterpret_cast<XE::uint64>( window ) ), nullptr, nullptr )
 #elif PLATFORM_OS & OS_WINDOWS
-	: XE::Window( XE::HandleCast< XE::Window >( window->winId() ) )
+	: XE::Window( XE::HandleCast< XE::Window >( window->winId() ), nullptr )
 #endif
 {
 

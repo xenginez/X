@@ -18,7 +18,7 @@ class XE_API Logger : public XE::Singleton< XE::Logger >
 public:
 	struct Private;
 
-	using ListenerType = XE::Delegate< void( std::chrono::system_clock::time_point, const char *, XE::uint32, const char *, XE::LoggerLevel, const XE::Utf8String & ) >;
+	using ListenerType = XE::Delegate< void( std::chrono::system_clock::time_point, const char *, XE::uint32, const char *, XE::LoggerLevel, const XE::String & ) >;
 
 public:
 	Logger();
@@ -26,7 +26,7 @@ public:
 	~Logger();
 
 public:
-	static void Log( const char * file, XE::uint32 line, const char * func, XE::LoggerLevel level, const XE::Utf8String & text );
+	static void Log( const char * file, XE::uint32 line, const char * func, XE::LoggerLevel level, const XE::String & text );
 
 public:
 	static XE::Disposable RegisterListener( ListenerType listener );

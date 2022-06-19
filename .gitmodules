@@ -49,3 +49,6 @@
 [submodule "3rdparty/imgui"]
 	path = 3rdparty/imgui
 	url = https://github.com/ocornut/imgui.git
+[submodule "3rdparty/miniz-cpp"]
+	path = 3rdparty/miniz-cpp
+	url = https://github.com/tfussell/miniz-cpp.git

@@ -23,9 +23,9 @@ public:
 	~Font() override;
 
 public:
-	const XE::Utf8String & GetName() const;
+	const XE::String & GetName() const;
 
-	void SetName( const XE::Utf8String & val );
+	void SetName( const XE::String & val );
 
 	XE::uint32 GetFontSize() const;
 
@@ -36,7 +36,7 @@ public:
 	void SetPixelSize( XE::uint32 val );
 
 private:
-	XE::Utf8String _Name;
+	XE::String _Name;
 	XE::uint32 _FontSize = 12;
 	XE::uint32 _PixelSize = 12;
 };

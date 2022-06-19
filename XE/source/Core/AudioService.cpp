@@ -89,7 +89,7 @@ void XE::AudioService::Update()
 		GetFramework()->GetServiceT< XE::ThreadService >()->PostTask
 		( XE::ThreadType::AUDIO, [this, frame, lock]()
 		  {
-			  OnRender( &_p->_Frames[frame] );
+			  OnUpdate( &_p->_Frames[frame] );
 		  } );
 	}
 
@@ -451,7 +451,7 @@ void XE::AudioService::Destroy( AudioSourceHandle handle )
 	}
 }
 
-void XE::AudioService::CaptureStart( XE::uint32 Bits, XE::uint32 Channels, XE::uint32 Frequency )
+void XE::AudioService::CaptureStart( XE::uint32 Bits, XE::uint32 Channels, XE::uint32 Frequency, ReadBufferCallbackType callback )
 {
 	_p->_Capture = true;
 
@@ -462,16 +462,11 @@ void XE::AudioService::CaptureStart( XE::uint32 Bits, XE::uint32 Channels, XE::u
 	_p->_Frames[frame].Command[index].Handle = Bits;
 	_p->_Frames[frame].Command[index].Code = Channels;
 	_p->_Frames[frame].Command[index].Size = Frequency;
-}
 
-void XE::AudioService::CaptureSamples( void * userdata, ReadBufferCallbackType callback )
-{
-	auto frame = _p->_SubmitFrame;
-	auto index = _p->_Frames[frame].CommandSize++;
+	index = _p->_Frames[frame].CommandSize++;
 
 	_p->_Frames[frame].Command[index].Type = XE::AudioCommandType::CAPTURE_SAMPLES;
-	_p->_Frames[frame].Command[index].Code = ( XE::uint64 )userdata;
-	_p->_Frames[frame].Command[index].Size = ( XE::uint64 )callback;
+	_p->_Frames[frame].Command[index].Code = (XE::uint64)callback;
 }
 
 void XE::AudioService::CaptureStop()
@@ -487,4 +482,66 @@ void XE::AudioService::CaptureStop()
 bool XE::AudioService::IsCapture() const
 {
 	return _p->_Capture;
+}
+
+void XE::AudioService::OnUpdate( XE::AudioFrame * frame )
+{
+	for ( size_t i = 0; i < frame->CommandSize; i++ )
+	{
+		switch ( frame->Command[i].Type )
+		{
+		case XE::AudioCommandType::PLAY:
+			break;
+		case XE::AudioCommandType::GAIN:
+			break;
+		case XE::AudioCommandType::SPEED_OF_SOUND:
+			break;
+		case XE::AudioCommandType::DOPPLER_FACTOR:
+			break;
+		case XE::AudioCommandType::CREATE_BUFFER:
+			break;
+		case XE::AudioCommandType::CREATE_SOURCE:
+			break;
+		case XE::AudioCommandType::LISTENER_TRANSFORM:
+			break;
+		case XE::AudioCommandType::BUFFER_FILL:
+			break;
+		case XE::AudioCommandType::SOURCE_QUEUE_BUFFER:
+			break;
+		case XE::AudioCommandType::SOURCE_UNQUE_BUFFER:
+			break;
+		case XE::AudioCommandType::SOURCE_PLAY:
+			break;
+		case XE::AudioCommandType::SOURCE_RELATIVE:
+			break;
+		case XE::AudioCommandType::SOURCE_CONE_ANGLE:
+			break;
+		case XE::AudioCommandType::SOURCE_PITCH:
+			break;
+		case XE::AudioCommandType::SOURCE_TRANSFORM:
+			break;
+		case XE::AudioCommandType::SOURCE_GAIN:
+			break;
+		case XE::AudioCommandType::SOURCE_DISTANCE:
+			break;
+		case XE::AudioCommandType::SOURCE_PAUSE:
+			break;
+		case XE::AudioCommandType::CAPTURE_START:
+			break;
+		case XE::AudioCommandType::CAPTURE_SAMPLES:
+			break;
+		case XE::AudioCommandType::SOURCE_STOP:
+			break;
+		case XE::AudioCommandType::CAPTURE_STOP:
+			break;
+		case XE::AudioCommandType::PAUSE:
+			break;
+		case XE::AudioCommandType::DESTROY_BUFFER:
+			break;
+		case XE::AudioCommandType::DESTROY_SOURCE:
+			break;
+		default:
+			break;
+		}
+	}
 }

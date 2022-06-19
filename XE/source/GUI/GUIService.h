@@ -39,7 +39,7 @@ public:
 
 	ImFontAtlas * GetFontAtlas() const;
 
-	ImFont * FindFont( const XE::Utf8String & val ) const;
+	ImFont * FindFont( const XE::String & val ) const;
 
 public:
 	XE::CanvasPtr FindCanvas( const XE::String & val );

@@ -4,15 +4,15 @@
 
 TEST( StringTest, TestString )
 {
-	const char * cstr = "abcdef0123456789ÖÇ»ÛÖÐ¹ú";
-	const wchar_t * wstr = L"abcdef0123456789ÖÇ»ÛÖÐ¹ú";
-	const char * c8str = reinterpret_cast< const char * >( u8"abcdef0123456789ÖÇ»ÛÖÐ¹ú" );
+	const char * cstr = "abcdef0123456789æ™ºæ…§ä¸­å›½";
+	const wchar_t * wstr = L"abcdef0123456789æ™ºæ…§ä¸­å›½";
+	const char * c8str = reinterpret_cast< const char * >( u8"abcdef0123456789æ™ºæ…§ä¸­å›½" );
 
-	XE::AnsiString ansi = "abcdef0123456789ÖÇ»ÛÖÐ¹ú";
+	XE::AnsiString ansi = "abcdef0123456789æ™ºæ…§ä¸­å›½";
 	XE::WideString wide = ansi;
-	XE::Utf8String utf8 = ansi;
+	XE::String utf8 = ansi;
 
-	EXPECT_TRUE( ansi == "abcdef0123456789ÖÇ»ÛÖÐ¹ú" );
+	EXPECT_TRUE( ansi == "abcdef0123456789æ™ºæ…§ä¸­å›½" );
 
 	EXPECT_TRUE( wide == ansi );
 	EXPECT_TRUE( ansi == wide );
@@ -22,12 +22,12 @@ TEST( StringTest, TestString )
 	EXPECT_TRUE( utf8 == wide );
 
 
-	XE::String str1 = "abcdef0123456789ÖÇ»ÛÖÐ¹ú";
-	XE::String str2 = XE::Format( "abcdef0123{%0}6789ÖÇ{%1}¹ú", "45", "»ÛÖÐ" );
-	XE::String str3 = XE::Format( "abcdef0123{ %0}6789ÖÇ{%1 }¹ú", "45", "»ÛÖÐ" );
-	XE::String str4 = XE::Format( "abcdef0123{  %0}6789ÖÇ{%1  }¹ú", "45", "»ÛÖÐ" );
-	XE::String str5 = XE::Format( "abcdef0123{ %0 }6789ÖÇ{ %1 }¹ú", "45", "»ÛÖÐ" );
-	XE::String str6 = XE::Format( "abcdef0123{  %0  }6789ÖÇ{  %1  }¹ú", "45", "»ÛÖÐ" );
+	XE::String str1 = "abcdef0123456789æ™ºæ…§ä¸­å›½";
+	XE::String str2 = XE::Format( "abcdef0123{%0}6789æ™º{%1}å›½", "45", "æ…§ä¸­" );
+	XE::String str3 = XE::Format( "abcdef0123{ %0}6789æ™º{%1 }å›½", "45", "æ…§ä¸­" );
+	XE::String str4 = XE::Format( "abcdef0123{  %0}6789æ™º{%1  }å›½", "45", "æ…§ä¸­" );
+	XE::String str5 = XE::Format( "abcdef0123{ %0 }6789æ™º{ %1 }å›½", "45", "æ…§ä¸­" );
+	XE::String str6 = XE::Format( "abcdef0123{  %0  }6789æ™º{  %1  }å›½", "45", "æ…§ä¸­" );
 
 	EXPECT_TRUE( str1 == str2 );
 	EXPECT_TRUE( str1 == str3 );

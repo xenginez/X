@@ -772,8 +772,8 @@ struct XE_API TypeSection
 
 struct XE_API ImportSection
 {
-	XE::Utf8String Module;
-	XE::Utf8String Field;
+	XE::String Module;
+	XE::String Field;
 	XE::DescType Desc;
 	union
 	{
@@ -819,7 +819,7 @@ struct XE_API GlobalSection
 
 struct XE_API ExportSection
 {
-	XE::Utf8String Field;
+	XE::String Field;
 	XE::DescType Desc;
 	XE::uint32 DescIdx;
 };
