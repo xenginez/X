@@ -1,9 +1,6 @@
 [submodule "3rdparty/asio"]
 	path = 3rdparty/asio
 	url = https://github.com/chriskohlhoff/asio.git
-[submodule "3rdparty/bundle"]
-	path = 3rdparty/bundle
-	url = https://github.com/r-lyeh-archived/bundle.git
 [submodule "3rdparty/cpuinfo"]
 	path = 3rdparty/cpuinfo
 	url = https://github.com/pytorch/cpuinfo.git
@@ -34,12 +31,6 @@
 [submodule "3rdparty/stb"]
 	path = 3rdparty/stb
 	url = https://github.com/nothings/stb.git
-[submodule "3rdparty/volk"]
-	path = 3rdparty/volk
-	url = https://github.com/zeux/volk.git
-[submodule "3rdparty/Vulkan-Headers"]
-	path = 3rdparty/Vulkan-Headers
-	url = https://github.com/KhronosGroup/Vulkan-Headers.git
 [submodule "3rdparty/webgpu-headers"]
 	path = 3rdparty/webgpu-headers
 	url = https://github.com/webgpu-native/webgpu-headers.git
@@ -52,3 +43,6 @@
 [submodule "3rdparty/miniz-cpp"]
 	path = 3rdparty/miniz-cpp
 	url = https://github.com/tfussell/miniz-cpp.git
+[submodule "3rdparty/vkbind"]
+	path = 3rdparty/vkbind
+	url = https://github.com/mackron/vkbind.git

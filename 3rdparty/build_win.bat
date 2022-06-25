@@ -156,15 +156,6 @@ xcopy %cd%\install\include\ %RD3_PATH%\..\depends\include\ /s /y
 
 
 
-
-
-
-:BUILD_BUNDLE
-echo "copy bundle head file to depends"
-cd %RD3_PATH%
-xcopy %cd%\bundle\bundle.h %RD3_PATH%\..\depends\include\bundle\ /y
-xcopy %cd%\bundle\bundle.cpp %RD3_PATH%\..\depends\include\bundle\ /y
-
 :BUILD_STB
 echo "copy stb head file to depends"
 cd %RD3_PATH%
@@ -190,16 +181,10 @@ echo "copy d3dx12 head file to depends"
 cd %RD3_PATH%
 xcopy %cd%\D3DX12\d3dx12.h %RD3_PATH%\..\depends\include\D3DX12\ /s /y
 
-:BUILD_VULKAN
-echo "copy vulkan head file to depends"
+:BUILD_VKBIND
+echo "copy vkbind head file to depends"
 cd %RD3_PATH%
-xcopy %cd%\Vulkan-Headers\include\vulkan\*.* %RD3_PATH%\..\depends\include\vulkan\ /s /y
-
-:BUILD_VOLK
-echo "copy volk head file to depends"
-cd %RD3_PATH%
-xcopy %cd%\volk\volk.h %RD3_PATH%\..\depends\include\volk\ /s /y
-xcopy %cd%\volk\volk.c %RD3_PATH%\..\depends\include\volk\ /s /y
+xcopy %cd%\vkbind\vkbind.h %RD3_PATH%\..\depends\include\vkbind\ /y
 
 :BUILD_MICROPROFILE
 echo "copy microprofile head file to depends"
