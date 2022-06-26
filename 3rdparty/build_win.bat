@@ -154,6 +154,37 @@ xcopy %cd%\install\include\ %RD3_PATH%\..\depends\include\ /s /y
 
 
 
+:BUILD_ASSIMP
+cd %RD3_PATH%
+mkdir .\assimp\build
+echo "build assimp debug"
+cd %RD3_PATH%
+cd .\assimp\build
+cmake -DASSIMP_BUILD_ALL_EXPORTERS_BY_DEFAULT=OFF -DASSIMP_BUILD_ASSIMP_TOOLS=OFF -DASSIMP_BUILD_TESTS=OFF -DASSIMP_INSTALL_PDB=OFF -DCMAKE_DEBUG_PREFIX="" -DCMAKE_DEBUG_POSTFIX="" -DLIBRARY_SUFFIX="" -DCMAKE_INSTALL_PREFIX=.\install\ .. -G "Visual Studio 16 2019"
+msbuild.exe ".\INSTALL.vcxproj"  /m /nr:true ^
+    /p:Configuration=Debug ^
+    /p:Platform=x64 ^
+    /p:AppxBundlePlatforms=x64 ^
+    /p:UseSubFolderForOutputDirDuringMultiPlatformBuild=false
+echo "copy assimp release file to depends"
+xcopy %cd%\install\bin\assimp.dll %RD3_PATH%\..\depends\bin\win\debug\ /y
+xcopy %cd%\install\lib\assimp.lib %RD3_PATH%\..\depends\lib\win\debug\ /y
+del %cd%\install\ /f /s /q
+echo "build assimp release"
+cd %RD3_PATH%
+cd .\assimp\build
+msbuild.exe ".\INSTALL.vcxproj"  /m /nr:true ^
+    /p:Configuration=Release ^
+    /p:Platform=x64 ^
+    /p:AppxBundlePlatforms=x64 ^
+    /p:UseSubFolderForOutputDirDuringMultiPlatformBuild=false
+echo "copy assimp release file to depends"
+xcopy %cd%\install\bin\assimp.dll %RD3_PATH%\..\depends\bin\win\release\ /y
+xcopy %cd%\install\lib\assimp.lib %RD3_PATH%\..\depends\lib\win\release\ /y
+xcopy %cd%\install\include\ %RD3_PATH%\..\depends\include\ /s /y
+
+
+
 
 
 :BUILD_STB
