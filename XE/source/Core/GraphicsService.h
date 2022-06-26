@@ -21,11 +21,12 @@ private:
 	struct Private;
 
 public:
-	using ErrorCallback = XE::Delegate< void( XE::GraphicsErrorType type, const XE::String & message ) >;
-	using DeviceLostCallback = XE::Delegate< void( XE::GraphicsDeviceLostReason reason, const XE::String & message ) >;
+	using ErrorCallback = XE::Delegate< void( XE::GraphicsErrorType type ) >;
+	using BufferMapCallback = XE::Delegate<void( XE::GraphicsBufferMapAsyncStatus status )>;
+	using DeviceLostCallback = XE::Delegate< void( XE::GraphicsDeviceLostReason reason ) >;
 	using QueueWorkDoneCallback = XE::Delegate< void( XE::GraphicsQueueWorkDoneStatus status ) >;
-	using RequestDeviceCallback = XE::Delegate< void( XE::GraphicsRequestDeviceStatus status, XE::GraphicsDeviceHandle device, const XE::String & message ) >;
-	using RequestAdapterCallback = XE::Delegate< void( XE::GraphicsRequestAdapterStatus status, XE::GraphicsAdapterHandle adapter, const XE::String & message ) >;
+	using RequestDeviceCallback = XE::Delegate< void( XE::GraphicsRequestDeviceStatus status, XE::GraphicsDeviceHandle device ) >;
+	using RequestAdapterCallback = XE::Delegate< void( XE::GraphicsRequestAdapterStatus status, XE::GraphicsAdapterHandle adapter ) >;
 	using CompilationInfoCallback = XE::Delegate< void( XE::GraphicsCompilationInfoRequestStatus status, const XE::GraphicsCompilationInfo & compilation_info ) >;
 
 public:
@@ -43,11 +44,15 @@ public:
 	void Clearup() override;
 
 public:
+	void RequestAdapter( const XE::GraphicsRequestAdapterOptions & options, RequestAdapterCallback callback );
 	XE::GraphicsSurfaceHandle CreateSurface( const XE::GraphicsSurfaceDescriptor & descriptor );
 
 public:
-	void ProcessEvents();
-	void RequestAdapter( const XE::GraphicsRequestAdapterOptions & options, RequestAdapterCallback callback );
+	void AdapterEnumerateFeatures( XE::GraphicsAdapterHandle adapter, XE::Array< XE::GraphicsFeatureName > & features );
+	bool AdapterGetLimits( XE::GraphicsAdapterHandle adapter, XE::GraphicsSupportedLimits & limits );
+	void AdapterGetProperties( XE::GraphicsAdapterHandle adapter, XE::GraphicsAdapterProperties & properties );
+	bool AdapterHasFeature( XE::GraphicsAdapterHandle adapter, XE::GraphicsFeatureName feature );
+	void AdapterRequestDevice( XE::GraphicsAdapterHandle adapter, const XE::GraphicsDeviceDescriptor & descriptor, RequestDeviceCallback callback );
 
 public:
 	XE::GraphicsBindGroupHandle DeviceCreateBindGroup( XE::GraphicsDeviceHandle device, const XE::GraphicsBindGroupDescriptor & descriptor );
@@ -66,13 +71,8 @@ public:
 	XE::GraphicsTextureViewHandle TextureCreateView( XE::GraphicsTextureHandle texture, const XE::GraphicsTextureViewDescriptor & descriptor );
 
 public:
-	void AdapterEnumerateFeatures( XE::GraphicsAdapterHandle adapter, XE::Array< XE::GraphicsFeatureName > & features );
-	bool AdapterGetLimits( XE::GraphicsAdapterHandle adapter, XE::GraphicsSupportedLimits & limits );
-	void AdapterGetProperties( XE::GraphicsAdapterHandle adapter, XE::GraphicsAdapterProperties & properties );
-	bool AdapterHasFeature( XE::GraphicsAdapterHandle adapter, XE::GraphicsFeatureName feature );
-	void AdapterRequestDevice( XE::GraphicsAdapterHandle adapter, const XE::GraphicsDeviceDescriptor & descriptor, RequestDeviceCallback callback );
-	
-public:
+	void BufferMapAsync( XE::GraphicsBufferHandle buffer, XE::GraphicsMapModeFlags mode, size_t offset, size_t size, BufferMapCallback callback, void * userdata );
+	XE::Span< const XE::uint8 > BufferGetConstMappedRange( XE::GraphicsBufferHandle buffer, XE::uint64 offset, XE::uint64 size );
 	XE::Span< XE::uint8 > BufferGetMappedRange( XE::GraphicsBufferHandle buffer, XE::uint64 offset, XE::uint64 size );
 	void BufferUnmap( XE::GraphicsBufferHandle buffer );
 

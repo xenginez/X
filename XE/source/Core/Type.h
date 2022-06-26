@@ -868,7 +868,7 @@ struct XE_API GraphicsRenderPassTimestampWrite
 
 struct XE_API GraphicsRequestAdapterOptions
 {
-    XE::GraphicsSurfaceHandle CompatibleSurface;
+//    XE::GraphicsSurfaceHandle CompatibleSurface;
     XE::GraphicsPowerPreference PowerPreference;
     bool ForceFallbackAdapter;
 };
@@ -921,6 +921,7 @@ struct XE_API GraphicsStorageTextureBindingLayout
 
 struct XE_API GraphicsSurfaceDescriptor
 {
+    XE::String Label;
     XE::WindowPtr Window;
 };
 

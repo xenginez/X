@@ -28,8 +28,18 @@
 
 IMPLEMENT_META( XE::GraphicsService );
 
+#define FIND_DESC( TYPE ) auto it = std::find_if( _p->_##TYPE##s.begin(), _p->_##TYPE##s.end(), \
+[&]( const auto & val ) { return val.Desc.Label == descriptor.Label; } ); \
+if ( it != _p->_##TYPE##s.end() ) return it->IncHandle();
+
 namespace
 {
+	static constexpr XE::uint64 GRAPHICS_MAX_COMMAND_ALLOCATOR = 32;
+	static constexpr XE::uint64 GRAPHICS_MAX_RTV_DESCRIPTOR_HEAP = 64;
+	static constexpr XE::uint64 GRAPHICS_MAX_DSV_DESCRIPTOR_HEAP = 64;
+	static constexpr XE::uint64 GRAPHICS_MAX_CSU_DESCRIPTOR_HEAP = 1024;
+	static constexpr XE::uint64 GRAPHICS_MAX_SAMPLER_DESCRIPTOR_HEAP = 1024;
+
 	enum class PassKind
 	{
 		NONE,
@@ -286,11 +296,22 @@ namespace
 		}
 
 	public:
+		XE::Handle< T > IncHandle()
+		{
+			Inc();
+
+			return Handle;
+		}
+
+	public:
 		XE::Handle< T > Handle;
 	};
 
 	template< typename T, XE::uint64 S > class RefHandleArray
 	{
+	public:
+		using iterator = std::array< T, S >::iterator;
+
 	public:
 		T & Alloc()
 		{
@@ -302,12 +323,25 @@ namespace
 
 		void Free( XE::Handle< T > handle )
 		{
+			_Datas[handle.GetValue()].Handle = {};
+			_Datas[handle.GetValue()].Desc = {};
 			_Handles.Free( handle );
 		}
 
-		T & operator []( XE::uint64 idx )
+		T & operator []( XE::Handle< T > handle )
 		{
-			return _Datas[idx];
+			return _Datas[handle.GetValue()];
+		}
+
+	public:
+		iterator begin()
+		{
+			return _Datas.begin();
+		}
+
+		iterator end()
+		{
+			return _Datas.end();
 		}
 
 	public:
@@ -319,7 +353,9 @@ namespace
 
 	using D3D12AdapterPtr = ComPtr < IDXGIAdapter4 >;
 	using D3D12DevicePtr = ComPtr < ID3D12Device >;
+	using D3D12FencePtr = ComPtr< ID3D12Fence >;
 	using D3D12ResourcePtr = ComPtr < ID3D12Resource >;
+	using D3D12DescriptorHeapPtr = ComPtr< ID3D12DescriptorHeap >;
 	using D3D12CommandQueuePtr = ComPtr < ID3D12CommandQueue >;
 	using D3D12CommandAllocatorPtr = ComPtr < ID3D12CommandAllocator >;
 	using D3D12CommandListPtr = ComPtr < ID3D12CommandList >;
@@ -329,7 +365,7 @@ namespace
 	using D3D12CommandSignaturePtr = ComPtr< ID3D12CommandSignature >;
 	using D3D12RootSignaturePtr = ComPtr< ID3D12RootSignature >;
 	using D3D12QueryHeapPtr = ComPtr< ID3D12QueryHeap >;
-	using D3D12FactoryPtr = ComPtr< IDXGIFactory >;
+	using D3D12FactoryPtr = ComPtr< IDXGIFactory6 >;
 	using D3D12DebugPtr = ComPtr< ID3D12Debug >;
 }
 
@@ -339,6 +375,8 @@ namespace XE
 	{
 	public:
 		XE::GraphicsSurfaceDescriptor Desc;
+
+		XE::GraphicsSwapChainHandle SwapChain;
 	};
 	class GraphicsSwapChain : public RefHandle< XE::GraphicsSwapChain >
 	{
@@ -346,10 +384,14 @@ namespace XE
 		XE::GraphicsSwapChainDescriptor Desc;
 
 		D3D12SwapChainPtr SwapChain = nullptr;
+
+		XE::GraphicsSurfaceHandle Parent;
 	};
 	class GraphicsAdapter : public RefHandle< XE::GraphicsAdapter >
 	{
 	public:
+		XE::uint64 Desc;
+
 		D3D12AdapterPtr Adapter = nullptr;
 
 		XE::GraphicsDeviceHandle Device;
@@ -359,17 +401,30 @@ namespace XE
 	public:
 		XE::GraphicsDeviceDescriptor Desc;
 
+		D3D12FencePtr Fence = nullptr;
 		D3D12DevicePtr Device = nullptr;
-		XE::GraphicsAdapterHandle Adapter;
+
+		D3D12DescriptorHeapPtr CSUHeap;
+		D3D12DescriptorHeapPtr RTVHeap;
+		D3D12DescriptorHeapPtr DSVHeap;
+		D3D12DescriptorHeapPtr SmaplerHeap;
+		std::array<D3D12CommandAllocatorPtr, GRAPHICS_MAX_COMMAND_ALLOCATOR> Allocators;
+
+		D3D12CommandSignaturePtr DrawIndirectSignature;
+		D3D12CommandSignaturePtr DispatchIndirectSignature;
+		D3D12CommandSignaturePtr DrawIndexedIndirectSignature;
+
 		XE::GraphicsQueueHandle Queue;
+		XE::GraphicsAdapterHandle Parent;
 	};
 	class GraphicsQueue : public RefHandle< XE::GraphicsQueue >
 	{
 	public:
 		XE::GraphicsQueueDescriptor Desc;
 
-		XE::GraphicsDeviceHandle Device;
 		D3D12CommandQueuePtr CommandQueue = nullptr;
+
+		XE::GraphicsDeviceHandle Parent;
 	};
 	class GraphicsBindGroup : public RefHandle< XE::GraphicsBindGroup >
 	{
@@ -378,11 +433,15 @@ namespace XE
 
 		D3D12RootSignaturePtr RootSignature = nullptr;
 		D3D12CommandSignaturePtr CommandSignature = nullptr;
+
+		XE::GraphicsDeviceHandle Parent;
 	};
 	class GraphicsBindGroupLayout : public RefHandle< XE::GraphicsBindGroupLayout >
 	{
 	public:
 		XE::GraphicsBindGroupLayoutDescriptor Desc;
+
+		XE::GraphicsDeviceHandle Parent;
 	};
 	class GraphicsBuffer : public RefHandle< XE::GraphicsBuffer >
 	{
@@ -391,6 +450,9 @@ namespace XE
 
 		D3D12_RANGE MapRange = {};
 		D3D12ResourcePtr Resource = nullptr;
+		XE::Array<XE::uint8> _MapData;
+
+		XE::GraphicsDeviceHandle Parent;
 	};
 	class GraphicsCommandBuffer : public RefHandle< XE::GraphicsCommandBuffer >
 	{
@@ -398,7 +460,8 @@ namespace XE
 		XE::GraphicsCommandBufferDescriptor Desc;
 
 		D3D12GraphicsCommandListPtr CommandList = nullptr;
-		D3D12CommandAllocatorPtr CommandAllocator = nullptr;
+
+		XE::GraphicsDeviceHandle Parent;
 	};
 	class GraphicsCommandEncoder : public RefHandle< XE::GraphicsCommandEncoder >
 	{
@@ -569,29 +632,261 @@ void XE::GraphicsService::Clearup()
 	_p->_Debug = nullptr;
 }
 
+void XE::GraphicsService::RequestAdapter( const XE::GraphicsRequestAdapterOptions & options, RequestAdapterCallback callback )
+{
+	D3D12AdapterPtr adapter;
+
+	DXGI_GPU_PREFERENCE preference;
+	switch ( options.PowerPreference )
+	{
+	case XE::GraphicsPowerPreference::UNDEFINED:
+		preference = DXGI_GPU_PREFERENCE_UNSPECIFIED;
+		break;
+	case XE::GraphicsPowerPreference::LOW_POWER:
+		preference = DXGI_GPU_PREFERENCE_MINIMUM_POWER;
+		break;
+	case XE::GraphicsPowerPreference::HIGH_PERFORMANCE:
+		preference = DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE;
+		break;
+	default:
+		break;
+	}
+
+	for ( size_t i = 0; _p->_Factory->EnumAdapterByGpuPreference( i, preference, IID_PPV_ARGS( adapter.GetAddressOf() ) ) != DXGI_ERROR_NOT_FOUND; i++ )
+	{
+		auto & ada = _p->_Adapters.Alloc();
+
+		ada.Adapter = adapter;
+
+		ada.Desc = i;
+
+		callback( XE::GraphicsRequestAdapterStatus::SUCCESS, ada );
+	}
+}
+
 XE::GraphicsSurfaceHandle XE::GraphicsService::CreateSurface( const XE::GraphicsSurfaceDescriptor & descriptor )
 {
+	FIND_DESC( Surface );
+
 	auto & surface = _p->_Surfaces.Alloc();
 
 	surface.Desc = descriptor;
 
-	// TODO: 
-
 	return surface;
 }
 
-void XE::GraphicsService::ProcessEvents()
+void XE::GraphicsService::AdapterEnumerateFeatures( XE::GraphicsAdapterHandle adapter, XE::Array< XE::GraphicsFeatureName > & features )
 {
-
+	auto & ada = _p->_Adapters[adapter];
+	if ( ada.Count() != 0 )
+	{
+		features.push_back( XE::GraphicsFeatureName::DEPTH_CLIP_CONTROL );
+		features.push_back( XE::GraphicsFeatureName::DEPTH24UNORM_STENCIL8 );
+		features.push_back( XE::GraphicsFeatureName::DEPTH32FLOAT_STENCIL8 );
+		features.push_back( XE::GraphicsFeatureName::INDIRECT_FIRST_INSTANCE );
+		features.push_back( XE::GraphicsFeatureName::TIMESTAMP_QUERY );
+		features.push_back( XE::GraphicsFeatureName::PIPELINE_STATISTICS_QUERY );
+		features.push_back( XE::GraphicsFeatureName::TEXTURE_COMPRESSION_BC );
+	}
 }
 
-void XE::GraphicsService::RequestAdapter( const XE::GraphicsRequestAdapterOptions & options, RequestAdapterCallback callback )
+bool XE::GraphicsService::AdapterGetLimits( XE::GraphicsAdapterHandle adapter, XE::GraphicsSupportedLimits & limits )
 {
+	auto & ada = _p->_Adapters[adapter];
+	if ( ada.Count() != 0 )
+	{
+		limits.Limits.MaxTextureDimension1D = D3D12_REQ_TEXTURE1D_U_DIMENSION;
+		limits.Limits.MaxTextureDimension2D = D3D12_REQ_TEXTURE2D_U_OR_V_DIMENSION;
+		limits.Limits.MaxTextureDimension3D = D3D12_REQ_TEXTURE3D_U_V_OR_W_DIMENSION;
+		limits.Limits.MaxTextureArrayLayers = D3D12_REQ_TEXTURE2D_ARRAY_AXIS_DIMENSION;
+		limits.Limits.MaxBindGroups = 4;
+		limits.Limits.MaxDynamicUniformBuffersPerPipelineLayout = 8;
+		limits.Limits.MaxDynamicStorageBuffersPerPipelineLayout = 4;
+		limits.Limits.MaxSampledTexturesPerShaderStage = 16;
+		limits.Limits.MaxSamplersPerShaderStage = D3D12_MAX_SHADER_VISIBLE_SAMPLER_HEAP_SIZE;
+		limits.Limits.MaxStorageBuffersPerShaderStage = 8;
+		limits.Limits.MaxStorageTexturesPerShaderStage = 8;
+		limits.Limits.MaxUniformBuffersPerShaderStage = 12;
+		limits.Limits.MaxUniformBufferBindingSize = D3D12_REQ_CONSTANT_BUFFER_ELEMENT_COUNT * 16;
+		limits.Limits.MaxStorageBufferBindingSize = 128 << 20;
+		limits.Limits.MinUniformBufferOffsetAlignment = D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT;
+		limits.Limits.MinStorageBufferOffsetAlignment = 4;
+		limits.Limits.MaxVertexBuffers = D3D12_VS_INPUT_REGISTER_COUNT;
+		limits.Limits.MaxVertexAttributes = D3D12_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT;
+		limits.Limits.MaxVertexBufferArrayStride = D3D12_SO_BUFFER_MAX_STRIDE_IN_BYTES;
+		limits.Limits.MaxInterStageShaderComponents = 60;
+		limits.Limits.MaxComputeWorkgroupStorageSize = 16352;
+		limits.Limits.MaxComputeInvocationsPerWorkgroup = D3D12_CS_4_X_THREAD_GROUP_MAX_THREADS_PER_GROUP;
+		limits.Limits.MaxComputeWorkgroupSizeX = D3D12_CS_THREAD_GROUP_MAX_X;
+		limits.Limits.MaxComputeWorkgroupSizeY = D3D12_CS_THREAD_GROUP_MAX_Y;
+		limits.Limits.MaxComputeWorkgroupSizeZ = D3D12_CS_THREAD_GROUP_MAX_Z;
+		limits.Limits.MaxComputeWorkgroupsPerDimension = D3D12_CS_DISPATCH_MAX_THREAD_GROUPS_PER_DIMENSION;
 
+		return true;
+	}
+
+	return false;
+}
+
+void XE::GraphicsService::AdapterGetProperties( XE::GraphicsAdapterHandle adapter, XE::GraphicsAdapterProperties & properties )
+{
+	auto & ada = _p->_Adapters[adapter];
+	if ( ada.Count() != 0 )
+	{
+		DXGI_ADAPTER_DESC1 desc1;
+		if ( SUCCEEDED( ada.Adapter->GetDesc1( &desc1 ) ) )
+		{
+			properties.Name = XE::WideString( desc1.Description );
+			properties.DriverDescription = properties.Name;
+			properties.DeviceID = desc1.DeviceId;
+			properties.VendorID = desc1.VendorId;
+			properties.BackendType = XE::GraphicsBackendType::D3D12;
+
+			if ( desc1.Flags & DXGI_ADAPTER_FLAG_SOFTWARE )
+			{
+				properties.AdapterType = GraphicsAdapterType::SOFTWARE_CPU;
+			}
+			else
+			{
+				D3D12_FEATURE_DATA_ARCHITECTURE arch = {};
+				if ( ada.Device && SUCCEEDED( _p->_Devices[ada.Device].Device->CheckFeatureSupport( D3D12_FEATURE_ARCHITECTURE, &arch, sizeof( arch ) ) ) )
+				{
+					properties.AdapterType = arch.UMA ? XE::GraphicsAdapterType::INTEGRATED_GPU : XE::GraphicsAdapterType::DISCRETE_GPU;
+				}
+				else
+				{
+					properties.AdapterType = XE::GraphicsAdapterType::UNKNOWN;
+				}
+			}
+		}
+	}
+}
+
+bool XE::GraphicsService::AdapterHasFeature( XE::GraphicsAdapterHandle adapter, XE::GraphicsFeatureName feature )
+{
+	XE::Array< XE::GraphicsFeatureName > features;
+	AdapterEnumerateFeatures( adapter, features );
+	return std::find( features.begin(), features.end(), feature ) != features.end();
+}
+
+void XE::GraphicsService::AdapterRequestDevice( XE::GraphicsAdapterHandle adapter, const XE::GraphicsDeviceDescriptor & descriptor, RequestDeviceCallback callback )
+{
+	auto & ada = _p->_Adapters[adapter];
+	if ( ada.Count() != 0 )
+	{
+		std::array< D3D_FEATURE_LEVEL, 4 > levels =
+		{
+			D3D_FEATURE_LEVEL_12_1,
+			D3D_FEATURE_LEVEL_12_0,
+			D3D_FEATURE_LEVEL_11_1,
+			D3D_FEATURE_LEVEL_11_0,
+		};
+
+		for ( size_t i = 0; i < levels.size(); i++ )
+		{
+			D3D12DevicePtr device;
+			if ( SUCCEEDED( ::D3D12CreateDevice( ada.Adapter.Get(), levels[i], IID_PPV_ARGS( device.GetAddressOf() ) ) ) )
+			{
+				auto & dev = _p->_Devices.Alloc();
+
+				dev.Device = device;
+				dev.Parent = ada.IncHandle();
+				ada.Device = dev;
+
+				D3D12FencePtr fence;
+				if ( SUCCEEDED( device->CreateFence( 0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS( fence.GetAddressOf() ) ) ) )
+				{
+					dev.Fence = fence;
+				}
+
+				for ( size_t i = 0; i < GRAPHICS_MAX_COMMAND_ALLOCATOR; i++ )
+				{
+					D3D12CommandAllocatorPtr allocator;
+					if ( SUCCEEDED( device->CreateCommandAllocator( D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS( allocator.GetAddressOf() ) ) ) )
+					{
+						dev.Allocators[i] = allocator;
+					}
+				}
+
+				D3D12_COMMAND_QUEUE_DESC queue_desc = {};
+				{
+					queue_desc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
+					queue_desc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
+					D3D12CommandQueuePtr command_queue;
+					if ( SUCCEEDED( device->CreateCommandQueue( &queue_desc, IID_PPV_ARGS( command_queue.GetAddressOf() ) ) ) )
+					{
+						auto & que = _p->_Queues.Alloc();
+						que.CommandQueue = command_queue;
+						que.Parent = dev.IncHandle();
+						que.Desc = descriptor.DefaultQueue;
+					}
+				}
+
+				D3D12_DESCRIPTOR_HEAP_DESC desc_heap_desc = {};
+				{
+					desc_heap_desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+					desc_heap_desc.NumDescriptors = GRAPHICS_MAX_CSU_DESCRIPTOR_HEAP;
+					desc_heap_desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+					desc_heap_desc.NodeMask = 0;
+					device->CreateDescriptorHeap( &desc_heap_desc, IID_PPV_ARGS( dev.CSUHeap.GetAddressOf() ) );
+
+					desc_heap_desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+					desc_heap_desc.NumDescriptors = GRAPHICS_MAX_RTV_DESCRIPTOR_HEAP;
+					desc_heap_desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+					desc_heap_desc.NodeMask = 0;
+					device->CreateDescriptorHeap( &desc_heap_desc, IID_PPV_ARGS( dev.RTVHeap.GetAddressOf() ) );
+
+					desc_heap_desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
+					desc_heap_desc.NumDescriptors = GRAPHICS_MAX_DSV_DESCRIPTOR_HEAP;
+					desc_heap_desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+					desc_heap_desc.NodeMask = 0;
+					device->CreateDescriptorHeap( &desc_heap_desc, IID_PPV_ARGS( dev.DSVHeap.GetAddressOf() ) );
+
+					desc_heap_desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER;
+					desc_heap_desc.NumDescriptors = GRAPHICS_MAX_SAMPLER_DESCRIPTOR_HEAP;
+					desc_heap_desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+					desc_heap_desc.NodeMask = 0;
+					device->CreateDescriptorHeap( &desc_heap_desc, IID_PPV_ARGS( dev.SmaplerHeap.GetAddressOf() ) );
+				}
+
+				D3D12_COMMAND_SIGNATURE_DESC signature_desc = {};
+				{
+					D3D12_INDIRECT_ARGUMENT_DESC argument_desc = {};
+					signature_desc.NumArgumentDescs = 1;
+					signature_desc.pArgumentDescs = &argument_desc;
+
+					argument_desc.Type = D3D12_INDIRECT_ARGUMENT_TYPE_DRAW;
+					signature_desc.ByteStride = 4 * sizeof( uint32_t );
+					device->CreateCommandSignature( &signature_desc, nullptr, IID_PPV_ARGS( dev.DrawIndirectSignature.GetAddressOf() ) );
+
+					argument_desc.Type = D3D12_INDIRECT_ARGUMENT_TYPE_DISPATCH;
+					signature_desc.ByteStride = 3 * sizeof( uint32_t );
+					device->CreateCommandSignature( &signature_desc, nullptr, IID_PPV_ARGS( dev.DispatchIndirectSignature.GetAddressOf() ) );
+
+					argument_desc.Type = D3D12_INDIRECT_ARGUMENT_TYPE_DRAW_INDEXED;
+					signature_desc.ByteStride = 5 * sizeof( uint32_t );
+					device->CreateCommandSignature( &signature_desc, nullptr, IID_PPV_ARGS( dev.DrawIndexedIndirectSignature.GetAddressOf() ) );
+				}
+
+				break;
+			}
+		}
+
+		if ( ada.Device )
+		{
+			callback( XE::GraphicsRequestDeviceStatus::SUCCESS, ada.Device );
+		}
+		else
+		{
+			callback( XE::GraphicsRequestDeviceStatus::ERROR, ada.Device );
+		}
+	}
 }
 
 XE::GraphicsBindGroupHandle XE::GraphicsService::DeviceCreateBindGroup( XE::GraphicsDeviceHandle device, const XE::GraphicsBindGroupDescriptor & descriptor )
 {
+	FIND_DESC( BindGroup );
+
 	if ( auto & dev = _p->_Devices[device] )
 	{
 		auto & group = _p->_BindGroups.Alloc();
@@ -608,6 +903,8 @@ XE::GraphicsBindGroupHandle XE::GraphicsService::DeviceCreateBindGroup( XE::Grap
 
 XE::GraphicsBindGroupLayoutHandle XE::GraphicsService::DeviceCreateBindGroupLayout( XE::GraphicsDeviceHandle device, const XE::GraphicsBindGroupLayoutDescriptor & descriptor )
 {
+	FIND_DESC( BindGroupLayout );
+
 	if ( auto & dev = _p->_Devices[device] )
 	{
 		auto & layout = _p->_BindGroupLayouts.Alloc();
@@ -623,6 +920,8 @@ XE::GraphicsBindGroupLayoutHandle XE::GraphicsService::DeviceCreateBindGroupLayo
 
 XE::GraphicsBufferHandle XE::GraphicsService::DeviceCreateBuffer( XE::GraphicsDeviceHandle device, const XE::GraphicsBufferDescriptor & descriptor )
 {
+	FIND_DESC( Buffer );
+
 	if( auto & dev = _p->_Devices[device] )
 	{
 		auto & buf = _p->_Buffers.Alloc();
@@ -837,136 +1136,20 @@ XE::GraphicsTextureViewHandle XE::GraphicsService::TextureCreateView( XE::Graphi
 	return {};
 }
 
-void XE::GraphicsService::AdapterEnumerateFeatures( XE::GraphicsAdapterHandle adapter, XE::Array< XE::GraphicsFeatureName > & features )
+void XE::GraphicsService::BufferMapAsync( XE::GraphicsBufferHandle buffer, XE::GraphicsMapModeFlags mode, size_t offset, size_t size, BufferMapCallback callback, void * userdata )
 {
-	auto & ada = _p->_Adapters[adapter.GetValue()];
-	if ( ada.Count() != 0 )
-	{
-		features.push_back( XE::GraphicsFeatureName::DEPTH_CLIP_CONTROL );
-		features.push_back( XE::GraphicsFeatureName::DEPTH24UNORM_STENCIL8 );
-		features.push_back( XE::GraphicsFeatureName::DEPTH32FLOAT_STENCIL8 );
-		features.push_back( XE::GraphicsFeatureName::INDIRECT_FIRST_INSTANCE );
-		features.push_back( XE::GraphicsFeatureName::TIMESTAMP_QUERY );
-		features.push_back( XE::GraphicsFeatureName::PIPELINE_STATISTICS_QUERY );
-		features.push_back( XE::GraphicsFeatureName::TEXTURE_COMPRESSION_BC );
-	}
+
 }
 
-bool XE::GraphicsService::AdapterGetLimits( XE::GraphicsAdapterHandle adapter, XE::GraphicsSupportedLimits & limits )
+XE::Span< const XE::uint8 > XE::GraphicsService::BufferGetConstMappedRange( XE::GraphicsBufferHandle buffer, XE::uint64 offset, XE::uint64 size )
 {
-	auto & ada = _p->_Adapters[adapter.GetValue()];
-	if ( ada.Count() != 0 )
-	{
-		limits.Limits.MaxTextureDimension1D = D3D12_REQ_TEXTURE1D_U_DIMENSION;
-		limits.Limits.MaxTextureDimension2D = D3D12_REQ_TEXTURE2D_U_OR_V_DIMENSION;
-		limits.Limits.MaxTextureDimension3D = D3D12_REQ_TEXTURE3D_U_V_OR_W_DIMENSION;
-		limits.Limits.MaxTextureArrayLayers = D3D12_REQ_TEXTURE2D_ARRAY_AXIS_DIMENSION;
-		limits.Limits.MaxBindGroups = 4;
-		limits.Limits.MaxDynamicUniformBuffersPerPipelineLayout = 8;
-		limits.Limits.MaxDynamicStorageBuffersPerPipelineLayout = 4;
-		limits.Limits.MaxSampledTexturesPerShaderStage = 16;
-		limits.Limits.MaxSamplersPerShaderStage = D3D12_MAX_SHADER_VISIBLE_SAMPLER_HEAP_SIZE;
-		limits.Limits.MaxStorageBuffersPerShaderStage = 8;
-		limits.Limits.MaxStorageTexturesPerShaderStage = 8;
-		limits.Limits.MaxUniformBuffersPerShaderStage = 12;
-		limits.Limits.MaxUniformBufferBindingSize = D3D12_REQ_CONSTANT_BUFFER_ELEMENT_COUNT * 16;
-		limits.Limits.MaxStorageBufferBindingSize = 128 << 20;
-		limits.Limits.MinUniformBufferOffsetAlignment = D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT;
-		limits.Limits.MinStorageBufferOffsetAlignment = 4;
-		limits.Limits.MaxVertexBuffers = D3D12_VS_INPUT_REGISTER_COUNT;
-		limits.Limits.MaxVertexAttributes = D3D12_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT;
-		limits.Limits.MaxVertexBufferArrayStride = D3D12_SO_BUFFER_MAX_STRIDE_IN_BYTES;
-		limits.Limits.MaxInterStageShaderComponents = 60;
-		limits.Limits.MaxComputeWorkgroupStorageSize = 16352;
-		limits.Limits.MaxComputeInvocationsPerWorkgroup = D3D12_CS_4_X_THREAD_GROUP_MAX_THREADS_PER_GROUP;
-		limits.Limits.MaxComputeWorkgroupSizeX = D3D12_CS_THREAD_GROUP_MAX_X;
-		limits.Limits.MaxComputeWorkgroupSizeY = D3D12_CS_THREAD_GROUP_MAX_Y;
-		limits.Limits.MaxComputeWorkgroupSizeZ = D3D12_CS_THREAD_GROUP_MAX_Z;
-		limits.Limits.MaxComputeWorkgroupsPerDimension = D3D12_CS_DISPATCH_MAX_THREAD_GROUPS_PER_DIMENSION;
-
-		return true;
-	}
-
-	return false;
-}
-
-void XE::GraphicsService::AdapterGetProperties( XE::GraphicsAdapterHandle adapter, XE::GraphicsAdapterProperties & properties )
-{
-	auto & ada = _p->_Adapters[adapter.GetValue()];
-	if ( ada.Count() != 0 )
-	{
-		DXGI_ADAPTER_DESC1 desc1;
-		if ( SUCCEEDED( ada.Adapter->GetDesc1( &desc1 ) ) )
-		{
-			properties.Name = XE::WideString( desc1.Description );
-			properties.DriverDescription = properties.Name;
-			properties.DeviceID = desc1.DeviceId;
-			properties.VendorID = desc1.VendorId;
-			properties.BackendType = XE::GraphicsBackendType::D3D12;
-
-			if ( desc1.Flags & DXGI_ADAPTER_FLAG_SOFTWARE )
-			{
-				properties.AdapterType = GraphicsAdapterType::SOFTWARE_CPU;
-			}
-			else
-			{
-				D3D12_FEATURE_DATA_ARCHITECTURE arch = {};
-				if ( ada.Device && SUCCEEDED( _p->_Devices[ada.Device.GetValue()].Device->CheckFeatureSupport( D3D12_FEATURE_ARCHITECTURE, &arch, sizeof( arch ) ) ) )
-				{
-					properties.AdapterType = arch.UMA ? XE::GraphicsAdapterType::INTEGRATED_GPU : XE::GraphicsAdapterType::DISCRETE_GPU;
-				}
-				else
-				{
-					properties.AdapterType = XE::GraphicsAdapterType::UNKNOWN;
-				}
-			}
-		}
-	}
-}
-
-bool XE::GraphicsService::AdapterHasFeature( XE::GraphicsAdapterHandle adapter, XE::GraphicsFeatureName feature )
-{
-	XE::Array< XE::GraphicsFeatureName > features;
-	AdapterEnumerateFeatures( adapter, features );
-	return std::find( features.begin(), features.end(), feature ) != features.end();
-}
-
-void XE::GraphicsService::AdapterRequestDevice( XE::GraphicsAdapterHandle adapter, const XE::GraphicsDeviceDescriptor & descriptor, RequestDeviceCallback callback )
-{
-	auto & ada = _p->_Adapters[adapter.GetValue()];
-	if ( ada.Count() != 0 )
-	{
-		std::array< D3D_FEATURE_LEVEL, 4 > levels =
-		{
-			D3D_FEATURE_LEVEL_12_1,
-			D3D_FEATURE_LEVEL_12_0,
-			D3D_FEATURE_LEVEL_11_1,
-			D3D_FEATURE_LEVEL_11_0,
-		};
-
-		for ( size_t i = 0; i < levels.size(); i++ )
-		{
-			auto & device = _p->_Devices.Alloc();
-			if ( SUCCEEDED( ::D3D12CreateDevice( ada.Adapter.Get(), levels[i], IID_PPV_ARGS( device.Device.GetAddressOf() ) ) ) )
-			{
-				ada.Device = device.Handle;
-			}
-		}
-
-		if ( ada.Device )
-		{
-			callback( XE::GraphicsRequestDeviceStatus::SUCCESS, ada.Device, "" );
-		}
-		else
-		{
-			callback( XE::GraphicsRequestDeviceStatus::ERROR, ada.Device, "" );
-		}
-	}
+	auto data = BufferGetMappedRange( buffer, offset, size );
+	return { data.data(), data.size() };
 }
 
 XE::Span< XE::uint8 > XE::GraphicsService::BufferGetMappedRange( XE::GraphicsBufferHandle buffer, XE::uint64 offset, XE::uint64 size )
 {
-	auto & buf = _p->_Buffers[buffer.GetValue()];
+	auto & buf = _p->_Buffers[buffer];
 	if ( buf.Count() != 0 )
 	{
 		buf.MapRange.Begin = offset;
@@ -984,7 +1167,7 @@ XE::Span< XE::uint8 > XE::GraphicsService::BufferGetMappedRange( XE::GraphicsBuf
 
 void XE::GraphicsService::BufferUnmap( XE::GraphicsBufferHandle buffer )
 {
-	auto & buf = _p->_Buffers[buffer.GetValue()];
+	auto & buf = _p->_Buffers[buffer];
 	if( buf.Count() != 0 )
 	{
 		buf.Resource->Unmap( 0, &buf.MapRange );
@@ -993,10 +1176,10 @@ void XE::GraphicsService::BufferUnmap( XE::GraphicsBufferHandle buffer )
 
 XE::GraphicsComputePassEncoderHandle XE::GraphicsService::CommandEncoderBeginComputePass( XE::GraphicsCommandEncoderHandle command_encoder, const XE::GraphicsComputePassDescriptor & descriptor )
 {
-	auto & cmd = _p->_CommandEncoders[command_encoder.GetValue()];
+	auto & cmd = _p->_CommandEncoders[command_encoder];
 	if ( cmd.Count() != 0 )
 	{
-		auto & cmd_buf = _p->_CommandBuffers[cmd.CommandBuffer.GetValue()];
+		auto & cmd_buf = _p->_CommandBuffers[cmd.CommandBuffer];
 		if ( cmd_buf.Count() != 0 )
 		{
 			auto & pass = _p->_ComputePassEncoders.Alloc();
@@ -1015,9 +1198,9 @@ XE::GraphicsComputePassEncoderHandle XE::GraphicsService::CommandEncoderBeginCom
 
 XE::GraphicsRenderPassEncoderHandle XE::GraphicsService::CommandEncoderBeginRenderPass( XE::GraphicsCommandEncoderHandle command_encoder, const XE::GraphicsRenderPassDescriptor & descriptor )
 {
-	auto & cmd = _p->_CommandEncoders[command_encoder.GetValue()];
+	auto & cmd = _p->_CommandEncoders[command_encoder];
 	{
-		auto & cmd_buf = _p->_CommandBuffers[cmd.CommandBuffer.GetValue()];
+		auto & cmd_buf = _p->_CommandBuffers[cmd.CommandBuffer];
 		{
 			auto & pass = _p->_RenderPassEncoders.Alloc();
 
@@ -1035,13 +1218,13 @@ XE::GraphicsRenderPassEncoderHandle XE::GraphicsService::CommandEncoderBeginRend
 
 void XE::GraphicsService::CommandEncoderCopyBufferToBuffer( XE::GraphicsCommandEncoderHandle command_encoder, XE::GraphicsBufferHandle src, XE::uint64 src_offset, XE::GraphicsBufferHandle dst, XE::uint64 dst_offset, XE::uint64 size )
 {
-	auto & cmd = _p->_CommandEncoders[command_encoder.GetValue()];
+	auto & cmd = _p->_CommandEncoders[command_encoder];
 	{
-		auto & src_buf = _p->_Buffers[src.GetValue()];
+		auto & src_buf = _p->_Buffers[src];
 		{
-			auto & dst_buf = _p->_Buffers[dst.GetValue()];
+			auto & dst_buf = _p->_Buffers[dst];
 			{
-				auto & cmd_buf = _p->_CommandBuffers[cmd.CommandBuffer.GetValue()];
+				auto & cmd_buf = _p->_CommandBuffers[cmd.CommandBuffer];
 				{
 					D3D12GraphicsCommandListPtr list;
 					if ( SUCCEEDED( cmd_buf.CommandList.As< ID3D12GraphicsCommandList >( &list ) ) )
@@ -1056,15 +1239,15 @@ void XE::GraphicsService::CommandEncoderCopyBufferToBuffer( XE::GraphicsCommandE
 
 void XE::GraphicsService::CommandEncoderCopyBufferToTexture( XE::GraphicsCommandEncoderHandle command_encoder, const XE::GraphicsImageCopyBuffer & src, const XE::GraphicsImageCopyTexture & dst, const XE::Vec3f & copy_size )
 {
-	auto & cmd = _p->_CommandEncoders[command_encoder.GetValue()];
+	auto & cmd = _p->_CommandEncoders[command_encoder];
 	{
-		auto & src_buf = _p->_Buffers[src.Buffer.GetValue()];
+		auto & src_buf = _p->_Buffers[src.Buffer];
 		{
-			auto & dst_tex = _p->_Textures[dst.Texture.GetValue()];
+			auto & dst_tex = _p->_Textures[dst.Texture];
 			{
-				auto & dst_buf = _p->_Buffers[dst_tex.Buffer.GetValue()];
+				auto & dst_buf = _p->_Buffers[dst_tex.Buffer];
 				{
-					auto & cmd_buf = _p->_CommandBuffers[cmd.CommandBuffer.GetValue()];
+					auto & cmd_buf = _p->_CommandBuffers[cmd.CommandBuffer];
 					{
 						D3D12GraphicsCommandListPtr list;
 						if ( SUCCEEDED( cmd_buf.CommandList.As< ID3D12GraphicsCommandList >( &list ) ) )
@@ -1106,17 +1289,17 @@ void XE::GraphicsService::CommandEncoderCopyTextureToBuffer( XE::GraphicsCommand
 
 void XE::GraphicsService::CommandEncoderCopyTextureToTexture( XE::GraphicsCommandEncoderHandle command_encoder, const XE::GraphicsImageCopyTexture & src, const XE::GraphicsImageCopyTexture & dst, const XE::Vec3f & copy_size )
 {
-	auto & cmd = _p->_CommandEncoders[command_encoder.GetValue()];
+	auto & cmd = _p->_CommandEncoders[command_encoder];
 	{
-		auto & src_tex = _p->_Textures[src.Texture.GetValue()];
+		auto & src_tex = _p->_Textures[src.Texture];
 		{
-			auto & src_buf = _p->_Buffers[src_tex.Buffer.GetValue()];
+			auto & src_buf = _p->_Buffers[src_tex.Buffer];
 			{
-				auto & dst_tex = _p->_Textures[dst.Texture.GetValue()];
+				auto & dst_tex = _p->_Textures[dst.Texture];
 				{
-					auto & dst_buf = _p->_Buffers[dst_tex.Buffer.GetValue()];
+					auto & dst_buf = _p->_Buffers[dst_tex.Buffer];
 					{
-						auto & cmd_buf = _p->_CommandBuffers[cmd.CommandBuffer.GetValue()];
+						auto & cmd_buf = _p->_CommandBuffers[cmd.CommandBuffer];
 						{
 							D3D12GraphicsCommandListPtr list;
 							if ( SUCCEEDED( cmd_buf.CommandList.As< ID3D12GraphicsCommandList >( &list ) ) )
@@ -1151,9 +1334,9 @@ XE::GraphicsCommandBufferHandle XE::GraphicsService::CommandEncoderFinish( XE::G
 
 void XE::GraphicsService::CommandEncoderInsertDebugMarker( XE::GraphicsCommandEncoderHandle command_encoder, const XE::String & marker_label )
 {
-	auto & cmd = _p->_CommandEncoders[command_encoder.GetValue()];
+	auto & cmd = _p->_CommandEncoders[command_encoder];
 	{
-		auto & cmd_buf = _p->_CommandBuffers[cmd.CommandBuffer.GetValue()];
+		auto & cmd_buf = _p->_CommandBuffers[cmd.CommandBuffer];
 		{
 			cmd_buf.CommandList->SetMarker( 0, marker_label.c_str(), marker_label.size() );
 		}
@@ -1162,9 +1345,9 @@ void XE::GraphicsService::CommandEncoderInsertDebugMarker( XE::GraphicsCommandEn
 
 void XE::GraphicsService::CommandEncoderPopDebugGroup( XE::GraphicsCommandEncoderHandle command_encoder )
 {
-	auto & cmd = _p->_CommandEncoders[command_encoder.GetValue()];
+	auto & cmd = _p->_CommandEncoders[command_encoder];
 	{
-		auto & cmd_buf = _p->_CommandBuffers[cmd.CommandBuffer.GetValue()];
+		auto & cmd_buf = _p->_CommandBuffers[cmd.CommandBuffer];
 		{
 			cmd_buf.CommandList->EndEvent();
 		}
@@ -1173,9 +1356,9 @@ void XE::GraphicsService::CommandEncoderPopDebugGroup( XE::GraphicsCommandEncode
 
 void XE::GraphicsService::CommandEncoderPushDebugGroup( XE::GraphicsCommandEncoderHandle command_encoder, const XE::String & group_label )
 {
-	auto & cmd = _p->_CommandEncoders[command_encoder.GetValue()];
+	auto & cmd = _p->_CommandEncoders[command_encoder];
 	{
-		auto & cmd_buf = _p->_CommandBuffers[cmd.CommandBuffer.GetValue()];
+		auto & cmd_buf = _p->_CommandBuffers[cmd.CommandBuffer];
 		{
 			cmd_buf.CommandList->BeginEvent( 0, group_label.c_str(), group_label.size() );
 		}
@@ -1184,13 +1367,13 @@ void XE::GraphicsService::CommandEncoderPushDebugGroup( XE::GraphicsCommandEncod
 
 void XE::GraphicsService::CommandEncoderResolveQuerySet( XE::GraphicsCommandEncoderHandle command_encoder, XE::GraphicsQuerySetHandle query_set, XE::uint32 first_query, XE::uint32 query_count, XE::GraphicsBufferHandle dst, XE::uint64 dst_offset )
 {
-	auto & cmd = _p->_CommandEncoders[command_encoder.GetValue()];
+	auto & cmd = _p->_CommandEncoders[command_encoder];
 	{
-		auto & cmd_buf = _p->_CommandBuffers[cmd.CommandBuffer.GetValue()];
+		auto & cmd_buf = _p->_CommandBuffers[cmd.CommandBuffer];
 		{
-			auto & query = _p->_QuerySets[query_set.GetValue()];
+			auto & query = _p->_QuerySets[query_set];
 			{
-				auto & buf = _p->_Buffers[dst.GetValue()];
+				auto & buf = _p->_Buffers[dst];
 				{
 					cmd_buf.CommandList->ResolveQueryData( query.QueryHeap.Get(), Cast( query.Desc.Type ), first_query, query_count, buf.Resource.Get(), dst_offset );
 				}
@@ -1201,11 +1384,11 @@ void XE::GraphicsService::CommandEncoderResolveQuerySet( XE::GraphicsCommandEnco
 
 void XE::GraphicsService::CommandEncoderWriteTimestamp( XE::GraphicsCommandEncoderHandle command_encoder, XE::GraphicsQuerySetHandle query_set, XE::uint32 query_index )
 {
-	auto & cmd = _p->_CommandEncoders[command_encoder.GetValue()];
+	auto & cmd = _p->_CommandEncoders[command_encoder];
 	{
-		auto & cmd_buf = _p->_CommandBuffers[cmd.CommandBuffer.GetValue()];
+		auto & cmd_buf = _p->_CommandBuffers[cmd.CommandBuffer];
 		{
-			auto & query = _p->_QuerySets[query_set.GetValue()];
+			auto & query = _p->_QuerySets[query_set];
 			{
 				cmd_buf.CommandList->EndQuery( query.QueryHeap.Get(), D3D12_QUERY_TYPE_TIMESTAMP, query_index );
 			}
@@ -1215,13 +1398,13 @@ void XE::GraphicsService::CommandEncoderWriteTimestamp( XE::GraphicsCommandEncod
 
 void XE::GraphicsService::ComputePassEncoderBeginPipelineStatisticsQuery( XE::GraphicsComputePassEncoderHandle compute_pass_encoder, XE::GraphicsQuerySetHandle query_set, XE::uint32 query_index )
 {
-	auto & pass = _p->_ComputePassEncoders[compute_pass_encoder.GetValue()];
+	auto & pass = _p->_ComputePassEncoders[compute_pass_encoder];
 	{
-		auto & cmd = _p->_CommandEncoders[pass.Encoder.GetValue()];
+		auto & cmd = _p->_CommandEncoders[pass.Encoder];
 		{
-			auto & cmd_buf = _p->_CommandBuffers[cmd.CommandBuffer.GetValue()];
+			auto & cmd_buf = _p->_CommandBuffers[cmd.CommandBuffer];
 			{
-				auto & query = _p->_QuerySets[query_set.GetValue()];
+				auto & query = _p->_QuerySets[query_set];
 				{
 					pass.PiplineStatisticsQuery = query_set;
 					pass.PiplineStatisticsQueryIndex = query_index;
@@ -1234,11 +1417,11 @@ void XE::GraphicsService::ComputePassEncoderBeginPipelineStatisticsQuery( XE::Gr
 
 void XE::GraphicsService::ComputePassEncoderDispatch( XE::GraphicsComputePassEncoderHandle compute_pass_encoder, XE::uint32 workgroup_count_x, XE::uint32 workgroup_count_y, XE::uint32 workgroup_count_z )
 {
-	auto & pass = _p->_ComputePassEncoders[compute_pass_encoder.GetValue()];
+	auto & pass = _p->_ComputePassEncoders[compute_pass_encoder];
 	{
-		auto & cmd = _p->_CommandEncoders[pass.Encoder.GetValue()];
+		auto & cmd = _p->_CommandEncoders[pass.Encoder];
 		{
-			auto & cmd_buf = _p->_CommandBuffers[cmd.CommandBuffer.GetValue()];
+			auto & cmd_buf = _p->_CommandBuffers[cmd.CommandBuffer];
 			{
 				cmd_buf.CommandList->Dispatch( workgroup_count_x, workgroup_count_y, workgroup_count_z );
 			}
@@ -1248,15 +1431,15 @@ void XE::GraphicsService::ComputePassEncoderDispatch( XE::GraphicsComputePassEnc
 
 void XE::GraphicsService::ComputePassEncoderDispatchIndirect( XE::GraphicsComputePassEncoderHandle compute_pass_encoder, XE::GraphicsBufferHandle indirect_buffer, XE::uint64 indirect_offset )
 {
-	auto & pass = _p->_ComputePassEncoders[compute_pass_encoder.GetValue()];
+	auto & pass = _p->_ComputePassEncoders[compute_pass_encoder];
 	{
-		auto & cmd = _p->_CommandEncoders[pass.Encoder.GetValue()];
+		auto & cmd = _p->_CommandEncoders[pass.Encoder];
 		{
-			auto & cmd_buf = _p->_CommandBuffers[cmd.CommandBuffer.GetValue()];
+			auto & cmd_buf = _p->_CommandBuffers[cmd.CommandBuffer];
 			{
-				auto & bind_group = _p->_BindGroups[pass.BindGroup.GetValue()];
+				auto & bind_group = _p->_BindGroups[pass.BindGroup];
 				{
-					auto & buf = _p->_Buffers[indirect_buffer.GetValue()];
+					auto & buf = _p->_Buffers[indirect_buffer];
 					{
 						cmd_buf.CommandList->ExecuteIndirect( bind_group.CommandSignature.Get(), 1, buf.Resource.Get(), indirect_offset, nullptr, 0 );
 					}
@@ -1268,11 +1451,11 @@ void XE::GraphicsService::ComputePassEncoderDispatchIndirect( XE::GraphicsComput
 
 void XE::GraphicsService::ComputePassEncoderEnd( XE::GraphicsComputePassEncoderHandle compute_pass_encoder )
 {
-	auto & pass = _p->_ComputePassEncoders[compute_pass_encoder.GetValue()];
+	auto & pass = _p->_ComputePassEncoders[compute_pass_encoder];
 	{
-		auto & cmd = _p->_CommandEncoders[pass.Encoder.GetValue()];
+		auto & cmd = _p->_CommandEncoders[pass.Encoder];
 		{
-			auto & cmd_buf = _p->_CommandBuffers[cmd.CommandBuffer.GetValue()];
+			auto & cmd_buf = _p->_CommandBuffers[cmd.CommandBuffer];
 			{
 				cmd_buf.CommandList->EndEvent();
 			}
@@ -1282,13 +1465,13 @@ void XE::GraphicsService::ComputePassEncoderEnd( XE::GraphicsComputePassEncoderH
 
 void XE::GraphicsService::ComputePassEncoderEndPipelineStatisticsQuery( XE::GraphicsComputePassEncoderHandle compute_pass_encoder )
 {
-	auto & pass = _p->_ComputePassEncoders[compute_pass_encoder.GetValue()];
+	auto & pass = _p->_ComputePassEncoders[compute_pass_encoder];
 	{
-		auto & cmd = _p->_CommandEncoders[pass.Encoder.GetValue()];
+		auto & cmd = _p->_CommandEncoders[pass.Encoder];
 		{
-			auto & cmd_buf = _p->_CommandBuffers[cmd.CommandBuffer.GetValue()];
+			auto & cmd_buf = _p->_CommandBuffers[cmd.CommandBuffer];
 			{
-				auto & query = _p->_QuerySets[pass.PiplineStatisticsQuery.GetValue()];
+				auto & query = _p->_QuerySets[pass.PiplineStatisticsQuery];
 				{
 					cmd_buf.CommandList->EndQuery( query.QueryHeap.Get(), D3D12_QUERY_TYPE_PIPELINE_STATISTICS, pass.PiplineStatisticsQueryIndex );
 				}
@@ -1299,11 +1482,11 @@ void XE::GraphicsService::ComputePassEncoderEndPipelineStatisticsQuery( XE::Grap
 
 void XE::GraphicsService::ComputePassEncoderInsertDebugMarker( XE::GraphicsComputePassEncoderHandle compute_pass_encoder, const XE::String & marker_label )
 {
-	auto & pass = _p->_ComputePassEncoders[compute_pass_encoder.GetValue()];
+	auto & pass = _p->_ComputePassEncoders[compute_pass_encoder];
 	{
-		auto & cmd = _p->_CommandEncoders[pass.Encoder.GetValue()];
+		auto & cmd = _p->_CommandEncoders[pass.Encoder];
 		{
-			auto & cmd_buf = _p->_CommandBuffers[cmd.CommandBuffer.GetValue()];
+			auto & cmd_buf = _p->_CommandBuffers[cmd.CommandBuffer];
 			{
 				cmd_buf.CommandList->SetMarker( 0, marker_label.c_str(), marker_label.size() );
 			}
@@ -1313,11 +1496,11 @@ void XE::GraphicsService::ComputePassEncoderInsertDebugMarker( XE::GraphicsCompu
 
 void XE::GraphicsService::ComputePassEncoderPopDebugGroup( XE::GraphicsComputePassEncoderHandle compute_pass_encoder )
 {
-	auto & pass = _p->_ComputePassEncoders[compute_pass_encoder.GetValue()];
+	auto & pass = _p->_ComputePassEncoders[compute_pass_encoder];
 	{
-		auto & cmd = _p->_CommandEncoders[pass.Encoder.GetValue()];
+		auto & cmd = _p->_CommandEncoders[pass.Encoder];
 		{
-			auto & cmd_buf = _p->_CommandBuffers[cmd.CommandBuffer.GetValue()];
+			auto & cmd_buf = _p->_CommandBuffers[cmd.CommandBuffer];
 			{
 				cmd_buf.CommandList->EndEvent();
 			}
@@ -1327,11 +1510,11 @@ void XE::GraphicsService::ComputePassEncoderPopDebugGroup( XE::GraphicsComputePa
 
 void XE::GraphicsService::ComputePassEncoderPushDebugGroup( XE::GraphicsComputePassEncoderHandle compute_pass_encoder, const XE::String & group_label )
 {
-	auto & pass = _p->_ComputePassEncoders[compute_pass_encoder.GetValue()];
+	auto & pass = _p->_ComputePassEncoders[compute_pass_encoder];
 	{
-		auto & cmd = _p->_CommandEncoders[pass.Encoder.GetValue()];
+		auto & cmd = _p->_CommandEncoders[pass.Encoder];
 		{
-			auto & cmd_buf = _p->_CommandBuffers[cmd.CommandBuffer.GetValue()];
+			auto & cmd_buf = _p->_CommandBuffers[cmd.CommandBuffer];
 			{
 				cmd_buf.CommandList->BeginEvent( 0, group_label.c_str(), group_label.size() );
 			}
@@ -1341,7 +1524,7 @@ void XE::GraphicsService::ComputePassEncoderPushDebugGroup( XE::GraphicsComputeP
 
 void XE::GraphicsService::ComputePassEncoderSetBindGroup( XE::GraphicsComputePassEncoderHandle compute_pass_encoder, XE::uint32 group_index, XE::GraphicsBindGroupHandle group, XE::uint32 dynamic_offset_count, XE::uint32 & dynamic_offsets )
 {
-	auto & pass = _p->_ComputePassEncoders[compute_pass_encoder.GetValue()];
+	auto & pass = _p->_ComputePassEncoders[compute_pass_encoder];
 	{
 		pass.BindGroup = group;
 
@@ -1351,7 +1534,7 @@ void XE::GraphicsService::ComputePassEncoderSetBindGroup( XE::GraphicsComputePas
 
 void XE::GraphicsService::ComputePassEncoderSetPipeline( XE::GraphicsComputePassEncoderHandle compute_pass_encoder, XE::GraphicsComputePipelineHandle pipeline )
 {
-	auto & pass = _p->_ComputePassEncoders[compute_pass_encoder.GetValue()];
+	auto & pass = _p->_ComputePassEncoders[compute_pass_encoder];
 	{
 		pass.Pipeline = pipeline;
 	}
@@ -1359,9 +1542,9 @@ void XE::GraphicsService::ComputePassEncoderSetPipeline( XE::GraphicsComputePass
 
 XE::GraphicsBindGroupLayoutHandle XE::GraphicsService::ComputePipelineGetBindGroupLayout( XE::GraphicsComputePipelineHandle compute_pipeline, XE::uint32 group_index )
 {
-	auto & pipe = _p->_ComputePipelines[compute_pipeline.GetValue()];
+	auto & pipe = _p->_ComputePipelines[compute_pipeline];
 	{
-		auto & bind = _p->_BindGroups[pipe.BindGroups[group_index].GetValue()];
+		auto & bind = _p->_BindGroups[pipe.BindGroups[group_index]];
 		{
 			return bind.Desc.Layout;
 		}
@@ -1372,7 +1555,7 @@ XE::GraphicsBindGroupLayoutHandle XE::GraphicsService::ComputePipelineGetBindGro
 
 void XE::GraphicsService::ComputePipelineSetLabel( XE::GraphicsComputePipelineHandle compute_pipeline, const XE::String & label )
 {
-	auto & pipe = _p->_ComputePipelines[compute_pipeline.GetValue()];
+	auto & pipe = _p->_ComputePipelines[compute_pipeline];
 	{
 		pipe.Desc.Label = label;
 
@@ -1382,7 +1565,7 @@ void XE::GraphicsService::ComputePipelineSetLabel( XE::GraphicsComputePipelineHa
 
 void XE::GraphicsService::DeviceEnumerateFeatures( XE::GraphicsDeviceHandle device, XE::Array< XE::GraphicsFeatureName > & features )
 {
-	auto & dev = _p->_Devices[device.GetValue()];
+	auto & dev = _p->_Devices[device];
 	{
 
 	}
@@ -1390,7 +1573,7 @@ void XE::GraphicsService::DeviceEnumerateFeatures( XE::GraphicsDeviceHandle devi
 
 bool XE::GraphicsService::DeviceGetLimits( XE::GraphicsDeviceHandle device, XE::GraphicsSupportedLimits & limits )
 {
-	auto & dev = _p->_Devices[device.GetValue()];
+	auto & dev = _p->_Devices[device];
 	{
 
 	}
@@ -1400,7 +1583,7 @@ bool XE::GraphicsService::DeviceGetLimits( XE::GraphicsDeviceHandle device, XE::
 
 XE::GraphicsQueueHandle XE::GraphicsService::DeviceGetQueue( XE::GraphicsDeviceHandle device )
 {
-	auto & dev = _p->_Devices[device.GetValue()];
+	auto & dev = _p->_Devices[device];
 	{
 		return dev.Queue;
 	}
@@ -1410,7 +1593,7 @@ XE::GraphicsQueueHandle XE::GraphicsService::DeviceGetQueue( XE::GraphicsDeviceH
 
 bool XE::GraphicsService::DeviceHasFeature( XE::GraphicsDeviceHandle device, XE::GraphicsFeatureName feature )
 {
-	auto & dev = _p->_Devices[device.GetValue()];
+	auto & dev = _p->_Devices[device];
 	{
 
 	}
@@ -1420,7 +1603,7 @@ bool XE::GraphicsService::DeviceHasFeature( XE::GraphicsDeviceHandle device, XE:
 
 bool XE::GraphicsService::DevicePopErrorScope( XE::GraphicsDeviceHandle device, ErrorCallback callback )
 {
-	auto & dev = _p->_Devices[device.GetValue()];
+	auto & dev = _p->_Devices[device];
 	{
 
 	}
@@ -1430,7 +1613,7 @@ bool XE::GraphicsService::DevicePopErrorScope( XE::GraphicsDeviceHandle device, 
 
 void XE::GraphicsService::DevicePushErrorScope( XE::GraphicsDeviceHandle device, XE::GraphicsErrorFilter filter )
 {
-	auto & dev = _p->_Devices[device.GetValue()];
+	auto & dev = _p->_Devices[device];
 	{
 
 	}
@@ -1438,7 +1621,7 @@ void XE::GraphicsService::DevicePushErrorScope( XE::GraphicsDeviceHandle device,
 
 void XE::GraphicsService::DeviceSetDeviceLostCallback( XE::GraphicsDeviceHandle device, DeviceLostCallback callback )
 {
-	auto & dev = _p->_Devices[device.GetValue()];
+	auto & dev = _p->_Devices[device];
 	{
 
 	}
@@ -1446,7 +1629,7 @@ void XE::GraphicsService::DeviceSetDeviceLostCallback( XE::GraphicsDeviceHandle 
 
 void XE::GraphicsService::DeviceSetUncapturedErrorCallback( XE::GraphicsDeviceHandle device, ErrorCallback callback )
 {
-	auto & dev = _p->_Devices[device.GetValue()];
+	auto & dev = _p->_Devices[device];
 	{
 
 	}
@@ -1454,7 +1637,7 @@ void XE::GraphicsService::DeviceSetUncapturedErrorCallback( XE::GraphicsDeviceHa
 
 void XE::GraphicsService::QueueOnSubmittedWorkDone( XE::GraphicsQueueHandle queue, QueueWorkDoneCallback callback )
 {
-	auto & que = _p->_Queues[queue.GetValue()];
+	auto & que = _p->_Queues[queue];
 	{
 
 	}
@@ -1462,7 +1645,7 @@ void XE::GraphicsService::QueueOnSubmittedWorkDone( XE::GraphicsQueueHandle queu
 
 void XE::GraphicsService::QueueSubmit( XE::GraphicsQueueHandle queue, const XE::Array< XE::GraphicsCommandBufferHandle > & commands )
 {
-	auto & que = _p->_Queues[queue.GetValue()];
+	auto & que = _p->_Queues[queue];
 	{
 
 	}
@@ -1470,7 +1653,7 @@ void XE::GraphicsService::QueueSubmit( XE::GraphicsQueueHandle queue, const XE::
 
 void XE::GraphicsService::QueueWriteBuffer( XE::GraphicsQueueHandle queue, XE::GraphicsBufferHandle buffer, XE::uint64 buffer_offset, XE::MemoryView data )
 {
-	auto & que = _p->_Queues[queue.GetValue()];
+	auto & que = _p->_Queues[queue];
 	{
 
 	}
@@ -1478,7 +1661,7 @@ void XE::GraphicsService::QueueWriteBuffer( XE::GraphicsQueueHandle queue, XE::G
 
 void XE::GraphicsService::QueueWriteTexture( XE::GraphicsQueueHandle queue, const XE::GraphicsImageCopyTexture & dst, XE::MemoryView data, const XE::GraphicsTextureDataLayout & data_layout, const XE::Vec3f & write_size )
 {
-	auto & que = _p->_Queues[queue.GetValue()];
+	auto & que = _p->_Queues[queue];
 	{
 
 	}
@@ -1486,7 +1669,7 @@ void XE::GraphicsService::QueueWriteTexture( XE::GraphicsQueueHandle queue, cons
 
 void XE::GraphicsService::RenderBundleEncoderDraw( XE::GraphicsRenderBundleEncoderHandle render_bundle_encoder, XE::uint32 vertex_count, XE::uint32 instance_count, XE::uint32 first_vertex, XE::uint32 first_instance )
 {
-	auto & bundle_encoder = _p->_RenderBundleEncoders[render_bundle_encoder.GetValue()];
+	auto & bundle_encoder = _p->_RenderBundleEncoders[render_bundle_encoder];
 	{
 
 	}
@@ -1494,7 +1677,7 @@ void XE::GraphicsService::RenderBundleEncoderDraw( XE::GraphicsRenderBundleEncod
 
 void XE::GraphicsService::RenderBundleEncoderDrawIndexed( XE::GraphicsRenderBundleEncoderHandle render_bundle_encoder, XE::uint32 index_count, XE::uint32 instance_count, XE::uint32 first_index, XE::int32 base_vertex, XE::uint32 first_instance )
 {
-	auto & bundle_encoder = _p->_RenderBundleEncoders[render_bundle_encoder.GetValue()];
+	auto & bundle_encoder = _p->_RenderBundleEncoders[render_bundle_encoder];
 	{
 
 	}
@@ -1502,7 +1685,7 @@ void XE::GraphicsService::RenderBundleEncoderDrawIndexed( XE::GraphicsRenderBund
 
 void XE::GraphicsService::RenderBundleEncoderDrawIndexedIndirect( XE::GraphicsRenderBundleEncoderHandle render_bundle_encoder, XE::GraphicsBufferHandle indirect_buffer, XE::uint64 indirect_offset )
 {
-	auto & bundle_encoder = _p->_RenderBundleEncoders[render_bundle_encoder.GetValue()];
+	auto & bundle_encoder = _p->_RenderBundleEncoders[render_bundle_encoder];
 	{
 
 	}
@@ -1510,7 +1693,7 @@ void XE::GraphicsService::RenderBundleEncoderDrawIndexedIndirect( XE::GraphicsRe
 
 void XE::GraphicsService::RenderBundleEncoderDrawIndirect( XE::GraphicsRenderBundleEncoderHandle render_bundle_encoder, XE::GraphicsBufferHandle indirect_buffer, XE::uint64 indirect_offset )
 {
-	auto & bundle_encoder = _p->_RenderBundleEncoders[render_bundle_encoder.GetValue()];
+	auto & bundle_encoder = _p->_RenderBundleEncoders[render_bundle_encoder];
 	{
 
 	}
@@ -1518,7 +1701,7 @@ void XE::GraphicsService::RenderBundleEncoderDrawIndirect( XE::GraphicsRenderBun
 
 XE::GraphicsRenderBundleHandle XE::GraphicsService::RenderBundleEncoderFinish( XE::GraphicsRenderBundleEncoderHandle render_bundle_encoder, const XE::GraphicsRenderBundleDescriptor & descriptor )
 {
-	auto & bundle_encoder = _p->_RenderBundleEncoders[render_bundle_encoder.GetValue()];
+	auto & bundle_encoder = _p->_RenderBundleEncoders[render_bundle_encoder];
 	{
 
 	}
@@ -1528,7 +1711,7 @@ XE::GraphicsRenderBundleHandle XE::GraphicsService::RenderBundleEncoderFinish( X
 
 void XE::GraphicsService::RenderBundleEncoderInsertDebugMarker( XE::GraphicsRenderBundleEncoderHandle render_bundle_encoder, const XE::String & marker_label )
 {
-	auto & bundle_encoder = _p->_RenderBundleEncoders[render_bundle_encoder.GetValue()];
+	auto & bundle_encoder = _p->_RenderBundleEncoders[render_bundle_encoder];
 	{
 
 	}
@@ -1536,7 +1719,7 @@ void XE::GraphicsService::RenderBundleEncoderInsertDebugMarker( XE::GraphicsRend
 
 void XE::GraphicsService::RenderBundleEncoderPopDebugGroup( XE::GraphicsRenderBundleEncoderHandle render_bundle_encoder )
 {
-	auto & bundle_encoder = _p->_RenderBundleEncoders[render_bundle_encoder.GetValue()];
+	auto & bundle_encoder = _p->_RenderBundleEncoders[render_bundle_encoder];
 	{
 
 	}
@@ -1544,7 +1727,7 @@ void XE::GraphicsService::RenderBundleEncoderPopDebugGroup( XE::GraphicsRenderBu
 
 void XE::GraphicsService::RenderBundleEncoderPushDebugGroup( XE::GraphicsRenderBundleEncoderHandle render_bundle_encoder, const XE::String & group_label )
 {
-	auto & bundle_encoder = _p->_RenderBundleEncoders[render_bundle_encoder.GetValue()];
+	auto & bundle_encoder = _p->_RenderBundleEncoders[render_bundle_encoder];
 	{
 
 	}
@@ -1552,7 +1735,7 @@ void XE::GraphicsService::RenderBundleEncoderPushDebugGroup( XE::GraphicsRenderB
 
 void XE::GraphicsService::RenderBundleEncoderSetBindGroup( XE::GraphicsRenderBundleEncoderHandle render_bundle_encoder, XE::uint32 group_index, XE::GraphicsBindGroupHandle group, XE::uint32 dynamic_offset_count, XE::uint32 & dynamic_offsets )
 {
-	auto & bundle_encoder = _p->_RenderBundleEncoders[render_bundle_encoder.GetValue()];
+	auto & bundle_encoder = _p->_RenderBundleEncoders[render_bundle_encoder];
 	{
 
 	}
@@ -1560,7 +1743,7 @@ void XE::GraphicsService::RenderBundleEncoderSetBindGroup( XE::GraphicsRenderBun
 
 void XE::GraphicsService::RenderBundleEncoderSetIndexBuffer( XE::GraphicsRenderBundleEncoderHandle render_bundle_encoder, XE::GraphicsBufferHandle buffer, XE::GraphicsIndexFormat format, XE::uint64 offset, XE::uint64 size )
 {
-	auto & bundle_encoder = _p->_RenderBundleEncoders[render_bundle_encoder.GetValue()];
+	auto & bundle_encoder = _p->_RenderBundleEncoders[render_bundle_encoder];
 	{
 
 	}
@@ -1568,7 +1751,7 @@ void XE::GraphicsService::RenderBundleEncoderSetIndexBuffer( XE::GraphicsRenderB
 
 void XE::GraphicsService::RenderBundleEncoderSetPipeline( XE::GraphicsRenderBundleEncoderHandle render_bundle_encoder, XE::GraphicsRenderPipelineHandle pipeline )
 {
-	auto & bundle_encoder = _p->_RenderBundleEncoders[render_bundle_encoder.GetValue()];
+	auto & bundle_encoder = _p->_RenderBundleEncoders[render_bundle_encoder];
 	{
 
 	}
@@ -1576,7 +1759,7 @@ void XE::GraphicsService::RenderBundleEncoderSetPipeline( XE::GraphicsRenderBund
 
 void XE::GraphicsService::RenderBundleEncoderSetVertexBuffer( XE::GraphicsRenderBundleEncoderHandle render_bundle_encoder, XE::uint32 slot, XE::GraphicsBufferHandle buffer, XE::uint64 offset, XE::uint64 size )
 {
-	auto & bundle_encoder = _p->_RenderBundleEncoders[render_bundle_encoder.GetValue()];
+	auto & bundle_encoder = _p->_RenderBundleEncoders[render_bundle_encoder];
 	{
 
 	}
@@ -1584,7 +1767,7 @@ void XE::GraphicsService::RenderBundleEncoderSetVertexBuffer( XE::GraphicsRender
 
 void XE::GraphicsService::RenderPassEncoderBeginOcclusionQuery( XE::GraphicsRenderPassEncoderHandle render_pass_encoder, XE::uint32 query_index )
 {
-	auto & bundle_encoder = _p->_RenderPassEncoders[render_pass_encoder.GetValue()];
+	auto & bundle_encoder = _p->_RenderPassEncoders[render_pass_encoder];
 	{
 
 	}
@@ -1592,7 +1775,7 @@ void XE::GraphicsService::RenderPassEncoderBeginOcclusionQuery( XE::GraphicsRend
 
 void XE::GraphicsService::RenderPassEncoderBeginPipelineStatisticsQuery( XE::GraphicsRenderPassEncoderHandle render_pass_encoder, XE::GraphicsQuerySetHandle query_set, XE::uint32 query_index )
 {
-	auto & bundle_encoder = _p->_RenderPassEncoders[render_pass_encoder.GetValue()];
+	auto & bundle_encoder = _p->_RenderPassEncoders[render_pass_encoder];
 	{
 
 	}
@@ -1600,7 +1783,7 @@ void XE::GraphicsService::RenderPassEncoderBeginPipelineStatisticsQuery( XE::Gra
 
 void XE::GraphicsService::RenderPassEncoderDraw( XE::GraphicsRenderPassEncoderHandle render_pass_encoder, XE::uint32 vertex_count, XE::uint32 instance_count, XE::uint32 first_vertex, XE::uint32 first_instance )
 {
-	auto & bundle_encoder = _p->_RenderPassEncoders[render_pass_encoder.GetValue()];
+	auto & bundle_encoder = _p->_RenderPassEncoders[render_pass_encoder];
 	{
 
 	}
@@ -1608,7 +1791,7 @@ void XE::GraphicsService::RenderPassEncoderDraw( XE::GraphicsRenderPassEncoderHa
 
 void XE::GraphicsService::RenderPassEncoderDrawIndexed( XE::GraphicsRenderPassEncoderHandle render_pass_encoder, XE::uint32 index_count, XE::uint32 instance_count, XE::uint32 first_index, XE::int32 base_vertex, XE::uint32 first_instance )
 {
-	auto & bundle_encoder = _p->_RenderPassEncoders[render_pass_encoder.GetValue()];
+	auto & bundle_encoder = _p->_RenderPassEncoders[render_pass_encoder];
 	{
 
 	}
@@ -1616,7 +1799,7 @@ void XE::GraphicsService::RenderPassEncoderDrawIndexed( XE::GraphicsRenderPassEn
 
 void XE::GraphicsService::RenderPassEncoderDrawIndexedIndirect( XE::GraphicsRenderPassEncoderHandle render_pass_encoder, XE::GraphicsBufferHandle indirect_buffer, XE::uint64 indirect_offset )
 {
-	auto & bundle_encoder = _p->_RenderPassEncoders[render_pass_encoder.GetValue()];
+	auto & bundle_encoder = _p->_RenderPassEncoders[render_pass_encoder];
 	{
 
 	}
@@ -1624,7 +1807,7 @@ void XE::GraphicsService::RenderPassEncoderDrawIndexedIndirect( XE::GraphicsRend
 
 void XE::GraphicsService::RenderPassEncoderDrawIndirect( XE::GraphicsRenderPassEncoderHandle render_pass_encoder, XE::GraphicsBufferHandle indirect_buffer, XE::uint64 indirect_offset )
 {
-	auto & bundle_encoder = _p->_RenderPassEncoders[render_pass_encoder.GetValue()];
+	auto & bundle_encoder = _p->_RenderPassEncoders[render_pass_encoder];
 	{
 
 	}
@@ -1632,7 +1815,7 @@ void XE::GraphicsService::RenderPassEncoderDrawIndirect( XE::GraphicsRenderPassE
 
 void XE::GraphicsService::RenderPassEncoderEnd( XE::GraphicsRenderPassEncoderHandle render_pass_encoder )
 {
-	auto & bundle_encoder = _p->_RenderPassEncoders[render_pass_encoder.GetValue()];
+	auto & bundle_encoder = _p->_RenderPassEncoders[render_pass_encoder];
 	{
 
 	}
@@ -1640,7 +1823,7 @@ void XE::GraphicsService::RenderPassEncoderEnd( XE::GraphicsRenderPassEncoderHan
 
 void XE::GraphicsService::RenderPassEncoderEndOcclusionQuery( XE::GraphicsRenderPassEncoderHandle render_pass_encoder )
 {
-	auto & bundle_encoder = _p->_RenderPassEncoders[render_pass_encoder.GetValue()];
+	auto & bundle_encoder = _p->_RenderPassEncoders[render_pass_encoder];
 	{
 
 	}
@@ -1648,7 +1831,7 @@ void XE::GraphicsService::RenderPassEncoderEndOcclusionQuery( XE::GraphicsRender
 
 void XE::GraphicsService::RenderPassEncoderEndPipelineStatisticsQuery( XE::GraphicsRenderPassEncoderHandle render_pass_encoder )
 {
-	auto & bundle_encoder = _p->_RenderPassEncoders[render_pass_encoder.GetValue()];
+	auto & bundle_encoder = _p->_RenderPassEncoders[render_pass_encoder];
 	{
 
 	}
@@ -1656,7 +1839,7 @@ void XE::GraphicsService::RenderPassEncoderEndPipelineStatisticsQuery( XE::Graph
 
 void XE::GraphicsService::RenderPassEncoderExecuteBundles( XE::GraphicsRenderPassEncoderHandle render_pass_encoder, const XE::Array< XE::GraphicsRenderBundleHandle > & bundles )
 {
-	auto & bundle_encoder = _p->_RenderPassEncoders[render_pass_encoder.GetValue()];
+	auto & bundle_encoder = _p->_RenderPassEncoders[render_pass_encoder];
 	{
 
 	}
@@ -1664,7 +1847,7 @@ void XE::GraphicsService::RenderPassEncoderExecuteBundles( XE::GraphicsRenderPas
 
 void XE::GraphicsService::RenderPassEncoderInsertDebugMarker( XE::GraphicsRenderPassEncoderHandle render_pass_encoder, const XE::String & marker_label )
 {
-	auto & bundle_encoder = _p->_RenderPassEncoders[render_pass_encoder.GetValue()];
+	auto & bundle_encoder = _p->_RenderPassEncoders[render_pass_encoder];
 	{
 
 	}
@@ -1672,7 +1855,7 @@ void XE::GraphicsService::RenderPassEncoderInsertDebugMarker( XE::GraphicsRender
 
 void XE::GraphicsService::RenderPassEncoderPopDebugGroup( XE::GraphicsRenderPassEncoderHandle render_pass_encoder )
 {
-	auto & bundle_encoder = _p->_RenderPassEncoders[render_pass_encoder.GetValue()];
+	auto & bundle_encoder = _p->_RenderPassEncoders[render_pass_encoder];
 	{
 
 	}
@@ -1680,7 +1863,7 @@ void XE::GraphicsService::RenderPassEncoderPopDebugGroup( XE::GraphicsRenderPass
 
 void XE::GraphicsService::RenderPassEncoderPushDebugGroup( XE::GraphicsRenderPassEncoderHandle render_pass_encoder, const XE::String & group_label )
 {
-	auto & bundle_encoder = _p->_RenderPassEncoders[render_pass_encoder.GetValue()];
+	auto & bundle_encoder = _p->_RenderPassEncoders[render_pass_encoder];
 	{
 
 	}
@@ -1688,7 +1871,7 @@ void XE::GraphicsService::RenderPassEncoderPushDebugGroup( XE::GraphicsRenderPas
 
 void XE::GraphicsService::RenderPassEncoderSetBindGroup( XE::GraphicsRenderPassEncoderHandle render_pass_encoder, XE::uint32 group_index, XE::GraphicsBindGroupHandle group, XE::uint32 dynamic_offset_count, XE::uint32 & dynamic_offsets )
 {
-	auto & bundle_encoder = _p->_RenderPassEncoders[render_pass_encoder.GetValue()];
+	auto & bundle_encoder = _p->_RenderPassEncoders[render_pass_encoder];
 	{
 
 	}
@@ -1696,7 +1879,7 @@ void XE::GraphicsService::RenderPassEncoderSetBindGroup( XE::GraphicsRenderPassE
 
 void XE::GraphicsService::RenderPassEncoderSetBlendConstant( XE::GraphicsRenderPassEncoderHandle render_pass_encoder, const XE::Color & color )
 {
-	auto & bundle_encoder = _p->_RenderPassEncoders[render_pass_encoder.GetValue()];
+	auto & bundle_encoder = _p->_RenderPassEncoders[render_pass_encoder];
 	{
 
 	}
@@ -1704,7 +1887,7 @@ void XE::GraphicsService::RenderPassEncoderSetBlendConstant( XE::GraphicsRenderP
 
 void XE::GraphicsService::RenderPassEncoderSetIndexBuffer( XE::GraphicsRenderPassEncoderHandle render_pass_encoder, XE::GraphicsBufferHandle buffer, XE::GraphicsIndexFormat format, XE::uint64 offset, XE::uint64 size )
 {
-	auto & bundle_encoder = _p->_RenderPassEncoders[render_pass_encoder.GetValue()];
+	auto & bundle_encoder = _p->_RenderPassEncoders[render_pass_encoder];
 	{
 
 	}
@@ -1712,7 +1895,7 @@ void XE::GraphicsService::RenderPassEncoderSetIndexBuffer( XE::GraphicsRenderPas
 
 void XE::GraphicsService::RenderPassEncoderSetPipeline( XE::GraphicsRenderPassEncoderHandle render_pass_encoder, XE::GraphicsRenderPipelineHandle pipeline )
 {
-	auto & bundle_encoder = _p->_RenderPassEncoders[render_pass_encoder.GetValue()];
+	auto & bundle_encoder = _p->_RenderPassEncoders[render_pass_encoder];
 	{
 
 	}
@@ -1720,7 +1903,7 @@ void XE::GraphicsService::RenderPassEncoderSetPipeline( XE::GraphicsRenderPassEn
 
 void XE::GraphicsService::RenderPassEncoderSetScissorRect( XE::GraphicsRenderPassEncoderHandle render_pass_encoder, const XE::Recti & rect )
 {
-	auto & bundle_encoder = _p->_RenderPassEncoders[render_pass_encoder.GetValue()];
+	auto & bundle_encoder = _p->_RenderPassEncoders[render_pass_encoder];
 	{
 
 	}
@@ -1728,7 +1911,7 @@ void XE::GraphicsService::RenderPassEncoderSetScissorRect( XE::GraphicsRenderPas
 
 void XE::GraphicsService::RenderPassEncoderSetStencilReference( XE::GraphicsRenderPassEncoderHandle render_pass_encoder, XE::uint32 reference )
 {
-	auto & bundle_encoder = _p->_RenderPassEncoders[render_pass_encoder.GetValue()];
+	auto & bundle_encoder = _p->_RenderPassEncoders[render_pass_encoder];
 	{
 
 	}
@@ -1736,7 +1919,7 @@ void XE::GraphicsService::RenderPassEncoderSetStencilReference( XE::GraphicsRend
 
 void XE::GraphicsService::RenderPassEncoderSetVertexBuffer( XE::GraphicsRenderPassEncoderHandle render_pass_encoder, XE::uint32 slot, XE::GraphicsBufferHandle buffer, XE::uint64 offset, XE::uint64 size )
 {
-	auto & bundle_encoder = _p->_RenderPassEncoders[render_pass_encoder.GetValue()];
+	auto & bundle_encoder = _p->_RenderPassEncoders[render_pass_encoder];
 	{
 
 	}
@@ -1744,7 +1927,7 @@ void XE::GraphicsService::RenderPassEncoderSetVertexBuffer( XE::GraphicsRenderPa
 
 void XE::GraphicsService::RenderPassEncoderSetViewport( XE::GraphicsRenderPassEncoderHandle render_pass_encoder, XE::float32 x, XE::float32 y, XE::float32 width, XE::float32 height, XE::float32 min_depth, XE::float32 max_depth )
 {
-	auto & bundle_encoder = _p->_RenderPassEncoders[render_pass_encoder.GetValue()];
+	auto & bundle_encoder = _p->_RenderPassEncoders[render_pass_encoder];
 	{
 
 	}
@@ -1752,7 +1935,7 @@ void XE::GraphicsService::RenderPassEncoderSetViewport( XE::GraphicsRenderPassEn
 
 XE::GraphicsBindGroupLayoutHandle XE::GraphicsService::RenderPipelineGetBindGroupLayout( XE::GraphicsRenderPipelineHandle render_pipeline, XE::uint32 group_index )
 {
-	auto & pipe = _p->_RenderPipelines[render_pipeline.GetValue()];
+	auto & pipe = _p->_RenderPipelines[render_pipeline];
 	{
 
 	}
@@ -1762,7 +1945,7 @@ XE::GraphicsBindGroupLayoutHandle XE::GraphicsService::RenderPipelineGetBindGrou
 
 void XE::GraphicsService::RenderPipelineSetLabel( XE::GraphicsRenderPipelineHandle render_pipeline, const XE::String & label )
 {
-	auto & pipe = _p->_RenderPipelines[render_pipeline.GetValue()];
+	auto & pipe = _p->_RenderPipelines[render_pipeline];
 	{
 
 	}
@@ -1770,7 +1953,7 @@ void XE::GraphicsService::RenderPipelineSetLabel( XE::GraphicsRenderPipelineHand
 
 void XE::GraphicsService::ShaderModuleGetCompilationInfo( XE::GraphicsShaderModuleHandle shader_module, CompilationInfoCallback callback )
 {
-	auto & shader = _p->_ShaderModules[shader_module.GetValue()];
+	auto & shader = _p->_ShaderModules[shader_module];
 	{
 
 	}
@@ -1778,7 +1961,7 @@ void XE::GraphicsService::ShaderModuleGetCompilationInfo( XE::GraphicsShaderModu
 
 void XE::GraphicsService::ShaderModuleSetLabel( XE::GraphicsShaderModuleHandle shader_module, const XE::String & label )
 {
-	auto & shader = _p->_ShaderModules[shader_module.GetValue()];
+	auto & shader = _p->_ShaderModules[shader_module];
 	{
 
 	}
@@ -1786,7 +1969,7 @@ void XE::GraphicsService::ShaderModuleSetLabel( XE::GraphicsShaderModuleHandle s
 
 XE::GraphicsTextureFormat XE::GraphicsService::SurfaceGetPreferredFormat( XE::GraphicsSurfaceHandle surface, XE::GraphicsAdapterHandle adapter )
 {
-	auto & sur = _p->_Surfaces[surface.GetValue()];
+	auto & sur = _p->_Surfaces[surface];
 	{
 
 	}
@@ -1796,7 +1979,7 @@ XE::GraphicsTextureFormat XE::GraphicsService::SurfaceGetPreferredFormat( XE::Gr
 
 XE::GraphicsTextureViewHandle XE::GraphicsService::SwapChainGetCurrentTextureView( XE::GraphicsSwapChainHandle swap_chain )
 {
-	auto & swap = _p->_SwapChains[swap_chain.GetValue()];
+	auto & swap = _p->_SwapChains[swap_chain];
 	{
 
 	}
@@ -1806,7 +1989,7 @@ XE::GraphicsTextureViewHandle XE::GraphicsService::SwapChainGetCurrentTextureVie
 
 void XE::GraphicsService::SwapChainPresent( XE::GraphicsSwapChainHandle swap_chain )
 {
-	auto & swap = _p->_SwapChains[swap_chain.GetValue()];
+	auto & swap = _p->_SwapChains[swap_chain];
 	{
 
 	}
