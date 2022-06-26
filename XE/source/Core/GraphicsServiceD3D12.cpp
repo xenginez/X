@@ -287,7 +287,7 @@ namespace
 	public:
 		operator bool() const
 		{
-			return Count();
+			return Count() != 0;
 		}
 
 		operator XE::Handle< T >() const
@@ -306,7 +306,6 @@ namespace
 	public:
 		XE::Handle< T > Handle;
 	};
-
 	template< typename T, XE::uint64 S > class RefHandleArray
 	{
 	public:
@@ -350,7 +349,6 @@ namespace
 	};
 
 	template< typename T > using ComPtr = Microsoft::WRL::ComPtr< T >;
-
 	using D3D12AdapterPtr = ComPtr < IDXGIAdapter4 >;
 	using D3D12DevicePtr = ComPtr < ID3D12Device >;
 	using D3D12FencePtr = ComPtr< ID3D12Fence >;
@@ -1010,13 +1008,31 @@ XE::GraphicsPipelineLayoutHandle XE::GraphicsService::DeviceCreatePipelineLayout
 
 XE::GraphicsQuerySetHandle XE::GraphicsService::DeviceCreateQuerySet( XE::GraphicsDeviceHandle device, const XE::GraphicsQuerySetDescriptor & descriptor )
 {
+	FIND_DESC( QuerySet );
+
 	if ( auto & dev = _p->_Devices[device] )
 	{
 		auto & query_set = _p->_QuerySets.Alloc();
 
 		query_set.Desc = descriptor;
 
-		// TODO: 
+		D3D12_QUERY_HEAP_DESC query_heap_desc = {};
+		{
+			switch ( descriptor.Type )
+			{
+			case XE::GraphicsQueryType::OCCLUSION:
+				query_heap_desc.Type = D3D12_QUERY_HEAP_TYPE_OCCLUSION;
+				break;
+			case XE::GraphicsQueryType::PIPELINE_STATISTICS:
+				query_heap_desc.Type = D3D12_QUERY_HEAP_TYPE_PIPELINE_STATISTICS;
+				break;
+			case XE::GraphicsQueryType::TIMESTAMP:
+				query_heap_desc.Type = D3D12_QUERY_HEAP_TYPE_TIMESTAMP;
+				break;
+			}
+			query_heap_desc.Count = std::max<UINT>( descriptor.Count, 1 );
+			dev.Device->CreateQueryHeap( &query_heap_desc, IID_PPV_ARGS( query_set.QueryHeap.GetAddressOf() ) );
+		}
 
 		return query_set;
 	}
@@ -1106,13 +1122,15 @@ XE::GraphicsSwapChainHandle XE::GraphicsService::DeviceCreateSwapChain( XE::Grap
 
 XE::GraphicsTextureHandle XE::GraphicsService::DeviceCreateTexture( XE::GraphicsDeviceHandle device, const XE::GraphicsTextureDescriptor & descriptor )
 {
+	FIND_DESC( Texture );
+
 	if ( auto & dev = _p->_Devices[device] )
 	{
 		auto & texture = _p->_Textures.Alloc();
 
 		texture.Desc = descriptor;
 
-		// TODO: 
+
 
 		return texture;
 	}
@@ -1149,8 +1167,7 @@ XE::Span< const XE::uint8 > XE::GraphicsService::BufferGetConstMappedRange( XE::
 
 XE::Span< XE::uint8 > XE::GraphicsService::BufferGetMappedRange( XE::GraphicsBufferHandle buffer, XE::uint64 offset, XE::uint64 size )
 {
-	auto & buf = _p->_Buffers[buffer];
-	if ( buf.Count() != 0 )
+	if ( auto & buf = _p->_Buffers[buffer] )
 	{
 		buf.MapRange.Begin = offset;
 		buf.MapRange.End = offset + size;
@@ -1167,8 +1184,7 @@ XE::Span< XE::uint8 > XE::GraphicsService::BufferGetMappedRange( XE::GraphicsBuf
 
 void XE::GraphicsService::BufferUnmap( XE::GraphicsBufferHandle buffer )
 {
-	auto & buf = _p->_Buffers[buffer];
-	if( buf.Count() != 0 )
+	if( auto & buf = _p->_Buffers[buffer] )
 	{
 		buf.Resource->Unmap( 0, &buf.MapRange );
 	}
@@ -1176,8 +1192,7 @@ void XE::GraphicsService::BufferUnmap( XE::GraphicsBufferHandle buffer )
 
 XE::GraphicsComputePassEncoderHandle XE::GraphicsService::CommandEncoderBeginComputePass( XE::GraphicsCommandEncoderHandle command_encoder, const XE::GraphicsComputePassDescriptor & descriptor )
 {
-	auto & cmd = _p->_CommandEncoders[command_encoder];
-	if ( cmd.Count() != 0 )
+	if ( auto & cmd = _p->_CommandEncoders[command_encoder] )
 	{
 		auto & cmd_buf = _p->_CommandBuffers[cmd.CommandBuffer];
 		if ( cmd_buf.Count() != 0 )
@@ -1198,9 +1213,9 @@ XE::GraphicsComputePassEncoderHandle XE::GraphicsService::CommandEncoderBeginCom
 
 XE::GraphicsRenderPassEncoderHandle XE::GraphicsService::CommandEncoderBeginRenderPass( XE::GraphicsCommandEncoderHandle command_encoder, const XE::GraphicsRenderPassDescriptor & descriptor )
 {
-	auto & cmd = _p->_CommandEncoders[command_encoder];
+	if( auto & cmd = _p->_CommandEncoders[command_encoder] )
 	{
-		auto & cmd_buf = _p->_CommandBuffers[cmd.CommandBuffer];
+		if( auto & cmd_buf = _p->_CommandBuffers[cmd.CommandBuffer] )
 		{
 			auto & pass = _p->_RenderPassEncoders.Alloc();
 
@@ -1218,13 +1233,13 @@ XE::GraphicsRenderPassEncoderHandle XE::GraphicsService::CommandEncoderBeginRend
 
 void XE::GraphicsService::CommandEncoderCopyBufferToBuffer( XE::GraphicsCommandEncoderHandle command_encoder, XE::GraphicsBufferHandle src, XE::uint64 src_offset, XE::GraphicsBufferHandle dst, XE::uint64 dst_offset, XE::uint64 size )
 {
-	auto & cmd = _p->_CommandEncoders[command_encoder];
+	if ( auto & cmd = _p->_CommandEncoders[command_encoder] )
 	{
-		auto & src_buf = _p->_Buffers[src];
+		if ( auto & src_buf = _p->_Buffers[src] )
 		{
-			auto & dst_buf = _p->_Buffers[dst];
+			if ( auto & dst_buf = _p->_Buffers[dst] )
 			{
-				auto & cmd_buf = _p->_CommandBuffers[cmd.CommandBuffer];
+				if ( auto & cmd_buf = _p->_CommandBuffers[cmd.CommandBuffer] )
 				{
 					D3D12GraphicsCommandListPtr list;
 					if ( SUCCEEDED( cmd_buf.CommandList.As< ID3D12GraphicsCommandList >( &list ) ) )
@@ -1239,15 +1254,15 @@ void XE::GraphicsService::CommandEncoderCopyBufferToBuffer( XE::GraphicsCommandE
 
 void XE::GraphicsService::CommandEncoderCopyBufferToTexture( XE::GraphicsCommandEncoderHandle command_encoder, const XE::GraphicsImageCopyBuffer & src, const XE::GraphicsImageCopyTexture & dst, const XE::Vec3f & copy_size )
 {
-	auto & cmd = _p->_CommandEncoders[command_encoder];
+	if ( auto & cmd = _p->_CommandEncoders[command_encoder] )
 	{
-		auto & src_buf = _p->_Buffers[src.Buffer];
+		if ( auto & src_buf = _p->_Buffers[src.Buffer] )
 		{
-			auto & dst_tex = _p->_Textures[dst.Texture];
+			if ( auto & dst_tex = _p->_Textures[dst.Texture] )
 			{
-				auto & dst_buf = _p->_Buffers[dst_tex.Buffer];
+				if ( auto & dst_buf = _p->_Buffers[dst_tex.Buffer] )
 				{
-					auto & cmd_buf = _p->_CommandBuffers[cmd.CommandBuffer];
+					if ( auto & cmd_buf = _p->_CommandBuffers[cmd.CommandBuffer] )
 					{
 						D3D12GraphicsCommandListPtr list;
 						if ( SUCCEEDED( cmd_buf.CommandList.As< ID3D12GraphicsCommandList >( &list ) ) )
@@ -1583,7 +1598,7 @@ bool XE::GraphicsService::DeviceGetLimits( XE::GraphicsDeviceHandle device, XE::
 
 XE::GraphicsQueueHandle XE::GraphicsService::DeviceGetQueue( XE::GraphicsDeviceHandle device )
 {
-	auto & dev = _p->_Devices[device];
+	if ( auto & dev = _p->_Devices[device] )
 	{
 		return dev.Queue;
 	}

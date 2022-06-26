@@ -822,7 +822,7 @@ struct XE_API GraphicsQuerySetDescriptor
 {
     XE::String Label;
     XE::GraphicsQueryType Type;
-	XE::uint32 PipelineStatisticsCount;
+	XE::uint32 Count;
 	XE::Array< XE::GraphicsPipelineStatisticName > PipelineStatistics;
 };
 
