@@ -273,6 +273,22 @@ namespace
 
 		return flags;
 	}
+	D3D12_RESOURCE_DIMENSION Cast( XE::GraphicsTextureDimension dim )
+	{
+		switch ( dim )
+		{
+		case XE::GraphicsTextureDimension::D1:
+			return D3D12_RESOURCE_DIMENSION_TEXTURE1D;
+		case XE::GraphicsTextureDimension::D2:
+			return D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+		case XE::GraphicsTextureDimension::D3:
+			return D3D12_RESOURCE_DIMENSION_TEXTURE3D;
+		default:
+			break;
+		}
+
+		return D3D12_RESOURCE_DIMENSION_UNKNOWN;
+	}
 	template< typename T > XE::Handle< T > Cast( T * ptr )
 	{
 		return XE::HandleCast< T >( reinterpret_cast<XE::uint64>( ptr ) );
@@ -406,7 +422,6 @@ namespace XE
 		D3D12DescriptorHeapPtr RTVHeap;
 		D3D12DescriptorHeapPtr DSVHeap;
 		D3D12DescriptorHeapPtr SmaplerHeap;
-		std::array<D3D12CommandAllocatorPtr, GRAPHICS_MAX_COMMAND_ALLOCATOR> Allocators;
 
 		D3D12CommandSignaturePtr DrawIndirectSignature;
 		D3D12CommandSignaturePtr DispatchIndirectSignature;
@@ -465,8 +480,10 @@ namespace XE
 	{
 	public:
 		XE::GraphicsCommandEncoderDescriptor Desc;
+		
+		D3D12CommandAllocatorPtr CommandAllocator;
 
-		XE::GraphicsCommandBufferHandle CommandBuffer;
+		XE::GraphicsDeviceHandle Parent;
 	};
 	class GraphicsComputePassEncoder : public RefHandle< XE::GraphicsComputePassEncoder >
 	{
@@ -485,16 +502,16 @@ namespace XE
 	public:
 		XE::GraphicsComputePipelineDescriptor Desc;
 
-		XE::GraphicsDeviceHandle Device;
-		XE::GraphicsPipelineLayoutHandle Layout;
-		std::array< XE::GraphicsBindGroupHandle, 4 > BindGroups;
-		
 		D3D12PipelineStatePtr PipelineState = nullptr;
+
+		XE::GraphicsDeviceHandle Parent;
 	};
 	class GraphicsPipelineLayout : public RefHandle< XE::GraphicsPipelineLayout >
 	{
 	public:
 		XE::GraphicsPipelineLayoutDescriptor Desc;
+
+		D3D12RootSignaturePtr RootSignature;
 	};
 	class GraphicsQuerySet : public RefHandle< XE::GraphicsQuerySet >
 	{
@@ -502,11 +519,15 @@ namespace XE
 		XE::GraphicsQuerySetDescriptor Desc;
 
 		D3D12QueryHeapPtr QueryHeap = nullptr;
+
+		XE::GraphicsDeviceHandle Parent;
 	};
 	class GraphicsRenderBundle : public RefHandle< XE::GraphicsRenderBundle >
 	{
 	public:
 		XE::GraphicsRenderBundleDescriptor Desc;
+
+		XE::GraphicsDeviceHandle Parent;
 	};
 	class GraphicsRenderBundleEncoder : public RefHandle< XE::GraphicsRenderBundleEncoder >
 	{
@@ -528,11 +549,17 @@ namespace XE
 		XE::GraphicsRenderPipelineDescriptor Desc;
 
 		D3D12PipelineStatePtr PipelineState = nullptr;
+
+		XE::GraphicsDeviceHandle Parent;
 	};
 	class GraphicsSampler : public RefHandle< XE::GraphicsSampler >
 	{
 	public:
 		XE::GraphicsSamplerDescriptor Desc;
+
+		D3D12_CPU_DESCRIPTOR_HANDLE DescHandle;
+
+		XE::GraphicsDeviceHandle Parent;
 	};
 	class GraphicsShaderModule : public RefHandle< XE::GraphicsShaderModule >
 	{
@@ -540,18 +567,24 @@ namespace XE
 		XE::GraphicsShaderModuleDescriptor Desc;
 
 		D3D12_SHADER_BYTECODE ShaderCode = {};
+
+		XE::GraphicsDeviceHandle Parent;
 	};
 	class GraphicsTexture : public RefHandle< XE::GraphicsTexture >
 	{
 	public:
 		XE::GraphicsTextureDescriptor Desc;
 
-		XE::GraphicsBufferHandle Buffer;
+		D3D12ResourcePtr Resource;
+
+		XE::GraphicsDeviceHandle Parent;
 	};
 	class GraphicsTextureView : public RefHandle< XE::GraphicsTextureView >
 	{
 	public:
 		XE::GraphicsTextureViewDescriptor Desc;
+
+		XE::GraphicsDeviceHandle Parent;
 	};
 }
 
@@ -797,15 +830,6 @@ void XE::GraphicsService::AdapterRequestDevice( XE::GraphicsAdapterHandle adapte
 					dev.Fence = fence;
 				}
 
-				for ( size_t i = 0; i < GRAPHICS_MAX_COMMAND_ALLOCATOR; i++ )
-				{
-					D3D12CommandAllocatorPtr allocator;
-					if ( SUCCEEDED( device->CreateCommandAllocator( D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS( allocator.GetAddressOf() ) ) ) )
-					{
-						dev.Allocators[i] = allocator;
-					}
-				}
-
 				D3D12_COMMAND_QUEUE_DESC queue_desc = {};
 				{
 					queue_desc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
@@ -887,13 +911,16 @@ XE::GraphicsBindGroupHandle XE::GraphicsService::DeviceCreateBindGroup( XE::Grap
 
 	if ( auto & dev = _p->_Devices[device] )
 	{
-		auto & group = _p->_BindGroups.Alloc();
+		if ( auto & layout = _p->_BindGroupLayouts[descriptor.Layout] )
+		{
+			auto & group = _p->_BindGroups.Alloc();
 
-		group.Desc = descriptor;
+			group.Desc = descriptor;
 
-		// TODO: 
+			// TODO: 
 
-		return group;
+			return group;
+		}
 	}
 	
 	return {};
@@ -909,10 +936,14 @@ XE::GraphicsBindGroupLayoutHandle XE::GraphicsService::DeviceCreateBindGroupLayo
 
 		layout.Desc = descriptor;
 
-		// TODO: 
+		for ( const auto & it : descriptor.Entries )
+		{
+
+		}
 
 		return layout;
 	}
+
 	return {};
 }
 
@@ -966,7 +997,13 @@ XE::GraphicsCommandEncoderHandle XE::GraphicsService::DeviceCreateCommandEncoder
 
 		encoder.Desc = descriptor;
 
-		// TODO: 
+		encoder.Parent = dev.IncHandle();
+
+		D3D12CommandAllocatorPtr allocator;
+		if ( SUCCEEDED( dev.Device->CreateCommandAllocator( D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS( allocator.GetAddressOf() ) ) ) )
+		{
+			encoder.CommandAllocator = allocator;
+		}
 
 		return encoder;
 	}
@@ -978,13 +1015,34 @@ XE::GraphicsComputePipelineHandle XE::GraphicsService::DeviceCreateComputePipeli
 {
 	if ( auto & dev = _p->_Devices[device] )
 	{
-		auto & pipe = _p->_ComputePipelines.Alloc();
+		if ( auto & layout = _p->_PipelineLayouts[descriptor.Layout] )
+		{
+			if ( auto & shader = _p->_ShaderModules[descriptor.Compute.Module] )
+			{
+				auto & pipe = _p->_ComputePipelines.Alloc();
 
-		pipe.Desc = descriptor;
+				pipe.Desc = descriptor;
 
-		// TODO: 
+				// TODO: load shader
 
-		return pipe;
+				D3D12_COMPUTE_PIPELINE_STATE_DESC desc;
+				{
+					desc.pRootSignature = layout.RootSignature.Get();
+					desc.CS = shader.ShaderCode;
+					desc.NodeMask = 0;
+					desc.CachedPSO = { nullptr, 0 };
+					desc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
+
+					D3D12PipelineStatePtr state;
+					if ( SUCCEEDED( dev.Device->CreateComputePipelineState( &desc, IID_PPV_ARGS( state.GetAddressOf() ) ) ) )
+					{
+						pipe.PipelineState = state;
+					}
+				}
+
+				return pipe;
+			}
+		}
 	}
 
 	return {};
@@ -1080,7 +1138,14 @@ XE::GraphicsSamplerHandle XE::GraphicsService::DeviceCreateSampler( XE::Graphics
 
 		sampler.Desc = descriptor;
 
-		// TODO: 
+		sampler.Parent = dev.IncHandle();
+
+		D3D12_SAMPLER_DESC desc;
+		{
+			// TODO: 
+// 			D3D12_CPU_DESCRIPTOR_HANDLE handle;
+// 			dev.Device->CreateSampler( &desc, handle );
+		}
 
 		return sampler;
 	}
@@ -1130,7 +1195,68 @@ XE::GraphicsTextureHandle XE::GraphicsService::DeviceCreateTexture( XE::Graphics
 
 		texture.Desc = descriptor;
 
+		D3D12_RESOURCE_DESC desc = {};
+		{
+			desc.Dimension = Cast( descriptor.Dimension );
+			desc.Alignment = 0;
+			desc.Width = descriptor.Size.x;
+			desc.Height = descriptor.Size.y;
+			desc.DepthOrArraySize = descriptor.Size.z;
+			desc.MipLevels = descriptor.MipLevelCount;
+			if ( descriptor.Usage || XE::MakeFlags( XE::GraphicsTextureUsage::TEXTURE_BINDING, XE::GraphicsTextureUsage::STORAGE_BINDING ) )
+			{
+				XE::GraphicsTextureFormat f;
+				switch ( f )
+				{
+				case XE::GraphicsTextureFormat::DEPTH24PLUS:
+				case XE::GraphicsTextureFormat::DEPTH24PLUSSTENCIL8:
+				case XE::GraphicsTextureFormat::DEPTH24UNORMSTENCIL8:
+					desc.Format = DXGI_FORMAT_R24G8_TYPELESS;
+					break;
+				case XE::GraphicsTextureFormat::DEPTH32FLOAT:
+					desc.Format = DXGI_FORMAT_R32_TYPELESS;
+				case XE::GraphicsTextureFormat::DEPTH32FLOATSTENCIL8:
+					desc.Format = DXGI_FORMAT_R32G8X24_TYPELESS;
+				default:
+					desc.Format = DXGI_FORMAT_UNKNOWN;
+					break;
+				}
+			}
+			else
+			{
+				desc.Format = Cast( descriptor.Format );
+			}
+			desc.SampleDesc = { descriptor.SampleCount, 0 };
+			desc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+			desc.Flags = D3D12_RESOURCE_FLAG_NONE;
+			if ( descriptor.Usage && XE::GraphicsTextureUsage::RENDER_ATTACHMENT )
+			{
+				desc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
+			}
+			if ( descriptor.Usage && XE::GraphicsTextureUsage::STORAGE_BINDING )
+			{
+				desc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
+				desc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
+				if ( descriptor.Usage && XE::GraphicsTextureUsage::TEXTURE_BINDING )
+				{
+					desc.Flags |= D3D12_RESOURCE_FLAG_DENY_SHADER_RESOURCE;
+				}
+			}
+		}
+		D3D12_HEAP_PROPERTIES heap_properties = {};
+		{
+			heap_properties.Type = D3D12_HEAP_TYPE_CUSTOM;
+			heap_properties.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_NOT_AVAILABLE;
+			heap_properties.MemoryPoolPreference = D3D12_MEMORY_POOL_L0;
+			heap_properties.CreationNodeMask = 0;
+			heap_properties.VisibleNodeMask = 0;
+		}
 
+		D3D12ResourcePtr resource;
+		if ( SUCCEEDED( dev.Device->CreateCommittedResource( &heap_properties, D3D12_HEAP_FLAG_NONE, &desc, D3D12_RESOURCE_STATE_COMMON, nullptr, IID_PPV_ARGS( resource.GetAddressOf() ) ) ) )
+		{
+			texture.Resource = resource;
+		}
 
 		return texture;
 	}
@@ -1652,7 +1778,7 @@ void XE::GraphicsService::DeviceSetUncapturedErrorCallback( XE::GraphicsDeviceHa
 
 void XE::GraphicsService::QueueOnSubmittedWorkDone( XE::GraphicsQueueHandle queue, QueueWorkDoneCallback callback )
 {
-	auto & que = _p->_Queues[queue];
+	if ( auto & que = _p->_Queues[queue] )
 	{
 
 	}
@@ -1660,7 +1786,7 @@ void XE::GraphicsService::QueueOnSubmittedWorkDone( XE::GraphicsQueueHandle queu
 
 void XE::GraphicsService::QueueSubmit( XE::GraphicsQueueHandle queue, const XE::Array< XE::GraphicsCommandBufferHandle > & commands )
 {
-	auto & que = _p->_Queues[queue];
+	if ( auto & que = _p->_Queues[queue] )
 	{
 
 	}
