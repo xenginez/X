@@ -298,7 +298,7 @@ enum class GraphicsIndexFormat
 {
     UNDEFINED = 0x00000000,
     UINT16 = 0x00000001,
-    UINT32 = 0x00000002,
+	UINT32 = 0x00000002,
 };
 DECL_XE_ENUM( GraphicsIndexFormat );
 
@@ -805,17 +805,13 @@ struct XE_API GraphicsPipelineLayoutDescriptor
     XE::GraphicsBindGroupLayoutHandle BindGroupLayouts;
 };
 
-struct XE_API GraphicsPrimitiveDepthClipControl
-{
-    bool UnclippedDepth;
-};
-
 struct XE_API GraphicsPrimitiveState
 {
     XE::GraphicsPrimitiveTopology Topology;
     XE::GraphicsIndexFormat StripIndexFormat;
     XE::GraphicsFrontFace FrontFace;
-    XE::GraphicsCullMode CullMode;
+	XE::GraphicsCullMode CullMode;
+	bool UnclippedDepth;
 };
 
 struct XE_API GraphicsQuerySetDescriptor
@@ -987,6 +983,7 @@ struct XE_API GraphicsBindGroupLayoutEntry
 
 struct XE_API GraphicsBlendState
 {
+    bool Enable;
 	XE::GraphicsBlendComponent Color;
 	XE::GraphicsBlendComponent Alpha;
 };

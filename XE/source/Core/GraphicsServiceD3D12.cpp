@@ -48,6 +48,88 @@ namespace
 		COMPUTE,
 	};
 
+	DXGI_FORMAT Cast( XE::GraphicsIndexFormat format )
+	{
+		switch ( format )
+		{
+		case XE::GraphicsIndexFormat::UINT16:
+			return DXGI_FORMAT_R16_UINT;
+		case XE::GraphicsIndexFormat::UINT32:
+			return DXGI_FORMAT_R32_UINT;
+		default:
+			break;
+		}
+
+		return DXGI_FORMAT_UNKNOWN;
+	}
+	DXGI_FORMAT Cast( XE::GraphicsVertexFormat format )
+	{
+		switch ( format )
+		{
+		case XE::GraphicsVertexFormat::UINT8X2:
+			return DXGI_FORMAT_R8G8_UINT;
+		case XE::GraphicsVertexFormat::UINT8X4:
+			return DXGI_FORMAT_R8G8B8A8_UINT;
+		case XE::GraphicsVertexFormat::SINT8X2:
+			return DXGI_FORMAT_R8G8_SINT;
+		case XE::GraphicsVertexFormat::SINT8X4:
+			return DXGI_FORMAT_R8G8B8A8_SINT;
+		case XE::GraphicsVertexFormat::UNORM8X2:
+			return DXGI_FORMAT_R8G8_UNORM;
+		case XE::GraphicsVertexFormat::UNORM8X4:
+			return DXGI_FORMAT_R8G8B8A8_UNORM;
+		case XE::GraphicsVertexFormat::SNORM8X2:
+			return DXGI_FORMAT_R8G8_SNORM;
+		case XE::GraphicsVertexFormat::SNORM8X4:
+			return DXGI_FORMAT_R8G8B8A8_SNORM;
+		case XE::GraphicsVertexFormat::UINT16X2:
+			return DXGI_FORMAT_R16G16_UINT;
+		case XE::GraphicsVertexFormat::UINT16X4:
+			return DXGI_FORMAT_R16G16B16A16_UINT;
+		case XE::GraphicsVertexFormat::SINT16X2:
+			return DXGI_FORMAT_R16G16_SINT;
+		case XE::GraphicsVertexFormat::SINT16X4:
+			return DXGI_FORMAT_R16G16B16A16_SINT;
+		case XE::GraphicsVertexFormat::UNORM16X2:
+			return DXGI_FORMAT_R16G16_UNORM;
+		case XE::GraphicsVertexFormat::UNORM16X4:
+			return DXGI_FORMAT_R16G16B16A16_UNORM;
+		case XE::GraphicsVertexFormat::SNORM16X2:
+			return DXGI_FORMAT_R16G16_SNORM;
+		case XE::GraphicsVertexFormat::SNORM16X4:
+			return DXGI_FORMAT_R16G16B16A16_SNORM;
+		case XE::GraphicsVertexFormat::FLOAT16X2:
+			return DXGI_FORMAT_R16G16_FLOAT;
+		case XE::GraphicsVertexFormat::FLOAT16X4:
+			return DXGI_FORMAT_R16G16B16A16_FLOAT;
+		case XE::GraphicsVertexFormat::FLOAT32:
+			return DXGI_FORMAT_R32_FLOAT;
+		case XE::GraphicsVertexFormat::FLOAT32X2:
+			return DXGI_FORMAT_R32G32_FLOAT;
+		case XE::GraphicsVertexFormat::FLOAT32X3:
+			return DXGI_FORMAT_R32G32B32_FLOAT;
+		case XE::GraphicsVertexFormat::FLOAT32X4:
+			return DXGI_FORMAT_R32G32B32A32_FLOAT;
+		case XE::GraphicsVertexFormat::UINT32:
+			return DXGI_FORMAT_R32_UINT;
+		case XE::GraphicsVertexFormat::UINT32X2:
+			return DXGI_FORMAT_R32G32_UINT;
+		case XE::GraphicsVertexFormat::UINT32X3:
+			return DXGI_FORMAT_R32G32B32_UINT;
+		case XE::GraphicsVertexFormat::UINT32X4:
+			return DXGI_FORMAT_R32G32B32A32_UINT;
+		case XE::GraphicsVertexFormat::SINT32:
+			return DXGI_FORMAT_R32_SINT;
+		case XE::GraphicsVertexFormat::SINT32X2:
+			return DXGI_FORMAT_R32G32_SINT;
+		case XE::GraphicsVertexFormat::SINT32X3:
+			return DXGI_FORMAT_R32G32B32_SINT;
+		case XE::GraphicsVertexFormat::SINT32X4:
+			return DXGI_FORMAT_R32G32B32A32_SINT;
+		}
+
+		return DXGI_FORMAT_UNKNOWN;
+	}
 	DXGI_FORMAT Cast( XE::GraphicsTextureFormat format )
 	{
 		switch ( format )
@@ -289,6 +371,149 @@ namespace
 
 		return D3D12_RESOURCE_DIMENSION_UNKNOWN;
 	}
+	D3D12_BLEND_OP Cast( XE::GraphicsBlendOperation op )
+	{
+		switch ( op )
+		{
+		case XE::GraphicsBlendOperation::ADD:
+			return D3D12_BLEND_OP_ADD;
+		case XE::GraphicsBlendOperation::SUBTRACT:
+			return D3D12_BLEND_OP_SUBTRACT;
+		case XE::GraphicsBlendOperation::REVERSE_SUBTRACT:
+			return D3D12_BLEND_OP_REV_SUBTRACT;
+		case XE::GraphicsBlendOperation::MIN:
+			return D3D12_BLEND_OP_MIN;
+		case XE::GraphicsBlendOperation::MAX:
+			return D3D12_BLEND_OP_MAX;
+		}
+
+		return D3D12_BLEND_OP_ADD;
+	}
+	D3D12_BLEND Cast( XE::GraphicsBlendFactor factor, bool is_alpha )
+	{
+		switch ( factor )
+		{
+		case XE::GraphicsBlendFactor::ZERO:
+			return D3D12_BLEND_ZERO;
+		case XE::GraphicsBlendFactor::ONE:
+			return D3D12_BLEND_ONE;
+		case XE::GraphicsBlendFactor::SRC:
+			return is_alpha ? D3D12_BLEND_SRC_ALPHA : D3D12_BLEND_SRC_COLOR;
+		case XE::GraphicsBlendFactor::ONE_MINUS_SRC:
+			return is_alpha ? D3D12_BLEND_INV_SRC_ALPHA : D3D12_BLEND_INV_SRC_COLOR;
+		case XE::GraphicsBlendFactor::SRC_ALPHA:
+			return D3D12_BLEND_SRC_ALPHA;
+		case XE::GraphicsBlendFactor::ONE_MINUS_SRC_ALPHA:
+			return D3D12_BLEND_INV_SRC_ALPHA;
+		case XE::GraphicsBlendFactor::DST:
+			return is_alpha ? D3D12_BLEND_DEST_ALPHA : D3D12_BLEND_DEST_COLOR;
+		case XE::GraphicsBlendFactor::ONE_MINUS_DST:
+			return is_alpha ? D3D12_BLEND_INV_DEST_ALPHA : D3D12_BLEND_INV_DEST_COLOR;
+		case XE::GraphicsBlendFactor::DST_ALPHA:
+			return D3D12_BLEND_DEST_ALPHA;
+		case XE::GraphicsBlendFactor::ONE_MINUS_DST_ALPHA:
+			return D3D12_BLEND_INV_DEST_ALPHA;
+		case XE::GraphicsBlendFactor::SRC_ALPHA_SATURATED:
+			return D3D12_BLEND_SRC_ALPHA_SAT;
+		case XE::GraphicsBlendFactor::CONSTANT:
+			return D3D12_BLEND_BLEND_FACTOR;
+		case XE::GraphicsBlendFactor::ONE_MINUS_CONSTANT:
+			return D3D12_BLEND_INV_BLEND_FACTOR;
+		default:
+			break;
+		}
+	}
+	D3D12_CULL_MODE Cast( XE::GraphicsCullMode mode )
+	{
+		switch ( mode )
+		{
+		case XE::GraphicsCullMode::FRONT:
+			return D3D12_CULL_MODE_FRONT;
+		case XE::GraphicsCullMode::BACK:
+			return D3D12_CULL_MODE_BACK;
+		}
+
+		return D3D12_CULL_MODE_NONE;
+	}
+	bool Cast( XE::GraphicsFrontFace face )
+	{
+		switch ( face )
+		{
+		case XE::GraphicsFrontFace::CCW:
+			return true;
+		case XE::GraphicsFrontFace::CW:
+			return false;
+		}
+
+		return false;
+	}
+	D3D12_COMPARISON_FUNC Cast( XE::GraphicsCompareFunction func )
+	{
+		switch ( func )
+		{
+		case XE::GraphicsCompareFunction::NEVER:
+			return D3D12_COMPARISON_FUNC_NEVER;
+		case XE::GraphicsCompareFunction::LESS:
+			return D3D12_COMPARISON_FUNC_LESS;
+		case XE::GraphicsCompareFunction::LESS_EQUAL:
+			return D3D12_COMPARISON_FUNC_LESS_EQUAL;
+		case XE::GraphicsCompareFunction::GREATER:
+			return D3D12_COMPARISON_FUNC_GREATER;
+		case XE::GraphicsCompareFunction::GREATER_EQUAL:
+			return D3D12_COMPARISON_FUNC_GREATER_EQUAL;
+		case XE::GraphicsCompareFunction::EQUAL:
+			return D3D12_COMPARISON_FUNC_EQUAL;
+		case XE::GraphicsCompareFunction::NOT_EQUAL:
+			return D3D12_COMPARISON_FUNC_NOT_EQUAL;
+		case XE::GraphicsCompareFunction::ALWAYS:
+			return D3D12_COMPARISON_FUNC_ALWAYS;
+		}
+
+		return D3D12_COMPARISON_FUNC( 0 );
+	}
+	D3D12_STENCIL_OP Cast( XE::GraphicsStencilOperation op )
+	{
+		switch ( op )
+		{
+		case XE::GraphicsStencilOperation::KEEP:
+			return D3D12_STENCIL_OP_KEEP;
+		case XE::GraphicsStencilOperation::ZERO:
+			return D3D12_STENCIL_OP_ZERO;
+		case XE::GraphicsStencilOperation::REPLACE:
+			return D3D12_STENCIL_OP_REPLACE;
+		case XE::GraphicsStencilOperation::INVERT:
+			return D3D12_STENCIL_OP_INVERT;
+		case XE::GraphicsStencilOperation::INCREMENT_CLAMP:
+			return D3D12_STENCIL_OP_INCR_SAT;
+		case XE::GraphicsStencilOperation::DECREMENT_CLAMP:
+			return D3D12_STENCIL_OP_DECR_SAT;
+		case XE::GraphicsStencilOperation::INCREMENT_WRAP:
+			return D3D12_STENCIL_OP_INCR;
+		case XE::GraphicsStencilOperation::DECREMENT_WRAP:
+			return D3D12_STENCIL_OP_DECR;
+		default:
+			break;
+		}
+	}
+	D3D12_PRIMITIVE_TOPOLOGY_TYPE Cast( XE::GraphicsPrimitiveTopology topology )
+	{
+		switch ( topology )
+		{
+		case XE::GraphicsPrimitiveTopology::POINT_LIST:
+			return D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT;
+		case XE::GraphicsPrimitiveTopology::LINE_LIST:
+			return D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;
+		case XE::GraphicsPrimitiveTopology::LINE_STRIP:
+			return D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;
+		case XE::GraphicsPrimitiveTopology::TRIANGLE_LIST:
+			return D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+		case XE::GraphicsPrimitiveTopology::TRIANGLE_STRIP:
+			return D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+		default:
+			break;
+		}
+	}
+
 	template< typename T > XE::Handle< T > Cast( T * ptr )
 	{
 		return XE::HandleCast< T >( reinterpret_cast<XE::uint64>( ptr ) );
@@ -549,6 +774,7 @@ namespace XE
 		XE::GraphicsRenderPipelineDescriptor Desc;
 
 		D3D12PipelineStatePtr PipelineState = nullptr;
+		XE::Array<D3D12_INPUT_ELEMENT_DESC> Elements;
 
 		XE::GraphicsDeviceHandle Parent;
 	};
@@ -1023,8 +1249,6 @@ XE::GraphicsComputePipelineHandle XE::GraphicsService::DeviceCreateComputePipeli
 
 				pipe.Desc = descriptor;
 
-				// TODO: load shader
-
 				D3D12_COMPUTE_PIPELINE_STATE_DESC desc;
 				{
 					desc.pRootSignature = layout.RootSignature.Get();
@@ -1118,13 +1342,150 @@ XE::GraphicsRenderPipelineHandle XE::GraphicsService::DeviceCreateRenderPipeline
 {
 	if ( auto & dev = _p->_Devices[device] )
 	{
-		auto & pipe = _p->_RenderPipelines.Alloc();
+		if ( auto & layout = _p->_PipelineLayouts[descriptor.Layout] )
+		{
+			if ( auto & vs = _p->_ShaderModules[descriptor.Vertex.Module] )
+			{
+				if ( auto & fs = _p->_ShaderModules[descriptor.Fragment.Module] )
+				{
+					auto & pipe = _p->_RenderPipelines.Alloc();
 
-		pipe.Desc = descriptor;
+					pipe.Desc = descriptor;
 
-		// TODO: 
+					D3D12_GRAPHICS_PIPELINE_STATE_DESC desc = {};
+					{
+						desc.pRootSignature = layout.RootSignature.Get();
+						desc.VS = vs.ShaderCode;
+						desc.PS = fs.ShaderCode;
+						desc.GS = {};
+						desc.DS = {};
+						desc.HS = {};
+						desc.SampleMask = descriptor.Multisample.Mask;
+						switch ( descriptor.Primitive.StripIndexFormat )
+						{
+						case XE::GraphicsIndexFormat::UINT16:
+							desc.IBStripCutValue = D3D12_INDEX_BUFFER_STRIP_CUT_VALUE_0xFFFF;
+							break;
+						case XE::GraphicsIndexFormat::UINT32:
+							desc.IBStripCutValue = D3D12_INDEX_BUFFER_STRIP_CUT_VALUE_0xFFFFFFFF;
+							break;
+						default:
+							desc.IBStripCutValue = D3D12_INDEX_BUFFER_STRIP_CUT_VALUE_DISABLED;
+							break;
+						}
+						desc.NumRenderTargets = descriptor.Fragment.Targets.size();
+						for ( size_t i = 0; i < descriptor.Fragment.Targets.size(); i++ )
+						{
+							desc.RTVFormats[i] = Cast( descriptor.Fragment.Targets[i].Format );
+						}
+						desc.DSVFormat = Cast( descriptor.DepthStencil.Format );
+						desc.NodeMask = 0;
+						desc.CachedPSO = {};
+						desc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
+						desc.PrimitiveTopologyType = Cast( descriptor.Primitive.Topology );
 
-		return pipe;
+						desc.SampleDesc = {};
+						{
+							desc.SampleDesc.Count = descriptor.Multisample.Count;
+							desc.SampleDesc.Quality = 0;
+						}
+						desc.BlendState = {};
+						{
+							desc.BlendState.AlphaToCoverageEnable = descriptor.Multisample.AlphaToCoverageEnabled;
+							desc.BlendState.IndependentBlendEnable = true;
+							for ( size_t i = 0; i < descriptor.Fragment.Targets.size(); i++ )
+							{
+								auto target = descriptor.Fragment.Targets[i];
+								D3D12_RENDER_TARGET_BLEND_DESC rt_blend_desc = {};
+								{
+									rt_blend_desc.RenderTargetWriteMask = target.WriteMask.GetValue();
+
+									rt_blend_desc.LogicOp = D3D12_LOGIC_OP_CLEAR;
+									rt_blend_desc.LogicOpEnable = false;
+									rt_blend_desc.BlendEnable = target.Blend.Enable;
+									rt_blend_desc.BlendOp = Cast( target.Blend.Color.Operation );
+									rt_blend_desc.SrcBlend = Cast( target.Blend.Color.SrcFactor, false );
+									rt_blend_desc.DestBlend = Cast( target.Blend.Color.DstFactor, false );
+									rt_blend_desc.BlendOpAlpha = Cast( target.Blend.Alpha.Operation );
+									rt_blend_desc.SrcBlendAlpha = Cast( target.Blend.Alpha.SrcFactor, true );
+									rt_blend_desc.DestBlendAlpha = Cast( target.Blend.Alpha.DstFactor, true );
+								}
+								desc.BlendState.RenderTarget[i] = rt_blend_desc;
+							}
+						}
+						desc.InputLayout = {};
+						{
+							for ( size_t i = 0; i < descriptor.Vertex.Buffers.size(); i++ )
+							{
+								auto & vbuf = descriptor.Vertex.Buffers[i];
+								for ( const auto & attrubute : vbuf.Attributes )
+								{
+									D3D12_INPUT_ELEMENT_DESC element_desc = {};
+									{
+										element_desc.SemanticIndex = attrubute.ShaderLocation;
+										element_desc.Format = Cast( attrubute.Format );
+										element_desc.InputSlot = i;
+										element_desc.AlignedByteOffset = attrubute.Offset;
+										element_desc.InputSlotClass = ( vbuf.StepMode == XE::GraphicsVertexStepMode::VERTEX ) ? D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA : D3D12_INPUT_CLASSIFICATION_PER_INSTANCE_DATA;
+										element_desc.InstanceDataStepRate = ( vbuf.StepMode == XE::GraphicsVertexStepMode::VERTEX ) ? 0 : 1;
+									}
+									pipe.Elements.push_back( element_desc );
+								}
+							}
+							desc.InputLayout.NumElements = pipe.Elements.size();
+							desc.InputLayout.pInputElementDescs = pipe.Elements.data();
+						}
+						desc.StreamOutput = {};
+						{
+							desc.StreamOutput.pSODeclaration = nullptr;
+							desc.StreamOutput.NumEntries = 0;
+							desc.StreamOutput.pBufferStrides = nullptr;
+							desc.StreamOutput.NumStrides = 0;
+							desc.StreamOutput.RasterizedStream = 0;
+						}
+						desc.RasterizerState = {};
+						{
+							//desc.RasterizerState.FillMode = Cast( descriptor.Primitive.Topology );
+							desc.RasterizerState.CullMode = Cast( descriptor.Primitive.CullMode );
+							desc.RasterizerState.FrontCounterClockwise = Cast( descriptor.Primitive.FrontFace );
+							desc.RasterizerState.DepthBias = descriptor.DepthStencil.DepthBias;
+							desc.RasterizerState.DepthBiasClamp = descriptor.DepthStencil.DepthBiasClamp;
+							desc.RasterizerState.SlopeScaledDepthBias = descriptor.DepthStencil.DepthBiasSlopeScale;
+							desc.RasterizerState.DepthClipEnable = !descriptor.Primitive.UnclippedDepth;
+							desc.RasterizerState.MultisampleEnable = descriptor.Multisample.Count > 1;
+							desc.RasterizerState.ForcedSampleCount = 0;
+							desc.RasterizerState.AntialiasedLineEnable = false;
+							desc.RasterizerState.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
+						}
+						desc.DepthStencilState = {};
+						{
+							desc.DepthStencilState.DepthEnable = descriptor.DepthStencil.DepthCompare != GraphicsCompareFunction::ALWAYS && descriptor.DepthStencil.DepthWriteEnabled;
+							desc.DepthStencilState.DepthWriteMask = descriptor.DepthStencil.DepthWriteEnabled ? D3D12_DEPTH_WRITE_MASK_ALL : D3D12_DEPTH_WRITE_MASK_ZERO;
+							desc.DepthStencilState.DepthFunc = Cast( descriptor.DepthStencil.DepthCompare );
+							desc.DepthStencilState.StencilEnable = descriptor.DepthStencil.StencilReadMask != 0 || descriptor.DepthStencil.StencilWriteMask != 0;
+							desc.DepthStencilState.StencilReadMask = descriptor.DepthStencil.StencilReadMask;
+							desc.DepthStencilState.StencilWriteMask = descriptor.DepthStencil.StencilWriteMask;
+							desc.DepthStencilState.FrontFace.StencilFunc = Cast( descriptor.DepthStencil.StencilFront.Compare );
+							desc.DepthStencilState.FrontFace.StencilFailOp = Cast( descriptor.DepthStencil.StencilFront.FailOp );
+							desc.DepthStencilState.FrontFace.StencilPassOp = Cast( descriptor.DepthStencil.StencilFront.PassOp );
+							desc.DepthStencilState.FrontFace.StencilDepthFailOp = Cast( descriptor.DepthStencil.StencilFront.DepthFailOp );
+							desc.DepthStencilState.BackFace.StencilFunc = Cast( descriptor.DepthStencil.StencilBack.Compare );
+							desc.DepthStencilState.BackFace.StencilFailOp = Cast( descriptor.DepthStencil.StencilBack.FailOp );
+							desc.DepthStencilState.BackFace.StencilPassOp = Cast( descriptor.DepthStencil.StencilBack.PassOp );
+							desc.DepthStencilState.BackFace.StencilDepthFailOp = Cast( descriptor.DepthStencil.StencilBack.DepthFailOp );
+						}
+					}
+
+					D3D12PipelineStatePtr state;
+					if ( dev.Device->CreateGraphicsPipelineState( &desc, IID_PPV_ARGS( state.GetAddressOf() ) ) )
+					{
+						pipe.PipelineState = state;
+					}
+
+					return pipe;
+				}
+			}
+		}
 	}
 
 	return {};
