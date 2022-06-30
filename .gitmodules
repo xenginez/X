@@ -46,9 +46,6 @@
 [submodule "3rdparty/vkbind"]
 	path = 3rdparty/vkbind
 	url = https://github.com/mackron/vkbind.git
-[submodule "3rdparty/DirectXShaderCompiler"]
-	path = 3rdparty/DirectXShaderCompiler
-	url = https://github.com/microsoft/DirectXShaderCompiler.git
 [submodule "3rdparty/assimp"]
 	path = 3rdparty/assimp
 	url = https://github.com/assimp/assimp.git
