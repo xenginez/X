@@ -509,6 +509,44 @@ namespace
 			break;
 		}
 	}
+	D3D12_TEXTURE_ADDRESS_MODE Cast( XE::GraphicsAddressMode mode )
+	{
+		switch ( mode )
+		{
+		case XE::GraphicsAddressMode::REPEAT:
+			return D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+		case XE::GraphicsAddressMode::MIRROR_REPEAT:
+			return D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
+		case XE::GraphicsAddressMode::CLAMP_TO_EDGE:
+			return D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
+		}
+
+		return D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	}
+	D3D12_FILTER_TYPE Cast( XE::GraphicsFilterMode mode )
+	{
+		switch ( mode )
+		{
+		case XE::GraphicsFilterMode::NEAREST:
+			return D3D12_FILTER_TYPE_POINT;
+		case XE::GraphicsFilterMode::LINEAR:
+			return D3D12_FILTER_TYPE_LINEAR;
+		default:
+			break;
+		}
+	}
+	D3D12_FILTER_TYPE Cast( XE::GraphicsMipmapFilterMode mode )
+	{
+		switch ( mode )
+		{
+		case XE::GraphicsMipmapFilterMode::NEAREST:
+			return D3D12_FILTER_TYPE_POINT;
+		case XE::GraphicsMipmapFilterMode::LINEAR:
+			return D3D12_FILTER_TYPE_LINEAR;
+		default:
+			break;
+		}
+	}
 
 	template< typename T > XE::Handle< T > Cast( T * ptr )
 	{
@@ -642,6 +680,10 @@ namespace XE
 		D3D12DescriptorHeapPtr RTVHeap;
 		D3D12DescriptorHeapPtr DSVHeap;
 		D3D12DescriptorHeapPtr SmaplerHeap;
+		XE::QueueHandleAllocator< XE::Handle< int >, GRAPHICS_MAX_CSU_DESCRIPTOR_HEAP > CSUAllocator;
+		XE::QueueHandleAllocator< XE::Handle< int >, GRAPHICS_MAX_RTV_DESCRIPTOR_HEAP > RTVAllocator;
+		XE::QueueHandleAllocator< XE::Handle< int >, GRAPHICS_MAX_DSV_DESCRIPTOR_HEAP > DSVAllocator;
+		XE::QueueHandleAllocator< XE::Handle< int >, GRAPHICS_MAX_SAMPLER_DESCRIPTOR_HEAP > SamplerAllocator;
 
 		D3D12CommandSignaturePtr DrawIndirectSignature;
 		D3D12CommandSignaturePtr DispatchIndirectSignature;
@@ -666,8 +708,12 @@ namespace XE
 	public:
 		XE::GraphicsBindGroupDescriptor Desc;
 
+		D3D12DescriptorHeapPtr ViewHeap = nullptr;
+		D3D12DescriptorHeapPtr SamplerHeap = nullptr;
 		D3D12RootSignaturePtr RootSignature = nullptr;
 		D3D12CommandSignaturePtr CommandSignature = nullptr;
+
+		XE::ConcurrentQueue<D3D12_GPU_VIRTUAL_ADDRESS> DynamicBuffers;
 
 		XE::GraphicsDeviceHandle Parent;
 	};
@@ -786,7 +832,8 @@ namespace XE
 	public:
 		XE::GraphicsSamplerDescriptor Desc;
 
-		D3D12_CPU_DESCRIPTOR_HANDLE DescHandle = { 0 };
+		XE::Handle< int > SamplerHeapHandle;
+		D3D12_CPU_DESCRIPTOR_HANDLE CPUHandle = { 0 };
 
 		XE::GraphicsDeviceHandle Parent;
 	};
@@ -812,6 +859,9 @@ namespace XE
 	{
 	public:
 		XE::GraphicsTextureViewDescriptor Desc;
+
+		D3D12_CPU_DESCRIPTOR_HANDLE SRVCPUHandle = { 0 };
+		D3D12_CPU_DESCRIPTOR_HANDLE UAVCPUHandle = { 0 };
 
 		XE::GraphicsDeviceHandle Parent;
 	};
@@ -1149,7 +1199,145 @@ XE::GraphicsBindGroupHandle XE::GraphicsService::DeviceCreateBindGroup( XE::Grap
 
 			group.Desc = descriptor;
 
-			// TODO: 
+			XE::uint32 sampler_count = 0;
+			XE::uint32 buffer_view_count = 0;
+			XE::uint32 texture_view_count = 0;
+			for ( const auto & entry : descriptor.Entries )
+			{
+				if ( entry.Buffer )
+				{
+					buffer_view_count += entry.Size;
+				}
+				else if ( entry.Sampler )
+				{
+					sampler_count += entry.Size;
+				}
+				else if ( entry.TextureView )
+				{
+					texture_view_count += entry.Size;
+				}
+			}
+			if ( buffer_view_count + texture_view_count != 0 )
+			{
+				D3D12_DESCRIPTOR_HEAP_DESC desc = {};
+				{
+					desc.NumDescriptors = buffer_view_count + texture_view_count;
+					desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+					desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+					desc.NodeMask = 0;
+				}
+
+				dev.Device->CreateDescriptorHeap( &desc, IID_PPV_ARGS( group.ViewHeap.GetAddressOf() ) );
+			}
+			if ( sampler_count != 0 )
+			{
+				D3D12_DESCRIPTOR_HEAP_DESC desc = {};
+				{
+					desc.NumDescriptors = buffer_view_count + texture_view_count;
+					desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER;
+					desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+					desc.NodeMask = 0;
+				}
+
+				dev.Device->CreateDescriptorHeap( &desc, IID_PPV_ARGS( group.SamplerHeap.GetAddressOf() ) );
+			}
+
+			XE::uint32 view_count = 0;
+			XE::uint32 sampler_count = 0;
+			D3D12_CPU_DESCRIPTOR_HANDLE view_handle = group.ViewHeap->GetCPUDescriptorHandleForHeapStart();
+			D3D12_CPU_DESCRIPTOR_HANDLE sampler_handle = group.SamplerHeap->GetCPUDescriptorHandleForHeapStart();
+			XE::uint32 view_item_size = dev.Device->GetDescriptorHandleIncrementSize( D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV );
+			XE::uint32 sampler_item_size = dev.Device->GetDescriptorHandleIncrementSize( D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER );
+
+			for ( size_t i = 0; i < descriptor.Entries.size(); i++ )
+			{
+				const auto & group_entry = descriptor.Entries[i];
+				const auto & layout_entry = layout.Desc.Entries[i];
+
+				if ( group_entry.Buffer )
+				{
+					if ( auto & buf = _p->_Buffers[group_entry.Buffer] )
+					{
+						D3D12_GPU_VIRTUAL_ADDRESS gpu_address = buf.Resource->GetGPUVirtualAddress();
+						D3D12_CPU_DESCRIPTOR_HANDLE cpu_address = { view_handle.ptr + ( view_count++ * view_item_size ) };
+
+						if ( layout_entry.Buffer.HasDynamicOffset )
+						{
+							group.DynamicBuffers.push( gpu_address + group_entry.Offset );
+						}
+						else
+						{
+							switch ( layout_entry.Buffer.Type )
+							{
+							case XE::GraphicsBufferBindingType::UNIFORM:
+							{
+								D3D12_CONSTANT_BUFFER_VIEW_DESC desc = {};
+								{
+									desc.SizeInBytes = ( ( group_entry.Size - 1 ) | ( D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT - 1 ) ) - 1;
+									desc.BufferLocation = gpu_address;
+								}
+
+								dev.Device->CreateConstantBufferView( &desc, cpu_address );
+							}
+								break;
+							case XE::GraphicsBufferBindingType::STORAGE:
+							{
+								D3D12_UNORDERED_ACCESS_VIEW_DESC desc = {};
+								{
+									desc.Format = DXGI_FORMAT_R32_TYPELESS;
+									desc.ViewDimension = D3D12_UAV_DIMENSION_BUFFER;
+									desc.Buffer.FirstElement = group_entry.Offset / 4;
+									desc.Buffer.NumElements = group_entry.Size / 4;
+									desc.Buffer.StructureByteStride = 0;
+									desc.Buffer.CounterOffsetInBytes = 0;
+									desc.Buffer.Flags = D3D12_BUFFER_UAV_FLAG_RAW;
+								}
+
+								dev.Device->CreateUnorderedAccessView( buf.Resource.Get(), nullptr, &desc, cpu_address );
+							}
+								break;
+							case XE::GraphicsBufferBindingType::READ_ONLY_STORAGE:
+							{
+								D3D12_SHADER_RESOURCE_VIEW_DESC desc = {};
+								{
+									desc.Format = DXGI_FORMAT_R32_TYPELESS;
+									desc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
+									desc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+									desc.Buffer.FirstElement = group_entry.Offset / 4;
+									desc.Buffer.NumElements = group_entry.Size / 4;
+									desc.Buffer.StructureByteStride = 0;
+									desc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_RAW;
+
+									dev.Device->CreateShaderResourceView( buf.Resource.Get(), &desc, cpu_address );
+								}
+							}
+								break;
+							default:
+								break;
+							}
+						}
+					}
+					else if ( auto & sampler = _p->_Samplers[group_entry.Sampler] )
+					{
+						D3D12_CPU_DESCRIPTOR_HANDLE cpu_address = { sampler_handle.ptr + ( sampler_count++ * sampler_item_size ) };
+
+						dev.Device->CopyDescriptorsSimple( 1, cpu_address, sampler.CPUHandle, D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER );
+					}
+					else if ( auto & texture = _p->_TextureViews[group_entry.TextureView] )
+					{
+						D3D12_CPU_DESCRIPTOR_HANDLE cpu_address = { view_handle.ptr + ( view_count++ * view_item_size ) };
+
+						if ( layout_entry.StorageTexture.Access == XE::GraphicsStorageTextureAccess::UNDEFINED )
+						{
+							dev.Device->CopyDescriptorsSimple( 1, cpu_address, texture.SRVCPUHandle, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV );
+						}
+						else
+						{
+							dev.Device->CopyDescriptorsSimple( 1, cpu_address, texture.UAVCPUHandle, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV );
+						}
+					}
+				}
+			}
 
 			return group;
 		}
@@ -1165,11 +1353,6 @@ XE::GraphicsBindGroupLayoutHandle XE::GraphicsService::DeviceCreateBindGroupLayo
 		auto & layout = _p->_BindGroupLayouts.Alloc();
 
 		layout.Desc = descriptor;
-
-		for ( const auto & it : descriptor.Entries )
-		{
-
-		}
 
 		return layout;
 	}
@@ -1449,7 +1632,7 @@ XE::GraphicsRenderPipelineHandle XE::GraphicsService::DeviceCreateRenderPipeline
 						}
 						desc.RasterizerState = {};
 						{
-							//desc.RasterizerState.FillMode = Cast( descriptor.Primitive.Topology );
+							desc.RasterizerState.FillMode = descriptor.Primitive.Topology < GraphicsPrimitiveTopology::TRIANGLE_LIST ? D3D12_FILL_MODE_WIREFRAME : D3D12_FILL_MODE_SOLID;
 							desc.RasterizerState.CullMode = Cast( descriptor.Primitive.CullMode );
 							desc.RasterizerState.FrontCounterClockwise = Cast( descriptor.Primitive.FrontFace );
 							desc.RasterizerState.DepthBias = descriptor.DepthStencil.DepthBias;
@@ -1505,12 +1688,28 @@ XE::GraphicsSamplerHandle XE::GraphicsService::DeviceCreateSampler( XE::Graphics
 
 		sampler.Parent = dev.IncHandle();
 
-		D3D12_SAMPLER_DESC desc;
+		D3D12_SAMPLER_DESC desc = {};
 		{
-			// TODO: 
-// 			D3D12_CPU_DESCRIPTOR_HANDLE handle;
-// 			dev.Device->CreateSampler( &desc, handle );
+			desc.Filter = (D3D12_FILTER)(
+				( Cast( descriptor.MinFilter ) << D3D12_MIN_FILTER_SHIFT ) |
+				( Cast( descriptor.MagFilter ) << D3D12_MAG_FILTER_SHIFT ) |
+				( Cast( descriptor.MipmapFilter ) << D3D12_MIP_FILTER_SHIFT ) |
+				( descriptor.Compare == GraphicsCompareFunction::UNDEFINED ? D3D12_FILTER_REDUCTION_TYPE_STANDARD : D3D12_FILTER_REDUCTION_TYPE_COMPARISON ) |
+				( descriptor.MaxAnisotropy == 0 ? D3D12_FILTER_ANISOTROPIC : descriptor.MaxAnisotropy ) );
+			desc.AddressU = Cast( descriptor.AddressModeU );
+			desc.AddressV = Cast( descriptor.AddressModeV );
+			desc.AddressW = Cast( descriptor.AddressModeW );
+			desc.MipLODBias = 0.0f;
+			desc.ComparisonFunc = Cast( descriptor.Compare );
+			desc.MaxAnisotropy = descriptor.MaxAnisotropy;
+			desc.MinLOD = descriptor.LodMinClamp;
+			desc.MaxLOD = descriptor.LodMaxClamp;
 		}
+
+		sampler.SamplerHeapHandle = dev.SamplerAllocator.Alloc();
+		sampler.CPUHandle.ptr = dev.SmaplerHeap->GetCPUDescriptorHandleForHeapStart().ptr + sampler.SamplerHeapHandle.GetValue() * dev.Device->GetDescriptorHandleIncrementSize( D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER );
+
+		dev.Device->CreateSampler( &desc, sampler.CPUHandle );
 
 		return sampler;
 	}

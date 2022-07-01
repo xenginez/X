@@ -242,22 +242,30 @@ public:
 	static constexpr XE::uint64 MAX_SIZE = _Max;
 
 public:
-	QueueHandleAllocator()
-	{
-		Reset();
-	}
+	QueueHandleAllocator() = default;
 
 public:
 	XE::Handle< T > Alloc()
 	{
-		if( !_Queue.empty() )
+		XE::uint64 id = 0;
+		if ( _Queue.try_pop( id ) )
 		{
-			auto handle = _Queue.top();
-			_Queue.pop();
-			return handle;
+			return HandleCast< T >( id );
+		}
+		else if ( _Cur < MAX_SIZE )
+		{
+			id = _Cur.load();
+
+			while ( !_Cur.compare_exchange_weak( id, id + 1 ) )
+			{
+				if ( id >= MAX_SIZE )
+					return Handle< T >::Invalid;
+			}
+
+			return HandleCast< T >( id );
 		}
 
-		return XE::Handle< T >::Invalid;
+		return Handle< T >::Invalid;
 	}
 
 	void Free( XE::Handle< T > handle )
@@ -267,88 +275,13 @@ public:
 
 	void Reset()
 	{
+		_Cur = 0;
 		_Queue = {};
-
-		for( XE::uint64 i = 0; i < _Max; ++i )
-		{
-			_Queue.push( i );
-		}
-	}
-
-	XE::uint64 Size() const
-	{
-		return _Queue.size();
 	}
 
 private:
-	std::priority_queue< XE::uint64, XE::Array< XE::uint64 > > _Queue;
-};
-
-template< typename T, XE::uint64 _Max > class ConcurrentHandleAllocator< Handle< T >, _Max >
-{
-public:
-	ConcurrentHandleAllocator()
-	{
-		Reset();
-	}
-
-public:
-	XE::Handle< T > Alloc()
-	{
-		if( _Pos < _Max )
-		{
-			XE::uint64 pos = 0;
-			do 
-			{
-				pos = _Pos;
-				if( _Pos >= _Max )
-				{
-					return XE::Handle< T >::Invalid;
-				}
-			} while( !_Pos.compare_exchange_weak( pos, pos + 1 ) );
-
-			XE::uint64 handle = _Dense[pos];
-			_Sparse[handle] = pos;
-			return handle;
-		}
-
-		return XE::Handle< T >::Invalid;
-	}
-
-	void Free( XE::Handle< T > handle )
-	{
-		XE::uint64 pos = 0;
-		do
-		{
-			pos = _Pos;
-		} while( !_Pos.compare_exchange_weak( pos, pos - 1 ) );
-
-		XE::uint64 index = _Sparse[handle.GetValue()];
-		XE::uint64 temp = _Dense[pos];
-		_Dense[pos] = handle.GetValue();
-		_Sparse[temp] = index;
-		_Dense[index] = temp;
-	}
-
-	bool IsValid( XE::Handle< T > handle ) const
-	{
-		return handle.GetValue() < _Max && _Dense[_Sparse[handle.GetValue()]] == handle.GetValue();
-	}
-
-	void Reset()
-	{
-		_Pos = 0;
-
-		for( int i = 0; i < _Max; ++i )
-		{
-			_Dense[i] = i;
-		}
-	}
-
-private:
-	std::atomic< XE::uint64 > _Pos;
-	std::array< XE::uint64, _Max > _Dense;
-	std::array< XE::uint64, _Max > _Sparse;
+	std::atomic<XE::uint64> _Cur = 0;
+	XE::ConcurrentQueue< XE::uint64 > _Queue;
 };
 
 

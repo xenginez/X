@@ -44,9 +44,9 @@ template< typename T > class HandleAllocator;
 template< typename T > struct BufferReadable;
 template< typename T > struct BufferWirteable;
 template< typename T, typename M > class Concurrent;
+template< typename T > class HandleAllocator;
 template< typename T, XE::uint64 _Max = std::numeric_limits< XE::uint64 >::max() > class RingHandleAllocator;
 template< typename T, XE::uint64 _Max = std::numeric_limits< XE::uint64 >::max() > class QueueHandleAllocator;
-template< typename T, XE::uint64 _Max = std::numeric_limits< XE::uint64 >::max() > class ConcurrentHandleAllocator;
 
 
 END_XE_NAMESPACE
