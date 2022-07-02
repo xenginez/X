@@ -682,7 +682,7 @@ namespace
 	using D3D12CommandListPtr = ComPtr < ID3D12GraphicsCommandList >;
 	using D3D12GraphicsCommandListPtr = ComPtr < ID3D12GraphicsCommandList >;
 	using D3D12PipelineStatePtr = ComPtr < ID3D12PipelineState >;
-	using D3D12SwapChainPtr = ComPtr < IDXGISwapChain4 >;
+	using D3D12SwapChainPtr = ComPtr < IDXGISwapChain1 >;
 	using D3D12CommandSignaturePtr = ComPtr< ID3D12CommandSignature >;
 	using D3D12RootSignaturePtr = ComPtr< ID3D12RootSignature >;
 	using D3D12QueryHeapPtr = ComPtr< ID3D12QueryHeap >;
@@ -725,11 +725,35 @@ namespace XE
 		D3D12FencePtr Fence = nullptr;
 		D3D12DevicePtr Device = nullptr;
 
-		D3D12DescriptorHeapPtr CSUHeap;
+		union
+		{
+			XE::uint32 CSUItemSize = 0;
+			XE::uint32 SRVItemSize;
+			XE::uint32 UAVItemSize;
+			XE::uint32 CSVItemSize;
+		};
+		XE::uint32 RTVItemSize = 0;
+		XE::uint32 DSVItemSize = 0;
+		XE::uint32 SmaplerItemSize = 0;
+
+		union
+		{
+			D3D12DescriptorHeapPtr CSUHeap = {};
+			D3D12DescriptorHeapPtr SRVHeap;
+			D3D12DescriptorHeapPtr UAVHeap;
+			D3D12DescriptorHeapPtr CSVHeap;
+		};
 		D3D12DescriptorHeapPtr RTVHeap;
 		D3D12DescriptorHeapPtr DSVHeap;
 		D3D12DescriptorHeapPtr SmaplerHeap;
-		XE::QueueHandleAllocator< XE::Handle< int >, GRAPHICS_MAX_CSU_DESCRIPTOR_HEAP > CSUAllocator;
+
+		union
+		{
+			XE::QueueHandleAllocator< XE::Handle< int >, GRAPHICS_MAX_CSU_DESCRIPTOR_HEAP > CSUAllocator = {};
+			XE::QueueHandleAllocator< XE::Handle< int >, GRAPHICS_MAX_CSU_DESCRIPTOR_HEAP > SRVAllocator;
+			XE::QueueHandleAllocator< XE::Handle< int >, GRAPHICS_MAX_CSU_DESCRIPTOR_HEAP > UAVAllocator;
+			XE::QueueHandleAllocator< XE::Handle< int >, GRAPHICS_MAX_CSU_DESCRIPTOR_HEAP > CSVAllocator;
+		};
 		XE::QueueHandleAllocator< XE::Handle< int >, GRAPHICS_MAX_RTV_DESCRIPTOR_HEAP > RTVAllocator;
 		XE::QueueHandleAllocator< XE::Handle< int >, GRAPHICS_MAX_DSV_DESCRIPTOR_HEAP > DSVAllocator;
 		XE::QueueHandleAllocator< XE::Handle< int >, GRAPHICS_MAX_SAMPLER_DESCRIPTOR_HEAP > SamplerAllocator;
@@ -910,10 +934,16 @@ namespace XE
 	public:
 		XE::GraphicsTextureViewDescriptor Desc;
 
+		XE::Handle< int > SRVHandle;
+		XE::Handle< int > UAVHandle;
+		XE::Handle< int > RTVHandle;
+		XE::Handle< int > DSVHandle;
 		D3D12_CPU_DESCRIPTOR_HANDLE SRVCPUHandle = { 0 };
 		D3D12_CPU_DESCRIPTOR_HANDLE UAVCPUHandle = { 0 };
+		D3D12_CPU_DESCRIPTOR_HANDLE RTVCPUHandle = { 0 };
+		D3D12_CPU_DESCRIPTOR_HANDLE DSVCPUHandle = { 0 };
 
-		XE::GraphicsDeviceHandle Parent;
+		XE::GraphicsTextureHandle Parent;
 	};
 }
 
@@ -1176,24 +1206,28 @@ void XE::GraphicsService::AdapterRequestDevice( XE::GraphicsAdapterHandle adapte
 					desc_heap_desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 					desc_heap_desc.NodeMask = 0;
 					device->CreateDescriptorHeap( &desc_heap_desc, IID_PPV_ARGS( dev.CSUHeap.GetAddressOf() ) );
+					dev.CSUItemSize = device->GetDescriptorHandleIncrementSize( D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV );
 
 					desc_heap_desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
 					desc_heap_desc.NumDescriptors = GRAPHICS_MAX_RTV_DESCRIPTOR_HEAP;
 					desc_heap_desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 					desc_heap_desc.NodeMask = 0;
 					device->CreateDescriptorHeap( &desc_heap_desc, IID_PPV_ARGS( dev.RTVHeap.GetAddressOf() ) );
+					dev.RTVItemSize = device->GetDescriptorHandleIncrementSize( D3D12_DESCRIPTOR_HEAP_TYPE_RTV );
 
 					desc_heap_desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
 					desc_heap_desc.NumDescriptors = GRAPHICS_MAX_DSV_DESCRIPTOR_HEAP;
 					desc_heap_desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 					desc_heap_desc.NodeMask = 0;
 					device->CreateDescriptorHeap( &desc_heap_desc, IID_PPV_ARGS( dev.DSVHeap.GetAddressOf() ) );
+					dev.DSVItemSize = device->GetDescriptorHandleIncrementSize( D3D12_DESCRIPTOR_HEAP_TYPE_DSV );
 
 					desc_heap_desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER;
 					desc_heap_desc.NumDescriptors = GRAPHICS_MAX_SAMPLER_DESCRIPTOR_HEAP;
 					desc_heap_desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 					desc_heap_desc.NodeMask = 0;
 					device->CreateDescriptorHeap( &desc_heap_desc, IID_PPV_ARGS( dev.SmaplerHeap.GetAddressOf() ) );
+					dev.SmaplerItemSize = device->GetDescriptorHandleIncrementSize( D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER );
 				}
 
 				D3D12_COMMAND_SIGNATURE_DESC signature_desc = {};
@@ -1807,13 +1841,41 @@ XE::GraphicsSwapChainHandle XE::GraphicsService::DeviceCreateSwapChain( XE::Grap
 {
 	if ( auto & dev = _p->_Devices[device] )
 	{
-		auto & swap_chain = _p->_SwapChains.Alloc();
+		if ( auto & queue = _p->_Queues[dev.Queue] )
+		{
+			if ( auto & sface = _p->_Surfaces[surface] )
+			{
+				auto & swap_chain = _p->_SwapChains.Alloc();
 
-		swap_chain.Desc = descriptor;
+				swap_chain.Desc = descriptor;
 
-		// TODO: 
+				DXGI_SWAP_CHAIN_DESC1 desc = {};
+				{
+					desc.AlphaMode = DXGI_ALPHA_MODE_IGNORE;
+					desc.Width = descriptor.Width;
+					desc.Height = descriptor.Height;
+					desc.Format = Cast( descriptor.Format );
+					desc.SampleDesc.Count = 1;
+					desc.SampleDesc.Quality = 0;
+					desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+					desc.BufferCount = 2;
+					desc.Scaling = DXGI_SCALING_STRETCH;
+					desc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
+					desc.Flags = DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT | ( descriptor.PresentMode == GraphicsPresentMode::IMMEDIATE ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0 );
+				}
 
-		return swap_chain;
+				if ( sface.Desc.Window != nullptr )
+				{
+					_p->_Factory->CreateSwapChainForHwnd( queue.CommandQueue.Get(), (HWND)sface.Desc.Window->GetHandle().GetValue(), &desc, nullptr, nullptr, swap_chain.SwapChain.GetAddressOf() );
+				}
+				else
+				{
+					_p->_Factory->CreateSwapChainForComposition( queue.CommandQueue.Get(), &desc, nullptr, swap_chain.SwapChain.GetAddressOf() );
+				}
+
+				return swap_chain;
+			}
+		}
 	}
 
 	return {};
@@ -1901,13 +1963,330 @@ XE::GraphicsTextureViewHandle XE::GraphicsService::TextureCreateView( XE::Graphi
 {
 	if ( auto & tex = _p->_Textures[texture] )
 	{
-		auto & view = _p->_TextureViews.Alloc();
+		if ( auto & dev = _p->_Devices[tex.Parent] )
+		{
+			auto & view = _p->_TextureViews.Alloc();
 
-		view.Desc = descriptor;
+			view.Desc = descriptor;
+			view.Parent = texture;
 
-		// TODO: 
+			D3D12_UNORDERED_ACCESS_VIEW_DESC uav_desc = {};
+			{
+				uav_desc.Format = Cast( descriptor.Format );
 
-		return view;
+				switch ( descriptor.Dimension )
+				{
+				case XE::GraphicsTextureViewDimension::D1:
+				{
+					uav_desc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE1D;
+
+					uav_desc.Texture1D.MipSlice = descriptor.BaseMipLevel;
+				}
+					break;
+				case XE::GraphicsTextureViewDimension::D2:
+				{
+					if ( descriptor.BaseArrayLayer == 0 )
+					{
+						uav_desc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
+						uav_desc.Texture2D.MipSlice = descriptor.BaseMipLevel;
+						uav_desc.Texture2D.PlaneSlice = 0;
+					}
+					else
+					{
+						uav_desc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2DARRAY;
+						uav_desc.Texture2DArray.MipSlice = descriptor.BaseMipLevel;
+						uav_desc.Texture2DArray.FirstArraySlice = descriptor.BaseArrayLayer;
+						uav_desc.Texture2DArray.ArraySize = descriptor.ArrayLayerCount;
+						uav_desc.Texture2DArray.PlaneSlice = 0;
+					}
+				}
+					break;
+				case XE::GraphicsTextureViewDimension::D2ARRAY:
+				{
+					uav_desc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2DARRAY;
+					uav_desc.Texture2DArray.MipSlice = descriptor.BaseMipLevel;
+					uav_desc.Texture2DArray.FirstArraySlice = descriptor.BaseArrayLayer;
+					uav_desc.Texture2DArray.ArraySize = descriptor.ArrayLayerCount;
+					uav_desc.Texture2DArray.PlaneSlice = 0;
+				}
+					break;
+				case XE::GraphicsTextureViewDimension::D3:
+				{
+					uav_desc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE3D;
+					uav_desc.Texture3D.MipSlice = descriptor.BaseMipLevel;
+					uav_desc.Texture3D.FirstWSlice = descriptor.BaseArrayLayer;
+					uav_desc.Texture3D.WSize = descriptor.ArrayLayerCount;
+				}
+					break;
+				default:
+					break;
+				}
+
+				view.UAVHandle = dev.UAVAllocator.Alloc();
+				view.UAVCPUHandle.ptr = dev.UAVHeap->GetCPUDescriptorHandleForHeapStart().ptr + view.UAVHandle.GetValue() * dev.UAVItemSize;
+
+				dev.Device->CreateUnorderedAccessView( tex.Resource.Get(), nullptr, &uav_desc, view.UAVCPUHandle );
+			}
+
+			D3D12_SHADER_RESOURCE_VIEW_DESC srv_desc = {};
+			{
+				srv_desc.Format = Cast( descriptor.Format );
+				srv_desc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+
+				switch ( descriptor.Dimension )
+				{
+				case XE::GraphicsTextureViewDimension::UNDEFINED:
+					break;
+				case XE::GraphicsTextureViewDimension::D1:
+				{
+					srv_desc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE1D;
+					srv_desc.Texture1D.MostDetailedMip = descriptor.BaseMipLevel;
+					srv_desc.Texture1D.MipLevels = descriptor.MipLevelCount;
+					srv_desc.Texture1D.ResourceMinLODClamp = 0.0f;
+				}
+				break;
+				case XE::GraphicsTextureViewDimension::D2:
+				{
+					if ( tex.Desc.SampleCount != 0 && descriptor.BaseArrayLayer == 0 )
+					{
+						srv_desc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2DMS;
+						srv_desc.Texture2DMS.UnusedField_NothingToDefine = 0;
+					}
+					else if ( descriptor.BaseArrayLayer == 0 )
+					{
+						srv_desc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+						srv_desc.Texture2D.MostDetailedMip = descriptor.BaseMipLevel;
+						srv_desc.Texture2D.MipLevels = descriptor.MipLevelCount;
+						srv_desc.Texture2D.PlaneSlice = 0;
+						srv_desc.Texture2D.ResourceMinLODClamp = 0.0f;
+					}
+					else if ( tex.Desc.SampleCount != 0 )
+					{
+						srv_desc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2DMSARRAY;
+						srv_desc.Texture2DMSArray.FirstArraySlice = descriptor.BaseArrayLayer;
+						srv_desc.Texture2DMSArray.ArraySize = descriptor.ArrayLayerCount;
+					}
+					else
+					{
+						srv_desc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2DARRAY;
+						srv_desc.Texture2DArray.MostDetailedMip = descriptor.BaseMipLevel;
+						srv_desc.Texture2DArray.MipLevels = descriptor.MipLevelCount;
+						srv_desc.Texture2DArray.FirstArraySlice = descriptor.BaseArrayLayer;
+						srv_desc.Texture2DArray.ArraySize = descriptor.ArrayLayerCount;
+						srv_desc.Texture2DArray.PlaneSlice = 0;
+						srv_desc.Texture2DArray.ResourceMinLODClamp = 0.0f;
+					}
+				}
+				break;
+				case XE::GraphicsTextureViewDimension::D2ARRAY:
+				{
+					if ( tex.Desc.SampleCount != 0 )
+					{
+						srv_desc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2DMSARRAY;
+						srv_desc.Texture2DMSArray.FirstArraySlice = descriptor.BaseArrayLayer;
+						srv_desc.Texture2DMSArray.ArraySize = descriptor.ArrayLayerCount;
+					}
+					else
+					{
+						srv_desc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2DARRAY;
+						srv_desc.Texture2DArray.MostDetailedMip = descriptor.BaseMipLevel;
+						srv_desc.Texture2DArray.MipLevels = descriptor.MipLevelCount;
+						srv_desc.Texture2DArray.FirstArraySlice = descriptor.BaseArrayLayer;
+						srv_desc.Texture2DArray.ArraySize = descriptor.ArrayLayerCount;
+						srv_desc.Texture2DArray.PlaneSlice = 0;
+						srv_desc.Texture2DArray.ResourceMinLODClamp = 0.0f;
+					}
+				}
+				break;
+				case XE::GraphicsTextureViewDimension::D3:
+				{
+					srv_desc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE3D;
+					srv_desc.Texture3D.MostDetailedMip = descriptor.BaseMipLevel;
+					srv_desc.Texture3D.MipLevels = descriptor.MipLevelCount;
+					srv_desc.Texture3D.ResourceMinLODClamp = 0.0f;
+				}
+				break;
+				case XE::GraphicsTextureViewDimension::CUBE:
+				{
+					if ( descriptor.BaseArrayLayer == 0 )
+					{
+						srv_desc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
+						srv_desc.TextureCube.MostDetailedMip = descriptor.BaseMipLevel;
+						srv_desc.TextureCube.MipLevels = descriptor.MipLevelCount;
+						srv_desc.TextureCube.ResourceMinLODClamp = 0.0f;
+					}
+					else
+					{
+						srv_desc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBEARRAY;
+						srv_desc.TextureCubeArray.MostDetailedMip = descriptor.BaseMipLevel;
+						srv_desc.TextureCubeArray.MipLevels = descriptor.MipLevelCount;
+						srv_desc.TextureCubeArray.First2DArrayFace = descriptor.BaseArrayLayer;
+						srv_desc.TextureCubeArray.NumCubes = descriptor.ArrayLayerCount == 0 ? 0 : descriptor.ArrayLayerCount / 6;
+						srv_desc.TextureCubeArray.ResourceMinLODClamp = 0.0f;
+					}
+				}
+				break;
+				case XE::GraphicsTextureViewDimension::CUBEARRAY:
+				{
+					srv_desc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBEARRAY;
+					srv_desc.TextureCubeArray.MostDetailedMip = descriptor.BaseMipLevel;
+					srv_desc.TextureCubeArray.MipLevels = descriptor.MipLevelCount;
+					srv_desc.TextureCubeArray.First2DArrayFace = descriptor.BaseArrayLayer;
+					srv_desc.TextureCubeArray.NumCubes = descriptor.ArrayLayerCount == 0 ? 0 : descriptor.ArrayLayerCount / 6;
+					srv_desc.TextureCubeArray.ResourceMinLODClamp = 0.0f;
+				}
+				break;
+				default:
+					break;
+				}
+
+				view.SRVHandle = dev.SRVAllocator.Alloc();
+				view.SRVCPUHandle.ptr = dev.SRVHeap->GetCPUDescriptorHandleForHeapStart().ptr + view.SRVHandle.GetValue() * dev.SRVItemSize;
+
+				dev.Device->CreateShaderResourceView( tex.Resource.Get(), &srv_desc, view.SRVCPUHandle );
+			}
+
+			D3D12_RENDER_TARGET_VIEW_DESC rtv_desc = {};
+			{
+				rtv_desc.Format = Cast( descriptor.Format );
+
+				switch ( descriptor.Dimension )
+				{
+				case XE::GraphicsTextureViewDimension::D1:
+				{
+					rtv_desc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE1D;
+					rtv_desc.Texture1D.MipSlice = descriptor.BaseMipLevel;
+				}
+					break;
+				case XE::GraphicsTextureViewDimension::D2:
+				{
+					if ( tex.Desc.SampleCount != 0 && descriptor.BaseArrayLayer == 0 )
+					{
+						rtv_desc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2DMS;
+						rtv_desc.Texture2DMS.UnusedField_NothingToDefine = 0;
+					}
+					else if ( descriptor.BaseArrayLayer == 0 )
+					{
+						rtv_desc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
+						rtv_desc.Texture2D.MipSlice = descriptor.BaseMipLevel;
+						rtv_desc.Texture2D.PlaneSlice = 0;
+					}
+					else if ( tex.Desc.SampleCount != 0 )
+					{
+						rtv_desc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2DMSARRAY;
+						rtv_desc.Texture2DMSArray.FirstArraySlice = descriptor.BaseArrayLayer;
+						rtv_desc.Texture2DMSArray.ArraySize = descriptor.ArrayLayerCount;
+					}
+					else
+					{
+						rtv_desc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2DARRAY;
+						rtv_desc.Texture2DArray.MipSlice = descriptor.BaseMipLevel;
+						rtv_desc.Texture2DArray.FirstArraySlice = descriptor.BaseArrayLayer;
+						rtv_desc.Texture2DArray.ArraySize = descriptor.ArrayLayerCount;
+						rtv_desc.Texture2DArray.PlaneSlice = 0;
+					}
+				}
+					break;
+				case XE::GraphicsTextureViewDimension::D2ARRAY:
+				{
+					rtv_desc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2DARRAY;
+					rtv_desc.Texture2DArray.MipSlice = descriptor.BaseMipLevel;
+					rtv_desc.Texture2DArray.FirstArraySlice = descriptor.BaseArrayLayer;
+					rtv_desc.Texture2DArray.ArraySize = descriptor.ArrayLayerCount;
+					rtv_desc.Texture2DArray.PlaneSlice = 0;
+				}
+					break;
+				case XE::GraphicsTextureViewDimension::D3:
+				{
+					rtv_desc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE3D;
+					rtv_desc.Texture3D.MipSlice = descriptor.BaseMipLevel;
+					rtv_desc.Texture3D.FirstWSlice = descriptor.BaseArrayLayer;
+					rtv_desc.Texture3D.WSize = descriptor.ArrayLayerCount;
+				}
+					break;
+				default:
+					break;
+				}
+
+				view.RTVHandle = dev.RTVAllocator.Alloc();
+				view.RTVCPUHandle.ptr = dev.RTVHeap->GetCPUDescriptorHandleForHeapStart().ptr + view.RTVHandle.GetValue() * dev.RTVItemSize;
+
+				dev.Device->CreateRenderTargetView( tex.Resource.Get(), &rtv_desc, view.RTVCPUHandle );
+			}
+
+			D3D12_DEPTH_STENCIL_VIEW_DESC dsv_desc = {};
+			{
+				dsv_desc.Format = Cast( descriptor.Format );
+				switch ( descriptor.Aspect )
+				{
+				case XE::GraphicsTextureAspect::ALL:
+					dsv_desc.Flags |= D3D12_DSV_FLAG_READ_ONLY_STENCIL | D3D12_DSV_FLAG_READ_ONLY_DEPTH;
+					break;
+				case XE::GraphicsTextureAspect::STENCIL_ONLY:
+					dsv_desc.Flags |= D3D12_DSV_FLAG_READ_ONLY_STENCIL;
+					break;
+				case XE::GraphicsTextureAspect::DEPTH_ONLY:
+					dsv_desc.Flags |= D3D12_DSV_FLAG_READ_ONLY_DEPTH;
+					break;
+				default:
+					break;
+				}
+
+				switch ( descriptor.Dimension )
+				{
+				case XE::GraphicsTextureViewDimension::D1:
+				{
+					dsv_desc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE1D;
+					dsv_desc.Texture1D.MipSlice = descriptor.BaseMipLevel;
+				}
+					break;
+				case XE::GraphicsTextureViewDimension::D2:
+				{
+					if ( tex.Desc.SampleCount != 0 && descriptor.BaseArrayLayer == 0 )
+					{
+						dsv_desc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2DMS;
+						dsv_desc.Texture2DMS.UnusedField_NothingToDefine = 0;
+					}
+					else if ( descriptor.BaseArrayLayer == 0 )
+					{
+						dsv_desc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
+						dsv_desc.Texture2D.MipSlice = descriptor.BaseMipLevel;
+					}
+					else if ( tex.Desc.SampleCount != 0 )
+					{
+						dsv_desc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2DMSARRAY;
+						dsv_desc.Texture2DMSArray.FirstArraySlice = descriptor.BaseArrayLayer;
+						dsv_desc.Texture2DMSArray.ArraySize = descriptor.ArrayLayerCount;
+					}
+					else
+					{
+						dsv_desc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2DARRAY;
+						dsv_desc.Texture2DArray.MipSlice = descriptor.BaseMipLevel;
+						dsv_desc.Texture2DArray.FirstArraySlice = descriptor.BaseArrayLayer;
+						dsv_desc.Texture2DArray.ArraySize = descriptor.ArrayLayerCount;
+					}
+				}
+					break;
+				case XE::GraphicsTextureViewDimension::D2ARRAY:
+				{
+					dsv_desc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2DARRAY;
+					dsv_desc.Texture2DArray.MipSlice = descriptor.BaseMipLevel;
+					dsv_desc.Texture2DArray.FirstArraySlice = descriptor.BaseArrayLayer;
+					dsv_desc.Texture2DArray.ArraySize = descriptor.ArrayLayerCount;
+				}
+					break;
+				default:
+					break;
+				}
+
+				view.DSVHandle = dev.DSVAllocator.Alloc();
+				view.DSVCPUHandle.ptr = dev.DSVHeap->GetCPUDescriptorHandleForHeapStart().ptr + view.DSVHandle.GetValue() * dev.DSVItemSize;
+
+				dev.Device->CreateDepthStencilView( tex.Resource.Get(), &dsv_desc, view.DSVCPUHandle );
+			}
+
+			return view;
+		}
 	}
 
 	return {};
@@ -1915,7 +2294,7 @@ XE::GraphicsTextureViewHandle XE::GraphicsService::TextureCreateView( XE::Graphi
 
 void XE::GraphicsService::DeviceEnumerateFeatures( XE::GraphicsDeviceHandle device, XE::Array< XE::GraphicsFeatureName > & features )
 {
-	auto & dev = _p->_Devices[device];
+	if ( auto & dev = _p->_Devices[device] )
 	{
 
 	}
@@ -1923,7 +2302,7 @@ void XE::GraphicsService::DeviceEnumerateFeatures( XE::GraphicsDeviceHandle devi
 
 bool XE::GraphicsService::DeviceGetLimits( XE::GraphicsDeviceHandle device, XE::GraphicsSupportedLimits & limits )
 {
-	auto & dev = _p->_Devices[device];
+	if ( auto & dev = _p->_Devices[device] )
 	{
 
 	}
@@ -1943,7 +2322,7 @@ XE::GraphicsQueueHandle XE::GraphicsService::DeviceGetQueue( XE::GraphicsDeviceH
 
 bool XE::GraphicsService::DeviceHasFeature( XE::GraphicsDeviceHandle device, XE::GraphicsFeatureName feature )
 {
-	auto & dev = _p->_Devices[device];
+	if ( auto & dev = _p->_Devices[device] )
 	{
 
 	}
@@ -1953,7 +2332,7 @@ bool XE::GraphicsService::DeviceHasFeature( XE::GraphicsDeviceHandle device, XE:
 
 bool XE::GraphicsService::DevicePopErrorScope( XE::GraphicsDeviceHandle device, ErrorCallback callback )
 {
-	auto & dev = _p->_Devices[device];
+	if ( auto & dev = _p->_Devices[device] )
 	{
 
 	}
@@ -1963,7 +2342,7 @@ bool XE::GraphicsService::DevicePopErrorScope( XE::GraphicsDeviceHandle device, 
 
 void XE::GraphicsService::DevicePushErrorScope( XE::GraphicsDeviceHandle device, XE::GraphicsErrorFilter filter )
 {
-	auto & dev = _p->_Devices[device];
+	if ( auto & dev = _p->_Devices[device] )
 	{
 
 	}
@@ -1971,7 +2350,7 @@ void XE::GraphicsService::DevicePushErrorScope( XE::GraphicsDeviceHandle device,
 
 void XE::GraphicsService::DeviceSetDeviceLostCallback( XE::GraphicsDeviceHandle device, DeviceLostCallback callback )
 {
-	auto & dev = _p->_Devices[device];
+	if ( auto & dev = _p->_Devices[device] )
 	{
 
 	}
@@ -1979,7 +2358,7 @@ void XE::GraphicsService::DeviceSetDeviceLostCallback( XE::GraphicsDeviceHandle 
 
 void XE::GraphicsService::DeviceSetUncapturedErrorCallback( XE::GraphicsDeviceHandle device, ErrorCallback callback )
 {
-	auto & dev = _p->_Devices[device];
+	if ( auto & dev = _p->_Devices[device] )
 	{
 
 	}
@@ -2003,7 +2382,7 @@ void XE::GraphicsService::QueueSubmit( XE::GraphicsQueueHandle queue, const XE::
 
 void XE::GraphicsService::QueueWriteBuffer( XE::GraphicsQueueHandle queue, XE::GraphicsBufferHandle buffer, XE::uint64 buffer_offset, XE::MemoryView data )
 {
-	auto & que = _p->_Queues[queue];
+	if ( auto & que = _p->_Queues[queue] )
 	{
 
 	}
@@ -2011,7 +2390,7 @@ void XE::GraphicsService::QueueWriteBuffer( XE::GraphicsQueueHandle queue, XE::G
 
 void XE::GraphicsService::QueueWriteTexture( XE::GraphicsQueueHandle queue, const XE::GraphicsImageCopyTexture & dst, XE::MemoryView data, const XE::GraphicsTextureDataLayout & data_layout, const XE::Vec3f & write_size )
 {
-	auto & que = _p->_Queues[queue];
+	if ( auto & que = _p->_Queues[queue] )
 	{
 
 	}
