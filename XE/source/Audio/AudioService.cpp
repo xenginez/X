@@ -100,8 +100,8 @@ struct XE::AudioService::Private
 
 	std::array<AHIBuffer, XE::AUDIO_MAX_BUFFER > _Buffers;
 	std::array<AHISource, XE::AUDIO_MAX_SOURCE > _Sources;
-	XE::ConcurrentHandleAllocator< XE::AudioBufferHandle, AUDIO_MAX_BUFFER > _BufferHandleAlloc;
-	XE::ConcurrentHandleAllocator< XE::AudioSourceHandle, AUDIO_MAX_SOURCE > _SourceHandleAlloc;
+	XE::QueueHandleAllocator< XE::AudioBufferHandle, AUDIO_MAX_BUFFER > _BufferHandleAlloc;
+	XE::QueueHandleAllocator< XE::AudioSourceHandle, AUDIO_MAX_SOURCE > _SourceHandleAlloc;
 };
 
 XE::AudioService::AudioService()

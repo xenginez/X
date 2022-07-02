@@ -391,7 +391,7 @@ bool XE::ImGuiImpl::CreateDeviceObjects( ImGuiContext * ctx )
 
 		// Create the vertex shader
 		XE::GraphicsProgrammableStageDescriptor vertex_shader_desc = CreateShaderModule( shader_vert_spv, sizeof( shader_vert_spv ) );
-		graphics_pipeline_desc.Vertex.Module = vertex_shader_desc.Module;
+		graphics_pipeline_desc.Vertex.Module = vertex_shader_desc.Shader;
 		graphics_pipeline_desc.Vertex.EntryPoint = vertex_shader_desc.EntryPoint;
 
 		// Vertex input configuration
@@ -421,7 +421,7 @@ bool XE::ImGuiImpl::CreateDeviceObjects( ImGuiContext * ctx )
 		color_state.Blend.Color.DstFactor = XE::GraphicsBlendFactor::ONE_MINUS_SRC_ALPHA;
 		color_state.WriteMask = XE::GraphicsColorWriteMask::ALL;
 
-		graphics_pipeline_desc.Fragment.Module = pixel_shader_desc.Module;
+		graphics_pipeline_desc.Fragment.Module = pixel_shader_desc.Shader;
 		graphics_pipeline_desc.Fragment.EntryPoint = pixel_shader_desc.EntryPoint;
 		graphics_pipeline_desc.Fragment.Targets.emplace_back( std::move( color_state ) );
 
@@ -455,8 +455,8 @@ bool XE::ImGuiImpl::CreateDeviceObjects( ImGuiContext * ctx )
 		p->_Resources.ImageBindGroupLayout = bg_layouts[1];
 		p->_Resources.ImageBindGroups.SetVoidPtr( ImHashData( &p->_Resources.FontTextureView, sizeof( ImTextureID ) ), reinterpret_cast<void *>( image_bind_group.GetValue() ) );
 
-		GRAPHICS_SERVICE->ShaderModuleDestroy( vertex_shader_desc.Module );
-		GRAPHICS_SERVICE->ShaderModuleDestroy( pixel_shader_desc.Module );
+		GRAPHICS_SERVICE->ShaderModuleDestroy( vertex_shader_desc.Shader );
+		GRAPHICS_SERVICE->ShaderModuleDestroy( pixel_shader_desc.Shader );
 		GRAPHICS_SERVICE->BindGroupLayoutDestroy( bg_layouts[0] );
 
 		return true;
@@ -596,7 +596,7 @@ XE::GraphicsProgrammableStageDescriptor XE::ImGuiImpl::CreateShaderModule( const
 	XE::GraphicsShaderModuleDescriptor desc = {};
 	desc.Code = { reinterpret_cast<const char *>( binary_data ), binary_data_size };
 
-	stage_desc.Module = GRAPHICS_SERVICE->DeviceCreateShaderModule( _p->_Device, desc );
+	stage_desc.Shader = GRAPHICS_SERVICE->DeviceCreateShaderModule( _p->_Device, desc );
 	stage_desc.EntryPoint = "main";
 
 	return stage_desc;

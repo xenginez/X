@@ -502,7 +502,7 @@ private:
 	}
 
 private:
-	XE::ConcurrentHandleAllocator< XE::RPC > _Allocator;
+	XE::QueueHandleAllocator< XE::RPC > _Allocator;
 	XE::Map< XE::String, FunctionCallbackType > _Callbacks;
 	XE::ConcurrentHashMap< XE::RPCHandle, ResultCallbackType > _Results;
 };

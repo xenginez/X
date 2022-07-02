@@ -801,8 +801,7 @@ struct XE_API GraphicsMultisampleState
 struct XE_API GraphicsPipelineLayoutDescriptor
 {
     XE::String Label;
-    XE::uint32 BindGroupLayoutCount;
-    XE::GraphicsBindGroupLayoutHandle BindGroupLayouts;
+    XE::Array<XE::GraphicsBindGroupLayoutHandle> BindGroupLayouts;
 };
 
 struct XE_API GraphicsPrimitiveState
@@ -1029,7 +1028,7 @@ struct XE_API GraphicsImageCopyTexture
 
 struct XE_API GraphicsProgrammableStageDescriptor
 {
-    XE::GraphicsShaderModuleHandle Module;
+    XE::GraphicsShaderModuleHandle Shader;
     XE::String EntryPoint;
     XE::Array< XE::GraphicsConstantEntry > Constants;
 };
@@ -1051,6 +1050,7 @@ struct XE_API GraphicsRequiredLimits
 struct XE_API GraphicsShaderModuleDescriptor
 {
 	XE::String Label;
+    bool Debug;
 	XE::MemoryView Code;
     XE::Array< XE::GraphicsShaderModuleCompilationHint > Hints;
 };

@@ -5,10 +5,12 @@
 #include <mutex>
 
 #include <d3d12.h>
+#include <windows.h>
 #include <dxgi1_6.h>
+#include <sdkddkver.h>
 #include <d3dcommon.h>
+#include <wrl/client.h>
 #include <d3dcompiler.h>
-#include <D3DX12/d3dx12.h>
 
 #include "Utils/Logger.h"
 #include "Utils/Window.h"
@@ -415,9 +417,9 @@ namespace
 			return D3D12_BLEND_BLEND_FACTOR;
 		case XE::GraphicsBlendFactor::ONE_MINUS_CONSTANT:
 			return D3D12_BLEND_INV_BLEND_FACTOR;
-		default:
-			break;
 		}
+
+		return D3D12_BLEND_ZERO;
 	}
 	D3D12_CULL_MODE Cast( XE::GraphicsCullMode mode )
 	{
@@ -487,9 +489,9 @@ namespace
 			return D3D12_STENCIL_OP_INCR;
 		case XE::GraphicsStencilOperation::DECREMENT_WRAP:
 			return D3D12_STENCIL_OP_DECR;
-		default:
-			break;
 		}
+
+		return D3D12_STENCIL_OP_KEEP;
 	}
 	D3D12_PRIMITIVE_TOPOLOGY_TYPE Cast( XE::GraphicsPrimitiveTopology topology )
 	{
@@ -505,9 +507,9 @@ namespace
 			return D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 		case XE::GraphicsPrimitiveTopology::TRIANGLE_STRIP:
 			return D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-		default:
-			break;
 		}
+
+		return D3D12_PRIMITIVE_TOPOLOGY_TYPE_UNDEFINED;
 	}
 	D3D12_TEXTURE_ADDRESS_MODE Cast( XE::GraphicsAddressMode mode )
 	{
@@ -531,9 +533,9 @@ namespace
 			return D3D12_FILTER_TYPE_POINT;
 		case XE::GraphicsFilterMode::LINEAR:
 			return D3D12_FILTER_TYPE_LINEAR;
-		default:
-			break;
 		}
+
+		return D3D12_FILTER_TYPE_POINT;
 	}
 	D3D12_FILTER_TYPE Cast( XE::GraphicsMipmapFilterMode mode )
 	{
@@ -543,9 +545,9 @@ namespace
 			return D3D12_FILTER_TYPE_POINT;
 		case XE::GraphicsMipmapFilterMode::LINEAR:
 			return D3D12_FILTER_TYPE_LINEAR;
-		default:
-			break;
 		}
+
+		return D3D12_FILTER_TYPE_POINT;
 	}
 
 	template< typename T > XE::Handle< T > Cast( T * ptr )
@@ -555,6 +557,52 @@ namespace
 	template< typename T > T * Cast( XE::Handle< T > handle )
 	{
 		return reinterpret_cast<T *>( handle.GetValue() );
+	}
+
+	Microsoft::WRL::ComPtr< ID3DBlob > LoadShader( const XE::GraphicsShaderModuleDescriptor & shader_desc, const XE::String & entry_point, XE::GraphicsShaderStage stage )
+	{
+		for ( const auto & ep : shader_desc.Hints )
+		{
+			if ( ep.EntryPoint == entry_point )
+			{
+				XE::uint32 flags = D3DCOMPILE_ENABLE_STRICTNESS;
+				if ( shader_desc.Debug )
+				{
+					flags |= D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
+				}
+
+				const char * target = nullptr;
+				switch ( stage )
+				{
+				case XE::GraphicsShaderStage::VERTEX:
+					target = "vs_5_1";
+					break;
+				case XE::GraphicsShaderStage::FRAGMENT:
+					target = "ps_5_1";
+					break;
+				case XE::GraphicsShaderStage::COMPUTE:
+					target = "cs_5_1";
+					break;
+				default:
+					return nullptr;
+				}
+
+				Microsoft::WRL::ComPtr< ID3DBlob > code = nullptr;
+				Microsoft::WRL::ComPtr< ID3DBlob > errmsg = nullptr;
+
+				if ( FAILED( ::D3DCompile( shader_desc.Code.data(), shader_desc.Code.size(), shader_desc.Label.c_str(), nullptr, nullptr, ep.EntryPoint.c_str(), target, flags, 0, code.GetAddressOf(), errmsg.GetAddressOf() ) ) )
+				{
+					XE_ERROR( "compile shader {%0} error: {%1}", shader_desc.Label, (const char *)errmsg->GetBufferPointer() );
+					return nullptr;
+				}
+				else
+				{
+					return code;
+				}
+			}
+		}
+
+		return nullptr;
 	}
 
 	template< typename T > class RefHandle : public XE::RefCount
@@ -623,6 +671,7 @@ namespace
 	};
 
 	template< typename T > using ComPtr = Microsoft::WRL::ComPtr< T >;
+	using D3D12BlobPtr = ComPtr< ID3DBlob >;
 	using D3D12AdapterPtr = ComPtr < IDXGIAdapter4 >;
 	using D3D12DevicePtr = ComPtr < ID3D12Device6 >;
 	using D3D12FencePtr = ComPtr< ID3D12Fence >;
@@ -774,6 +823,7 @@ namespace XE
 	public:
 		XE::GraphicsComputePipelineDescriptor Desc;
 
+		D3D12BlobPtr ShaderCode = nullptr;
 		D3D12PipelineStatePtr PipelineState = nullptr;
 
 		XE::GraphicsDeviceHandle Parent;
@@ -822,6 +872,8 @@ namespace XE
 	public:
 		XE::GraphicsRenderPipelineDescriptor Desc;
 
+		D3D12BlobPtr VSCode = nullptr;
+		D3D12BlobPtr FSCode = nullptr;
 		D3D12PipelineStatePtr PipelineState = nullptr;
 		XE::Array<D3D12_INPUT_ELEMENT_DESC> Elements;
 
@@ -841,8 +893,6 @@ namespace XE
 	{
 	public:
 		XE::GraphicsShaderModuleDescriptor Desc;
-
-		D3D12_SHADER_BYTECODE ShaderCode = { nullptr, 0 };
 
 		XE::GraphicsDeviceHandle Parent;
 	};
@@ -1198,48 +1248,49 @@ XE::GraphicsBindGroupHandle XE::GraphicsService::DeviceCreateBindGroup( XE::Grap
 			auto & group = _p->_BindGroups.Alloc();
 
 			group.Desc = descriptor;
-
-			XE::uint32 sampler_count = 0;
-			XE::uint32 buffer_view_count = 0;
-			XE::uint32 texture_view_count = 0;
-			for ( const auto & entry : descriptor.Entries )
 			{
-				if ( entry.Buffer )
+				XE::uint32 sampler_count = 0;
+				XE::uint32 buffer_view_count = 0;
+				XE::uint32 texture_view_count = 0;
+				for ( const auto & entry : descriptor.Entries )
 				{
-					buffer_view_count += entry.Size;
+					if ( entry.Buffer )
+					{
+						buffer_view_count += entry.Size;
+					}
+					else if ( entry.Sampler )
+					{
+						sampler_count += entry.Size;
+					}
+					else if ( entry.TextureView )
+					{
+						texture_view_count += entry.Size;
+					}
 				}
-				else if ( entry.Sampler )
+				if ( buffer_view_count + texture_view_count != 0 )
 				{
-					sampler_count += entry.Size;
-				}
-				else if ( entry.TextureView )
-				{
-					texture_view_count += entry.Size;
-				}
-			}
-			if ( buffer_view_count + texture_view_count != 0 )
-			{
-				D3D12_DESCRIPTOR_HEAP_DESC desc = {};
-				{
-					desc.NumDescriptors = buffer_view_count + texture_view_count;
-					desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-					desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-					desc.NodeMask = 0;
-				}
+					D3D12_DESCRIPTOR_HEAP_DESC desc = {};
+					{
+						desc.NumDescriptors = buffer_view_count + texture_view_count;
+						desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+						desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+						desc.NodeMask = 0;
+					}
 
-				dev.Device->CreateDescriptorHeap( &desc, IID_PPV_ARGS( group.ViewHeap.GetAddressOf() ) );
-			}
-			if ( sampler_count != 0 )
-			{
-				D3D12_DESCRIPTOR_HEAP_DESC desc = {};
-				{
-					desc.NumDescriptors = buffer_view_count + texture_view_count;
-					desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER;
-					desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-					desc.NodeMask = 0;
+					dev.Device->CreateDescriptorHeap( &desc, IID_PPV_ARGS( group.ViewHeap.GetAddressOf() ) );
 				}
+				if ( sampler_count != 0 )
+				{
+					D3D12_DESCRIPTOR_HEAP_DESC desc = {};
+					{
+						desc.NumDescriptors = buffer_view_count + texture_view_count;
+						desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER;
+						desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+						desc.NodeMask = 0;
+					}
 
-				dev.Device->CreateDescriptorHeap( &desc, IID_PPV_ARGS( group.SamplerHeap.GetAddressOf() ) );
+					dev.Device->CreateDescriptorHeap( &desc, IID_PPV_ARGS( group.SamplerHeap.GetAddressOf() ) );
+				}
 			}
 
 			XE::uint32 view_count = 0;
@@ -1376,18 +1427,35 @@ XE::GraphicsBufferHandle XE::GraphicsService::DeviceCreateBuffer( XE::GraphicsDe
 			size = ( ( size - 1 ) | align_mask ) + 1;
 		}
 
-		CD3DX12_RESOURCE_DESC raw_desc
-		( D3D12_RESOURCE_DIMENSION_BUFFER, 0, size, 1, 1, 1, Cast( XE::GraphicsTextureFormat::UNDEFINED ), 1, 0, D3D12_TEXTURE_LAYOUT_ROW_MAJOR, Cast( descriptor.Usage ) );
+		D3D12_RESOURCE_DESC desc = {};
+		{
+			desc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+			desc.Alignment = 0;
+			desc.Width = size;
+			desc.Height = 1;
+			desc.DepthOrArraySize = 1;
+			desc.MipLevels = 1;
+			desc.Format = Cast( XE::GraphicsTextureFormat::UNDEFINED );
+			desc.SampleDesc.Count = 1;
+			desc.SampleDesc.Quality = 0;
+			desc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+			desc.Flags = Cast( descriptor.Usage );
+		}
+
 
 		bool is_cpu_read = descriptor.Usage || XE::GraphicsBufferUsage::MAP_READ;
 		bool is_cpu_write = descriptor.Usage || XE::GraphicsBufferUsage::MAP_WRITE;
 
-		CD3DX12_HEAP_PROPERTIES heap_properties(
-			is_cpu_read ? D3D12_CPU_PAGE_PROPERTY_WRITE_BACK : ( is_cpu_write ? D3D12_CPU_PAGE_PROPERTY_WRITE_COMBINE : D3D12_CPU_PAGE_PROPERTY_NOT_AVAILABLE ),
-			D3D12_MEMORY_POOL_L1,
-			0, 0 );
+		D3D12_HEAP_PROPERTIES heap_properties = {};
+		{
+			heap_properties.CPUPageProperty = is_cpu_read ? D3D12_CPU_PAGE_PROPERTY_WRITE_BACK : ( is_cpu_write ? D3D12_CPU_PAGE_PROPERTY_WRITE_COMBINE : D3D12_CPU_PAGE_PROPERTY_NOT_AVAILABLE );
+			heap_properties.MemoryPoolPreference = D3D12_MEMORY_POOL_L1;
+			heap_properties.CreationNodeMask = 0;
+			heap_properties.VisibleNodeMask = 0;
+			heap_properties.Type = D3D12_HEAP_TYPE_CUSTOM;
+		}
 
-		if ( SUCCEEDED( dev.Device->CreateCommittedResource( &heap_properties, D3D12_HEAP_FLAG_NONE, &raw_desc, D3D12_RESOURCE_STATE_COMMON, nullptr, IID_PPV_ARGS( buf.Resource.GetAddressOf() ) ) ) )
+		if ( SUCCEEDED( dev.Device->CreateCommittedResource( &heap_properties, D3D12_HEAP_FLAG_NONE, &desc, D3D12_RESOURCE_STATE_COMMON, nullptr, IID_PPV_ARGS( buf.Resource.GetAddressOf() ) ) ) )
 		{
 			return buf;
 		}
@@ -1432,16 +1500,17 @@ XE::GraphicsComputePipelineHandle XE::GraphicsService::DeviceCreateComputePipeli
 	{
 		if ( auto & layout = _p->_PipelineLayouts[descriptor.Layout] )
 		{
-			if ( auto & shader = _p->_ShaderModules[descriptor.Compute.Module] )
+			if ( auto & cs = _p->_ShaderModules[descriptor.Compute.Shader] )
 			{
 				auto & pipe = _p->_ComputePipelines.Alloc();
 
 				pipe.Desc = descriptor;
+				pipe.ShaderCode = LoadShader( cs.Desc, descriptor.Compute.EntryPoint, XE::GraphicsShaderStage::COMPUTE );
 
 				D3D12_COMPUTE_PIPELINE_STATE_DESC desc;
 				{
 					desc.pRootSignature = layout.RootSignature.Get();
-					desc.CS = shader.ShaderCode;
+					desc.CS = { pipe.ShaderCode->GetBufferPointer(), pipe.ShaderCode->GetBufferSize() };
 					desc.NodeMask = 0;
 					desc.CachedPSO = { nullptr, 0 };
 					desc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
@@ -1538,12 +1607,15 @@ XE::GraphicsRenderPipelineHandle XE::GraphicsService::DeviceCreateRenderPipeline
 					auto & pipe = _p->_RenderPipelines.Alloc();
 
 					pipe.Desc = descriptor;
+					
+					pipe.VSCode = LoadShader( vs.Desc, descriptor.Vertex.EntryPoint, XE::GraphicsShaderStage::VERTEX );
+					pipe.FSCode = LoadShader( fs.Desc, descriptor.Fragment.EntryPoint, XE::GraphicsShaderStage::FRAGMENT );
 
 					D3D12_GRAPHICS_PIPELINE_STATE_DESC desc = {};
 					{
 						desc.pRootSignature = layout.RootSignature.Get();
-						desc.VS = vs.ShaderCode;
-						desc.PS = fs.ShaderCode;
+						desc.VS = { pipe.VSCode->GetBufferPointer(), pipe.VSCode->GetBufferSize() };
+						desc.PS = { pipe.FSCode->GetBufferPointer(), pipe.FSCode->GetBufferSize() };
 						desc.GS = {};
 						desc.DS = {};
 						desc.HS = {};
@@ -1725,8 +1797,6 @@ XE::GraphicsShaderModuleHandle XE::GraphicsService::DeviceCreateShaderModule( XE
 
 		shader.Desc = descriptor;
 
-		// TODO: 
-
 		return shader;
 	}
 
@@ -1767,8 +1837,7 @@ XE::GraphicsTextureHandle XE::GraphicsService::DeviceCreateTexture( XE::Graphics
 			desc.MipLevels = descriptor.MipLevelCount;
 			if ( descriptor.Usage || XE::MakeFlags( XE::GraphicsTextureUsage::TEXTURE_BINDING, XE::GraphicsTextureUsage::STORAGE_BINDING ) )
 			{
-				XE::GraphicsTextureFormat f;
-				switch ( f )
+				switch ( descriptor.Format )
 				{
 				case XE::GraphicsTextureFormat::DEPTH24PLUS:
 				case XE::GraphicsTextureFormat::DEPTH24PLUSSTENCIL8:
