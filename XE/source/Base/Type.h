@@ -387,15 +387,12 @@ END_XE_NAMESPACE
 
 #define DECL_PTR( TYPE ) \
 class TYPE; \
-typedef TYPE * TYPE##RPtr; \
-typedef XE::SharedPtr< TYPE > TYPE##Ptr; \
-typedef XE::WeakPtr< TYPE > TYPE##WPtr; \
-typedef XE::SharedPtr< TYPE > TYPE##SPtr; \
-typedef XE::UniquePtr< TYPE > TYPE##UPtr; \
-typedef const TYPE * TYPE##CRPtr; \
-typedef XE::SharedPtr< const TYPE > TYPE##CPtr; \
-typedef XE::WeakPtr< const TYPE > TYPE##CWPtr; \
-typedef XE::UniquePtr< const TYPE > TYPE##CUPtr;
+using TYPE##Ptr = XE::SharedPtr< TYPE >; \
+using TYPE##WPtr = XE::WeakPtr< TYPE >; \
+using TYPE##UPtr = XE::UniquePtr< TYPE >; \
+using TYPE##CPtr = XE::SharedPtr< const TYPE >; \
+using TYPE##CWPtr = XE::WeakPtr< const TYPE >; \
+using TYPE##CUPtr = XE::UniquePtr< const TYPE >;
 
 #define CP_CAST std::const_pointer_cast
 #define SP_CAST std::static_pointer_cast
