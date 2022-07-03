@@ -581,12 +581,7 @@ namespace
 				Microsoft::WRL::ComPtr< ID3DBlob > code = nullptr;
 				Microsoft::WRL::ComPtr< ID3DBlob > errmsg = nullptr;
 
-				if ( FAILED( ::D3DCompile( shader_desc.Code.data(), shader_desc.Code.size(), shader_desc.Label.c_str(), nullptr, nullptr, ep.EntryPoint.c_str(), target, flags, 0, code.GetAddressOf(), errmsg.GetAddressOf() ) ) )
-				{
-					XE_ERROR( "compile shader {%0} error: {%1}", shader_desc.Label, (const char *)errmsg->GetBufferPointer() );
-					return nullptr;
-				}
-				else
+				if ( SUCCEEDED( ::D3DCompile( shader_desc.Code.data(), shader_desc.Code.size(), shader_desc.Label.c_str(), nullptr, nullptr, ep.EntryPoint.c_str(), target, flags, 0, code.GetAddressOf(), errmsg.GetAddressOf() ) ) )
 				{
 					return code;
 				}
@@ -815,8 +810,10 @@ namespace XE
 	public:
 		XE::GraphicsComputePipelineDescriptor Desc;
 
-		D3D12BlobPtr ShaderCode = nullptr;
 		D3D12PipelineStatePtr Raw = nullptr;
+
+		D3D12BlobPtr ShaderCode = nullptr;
+		D3D12RootSignaturePtr RootSignature = nullptr;
 
 		XE::GraphicsDeviceRPtr Parent;
 	};
@@ -825,7 +822,7 @@ namespace XE
 	public:
 		XE::GraphicsPipelineLayoutDescriptor Desc;
 
-		D3D12RootSignaturePtr RootSignature;
+		XE::GraphicsDeviceRPtr Parent;
 	};
 	class GraphicsQuerySet : public XE::RefCount
 	{
@@ -868,6 +865,7 @@ namespace XE
 
 		D3D12BlobPtr VSCode = nullptr;
 		D3D12BlobPtr FSCode = nullptr;
+		D3D12RootSignaturePtr RootSignature = nullptr;
 		XE::Array<D3D12_INPUT_ELEMENT_DESC> Elements;
 
 		XE::GraphicsDeviceRPtr Parent;
@@ -1468,31 +1466,37 @@ XE::GraphicsComputePipelineRPtr XE::GraphicsService::DeviceCreateComputePipeline
 	pipe->Parent = device;
 	pipe->ShaderCode = LoadShader( descriptor.Compute.Shader->Desc, descriptor.Compute.EntryPoint, XE::GraphicsShaderStage::COMPUTE );
 
-	D3D12_COMPUTE_PIPELINE_STATE_DESC desc;
 	{
-		desc.pRootSignature = descriptor.Layout->RootSignature.Get();
-		desc.CS = { pipe->ShaderCode->GetBufferPointer(), pipe->ShaderCode->GetBufferSize() };
-		desc.NodeMask = 0;
-		desc.CachedPSO = { nullptr, 0 };
-		desc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
+		descriptor.Layout->Desc.BindGroupLayouts;
+	}
+	if ( SUCCEEDED( device->Raw->CreateRootSignature( 0, nullptr, 0, IID_PPV_ARGS( pipe->RootSignature.GetAddressOf() ) ) ) )
+	{
+		D3D12_COMPUTE_PIPELINE_STATE_DESC desc = {};
+		{
+			desc.pRootSignature = pipe->RootSignature.Get();
+			desc.CS = { pipe->ShaderCode->GetBufferPointer(), pipe->ShaderCode->GetBufferSize() };
+			desc.NodeMask = 0;
+			desc.CachedPSO = { nullptr, 0 };
+			desc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
 
-		D3D12PipelineStatePtr state;
-		if ( SUCCEEDED( device->Raw->CreateComputePipelineState( &desc, IID_PPV_ARGS( state.GetAddressOf() ) ) ) )
-		{
-			pipe->Raw = state;
-		}
-		else
-		{
-			return {};
+			if ( SUCCEEDED( device->Raw->CreateComputePipelineState( &desc, IID_PPV_ARGS( pipe->Raw.GetAddressOf() ) ) ) )
+			{
+				return pipe;
+			}
 		}
 	}
 
-	return pipe;
+	return {};
 }
 
 XE::GraphicsPipelineLayoutRPtr XE::GraphicsService::DeviceCreatePipelineLayout( XE::GraphicsDeviceRPtr device, const XE::GraphicsPipelineLayoutDescriptor & descriptor )
 {
-	return {};
+	auto layout = _p->_PipelineLayouts.Alloc();
+
+	layout->Desc = descriptor;
+	layout->Parent = device;
+
+	return layout;
 }
 
 XE::GraphicsQuerySetRPtr XE::GraphicsService::DeviceCreateQuerySet( XE::GraphicsDeviceRPtr device, const XE::GraphicsQuerySetDescriptor & descriptor )
@@ -1519,13 +1523,13 @@ XE::GraphicsQuerySetRPtr XE::GraphicsService::DeviceCreateQuerySet( XE::Graphics
 
 		query_heap_desc.Count = std::max<UINT>( descriptor.Count, 1 );
 
-		if ( FAILED( device->Raw->CreateQueryHeap( &query_heap_desc, IID_PPV_ARGS( query_set->QueryHeap.GetAddressOf() ) ) ) )
+		if ( SUCCEEDED( device->Raw->CreateQueryHeap( &query_heap_desc, IID_PPV_ARGS( query_set->QueryHeap.GetAddressOf() ) ) ) )
 		{
-			return {};
+			return query_set;
 		}
 	}
 
-	return query_set;
+	return {};
 }
 
 XE::GraphicsRenderBundleEncoderRPtr XE::GraphicsService::DeviceCreateRenderBundleEncoder( XE::GraphicsDeviceRPtr device, const XE::GraphicsRenderBundleEncoderDescriptor & descriptor )
@@ -1542,136 +1546,142 @@ XE::GraphicsRenderPipelineRPtr XE::GraphicsService::DeviceCreateRenderPipeline( 
 	pipe->VSCode = LoadShader( descriptor.Vertex.Module->Desc, descriptor.Vertex.EntryPoint, XE::GraphicsShaderStage::VERTEX );
 	pipe->FSCode = LoadShader( descriptor.Fragment.Module->Desc, descriptor.Fragment.EntryPoint, XE::GraphicsShaderStage::FRAGMENT );
 
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC desc = {};
 	{
-		desc.pRootSignature = descriptor.Layout->RootSignature.Get();
-		desc.VS = { pipe->VSCode->GetBufferPointer(), pipe->VSCode->GetBufferSize() };
-		desc.PS = { pipe->FSCode->GetBufferPointer(), pipe->FSCode->GetBufferSize() };
-		desc.GS = {};
-		desc.DS = {};
-		desc.HS = {};
-		desc.SampleMask = descriptor.Multisample.Mask;
-		switch ( descriptor.Primitive.StripIndexFormat )
-		{
-		case XE::GraphicsIndexFormat::UINT16:
-			desc.IBStripCutValue = D3D12_INDEX_BUFFER_STRIP_CUT_VALUE_0xFFFF;
-			break;
-		case XE::GraphicsIndexFormat::UINT32:
-			desc.IBStripCutValue = D3D12_INDEX_BUFFER_STRIP_CUT_VALUE_0xFFFFFFFF;
-			break;
-		default:
-			desc.IBStripCutValue = D3D12_INDEX_BUFFER_STRIP_CUT_VALUE_DISABLED;
-			break;
-		}
-		desc.NumRenderTargets = descriptor.Fragment.Targets.size();
-		for ( size_t i = 0; i < descriptor.Fragment.Targets.size(); i++ )
-		{
-			desc.RTVFormats[i] = Cast( descriptor.Fragment.Targets[i].Format );
-		}
-		desc.DSVFormat = Cast( descriptor.DepthStencil.Format );
-		desc.NodeMask = 0;
-		desc.CachedPSO = {};
-		desc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
-		desc.PrimitiveTopologyType = Cast( descriptor.Primitive.Topology );
 
-		desc.SampleDesc = {};
+	}
+	if ( SUCCEEDED( device->Raw->CreateRootSignature( 0, nullptr, 0, IID_PPV_ARGS( pipe->RootSignature.GetAddressOf() ) ) ) )
+	{
+		D3D12_GRAPHICS_PIPELINE_STATE_DESC desc = {};
 		{
-			desc.SampleDesc.Count = descriptor.Multisample.Count;
-			desc.SampleDesc.Quality = 0;
-		}
-		desc.BlendState = {};
-		{
-			desc.BlendState.AlphaToCoverageEnable = descriptor.Multisample.AlphaToCoverageEnabled;
-			desc.BlendState.IndependentBlendEnable = true;
+			desc.pRootSignature = pipe->RootSignature.Get();
+			desc.VS = { pipe->VSCode->GetBufferPointer(), pipe->VSCode->GetBufferSize() };
+			desc.PS = { pipe->FSCode->GetBufferPointer(), pipe->FSCode->GetBufferSize() };
+			desc.GS = {};
+			desc.DS = {};
+			desc.HS = {};
+			desc.SampleMask = descriptor.Multisample.Mask;
+			switch ( descriptor.Primitive.StripIndexFormat )
+			{
+			case XE::GraphicsIndexFormat::UINT16:
+				desc.IBStripCutValue = D3D12_INDEX_BUFFER_STRIP_CUT_VALUE_0xFFFF;
+				break;
+			case XE::GraphicsIndexFormat::UINT32:
+				desc.IBStripCutValue = D3D12_INDEX_BUFFER_STRIP_CUT_VALUE_0xFFFFFFFF;
+				break;
+			default:
+				desc.IBStripCutValue = D3D12_INDEX_BUFFER_STRIP_CUT_VALUE_DISABLED;
+				break;
+			}
+			desc.NumRenderTargets = descriptor.Fragment.Targets.size();
 			for ( size_t i = 0; i < descriptor.Fragment.Targets.size(); i++ )
 			{
-				auto & target = descriptor.Fragment.Targets[i];
-				D3D12_RENDER_TARGET_BLEND_DESC rt_blend_desc = {};
-				{
-					rt_blend_desc.RenderTargetWriteMask = target.WriteMask.GetValue();
-
-					rt_blend_desc.LogicOp = D3D12_LOGIC_OP_CLEAR;
-					rt_blend_desc.LogicOpEnable = false;
-					rt_blend_desc.BlendEnable = target.Blend.Enable;
-					rt_blend_desc.BlendOp = Cast( target.Blend.Color.Operation );
-					rt_blend_desc.SrcBlend = Cast( target.Blend.Color.SrcFactor, false );
-					rt_blend_desc.DestBlend = Cast( target.Blend.Color.DstFactor, false );
-					rt_blend_desc.BlendOpAlpha = Cast( target.Blend.Alpha.Operation );
-					rt_blend_desc.SrcBlendAlpha = Cast( target.Blend.Alpha.SrcFactor, true );
-					rt_blend_desc.DestBlendAlpha = Cast( target.Blend.Alpha.DstFactor, true );
-				}
-				desc.BlendState.RenderTarget[i] = rt_blend_desc;
+				desc.RTVFormats[i] = Cast( descriptor.Fragment.Targets[i].Format );
 			}
-		}
-		desc.InputLayout = {};
-		{
-			for ( size_t i = 0; i < descriptor.Vertex.Buffers.size(); i++ )
+			desc.DSVFormat = Cast( descriptor.DepthStencil.Format );
+			desc.NodeMask = 0;
+			desc.CachedPSO = {};
+			desc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
+			desc.PrimitiveTopologyType = Cast( descriptor.Primitive.Topology );
+
+			desc.SampleDesc = {};
 			{
-				auto & vbuf = descriptor.Vertex.Buffers[i];
-				for ( const auto & attrubute : vbuf.Attributes )
+				desc.SampleDesc.Count = descriptor.Multisample.Count;
+				desc.SampleDesc.Quality = 0;
+			}
+			desc.BlendState = {};
+			{
+				desc.BlendState.AlphaToCoverageEnable = descriptor.Multisample.AlphaToCoverageEnabled;
+				desc.BlendState.IndependentBlendEnable = true;
+				for ( size_t i = 0; i < descriptor.Fragment.Targets.size(); i++ )
 				{
-					D3D12_INPUT_ELEMENT_DESC element_desc = {};
+					auto & target = descriptor.Fragment.Targets[i];
+					D3D12_RENDER_TARGET_BLEND_DESC rt_blend_desc = {};
 					{
-						element_desc.SemanticIndex = attrubute.ShaderLocation;
-						element_desc.Format = Cast( attrubute.Format );
-						element_desc.InputSlot = i;
-						element_desc.AlignedByteOffset = attrubute.Offset;
-						element_desc.InputSlotClass = ( vbuf.StepMode == XE::GraphicsVertexStepMode::VERTEX ) ? D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA : D3D12_INPUT_CLASSIFICATION_PER_INSTANCE_DATA;
-						element_desc.InstanceDataStepRate = ( vbuf.StepMode == XE::GraphicsVertexStepMode::VERTEX ) ? 0 : 1;
+						rt_blend_desc.RenderTargetWriteMask = target.WriteMask.GetValue();
+
+						rt_blend_desc.LogicOp = D3D12_LOGIC_OP_CLEAR;
+						rt_blend_desc.LogicOpEnable = false;
+						rt_blend_desc.BlendEnable = target.Blend.Enable;
+						rt_blend_desc.BlendOp = Cast( target.Blend.Color.Operation );
+						rt_blend_desc.SrcBlend = Cast( target.Blend.Color.SrcFactor, false );
+						rt_blend_desc.DestBlend = Cast( target.Blend.Color.DstFactor, false );
+						rt_blend_desc.BlendOpAlpha = Cast( target.Blend.Alpha.Operation );
+						rt_blend_desc.SrcBlendAlpha = Cast( target.Blend.Alpha.SrcFactor, true );
+						rt_blend_desc.DestBlendAlpha = Cast( target.Blend.Alpha.DstFactor, true );
 					}
-					pipe->Elements.push_back( element_desc );
+					desc.BlendState.RenderTarget[i] = rt_blend_desc;
 				}
 			}
-			desc.InputLayout.NumElements = pipe->Elements.size();
-			desc.InputLayout.pInputElementDescs = pipe->Elements.data();
+			desc.InputLayout = {};
+			{
+				for ( size_t i = 0; i < descriptor.Vertex.Buffers.size(); i++ )
+				{
+					auto & vbuf = descriptor.Vertex.Buffers[i];
+					for ( const auto & attrubute : vbuf.Attributes )
+					{
+						D3D12_INPUT_ELEMENT_DESC element_desc = {};
+						{
+							element_desc.SemanticIndex = attrubute.ShaderLocation;
+							element_desc.Format = Cast( attrubute.Format );
+							element_desc.InputSlot = i;
+							element_desc.AlignedByteOffset = attrubute.Offset;
+							element_desc.InputSlotClass = ( vbuf.StepMode == XE::GraphicsVertexStepMode::VERTEX ) ? D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA : D3D12_INPUT_CLASSIFICATION_PER_INSTANCE_DATA;
+							element_desc.InstanceDataStepRate = ( vbuf.StepMode == XE::GraphicsVertexStepMode::VERTEX ) ? 0 : 1;
+						}
+						pipe->Elements.push_back( element_desc );
+					}
+				}
+				desc.InputLayout.NumElements = pipe->Elements.size();
+				desc.InputLayout.pInputElementDescs = pipe->Elements.data();
+			}
+			desc.StreamOutput = {};
+			{
+				desc.StreamOutput.pSODeclaration = nullptr;
+				desc.StreamOutput.NumEntries = 0;
+				desc.StreamOutput.pBufferStrides = nullptr;
+				desc.StreamOutput.NumStrides = 0;
+				desc.StreamOutput.RasterizedStream = 0;
+			}
+			desc.RasterizerState = {};
+			{
+				desc.RasterizerState.FillMode = descriptor.Primitive.Topology < GraphicsPrimitiveTopology::TRIANGLE_LIST ? D3D12_FILL_MODE_WIREFRAME : D3D12_FILL_MODE_SOLID;
+				desc.RasterizerState.CullMode = Cast( descriptor.Primitive.CullMode );
+				desc.RasterizerState.FrontCounterClockwise = Cast( descriptor.Primitive.FrontFace );
+				desc.RasterizerState.DepthBias = descriptor.DepthStencil.DepthBias;
+				desc.RasterizerState.DepthBiasClamp = descriptor.DepthStencil.DepthBiasClamp;
+				desc.RasterizerState.SlopeScaledDepthBias = descriptor.DepthStencil.DepthBiasSlopeScale;
+				desc.RasterizerState.DepthClipEnable = !descriptor.Primitive.UnclippedDepth;
+				desc.RasterizerState.MultisampleEnable = descriptor.Multisample.Count > 1;
+				desc.RasterizerState.ForcedSampleCount = 0;
+				desc.RasterizerState.AntialiasedLineEnable = false;
+				desc.RasterizerState.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
+			}
+			desc.DepthStencilState = {};
+			{
+				desc.DepthStencilState.DepthEnable = descriptor.DepthStencil.DepthCompare != GraphicsCompareFunction::ALWAYS && descriptor.DepthStencil.DepthWriteEnabled;
+				desc.DepthStencilState.DepthWriteMask = descriptor.DepthStencil.DepthWriteEnabled ? D3D12_DEPTH_WRITE_MASK_ALL : D3D12_DEPTH_WRITE_MASK_ZERO;
+				desc.DepthStencilState.DepthFunc = Cast( descriptor.DepthStencil.DepthCompare );
+				desc.DepthStencilState.StencilEnable = descriptor.DepthStencil.StencilReadMask != 0 || descriptor.DepthStencil.StencilWriteMask != 0;
+				desc.DepthStencilState.StencilReadMask = descriptor.DepthStencil.StencilReadMask;
+				desc.DepthStencilState.StencilWriteMask = descriptor.DepthStencil.StencilWriteMask;
+				desc.DepthStencilState.FrontFace.StencilFunc = Cast( descriptor.DepthStencil.StencilFront.Compare );
+				desc.DepthStencilState.FrontFace.StencilFailOp = Cast( descriptor.DepthStencil.StencilFront.FailOp );
+				desc.DepthStencilState.FrontFace.StencilPassOp = Cast( descriptor.DepthStencil.StencilFront.PassOp );
+				desc.DepthStencilState.FrontFace.StencilDepthFailOp = Cast( descriptor.DepthStencil.StencilFront.DepthFailOp );
+				desc.DepthStencilState.BackFace.StencilFunc = Cast( descriptor.DepthStencil.StencilBack.Compare );
+				desc.DepthStencilState.BackFace.StencilFailOp = Cast( descriptor.DepthStencil.StencilBack.FailOp );
+				desc.DepthStencilState.BackFace.StencilPassOp = Cast( descriptor.DepthStencil.StencilBack.PassOp );
+				desc.DepthStencilState.BackFace.StencilDepthFailOp = Cast( descriptor.DepthStencil.StencilBack.DepthFailOp );
+			}
 		}
-		desc.StreamOutput = {};
+
+		if ( SUCCEEDED( device->Raw->CreateGraphicsPipelineState( &desc, IID_PPV_ARGS( pipe->Raw.GetAddressOf() ) ) ) )
 		{
-			desc.StreamOutput.pSODeclaration = nullptr;
-			desc.StreamOutput.NumEntries = 0;
-			desc.StreamOutput.pBufferStrides = nullptr;
-			desc.StreamOutput.NumStrides = 0;
-			desc.StreamOutput.RasterizedStream = 0;
-		}
-		desc.RasterizerState = {};
-		{
-			desc.RasterizerState.FillMode = descriptor.Primitive.Topology < GraphicsPrimitiveTopology::TRIANGLE_LIST ? D3D12_FILL_MODE_WIREFRAME : D3D12_FILL_MODE_SOLID;
-			desc.RasterizerState.CullMode = Cast( descriptor.Primitive.CullMode );
-			desc.RasterizerState.FrontCounterClockwise = Cast( descriptor.Primitive.FrontFace );
-			desc.RasterizerState.DepthBias = descriptor.DepthStencil.DepthBias;
-			desc.RasterizerState.DepthBiasClamp = descriptor.DepthStencil.DepthBiasClamp;
-			desc.RasterizerState.SlopeScaledDepthBias = descriptor.DepthStencil.DepthBiasSlopeScale;
-			desc.RasterizerState.DepthClipEnable = !descriptor.Primitive.UnclippedDepth;
-			desc.RasterizerState.MultisampleEnable = descriptor.Multisample.Count > 1;
-			desc.RasterizerState.ForcedSampleCount = 0;
-			desc.RasterizerState.AntialiasedLineEnable = false;
-			desc.RasterizerState.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
-		}
-		desc.DepthStencilState = {};
-		{
-			desc.DepthStencilState.DepthEnable = descriptor.DepthStencil.DepthCompare != GraphicsCompareFunction::ALWAYS && descriptor.DepthStencil.DepthWriteEnabled;
-			desc.DepthStencilState.DepthWriteMask = descriptor.DepthStencil.DepthWriteEnabled ? D3D12_DEPTH_WRITE_MASK_ALL : D3D12_DEPTH_WRITE_MASK_ZERO;
-			desc.DepthStencilState.DepthFunc = Cast( descriptor.DepthStencil.DepthCompare );
-			desc.DepthStencilState.StencilEnable = descriptor.DepthStencil.StencilReadMask != 0 || descriptor.DepthStencil.StencilWriteMask != 0;
-			desc.DepthStencilState.StencilReadMask = descriptor.DepthStencil.StencilReadMask;
-			desc.DepthStencilState.StencilWriteMask = descriptor.DepthStencil.StencilWriteMask;
-			desc.DepthStencilState.FrontFace.StencilFunc = Cast( descriptor.DepthStencil.StencilFront.Compare );
-			desc.DepthStencilState.FrontFace.StencilFailOp = Cast( descriptor.DepthStencil.StencilFront.FailOp );
-			desc.DepthStencilState.FrontFace.StencilPassOp = Cast( descriptor.DepthStencil.StencilFront.PassOp );
-			desc.DepthStencilState.FrontFace.StencilDepthFailOp = Cast( descriptor.DepthStencil.StencilFront.DepthFailOp );
-			desc.DepthStencilState.BackFace.StencilFunc = Cast( descriptor.DepthStencil.StencilBack.Compare );
-			desc.DepthStencilState.BackFace.StencilFailOp = Cast( descriptor.DepthStencil.StencilBack.FailOp );
-			desc.DepthStencilState.BackFace.StencilPassOp = Cast( descriptor.DepthStencil.StencilBack.PassOp );
-			desc.DepthStencilState.BackFace.StencilDepthFailOp = Cast( descriptor.DepthStencil.StencilBack.DepthFailOp );
+			return pipe;
 		}
 	}
 
-	if ( FAILED( device->Raw->CreateGraphicsPipelineState( &desc, IID_PPV_ARGS( pipe->Raw.GetAddressOf() ) ) ) )
-	{
-		return {};
-	}
-
-	return pipe;
+	return {};
 }
 
 XE::GraphicsSamplerRPtr XE::GraphicsService::DeviceCreateSampler( XE::GraphicsDeviceRPtr device, const XE::GraphicsSamplerDescriptor & descriptor )
@@ -1741,20 +1751,20 @@ XE::GraphicsSwapChainRPtr XE::GraphicsService::DeviceCreateSwapChain( XE::Graphi
 
 	if ( surface->Desc.Window != nullptr )
 	{
-		if ( FAILED( _p->_Factory->CreateSwapChainForHwnd( device->Queue->Raw.Get(), (HWND)surface->Desc.Window->GetHandle().GetValue(), &desc, nullptr, nullptr, swap_chain->Raw.GetAddressOf() ) ) )
+		if ( SUCCEEDED( _p->_Factory->CreateSwapChainForHwnd( device->Queue->Raw.Get(), (HWND)surface->Desc.Window->GetHandle().GetValue(), &desc, nullptr, nullptr, swap_chain->Raw.GetAddressOf() ) ) )
 		{
-			return {};
+			return swap_chain;
 		}
 	}
 	else
 	{
-		if ( FAILED( _p->_Factory->CreateSwapChainForComposition( device->Queue->Raw.Get(), &desc, nullptr, swap_chain->Raw.GetAddressOf() ) ) )
+		if ( SUCCEEDED( _p->_Factory->CreateSwapChainForComposition( device->Queue->Raw.Get(), &desc, nullptr, swap_chain->Raw.GetAddressOf() ) ) )
 		{
-			return {};
+			return swap_chain;
 		}
 	}
 
-	return swap_chain;
+	return {};
 }
 
 XE::GraphicsTextureRPtr XE::GraphicsService::DeviceCreateTexture( XE::GraphicsDeviceRPtr device, const XE::GraphicsTextureDescriptor & descriptor )
@@ -2483,7 +2493,7 @@ void XE::GraphicsService::ComputePassEncoderSetBindGroup( XE::GraphicsComputePas
 
 void XE::GraphicsService::ComputePassEncoderSetPipeline( XE::GraphicsComputePassEncoderRPtr compute_pass_encoder, XE::GraphicsComputePipelineRPtr pipeline )
 {
-	compute_pass_encoder->Parent->Raw->SetComputeRootSignature( pipeline->Desc.Layout->RootSignature.Get() );
+	compute_pass_encoder->Parent->Raw->SetComputeRootSignature( pipeline->RootSignature.Get() );
 	compute_pass_encoder->Parent->Raw->SetPipelineState( pipeline->Raw.Get() );
 }
 

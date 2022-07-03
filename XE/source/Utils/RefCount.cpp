@@ -13,9 +13,12 @@ XE::uint64 XE::RefCount::Inc()
 XE::uint64 XE::RefCount::Dec()
 {
 	auto count = --_Count;
-	if ( count == 0 && _Deleter )
+	if ( count == 0 )
 	{
-		_Deleter( this );
+		if ( _Deleter )
+			_Deleter( this );
+		else
+			delete this;
 	}
 	return count;
 }
