@@ -1467,8 +1467,32 @@ XE::GraphicsComputePipelineRPtr XE::GraphicsService::DeviceCreateComputePipeline
 	pipe->ShaderCode = LoadShader( descriptor.Compute.Shader->Desc, descriptor.Compute.EntryPoint, XE::GraphicsShaderStage::COMPUTE );
 
 	{
-		descriptor.Layout->Desc.BindGroupLayouts;
+		XE::GraphicsShaderStageFlags visibility_sampler;
+		XE::GraphicsShaderStageFlags visibility_view_static;
+		XE::GraphicsShaderStageFlags visibility_view_dynamic;
+
+		for ( const auto & bgl : descriptor.Layout->Desc.BindGroupLayouts )
+		{
+			for ( const auto & entry : bgl->Desc.Entries )
+			{
+				if ( entry.Buffer.Type != XE::GraphicsBufferBindingType::UNDEFINED && entry.Buffer.HasDynamicOffset )
+				{
+					visibility_view_dynamic |= entry.Visibility;
+				}
+				else if ( entry.Sampler.Type != XE::GraphicsSamplerBindingType::UNDEFINED )
+				{
+					visibility_sampler |= entry.Visibility;
+				}
+				else
+				{
+					visibility_view_static |= entry.Visibility;
+				}
+			}
+		}
+
+
 	}
+
 	if ( SUCCEEDED( device->Raw->CreateRootSignature( 0, nullptr, 0, IID_PPV_ARGS( pipe->RootSignature.GetAddressOf() ) ) ) )
 	{
 		D3D12_COMPUTE_PIPELINE_STATE_DESC desc = {};
