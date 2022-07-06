@@ -686,7 +686,6 @@ namespace XE
 		XE::GraphicsDeviceDescriptor Desc;
 
 		D3D12DevicePtr Raw = nullptr;
-		D3D12FencePtr Fence = nullptr;
 
 		union
 		{
@@ -727,8 +726,8 @@ namespace XE
 
 		XE::ConcurrentQueue<D3D12CommandAllocatorPtr> CommandAllocators;
 
-		XE::GraphicsQueueRPtr Queue;
-		XE::GraphicsAdapterRPtr Parent;
+		XE::GraphicsQueue * Queue = nullptr;
+		XE::GraphicsAdapterRPtr Parent = nullptr;
 	};
 	class GraphicsQueue : public XE::RefCount
 	{
@@ -736,6 +735,10 @@ namespace XE
 		XE::GraphicsQueueDescriptor Desc;
 
 		D3D12CommandQueuePtr Raw = nullptr;
+
+		HANDLE Event = NULL;
+		D3D12FencePtr Fence = nullptr;
+		XE::Array< XE::GraphicsCommandBufferRPtr > FreeBufferList;
 
 		XE::GraphicsDeviceRPtr Parent;
 	};
@@ -1128,12 +1131,6 @@ void XE::GraphicsService::AdapterRequestDevice( XE::GraphicsAdapterRPtr adapter,
 			dev->Raw = device;
 			dev->Parent = adapter;
 			adapter->Device = dev;
-
-			D3D12FencePtr fence;
-			if ( SUCCEEDED( device->CreateFence( 0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS( fence.GetAddressOf() ) ) ) )
-			{
-				dev->Fence = fence;
-			}
 
 			D3D12_COMMAND_QUEUE_DESC queue_desc = {};
 			{
@@ -2304,6 +2301,23 @@ bool XE::GraphicsService::DeviceGetLimits( XE::GraphicsDeviceRPtr device, XE::Gr
 
 XE::GraphicsQueueRPtr XE::GraphicsService::DeviceGetQueue( XE::GraphicsDeviceRPtr device )
 {
+	if ( device->Queue )
+	{
+		return XE::GraphicsQueueRPtr( device->Queue );
+	}
+
+	auto queue = _p->_Queues.Alloc();
+
+	device->Queue = queue.get();
+	queue->Parent = device;
+
+	queue->Event = ::CreateEvent( nullptr, false, false, nullptr );
+
+	if ( SUCCEEDED( device->Raw->CreateFence( 0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS( queue->Fence.GetAddressOf() ) ) ) )
+	{
+		return XE::GraphicsQueueRPtr( device->Queue );
+	}
+
 	return {};
 }
 
@@ -2334,12 +2348,51 @@ void XE::GraphicsService::DeviceSetUncapturedErrorCallback( XE::GraphicsDeviceRP
 
 void XE::GraphicsService::QueueOnSubmittedWorkDone( XE::GraphicsQueueRPtr queue, QueueWorkDoneCallback callback )
 {
+	UINT64 value = queue->Fence->GetCompletedValue();
+	if ( value == 0 )
+	{
+		callback( XE::GraphicsQueueWorkDoneStatus::DEVICE_LOST );
 
+		return;
+	}
+
+	value++;
+
+	if ( SUCCEEDED( queue->Raw->Signal( queue->Fence.Get(), value ) ) )
+	{
+		if ( SUCCEEDED( queue->Fence->SetEventOnCompletion( value, queue->Event ) ) )
+		{
+			switch ( ::WaitForSingleObject( queue->Event, INFINITE ) )
+			{
+			case WAIT_OBJECT_0:
+				callback( XE::GraphicsQueueWorkDoneStatus::SUCCESS );
+				break;
+			default:
+				callback( XE::GraphicsQueueWorkDoneStatus::ERROR );
+				break;
+			}
+
+			queue->FreeBufferList.clear();
+
+			return;
+		}
+	}
+
+	callback( XE::GraphicsQueueWorkDoneStatus::ERROR );
 }
 
 void XE::GraphicsService::QueueSubmit( XE::GraphicsQueueRPtr queue, const XE::Array< XE::GraphicsCommandBufferRPtr > & commands )
 {
+	queue->FreeBufferList.insert( queue->FreeBufferList.end(), commands.begin(), commands.end() );
 
+	XE::Array< ID3D12CommandList * > lists( commands.size(), XE::MemoryResource::GetFrameMemoryResource() );
+
+	for ( auto & cmd : commands )
+	{
+		lists.push_back( cmd->Raw.Get() );
+	}
+
+	queue->Raw->ExecuteCommandLists( lists.size(), lists.data() );
 }
 
 void XE::GraphicsService::QueueWriteBuffer( XE::GraphicsQueueRPtr queue, XE::GraphicsBufferRPtr buffer, XE::uint64 buffer_offset, XE::MemoryView data )
@@ -2614,7 +2667,7 @@ void XE::GraphicsService::ComputePassEncoderPushDebugGroup( XE::GraphicsComputeP
 
 void XE::GraphicsService::ComputePassEncoderSetBindGroup( XE::GraphicsComputePassEncoderRPtr compute_pass_encoder, XE::uint32 group_index, XE::GraphicsBindGroupRPtr group, XE::uint32 dynamic_offset_count, XE::uint32 & dynamic_offsets )
 {
-	// TODO: 
+
 }
 
 void XE::GraphicsService::ComputePassEncoderSetPipeline( XE::GraphicsComputePassEncoderRPtr compute_pass_encoder, XE::GraphicsComputePipelineRPtr pipeline )
