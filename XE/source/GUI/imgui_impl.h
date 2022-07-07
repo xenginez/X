@@ -28,14 +28,14 @@ public:
 	~ImGuiImpl();
 
 public:
-	void Startup( XE::GraphicsDeviceHandle device, XE::int32 num_frames_in_flight, XE::GraphicsTextureFormat rt_format );
+	void Startup( XE::GraphicsDevicePtr device, XE::int32 num_frames_in_flight, XE::GraphicsTextureFormat rt_format );
 
 	void Clearup();
 
 public:
 	bool StartupContext( ImGuiContext * ctx );
 
-	void RenderContext( ImGuiContext * ctx, XE::GraphicsRenderPassEncoderHandle pass_encoder );
+	void RenderContext( ImGuiContext * ctx, XE::GraphicsRenderPassEncoderPtr pass_encoder );
 
 	void ClearupContext( ImGuiContext * ctx );
 
@@ -44,7 +44,7 @@ private:
 
 	bool CreateDeviceObjects( ImGuiContext * ctx );
 
-	void SetupRenderState( ImGuiContext * ctx, ImDrawData * draw_data, XE::GraphicsRenderPassEncoderHandle pass_encoder, void * frame_resources );
+	void SetupRenderState( ImGuiContext * ctx, ImDrawData * draw_data, XE::GraphicsRenderPassEncoderPtr pass_encoder, void * frame_resources );
 
 private:
 	void CreateFontsTexture( ImGuiContext * ctx );
@@ -53,7 +53,7 @@ private:
 
 	XE::GraphicsProgrammableStageDescriptor CreateShaderModule( const XE::uint32 * binary_data, uint32_t binary_data_size );
 
-	XE::GraphicsBindGroupHandle CreateImageBindGroup( XE::GraphicsBindGroupLayoutHandle layout, XE::GraphicsTextureViewHandle texture );
+	XE::GraphicsBindGroupPtr CreateImageBindGroup( XE::GraphicsBindGroupLayoutPtr layout, XE::GraphicsTextureViewPtr texture );
 
 private:
 	Private * _p;

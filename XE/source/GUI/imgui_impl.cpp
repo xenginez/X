@@ -10,13 +10,13 @@ namespace
 {
 	struct RenderResources
 	{
-		XE::GraphicsTextureHandle FontTexture;
-		XE::GraphicsTextureViewHandle FontTextureView;
-		XE::GraphicsSamplerHandle Sampler;
-		XE::GraphicsBufferHandle Uniforms;
-		XE::GraphicsBindGroupHandle CommonBindGroup;
-		XE::GraphicsBindGroupHandle ImageBindGroup;
-		XE::GraphicsBindGroupLayoutHandle ImageBindGroupLayout;
+		XE::GraphicsTexturePtr FontTexture;
+		XE::GraphicsTextureViewPtr FontTextureView;
+		XE::GraphicsSamplerPtr Sampler;
+		XE::GraphicsBufferPtr Uniforms;
+		XE::GraphicsBindGroupPtr CommonBindGroup;
+		XE::GraphicsBindGroupPtr ImageBindGroup;
+		XE::GraphicsBindGroupLayoutPtr ImageBindGroupLayout;
 		ImGuiStorage ImageBindGroups;
 	};
 
@@ -26,8 +26,8 @@ namespace
 		XE::int32 VertexBufferSize = 0;
 		ImDrawIdx * IndexBufferHost = nullptr;
 		ImDrawVert * VertexBufferHost = nullptr;
-		XE::GraphicsBufferHandle IndexBuffer;
-		XE::GraphicsBufferHandle VertexBuffer;
+		XE::GraphicsBufferPtr IndexBuffer;
+		XE::GraphicsBufferPtr VertexBuffer;
 	};
 
     static uint32_t shader_vert_spv[] =
@@ -107,7 +107,7 @@ namespace
 	struct ImGuiContextPrivate
 	{
 		RenderResources _Resources;
-		XE::GraphicsRenderPipelineHandle _PipelineState;
+		XE::GraphicsRenderPipelinePtr _PipelineState;
 	};
 }
 
@@ -117,10 +117,12 @@ struct XE::ImGuiImpl::Private
 	XE::uint32 _NumFramesInFlight = 0;
 	XE::uint32 _FrameIndex = std::numeric_limits<XE::uint32>::max();
 
-	XE::GraphicsDeviceHandle _Device;
-	XE::GraphicsQueueHandle _DefaultQueue;
+	XE::GraphicsDevicePtr _Device;
+	XE::GraphicsQueuePtr _DefaultQueue;
 	XE::GraphicsTextureFormat _RenderTargetFormat = XE::GraphicsTextureFormat::UNDEFINED;
 
+	XE::Array< XE::GraphicsBindGroupPtr > _BindGroups;
+	XE::Array< XE::GraphicsTextureViewPtr > _TextureViews;
 	XE::ConcurrentHashMap< ImGuiContext *, ImGuiContextPrivate * > _Impls;
 };
 
@@ -135,7 +137,7 @@ XE::ImGuiImpl::~ImGuiImpl()
 	XE::Delete( _p );
 }
 
-void XE::ImGuiImpl::Startup( XE::GraphicsDeviceHandle device, XE::int32 num_frames_in_flight, XE::GraphicsTextureFormat rt_format )
+void XE::ImGuiImpl::Startup( XE::GraphicsDevicePtr device, XE::int32 num_frames_in_flight, XE::GraphicsTextureFormat rt_format )
 {
 	_p->_Device = device;
 	_p->_DefaultQueue = GRAPHICS_SERVICE->DeviceGetQueue( device );
@@ -160,16 +162,16 @@ void XE::ImGuiImpl::Clearup()
 {
 	for ( unsigned int i = 0; i < _p->_NumFramesInFlight; i++ )
 	{
+		_p->_FrameResources[i].IndexBuffer = nullptr;
+		_p->_FrameResources[i].VertexBuffer = nullptr;
 		if ( _p->_FrameResources[i].IndexBufferHost != nullptr ) delete[] _p->_FrameResources[i].IndexBufferHost;
 		if ( _p->_FrameResources[i].VertexBufferHost != nullptr ) delete[] _p->_FrameResources[i].VertexBufferHost;
-		if( _p->_FrameResources[i].IndexBuffer ) GRAPHICS_SERVICE->BufferDestroy( _p->_FrameResources[i].IndexBuffer );
-		if ( _p->_FrameResources[i].VertexBuffer ) GRAPHICS_SERVICE->BufferDestroy( _p->_FrameResources[i].VertexBuffer );
 	}
 
 	delete[] _p->_FrameResources;
 	_p->_FrameResources = nullptr;
 
-	GRAPHICS_SERVICE->QueueDestroy( _p->_DefaultQueue );
+	_p->_DefaultQueue = nullptr;
 
 	_p->_Device = {};
 	_p->_NumFramesInFlight = 0;
@@ -212,7 +214,7 @@ void XE::ImGuiImpl::ClearupContext( ImGuiContext * ctx )
 	}
 }
 
-void XE::ImGuiImpl::RenderContext( ImGuiContext * ctx, XE::GraphicsRenderPassEncoderHandle pass_encoder )
+void XE::ImGuiImpl::RenderContext( ImGuiContext * ctx, XE::GraphicsRenderPassEncoderPtr pass_encoder )
 {
 	ImGuiContextPrivate * p = nullptr;
 	if ( !_p->_Impls.find( ctx, p ) )
@@ -231,11 +233,9 @@ void XE::ImGuiImpl::RenderContext( ImGuiContext * ctx, XE::GraphicsRenderPassEnc
 		// Create and grow vertex/index buffers if needed
 		if ( !fr->VertexBuffer || fr->VertexBufferSize < draw_data->TotalVtxCount )
 		{
-			if ( fr->VertexBuffer )
-			{
-				GRAPHICS_SERVICE->BufferDestroy( fr->VertexBuffer );
-			}
+			fr->VertexBuffer = nullptr;
 			delete fr->VertexBufferHost;
+
 			fr->VertexBufferSize = draw_data->TotalVtxCount + 5000;
 
 			XE::GraphicsBufferDescriptor vb_desc =
@@ -253,11 +253,9 @@ void XE::ImGuiImpl::RenderContext( ImGuiContext * ctx, XE::GraphicsRenderPassEnc
 		}
 		if ( !fr->IndexBuffer || fr->IndexBufferSize < draw_data->TotalIdxCount )
 		{
-			if ( fr->IndexBuffer )
-			{
-				GRAPHICS_SERVICE->BufferDestroy( fr->IndexBuffer );
-			}
+			fr->IndexBuffer = nullptr;
 			delete fr->IndexBufferHost;
+
 			fr->IndexBufferSize = draw_data->TotalIdxCount + 10000;
 
 			XE::GraphicsBufferDescriptor ib_desc =
@@ -319,11 +317,12 @@ void XE::ImGuiImpl::RenderContext( ImGuiContext * ctx, XE::GraphicsRenderPassEnc
 					// Bind custom texture
 					ImTextureID tex_id = pcmd->GetTexID();
 					ImGuiID tex_id_hash = ImHashData( &tex_id, sizeof( tex_id ) );
-					auto bind_group = XE::HandleCast< XE::GraphicsBindGroup >( reinterpret_cast<XE::uint64>( p->_Resources.ImageBindGroups.GetVoidPtr( tex_id_hash ) ) );
+					auto bind_group = _p->_BindGroups[p->_Resources.ImageBindGroups.GetInt( tex_id_hash )];
 					if ( !bind_group )
 					{
-						bind_group = CreateImageBindGroup( p->_Resources.ImageBindGroupLayout, XE::HandleCast<XE::GraphicsTextureView>( tex_id ) );
-						p->_Resources.ImageBindGroups.SetVoidPtr( tex_id_hash, reinterpret_cast<void *>( bind_group.GetValue() ) );
+						bind_group = CreateImageBindGroup( p->_Resources.ImageBindGroupLayout, _p->_TextureViews[tex_id] );
+						_p->_BindGroups.push_back( bind_group );
+						p->_Resources.ImageBindGroups.SetInt( tex_id_hash, _p->_BindGroups.size() - 1 );
 					}
 					XE::uint32 dyn_off = 0;
 					GRAPHICS_SERVICE->RenderPassEncoderSetBindGroup( pass_encoder, 1, bind_group, 0, dyn_off );
@@ -350,17 +349,15 @@ void XE::ImGuiImpl::InvalidateDeviceObjects( ImGuiContext * ctx )
 	ImGuiContextPrivate * p = nullptr;
 	if ( !_p->_Impls.find( ctx, p ) )
 	{
-		if ( !_p->_Device )
-			return;
-
-		GRAPHICS_SERVICE->RenderPipelineDestroy( p->_PipelineState );
-		GRAPHICS_SERVICE->TextureDestroy( p->_Resources.FontTexture );
-		GRAPHICS_SERVICE->TextureViewDestroy( p->_Resources.FontTextureView );
-		GRAPHICS_SERVICE->SamplerDestroy( p->_Resources.Sampler );
-		GRAPHICS_SERVICE->BufferDestroy( p->_Resources.Uniforms );
-		GRAPHICS_SERVICE->BindGroupDestroy( p->_Resources.CommonBindGroup );
-		GRAPHICS_SERVICE->BindGroupDestroy( p->_Resources.ImageBindGroup );
-		GRAPHICS_SERVICE->BindGroupLayoutDestroy( p->_Resources.ImageBindGroupLayout );
+		_p->_Device = nullptr;
+		p->_PipelineState = nullptr;
+		p->_Resources.FontTexture = nullptr;
+		p->_Resources.FontTextureView = nullptr;
+		p->_Resources.Sampler = nullptr;
+		p->_Resources.Uniforms = nullptr;
+		p->_Resources.CommonBindGroup = nullptr;
+		p->_Resources.ImageBindGroup = nullptr;
+		p->_Resources.ImageBindGroupLayout = nullptr;
 
 		ctx->IO.Fonts->SetTexID( 0 );
 	}
@@ -437,7 +434,7 @@ bool XE::ImGuiImpl::CreateDeviceObjects( ImGuiContext * ctx )
 		CreateUniformBuffer( ctx );
 
 		// Create resource bind group
-		XE::GraphicsBindGroupLayoutHandle bg_layouts[2] = {
+		XE::GraphicsBindGroupLayoutPtr bg_layouts[2] = {
 		GRAPHICS_SERVICE->RenderPipelineGetBindGroupLayout( p->_PipelineState, 0 ) ,
 		GRAPHICS_SERVICE->RenderPipelineGetBindGroupLayout( p->_PipelineState, 1 ) };
 
@@ -450,14 +447,16 @@ bool XE::ImGuiImpl::CreateDeviceObjects( ImGuiContext * ctx )
 		};
 		p->_Resources.CommonBindGroup = GRAPHICS_SERVICE->DeviceCreateBindGroup( _p->_Device, common_bg_descriptor );
 
-		XE::GraphicsBindGroupHandle image_bind_group = CreateImageBindGroup( bg_layouts[1], p->_Resources.FontTextureView );
+		XE::GraphicsBindGroupPtr image_bind_group = CreateImageBindGroup( bg_layouts[1], p->_Resources.FontTextureView );
 		p->_Resources.ImageBindGroup = image_bind_group;
 		p->_Resources.ImageBindGroupLayout = bg_layouts[1];
-		p->_Resources.ImageBindGroups.SetVoidPtr( ImHashData( &p->_Resources.FontTextureView, sizeof( ImTextureID ) ), reinterpret_cast<void *>( image_bind_group.GetValue() ) );
 
-		GRAPHICS_SERVICE->ShaderModuleDestroy( vertex_shader_desc.Shader );
-		GRAPHICS_SERVICE->ShaderModuleDestroy( pixel_shader_desc.Shader );
-		GRAPHICS_SERVICE->BindGroupLayoutDestroy( bg_layouts[0] );
+		_p->_BindGroups.push_back( image_bind_group );
+		p->_Resources.ImageBindGroups.SetInt( ImHashData( &p->_Resources.FontTextureView, sizeof( ImTextureID ) ), _p->_BindGroups.size() - 1 );
+
+		vertex_shader_desc.Shader = nullptr;
+		pixel_shader_desc.Shader = nullptr;
+		bg_layouts[0] = nullptr;
 
 		return true;
 	}
@@ -465,7 +464,7 @@ bool XE::ImGuiImpl::CreateDeviceObjects( ImGuiContext * ctx )
 	return false;
 }
 
-void XE::ImGuiImpl::SetupRenderState( ImGuiContext * ctx, ImDrawData * draw_data, XE::GraphicsRenderPassEncoderHandle pass_encoder, void * resources )
+void XE::ImGuiImpl::SetupRenderState( ImGuiContext * ctx, ImDrawData * draw_data, XE::GraphicsRenderPassEncoderPtr pass_encoder, void * resources )
 {
 	ImGuiContextPrivate * p = nullptr;
 	if ( !_p->_Impls.find( ctx, p ) )
@@ -569,7 +568,9 @@ void XE::ImGuiImpl::CreateFontsTexture( ImGuiContext * ctx )
 		}
 
 		// Store our identifier
-		io.Fonts->SetTexID( p->_Resources.FontTextureView.GetValue() );
+		auto idx = _p->_TextureViews.size();
+		_p->_TextureViews.push_back( p->_Resources.FontTextureView );
+		io.Fonts->SetTexID( idx );
 	}
 }
 
@@ -602,7 +603,7 @@ XE::GraphicsProgrammableStageDescriptor XE::ImGuiImpl::CreateShaderModule( const
 	return stage_desc;
 }
 
-XE::GraphicsBindGroupHandle XE::ImGuiImpl::CreateImageBindGroup( XE::GraphicsBindGroupLayoutHandle layout, XE::GraphicsTextureViewHandle texture )
+XE::GraphicsBindGroupPtr XE::ImGuiImpl::CreateImageBindGroup( XE::GraphicsBindGroupLayoutPtr layout, XE::GraphicsTextureViewPtr texture )
 {
 	XE::GraphicsBindGroupDescriptor image_bg_descriptor = {};
 

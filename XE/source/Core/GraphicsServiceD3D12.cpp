@@ -591,24 +591,369 @@ namespace
 		return nullptr;
 	}
 
-	template< typename T, XE::uint64 S > class RefArray
+	template< typename T > using ComPtr = Microsoft::WRL::ComPtr< T >;
+	using D3D12BlobPtr = ComPtr< ID3DBlob >;
+	using D3D12AdapterPtr = ComPtr < IDXGIAdapter4 >;
+	using D3D12DevicePtr = ComPtr < ID3D12Device6 >;
+	using D3D12FencePtr = ComPtr< ID3D12Fence >;
+	using D3D12ResourcePtr = ComPtr < ID3D12Resource >;
+	using D3D12DescriptorHeapPtr = ComPtr< ID3D12DescriptorHeap >;
+	using D3D12CommandQueuePtr = ComPtr < ID3D12CommandQueue >;
+	using D3D12CommandAllocatorPtr = ComPtr < ID3D12CommandAllocator >;
+	using D3D12CommandListPtr = ComPtr < ID3D12GraphicsCommandList >;
+	using D3D12GraphicsCommandListPtr = ComPtr < ID3D12GraphicsCommandList >;
+	using D3D12PipelineStatePtr = ComPtr < ID3D12PipelineState >;
+	using D3D12SwapChainPtr = ComPtr < IDXGISwapChain1 >;
+	using D3D12CommandSignaturePtr = ComPtr< ID3D12CommandSignature >;
+	using D3D12RootSignaturePtr = ComPtr< ID3D12RootSignature >;
+	using D3D12QueryHeapPtr = ComPtr< ID3D12QueryHeap >;
+	using D3D12FactoryPtr = ComPtr< IDXGIFactory6 >;
+	using D3D12DebugPtr = ComPtr< ID3D12Debug >;
+}
+
+namespace XE
+{
+	class GraphicsSurface : public XE::EnableSharedFromThis< GraphicsSurface >
+	{
+	public:
+		~GraphicsSurface() = default;
+
+	public:
+		XE::GraphicsSurfaceDescriptor Desc;
+
+		XE::GraphicsSwapChainPtr SwapChain;
+	};
+	class GraphicsSwapChain : public XE::EnableSharedFromThis< GraphicsSwapChain >
+	{
+	public:
+		~GraphicsSwapChain() = default;
+
+	public:
+		XE::GraphicsSwapChainDescriptor Desc;
+
+		D3D12SwapChainPtr Raw = nullptr;
+
+		XE::GraphicsSurfacePtr Parent;
+	};
+	class GraphicsAdapter : public XE::EnableSharedFromThis< GraphicsAdapter >
+	{
+	public:
+		~GraphicsAdapter() = default;
+
+	public:
+		XE::uint64 Desc;
+
+		D3D12AdapterPtr Raw = nullptr;
+
+		XE::GraphicsDevicePtr Device;
+	};
+	class GraphicsDevice : public XE::EnableSharedFromThis< GraphicsDevice >
+	{
+	public:
+		~GraphicsDevice() = default;
+
+	public:
+		XE::GraphicsDeviceDescriptor Desc;
+
+		D3D12DevicePtr Raw = nullptr;
+
+		XE::uint32 CSUItemSize = 0;
+		XE::uint32 RTVItemSize = 0;
+		XE::uint32 DSVItemSize = 0;
+		XE::uint32 SmaplerItemSize = 0;
+
+		D3D12DescriptorHeapPtr CSUHeap;
+		D3D12DescriptorHeapPtr RTVHeap;
+		D3D12DescriptorHeapPtr DSVHeap;
+		D3D12DescriptorHeapPtr SmaplerHeap;
+
+		XE::QueueHandleAllocator< XE::Handle< int >, GRAPHICS_MAX_CSU_DESCRIPTOR_HEAP > CSUAllocator;
+		XE::QueueHandleAllocator< XE::Handle< int >, GRAPHICS_MAX_RTV_DESCRIPTOR_HEAP > RTVAllocator;
+		XE::QueueHandleAllocator< XE::Handle< int >, GRAPHICS_MAX_DSV_DESCRIPTOR_HEAP > DSVAllocator;
+		XE::QueueHandleAllocator< XE::Handle< int >, GRAPHICS_MAX_SAMPLER_DESCRIPTOR_HEAP > SamplerAllocator;
+
+		D3D12CommandSignaturePtr DrawIndirectSignature;
+		D3D12CommandSignaturePtr DispatchIndirectSignature;
+		D3D12CommandSignaturePtr DrawIndexedIndirectSignature;
+
+		XE::ConcurrentQueue<D3D12CommandAllocatorPtr> CommandAllocators;
+
+		XE::GraphicsQueue * Queue = nullptr;
+		XE::GraphicsAdapterPtr Parent = nullptr;
+	};
+	class GraphicsQueue : public XE::EnableSharedFromThis< GraphicsQueue >
+	{
+	public:
+		~GraphicsQueue() = default;
+
+	public:
+		XE::GraphicsQueueDescriptor Desc;
+
+		D3D12CommandQueuePtr Raw = nullptr;
+
+		HANDLE Event = NULL;
+		D3D12FencePtr Fence = nullptr;
+		XE::Array< XE::GraphicsCommandBufferPtr > FreeBufferList;
+
+		XE::GraphicsDevicePtr Parent;
+	};
+	class GraphicsBindGroup : public XE::EnableSharedFromThis< GraphicsBindGroup >
+	{
+	public:
+		~GraphicsBindGroup() = default;
+
+	public:
+		XE::GraphicsBindGroupDescriptor Desc;
+
+		D3D12DescriptorHeapPtr ViewHeap = nullptr;
+		D3D12DescriptorHeapPtr SamplerHeap = nullptr;
+		D3D12RootSignaturePtr RootSignature = nullptr;
+		D3D12CommandSignaturePtr CommandSignature = nullptr;
+
+		XE::ConcurrentQueue<D3D12_GPU_VIRTUAL_ADDRESS> DynamicBuffers;
+
+		XE::GraphicsDevicePtr Parent;
+	};
+	class GraphicsBindGroupLayout : public XE::EnableSharedFromThis< GraphicsBindGroupLayout >
+	{
+	public:
+		~GraphicsBindGroupLayout() = default;
+
+	public:
+		XE::GraphicsBindGroupLayoutDescriptor Desc;
+
+		XE::GraphicsDevicePtr Parent;
+	};
+	class GraphicsBuffer : public XE::EnableSharedFromThis< GraphicsBuffer >
+	{
+	public:
+		~GraphicsBuffer() = default;
+
+	public:
+		XE::GraphicsBufferDescriptor Desc;
+
+		D3D12ResourcePtr Raw = nullptr;
+
+		D3D12_RANGE MapRange = {};
+		XE::Array<XE::uint8> _MapData;
+
+		XE::GraphicsDevicePtr Parent;
+	};
+	class GraphicsCommandBuffer : public XE::EnableSharedFromThis< GraphicsCommandBuffer >
+	{
+	public:
+		~GraphicsCommandBuffer() = default;
+
+	public:
+		XE::GraphicsCommandBufferDescriptor Desc;
+
+		D3D12GraphicsCommandListPtr Raw = nullptr;
+
+		XE::GraphicsCommandEncoderPtr Parent;
+	};
+	class GraphicsCommandEncoder : public XE::EnableSharedFromThis< GraphicsCommandEncoder >
+	{
+	public:
+		~GraphicsCommandEncoder() = default;
+
+	public:
+		XE::GraphicsCommandEncoderDescriptor Desc;
+		
+		D3D12CommandListPtr Raw;
+
+		D3D12CommandAllocatorPtr Allocator;
+		XE::ConcurrentQueue< D3D12CommandListPtr > FreeLists;
+
+		XE::GraphicsDevicePtr Parent;
+	};
+	class GraphicsComputePassEncoder : public XE::EnableSharedFromThis< GraphicsComputePassEncoder >
+	{
+	public:
+		~GraphicsComputePassEncoder() = default;
+
+	public:
+		XE::GraphicsComputePassDescriptor Desc;
+
+		D3D12CommandListPtr Raw;
+
+		XE::uint32 QueryIndex = 0;
+		XE::GraphicsQuerySetPtr QuerySet;
+
+		XE::GraphicsCommandEncoderPtr Parent;
+	};
+	class GraphicsComputePipeline : public XE::EnableSharedFromThis< GraphicsComputePipeline >
+	{
+	public:
+		~GraphicsComputePipeline() = default;
+
+	public:
+		XE::GraphicsComputePipelineDescriptor Desc;
+
+		D3D12PipelineStatePtr Raw = nullptr;
+
+		D3D12BlobPtr ShaderCode = nullptr;
+
+		XE::GraphicsDevicePtr Parent;
+	};
+	class GraphicsPipelineLayout : public XE::EnableSharedFromThis< GraphicsPipelineLayout >
+	{
+	public:
+		~GraphicsPipelineLayout() = default;
+
+	public:
+		XE::GraphicsPipelineLayoutDescriptor Desc;
+
+		D3D12RootSignaturePtr Raw = nullptr;
+		D3D12BlobPtr BlobRootSignature;
+
+		XE::GraphicsDevicePtr Parent;
+	};
+	class GraphicsQuerySet : public XE::EnableSharedFromThis< GraphicsQuerySet >
+	{
+	public:
+		~GraphicsQuerySet() = default;
+
+	public:
+		XE::GraphicsQuerySetDescriptor Desc;
+
+		D3D12QueryHeapPtr Raw = nullptr;
+
+		XE::GraphicsDevicePtr Parent;
+	};
+	class GraphicsRenderBundle : public XE::EnableSharedFromThis< GraphicsRenderBundle >
+	{
+	public:
+		~GraphicsRenderBundle() = default;
+
+	public:
+		XE::GraphicsRenderBundleDescriptor Desc;
+
+		D3D12CommandListPtr Raw;
+
+		XE::GraphicsDevicePtr Parent;
+	};
+	class GraphicsRenderBundleEncoder : public XE::EnableSharedFromThis< GraphicsRenderBundleEncoder >
+	{
+	public:
+		~GraphicsRenderBundleEncoder() = default;
+
+	public:
+		XE::GraphicsRenderBundleEncoderDescriptor Desc;
+
+		XE::GraphicsCommandEncoderPtr Encoder;
+	};
+	class GraphicsRenderPassEncoder : public XE::EnableSharedFromThis< GraphicsRenderPassEncoder >
+	{
+	public:
+		~GraphicsRenderPassEncoder() = default;
+
+	public:
+		XE::GraphicsRenderPassDescriptor Desc;
+
+		D3D12CommandListPtr Raw;
+
+		XE::uint32 OcclusionQueryIndex = 0;
+		XE::GraphicsQuerySetPtr OcclusionQuery;
+		XE::uint32 PipelineStatisticsQueryIndex = 0;
+		XE::GraphicsQuerySetPtr PipelineStatisticsQuery;
+
+		XE::Array< D3D12_VERTEX_BUFFER_VIEW > VertexBuffers;
+
+		XE::GraphicsCommandEncoderPtr Parent;
+	};
+	class GraphicsRenderPipeline : public XE::EnableSharedFromThis< GraphicsRenderPipeline >
+	{
+	public:
+		~GraphicsRenderPipeline() = default;
+
+	public:
+		XE::GraphicsRenderPipelineDescriptor Desc;
+
+		D3D12PipelineStatePtr Raw = nullptr;
+
+		D3D12BlobPtr VSCode = nullptr;
+		D3D12BlobPtr FSCode = nullptr;
+		XE::Array<D3D12_INPUT_ELEMENT_DESC> Elements;
+
+		XE::GraphicsDevicePtr Parent;
+	};
+	class GraphicsSampler : public XE::EnableSharedFromThis< GraphicsSampler >
+	{
+	public:
+		~GraphicsSampler() = default;
+
+	public:
+		XE::GraphicsSamplerDescriptor Desc;
+
+		XE::Handle< int > SamplerHeapHandle;
+		D3D12_CPU_DESCRIPTOR_HANDLE CPUHandle = { 0 };
+
+		XE::GraphicsDevicePtr Parent;
+	};
+	class GraphicsShaderModule : public XE::EnableSharedFromThis< GraphicsShaderModule >
+	{
+	public:
+		~GraphicsShaderModule() = default;
+
+	public:
+		XE::GraphicsShaderModuleDescriptor Desc;
+
+		XE::GraphicsDevicePtr Parent;
+	};
+	class GraphicsTexture : public XE::EnableSharedFromThis< GraphicsTexture >
+	{
+	public:
+		~GraphicsTexture() = default;
+
+	public:
+		XE::GraphicsTextureDescriptor Desc;
+
+		D3D12ResourcePtr Raw;
+
+		XE::GraphicsDevicePtr Parent;
+	};
+	class GraphicsTextureView : public XE::EnableSharedFromThis< GraphicsTextureView >
+	{
+	public:
+		~GraphicsTextureView() = default;
+
+	public:
+		XE::GraphicsTextureViewDescriptor Desc;
+
+		XE::Handle< int > SRVHandle;
+		XE::Handle< int > UAVHandle;
+		XE::Handle< int > RTVHandle;
+		XE::Handle< int > DSVHandle;
+		D3D12_CPU_DESCRIPTOR_HANDLE SRVCPUHandle = { 0 };
+		D3D12_CPU_DESCRIPTOR_HANDLE UAVCPUHandle = { 0 };
+		D3D12_CPU_DESCRIPTOR_HANDLE RTVCPUHandle = { 0 };
+		D3D12_CPU_DESCRIPTOR_HANDLE DSVCPUHandle = { 0 };
+
+		XE::GraphicsTexturePtr Parent;
+	};
+}
+
+struct XE::GraphicsService::Private
+{
+	D3D12DebugPtr _Debug;
+	D3D12FactoryPtr _Factory;
+
+	template< typename T, XE::uint64 S > class QueueArray
 	{
 	public:
 		using iterator = std::array< T, S >::iterator;
 
 	public:
-		XE::RefPtr< T > Alloc()
+		XE::SharedPtr< T > Alloc()
 		{
 			auto handle = _HandleQueue.Alloc();
 
-			_Datas[handle.GetValue()].SetDeleter( [this]( XE::RefCount * val ) { Free( val ); } );
-
-			return &_Datas[handle.GetValue()];
+			return XE::SharedPtr< T >( &_Datas[handle.GetValue()], [this]( T * val ) { Free( val ); } );
 		}
 
-		void Free( XE::RefCount * val )
+		void Free( T * val )
 		{
-			val->~RefCount();
+			val->~T();
 
 			auto handle = XE::HandleCast< T >( ( reinterpret_cast<XE::uint8 *>( val ) - reinterpret_cast<XE::uint8 *>( _Datas.data() ) ) / sizeof( T ) );
 
@@ -633,318 +978,28 @@ namespace
 		XE::QueueHandleAllocator< XE::Handle< T >, S > _HandleQueue;
 	};
 
-	template< typename T > using ComPtr = Microsoft::WRL::ComPtr< T >;
-	using D3D12BlobPtr = ComPtr< ID3DBlob >;
-	using D3D12AdapterPtr = ComPtr < IDXGIAdapter4 >;
-	using D3D12DevicePtr = ComPtr < ID3D12Device6 >;
-	using D3D12FencePtr = ComPtr< ID3D12Fence >;
-	using D3D12ResourcePtr = ComPtr < ID3D12Resource >;
-	using D3D12DescriptorHeapPtr = ComPtr< ID3D12DescriptorHeap >;
-	using D3D12CommandQueuePtr = ComPtr < ID3D12CommandQueue >;
-	using D3D12CommandAllocatorPtr = ComPtr < ID3D12CommandAllocator >;
-	using D3D12CommandListPtr = ComPtr < ID3D12GraphicsCommandList >;
-	using D3D12GraphicsCommandListPtr = ComPtr < ID3D12GraphicsCommandList >;
-	using D3D12PipelineStatePtr = ComPtr < ID3D12PipelineState >;
-	using D3D12SwapChainPtr = ComPtr < IDXGISwapChain1 >;
-	using D3D12CommandSignaturePtr = ComPtr< ID3D12CommandSignature >;
-	using D3D12RootSignaturePtr = ComPtr< ID3D12RootSignature >;
-	using D3D12QueryHeapPtr = ComPtr< ID3D12QueryHeap >;
-	using D3D12FactoryPtr = ComPtr< IDXGIFactory6 >;
-	using D3D12DebugPtr = ComPtr< ID3D12Debug >;
-}
-
-namespace XE
-{
-	class GraphicsSurface : public XE::RefCount
-	{
-	public:
-		XE::GraphicsSurfaceDescriptor Desc;
-
-		XE::GraphicsSwapChainRPtr SwapChain;
-	};
-	class GraphicsSwapChain : public XE::RefCount
-	{
-	public:
-		XE::GraphicsSwapChainDescriptor Desc;
-
-		D3D12SwapChainPtr Raw = nullptr;
-
-		XE::GraphicsSurfaceRPtr Parent;
-	};
-	class GraphicsAdapter : public XE::RefCount
-	{
-	public:
-		XE::uint64 Desc;
-
-		D3D12AdapterPtr Raw = nullptr;
-
-		XE::GraphicsDeviceRPtr Device;
-	};
-	class GraphicsDevice : public XE::RefCount
-	{
-	public:
-		XE::GraphicsDeviceDescriptor Desc;
-
-		D3D12DevicePtr Raw = nullptr;
-
-		union
-		{
-			XE::uint32 CSUItemSize = 0;
-			XE::uint32 SRVItemSize;
-			XE::uint32 UAVItemSize;
-			XE::uint32 CSVItemSize;
-		};
-		XE::uint32 RTVItemSize = 0;
-		XE::uint32 DSVItemSize = 0;
-		XE::uint32 SmaplerItemSize = 0;
-
-		union
-		{
-			D3D12DescriptorHeapPtr CSUHeap = {};
-			D3D12DescriptorHeapPtr SRVHeap;
-			D3D12DescriptorHeapPtr UAVHeap;
-			D3D12DescriptorHeapPtr CSVHeap;
-		};
-		D3D12DescriptorHeapPtr RTVHeap;
-		D3D12DescriptorHeapPtr DSVHeap;
-		D3D12DescriptorHeapPtr SmaplerHeap;
-
-		union
-		{
-			XE::QueueHandleAllocator< XE::Handle< int >, GRAPHICS_MAX_CSU_DESCRIPTOR_HEAP > CSUAllocator = {};
-			XE::QueueHandleAllocator< XE::Handle< int >, GRAPHICS_MAX_CSU_DESCRIPTOR_HEAP > SRVAllocator;
-			XE::QueueHandleAllocator< XE::Handle< int >, GRAPHICS_MAX_CSU_DESCRIPTOR_HEAP > UAVAllocator;
-			XE::QueueHandleAllocator< XE::Handle< int >, GRAPHICS_MAX_CSU_DESCRIPTOR_HEAP > CSVAllocator;
-		};
-		XE::QueueHandleAllocator< XE::Handle< int >, GRAPHICS_MAX_RTV_DESCRIPTOR_HEAP > RTVAllocator;
-		XE::QueueHandleAllocator< XE::Handle< int >, GRAPHICS_MAX_DSV_DESCRIPTOR_HEAP > DSVAllocator;
-		XE::QueueHandleAllocator< XE::Handle< int >, GRAPHICS_MAX_SAMPLER_DESCRIPTOR_HEAP > SamplerAllocator;
-
-		D3D12CommandSignaturePtr DrawIndirectSignature;
-		D3D12CommandSignaturePtr DispatchIndirectSignature;
-		D3D12CommandSignaturePtr DrawIndexedIndirectSignature;
-
-		XE::ConcurrentQueue<D3D12CommandAllocatorPtr> CommandAllocators;
-
-		XE::GraphicsQueue * Queue = nullptr;
-		XE::GraphicsAdapterRPtr Parent = nullptr;
-	};
-	class GraphicsQueue : public XE::RefCount
-	{
-	public:
-		XE::GraphicsQueueDescriptor Desc;
-
-		D3D12CommandQueuePtr Raw = nullptr;
-
-		HANDLE Event = NULL;
-		D3D12FencePtr Fence = nullptr;
-		XE::Array< XE::GraphicsCommandBufferRPtr > FreeBufferList;
-
-		XE::GraphicsDeviceRPtr Parent;
-	};
-	class GraphicsBindGroup : public XE::RefCount
-	{
-	public:
-		XE::GraphicsBindGroupDescriptor Desc;
-
-		D3D12DescriptorHeapPtr ViewHeap = nullptr;
-		D3D12DescriptorHeapPtr SamplerHeap = nullptr;
-		D3D12RootSignaturePtr RootSignature = nullptr;
-		D3D12CommandSignaturePtr CommandSignature = nullptr;
-
-		XE::ConcurrentQueue<D3D12_GPU_VIRTUAL_ADDRESS> DynamicBuffers;
-
-		XE::GraphicsDeviceRPtr Parent;
-	};
-	class GraphicsBindGroupLayout : public XE::RefCount
-	{
-	public:
-		XE::GraphicsBindGroupLayoutDescriptor Desc;
-
-		XE::GraphicsDeviceRPtr Parent;
-	};
-	class GraphicsBuffer : public XE::RefCount
-	{
-	public:
-		XE::GraphicsBufferDescriptor Desc;
-
-		D3D12ResourcePtr Raw = nullptr;
-
-		D3D12_RANGE MapRange = {};
-		XE::Array<XE::uint8> _MapData;
-
-		XE::GraphicsDeviceRPtr Parent;
-	};
-	class GraphicsCommandBuffer : public XE::RefCount
-	{
-	public:
-		XE::GraphicsCommandBufferDescriptor Desc;
-
-		D3D12GraphicsCommandListPtr Raw = nullptr;
-
-		XE::GraphicsCommandEncoderRPtr Parent;
-	};
-	class GraphicsCommandEncoder : public XE::RefCount
-	{
-	public:
-		XE::GraphicsCommandEncoderDescriptor Desc;
-		
-		D3D12CommandListPtr Raw;
-
-		D3D12CommandAllocatorPtr Allocator;
-		XE::ConcurrentQueue< D3D12CommandListPtr > FreeLists;
-
-		XE::GraphicsDeviceRPtr Parent;
-	};
-	class GraphicsComputePassEncoder : public XE::RefCount
-	{
-	public:
-		XE::GraphicsComputePassDescriptor Desc;
-
-		D3D12CommandListPtr Raw;
-
-		XE::uint32 QueryIndex = 0;
-		XE::GraphicsQuerySetRPtr QuerySet;
-
-		XE::GraphicsCommandEncoderRPtr Parent;
-	};
-	class GraphicsComputePipeline : public XE::RefCount
-	{
-	public:
-		XE::GraphicsComputePipelineDescriptor Desc;
-
-		D3D12PipelineStatePtr Raw = nullptr;
-
-		D3D12BlobPtr ShaderCode = nullptr;
-
-		XE::GraphicsDeviceRPtr Parent;
-	};
-	class GraphicsPipelineLayout : public XE::RefCount
-	{
-	public:
-		XE::GraphicsPipelineLayoutDescriptor Desc;
-
-		D3D12RootSignaturePtr Raw = nullptr;
-		D3D12BlobPtr BlobRootSignature;
-
-		XE::GraphicsDeviceRPtr Parent;
-	};
-	class GraphicsQuerySet : public XE::RefCount
-	{
-	public:
-		XE::GraphicsQuerySetDescriptor Desc;
-
-		D3D12QueryHeapPtr QueryHeap = nullptr;
-
-		XE::GraphicsDeviceRPtr Parent;
-	};
-	class GraphicsRenderBundle : public XE::RefCount
-	{
-	public:
-		XE::GraphicsRenderBundleDescriptor Desc;
-
-		XE::GraphicsDeviceRPtr Parent;
-	};
-	class GraphicsRenderBundleEncoder : public XE::RefCount
-	{
-	public:
-		XE::GraphicsRenderBundleEncoderDescriptor Desc;
-
-		XE::GraphicsCommandEncoderRPtr Encoder;
-	};
-	class GraphicsRenderPassEncoder : public XE::RefCount
-	{
-	public:
-		XE::GraphicsRenderPassDescriptor Desc;
-
-		D3D12CommandListPtr Raw;
-
-		XE::GraphicsCommandEncoderRPtr Parent;
-	};
-	class GraphicsRenderPipeline : public XE::RefCount
-	{
-	public:
-		XE::GraphicsRenderPipelineDescriptor Desc;
-
-		D3D12PipelineStatePtr Raw = nullptr;
-
-		D3D12BlobPtr VSCode = nullptr;
-		D3D12BlobPtr FSCode = nullptr;
-		XE::Array<D3D12_INPUT_ELEMENT_DESC> Elements;
-
-		XE::GraphicsDeviceRPtr Parent;
-	};
-	class GraphicsSampler : public XE::RefCount
-	{
-	public:
-		XE::GraphicsSamplerDescriptor Desc;
-
-		XE::Handle< int > SamplerHeapHandle;
-		D3D12_CPU_DESCRIPTOR_HANDLE CPUHandle = { 0 };
-
-		XE::GraphicsDeviceRPtr Parent;
-	};
-	class GraphicsShaderModule : public XE::RefCount
-	{
-	public:
-		XE::GraphicsShaderModuleDescriptor Desc;
-
-		XE::GraphicsDeviceRPtr Parent;
-	};
-	class GraphicsTexture : public XE::RefCount
-	{
-	public:
-		XE::GraphicsTextureDescriptor Desc;
-
-		D3D12ResourcePtr Raw;
-
-		XE::GraphicsDeviceRPtr Parent;
-	};
-	class GraphicsTextureView : public XE::RefCount
-	{
-	public:
-		XE::GraphicsTextureViewDescriptor Desc;
-
-		XE::Handle< int > SRVHandle;
-		XE::Handle< int > UAVHandle;
-		XE::Handle< int > RTVHandle;
-		XE::Handle< int > DSVHandle;
-		D3D12_CPU_DESCRIPTOR_HANDLE SRVCPUHandle = { 0 };
-		D3D12_CPU_DESCRIPTOR_HANDLE UAVCPUHandle = { 0 };
-		D3D12_CPU_DESCRIPTOR_HANDLE RTVCPUHandle = { 0 };
-		D3D12_CPU_DESCRIPTOR_HANDLE DSVCPUHandle = { 0 };
-
-		XE::GraphicsTextureRPtr Parent;
-	};
-}
-
-struct XE::GraphicsService::Private
-{
-	D3D12DebugPtr _Debug;
-	D3D12FactoryPtr _Factory;
-
-	RefArray< XE::GraphicsSurface, XE::GRAPHICS_MAX_SURFACE > _Surfaces;
-	RefArray< XE::GraphicsSwapChain, XE::GRAPHICS_MAX_SWAP_CHAIN > _SwapChains;
-	RefArray< XE::GraphicsAdapter, XE::GRAPHICS_MAX_ADAPTER > _Adapters;
-	RefArray< XE::GraphicsDevice, XE::GRAPHICS_MAX_DEVICE > _Devices;
-	RefArray< XE::GraphicsQueue, XE::GRAPHICS_MAX_QUEUE > _Queues;
-	RefArray< XE::GraphicsBindGroup, XE::GRAPHICS_MAX_BIND_GROUP > _BindGroups;
-	RefArray< XE::GraphicsBindGroupLayout, XE::GRAPHICS_MAX_BIND_GROUP_LAYOUT > _BindGroupLayouts;
-	RefArray< XE::GraphicsBuffer, XE::GRAPHICS_MAX_BUFFER > _Buffers;
-	RefArray< XE::GraphicsCommandBuffer, XE::GRAPHICS_MAX_COMMAND_BUFFER > _CommandBuffers;
-	RefArray< XE::GraphicsCommandEncoder, XE::GRAPHICS_MAX_COMMAND_ENCODER > _CommandEncoders;
-	RefArray< XE::GraphicsComputePassEncoder, XE::GRAPHICS_MAX_COMPUTE_PASS_ENCODER > _ComputePassEncoders;
-	RefArray< XE::GraphicsComputePipeline, XE::GRAPHICS_MAX_COMPUTE_PIPELINE > _ComputePipelines;
-	RefArray< XE::GraphicsPipelineLayout, XE::GRAPHICS_MAX_PIPELINE_LAYOUT > _PipelineLayouts;
-	RefArray< XE::GraphicsQuerySet, XE::GRAPHICS_MAX_QUERY_SET > _QuerySets;
-	RefArray< XE::GraphicsRenderBundle, XE::GRAPHICS_MAX_RENDER_BUNDLE > _RenderBundles;
-	RefArray< XE::GraphicsRenderBundleEncoder, XE::GRAPHICS_MAX_RENDER_BUNDLE_ENCODER > _RenderBundleEncoders;
-	RefArray< XE::GraphicsRenderPassEncoder, XE::GRAPHICS_MAX_RENDER_PASS_ENCODER > _RenderPassEncoders;
-	RefArray< XE::GraphicsRenderPipeline, XE::GRAPHICS_MAX_RENDER_PIPELINE > _RenderPipelines;
-	RefArray< XE::GraphicsShaderModule, XE::GRAPHICS_MAX_SHADER_MODULE > _ShaderModules;
-	RefArray< XE::GraphicsSampler, XE::GRAPHICS_MAX_SAMPLER > _Samplers;
-	RefArray< XE::GraphicsTexture, XE::GRAPHICS_MAX_TEXTURE > _Textures;
-	RefArray< XE::GraphicsTextureView, XE::GRAPHICS_MAX_TEXTURE_VIEW > _TextureViews;
+	QueueArray< XE::GraphicsSurface, XE::GRAPHICS_MAX_SURFACE > _Surfaces;
+	QueueArray< XE::GraphicsSwapChain, XE::GRAPHICS_MAX_SWAP_CHAIN > _SwapChains;
+	QueueArray< XE::GraphicsAdapter, XE::GRAPHICS_MAX_ADAPTER > _Adapters;
+	QueueArray< XE::GraphicsDevice, XE::GRAPHICS_MAX_DEVICE > _Devices;
+	QueueArray< XE::GraphicsQueue, XE::GRAPHICS_MAX_QUEUE > _Queues;
+	QueueArray< XE::GraphicsBindGroup, XE::GRAPHICS_MAX_BIND_GROUP > _BindGroups;
+	QueueArray< XE::GraphicsBindGroupLayout, XE::GRAPHICS_MAX_BIND_GROUP_LAYOUT > _BindGroupLayouts;
+	QueueArray< XE::GraphicsBuffer, XE::GRAPHICS_MAX_BUFFER > _Buffers;
+	QueueArray< XE::GraphicsCommandBuffer, XE::GRAPHICS_MAX_COMMAND_BUFFER > _CommandBuffers;
+	QueueArray< XE::GraphicsCommandEncoder, XE::GRAPHICS_MAX_COMMAND_ENCODER > _CommandEncoders;
+	QueueArray< XE::GraphicsComputePassEncoder, XE::GRAPHICS_MAX_COMPUTE_PASS_ENCODER > _ComputePassEncoders;
+	QueueArray< XE::GraphicsComputePipeline, XE::GRAPHICS_MAX_COMPUTE_PIPELINE > _ComputePipelines;
+	QueueArray< XE::GraphicsPipelineLayout, XE::GRAPHICS_MAX_PIPELINE_LAYOUT > _PipelineLayouts;
+	QueueArray< XE::GraphicsQuerySet, XE::GRAPHICS_MAX_QUERY_SET > _QuerySets;
+	QueueArray< XE::GraphicsRenderBundle, XE::GRAPHICS_MAX_RENDER_BUNDLE > _RenderBundles;
+	QueueArray< XE::GraphicsRenderBundleEncoder, XE::GRAPHICS_MAX_RENDER_BUNDLE_ENCODER > _RenderBundleEncoders;
+	QueueArray< XE::GraphicsRenderPassEncoder, XE::GRAPHICS_MAX_RENDER_PASS_ENCODER > _RenderPassEncoders;
+	QueueArray< XE::GraphicsRenderPipeline, XE::GRAPHICS_MAX_RENDER_PIPELINE > _RenderPipelines;
+	QueueArray< XE::GraphicsShaderModule, XE::GRAPHICS_MAX_SHADER_MODULE > _ShaderModules;
+	QueueArray< XE::GraphicsSampler, XE::GRAPHICS_MAX_SAMPLER > _Samplers;
+	QueueArray< XE::GraphicsTexture, XE::GRAPHICS_MAX_TEXTURE > _Textures;
+	QueueArray< XE::GraphicsTextureView, XE::GRAPHICS_MAX_TEXTURE_VIEW > _TextureViews;
 };
 
 XE::GraphicsService::GraphicsService()
@@ -993,7 +1048,7 @@ void XE::GraphicsService::Clearup()
 	_p->_Debug = nullptr;
 }
 
-XE::GraphicsSurfaceRPtr XE::GraphicsService::CreateSurface( const XE::GraphicsSurfaceDescriptor & descriptor )
+XE::GraphicsSurfacePtr XE::GraphicsService::CreateSurface( const XE::GraphicsSurfaceDescriptor & descriptor )
 {
 	auto surface = _p->_Surfaces.Alloc();
 
@@ -1031,7 +1086,7 @@ void XE::GraphicsService::RequestAdapter( const XE::GraphicsRequestAdapterOption
 	}
 }
 
-void XE::GraphicsService::AdapterEnumerateFeatures( XE::GraphicsAdapterRPtr adapter, XE::Array< XE::GraphicsFeatureName > & features )
+void XE::GraphicsService::AdapterEnumerateFeatures( XE::GraphicsAdapterPtr adapter, XE::Array< XE::GraphicsFeatureName > & features )
 {
 	features.push_back( XE::GraphicsFeatureName::DEPTH_CLIP_CONTROL );
 	features.push_back( XE::GraphicsFeatureName::DEPTH24UNORM_STENCIL8 );
@@ -1042,7 +1097,7 @@ void XE::GraphicsService::AdapterEnumerateFeatures( XE::GraphicsAdapterRPtr adap
 	features.push_back( XE::GraphicsFeatureName::TEXTURE_COMPRESSION_BC );
 }
 
-bool XE::GraphicsService::AdapterGetLimits( XE::GraphicsAdapterRPtr adapter, XE::GraphicsSupportedLimits & limits )
+bool XE::GraphicsService::AdapterGetLimits( XE::GraphicsAdapterPtr adapter, XE::GraphicsSupportedLimits & limits )
 {
 	limits.Limits.MaxTextureDimension1D = D3D12_REQ_TEXTURE1D_U_DIMENSION;
 	limits.Limits.MaxTextureDimension2D = D3D12_REQ_TEXTURE2D_U_OR_V_DIMENSION;
@@ -1074,7 +1129,7 @@ bool XE::GraphicsService::AdapterGetLimits( XE::GraphicsAdapterRPtr adapter, XE:
 	return true;
 }
 
-void XE::GraphicsService::AdapterGetProperties( XE::GraphicsAdapterRPtr adapter, XE::GraphicsAdapterProperties & properties )
+void XE::GraphicsService::AdapterGetProperties( XE::GraphicsAdapterPtr adapter, XE::GraphicsAdapterProperties & properties )
 {
 	DXGI_ADAPTER_DESC1 desc1;
 	if ( SUCCEEDED( adapter->Raw->GetDesc1( &desc1 ) ) )
@@ -1104,14 +1159,14 @@ void XE::GraphicsService::AdapterGetProperties( XE::GraphicsAdapterRPtr adapter,
 	}
 }
 
-bool XE::GraphicsService::AdapterHasFeature( XE::GraphicsAdapterRPtr adapter, XE::GraphicsFeatureName feature )
+bool XE::GraphicsService::AdapterHasFeature( XE::GraphicsAdapterPtr adapter, XE::GraphicsFeatureName feature )
 {
 	XE::Array< XE::GraphicsFeatureName > features;
 	AdapterEnumerateFeatures( adapter, features );
 	return std::find( features.begin(), features.end(), feature ) != features.end();
 }
 
-void XE::GraphicsService::AdapterRequestDevice( XE::GraphicsAdapterRPtr adapter, const XE::GraphicsDeviceDescriptor & descriptor, RequestDeviceCallback callback )
+void XE::GraphicsService::AdapterRequestDevice( XE::GraphicsAdapterPtr adapter, const XE::GraphicsDeviceDescriptor & descriptor, RequestDeviceCallback callback )
 {
 	std::array< D3D_FEATURE_LEVEL, 4 > levels =
 	{
@@ -1219,7 +1274,7 @@ void XE::GraphicsService::AdapterRequestDevice( XE::GraphicsAdapterRPtr adapter,
 	}
 }
 
-XE::GraphicsBindGroupRPtr XE::GraphicsService::DeviceCreateBindGroup( XE::GraphicsDeviceRPtr device, const XE::GraphicsBindGroupDescriptor & descriptor )
+XE::GraphicsBindGroupPtr XE::GraphicsService::DeviceCreateBindGroup( XE::GraphicsDevicePtr device, const XE::GraphicsBindGroupDescriptor & descriptor )
 {
 	auto group = _p->_BindGroups.Alloc();
 
@@ -1369,7 +1424,7 @@ XE::GraphicsBindGroupRPtr XE::GraphicsService::DeviceCreateBindGroup( XE::Graphi
 	return group;
 }
 
-XE::GraphicsBindGroupLayoutRPtr XE::GraphicsService::DeviceCreateBindGroupLayout( XE::GraphicsDeviceRPtr device, const XE::GraphicsBindGroupLayoutDescriptor & descriptor )
+XE::GraphicsBindGroupLayoutPtr XE::GraphicsService::DeviceCreateBindGroupLayout( XE::GraphicsDevicePtr device, const XE::GraphicsBindGroupLayoutDescriptor & descriptor )
 {
 	auto layout = _p->_BindGroupLayouts.Alloc();
 
@@ -1379,7 +1434,7 @@ XE::GraphicsBindGroupLayoutRPtr XE::GraphicsService::DeviceCreateBindGroupLayout
 	return layout;
 }
 
-XE::GraphicsBufferRPtr XE::GraphicsService::DeviceCreateBuffer( XE::GraphicsDeviceRPtr device, const XE::GraphicsBufferDescriptor & descriptor )
+XE::GraphicsBufferPtr XE::GraphicsService::DeviceCreateBuffer( XE::GraphicsDevicePtr device, const XE::GraphicsBufferDescriptor & descriptor )
 {
 	auto buf = _p->_Buffers.Alloc();
 
@@ -1430,7 +1485,7 @@ XE::GraphicsBufferRPtr XE::GraphicsService::DeviceCreateBuffer( XE::GraphicsDevi
 return {};
 }
 
-XE::GraphicsCommandEncoderRPtr XE::GraphicsService::DeviceCreateCommandEncoder( XE::GraphicsDeviceRPtr device, const XE::GraphicsCommandEncoderDescriptor & descriptor )
+XE::GraphicsCommandEncoderPtr XE::GraphicsService::DeviceCreateCommandEncoder( XE::GraphicsDevicePtr device, const XE::GraphicsCommandEncoderDescriptor & descriptor )
 {
 	auto encoder = _p->_CommandEncoders.Alloc();
 
@@ -1456,7 +1511,7 @@ XE::GraphicsCommandEncoderRPtr XE::GraphicsService::DeviceCreateCommandEncoder( 
 	return encoder;
 }
 
-XE::GraphicsComputePipelineRPtr XE::GraphicsService::DeviceCreateComputePipeline( XE::GraphicsDeviceRPtr device, const XE::GraphicsComputePipelineDescriptor & descriptor )
+XE::GraphicsComputePipelinePtr XE::GraphicsService::DeviceCreateComputePipeline( XE::GraphicsDevicePtr device, const XE::GraphicsComputePipelineDescriptor & descriptor )
 {
 	auto pipe = _p->_ComputePipelines.Alloc();
 
@@ -1481,7 +1536,7 @@ XE::GraphicsComputePipelineRPtr XE::GraphicsService::DeviceCreateComputePipeline
 	return {};
 }
 
-XE::GraphicsPipelineLayoutRPtr XE::GraphicsService::DeviceCreatePipelineLayout( XE::GraphicsDeviceRPtr device, const XE::GraphicsPipelineLayoutDescriptor & descriptor )
+XE::GraphicsPipelineLayoutPtr XE::GraphicsService::DeviceCreatePipelineLayout( XE::GraphicsDevicePtr device, const XE::GraphicsPipelineLayoutDescriptor & descriptor )
 {
 	auto layout = _p->_PipelineLayouts.Alloc();
 
@@ -1629,7 +1684,7 @@ XE::GraphicsPipelineLayoutRPtr XE::GraphicsService::DeviceCreatePipelineLayout( 
 	return {};
 }
 
-XE::GraphicsQuerySetRPtr XE::GraphicsService::DeviceCreateQuerySet( XE::GraphicsDeviceRPtr device, const XE::GraphicsQuerySetDescriptor & descriptor )
+XE::GraphicsQuerySetPtr XE::GraphicsService::DeviceCreateQuerySet( XE::GraphicsDevicePtr device, const XE::GraphicsQuerySetDescriptor & descriptor )
 {
 	auto query_set = _p->_QuerySets.Alloc();
 
@@ -1653,7 +1708,7 @@ XE::GraphicsQuerySetRPtr XE::GraphicsService::DeviceCreateQuerySet( XE::Graphics
 
 		query_heap_desc.Count = std::max<UINT>( descriptor.Count, 1 );
 
-		if ( SUCCEEDED( device->Raw->CreateQueryHeap( &query_heap_desc, IID_PPV_ARGS( query_set->QueryHeap.GetAddressOf() ) ) ) )
+		if ( SUCCEEDED( device->Raw->CreateQueryHeap( &query_heap_desc, IID_PPV_ARGS( query_set->Raw.GetAddressOf() ) ) ) )
 		{
 			return query_set;
 		}
@@ -1662,12 +1717,12 @@ XE::GraphicsQuerySetRPtr XE::GraphicsService::DeviceCreateQuerySet( XE::Graphics
 	return {};
 }
 
-XE::GraphicsRenderBundleEncoderRPtr XE::GraphicsService::DeviceCreateRenderBundleEncoder( XE::GraphicsDeviceRPtr device, const XE::GraphicsRenderBundleEncoderDescriptor & descriptor )
+XE::GraphicsRenderBundleEncoderPtr XE::GraphicsService::DeviceCreateRenderBundleEncoder( XE::GraphicsDevicePtr device, const XE::GraphicsRenderBundleEncoderDescriptor & descriptor )
 {
 	return {};
 }
 
-XE::GraphicsRenderPipelineRPtr XE::GraphicsService::DeviceCreateRenderPipeline( XE::GraphicsDeviceRPtr device, const XE::GraphicsRenderPipelineDescriptor & descriptor )
+XE::GraphicsRenderPipelinePtr XE::GraphicsService::DeviceCreateRenderPipeline( XE::GraphicsDevicePtr device, const XE::GraphicsRenderPipelineDescriptor & descriptor )
 {
 	auto pipe = _p->_RenderPipelines.Alloc();
 
@@ -1807,7 +1862,7 @@ XE::GraphicsRenderPipelineRPtr XE::GraphicsService::DeviceCreateRenderPipeline( 
 	return {};
 }
 
-XE::GraphicsSamplerRPtr XE::GraphicsService::DeviceCreateSampler( XE::GraphicsDeviceRPtr device, const XE::GraphicsSamplerDescriptor & descriptor )
+XE::GraphicsSamplerPtr XE::GraphicsService::DeviceCreateSampler( XE::GraphicsDevicePtr device, const XE::GraphicsSamplerDescriptor & descriptor )
 {
 	auto sampler = _p->_Samplers.Alloc();
 
@@ -1840,7 +1895,7 @@ XE::GraphicsSamplerRPtr XE::GraphicsService::DeviceCreateSampler( XE::GraphicsDe
 	return sampler;
 }
 
-XE::GraphicsShaderModuleRPtr XE::GraphicsService::DeviceCreateShaderModule( XE::GraphicsDeviceRPtr device, const XE::GraphicsShaderModuleDescriptor & descriptor )
+XE::GraphicsShaderModulePtr XE::GraphicsService::DeviceCreateShaderModule( XE::GraphicsDevicePtr device, const XE::GraphicsShaderModuleDescriptor & descriptor )
 {
 	auto shader = _p->_ShaderModules.Alloc();
 
@@ -1850,7 +1905,7 @@ XE::GraphicsShaderModuleRPtr XE::GraphicsService::DeviceCreateShaderModule( XE::
 	return shader;
 }
 
-XE::GraphicsSwapChainRPtr XE::GraphicsService::DeviceCreateSwapChain( XE::GraphicsDeviceRPtr device, XE::GraphicsSurfaceRPtr surface, const XE::GraphicsSwapChainDescriptor & descriptor )
+XE::GraphicsSwapChainPtr XE::GraphicsService::DeviceCreateSwapChain( XE::GraphicsDevicePtr device, XE::GraphicsSurfacePtr surface, const XE::GraphicsSwapChainDescriptor & descriptor )
 {
 	auto swap_chain = _p->_SwapChains.Alloc();
 
@@ -1890,7 +1945,7 @@ XE::GraphicsSwapChainRPtr XE::GraphicsService::DeviceCreateSwapChain( XE::Graphi
 	return {};
 }
 
-XE::GraphicsTextureRPtr XE::GraphicsService::DeviceCreateTexture( XE::GraphicsDeviceRPtr device, const XE::GraphicsTextureDescriptor & descriptor )
+XE::GraphicsTexturePtr XE::GraphicsService::DeviceCreateTexture( XE::GraphicsDevicePtr device, const XE::GraphicsTextureDescriptor & descriptor )
 {
 	auto texture = _p->_Textures.Alloc();
 
@@ -1964,7 +2019,7 @@ XE::GraphicsTextureRPtr XE::GraphicsService::DeviceCreateTexture( XE::GraphicsDe
 	return texture;
 }
 
-XE::GraphicsTextureViewRPtr XE::GraphicsService::TextureCreateView( XE::GraphicsTextureRPtr texture, const XE::GraphicsTextureViewDescriptor & descriptor )
+XE::GraphicsTextureViewPtr XE::GraphicsService::TextureCreateView( XE::GraphicsTexturePtr texture, const XE::GraphicsTextureViewDescriptor & descriptor )
 {
 	auto view = _p->_TextureViews.Alloc();
 
@@ -2023,8 +2078,8 @@ XE::GraphicsTextureViewRPtr XE::GraphicsService::TextureCreateView( XE::Graphics
 			break;
 		}
 
-		view->UAVHandle = texture->Parent->UAVAllocator.Alloc();
-		view->UAVCPUHandle.ptr = texture->Parent->UAVHeap->GetCPUDescriptorHandleForHeapStart().ptr + view->UAVHandle.GetValue() * texture->Parent->UAVItemSize;
+		view->UAVHandle = texture->Parent->CSUAllocator.Alloc();
+		view->UAVCPUHandle.ptr = texture->Parent->CSUHeap->GetCPUDescriptorHandleForHeapStart().ptr + view->UAVHandle.GetValue() * texture->Parent->CSUItemSize;
 
 		texture->Parent->Raw->CreateUnorderedAccessView( texture->Raw.Get(), nullptr, &uav_desc, view->UAVCPUHandle );
 	}
@@ -2141,8 +2196,8 @@ XE::GraphicsTextureViewRPtr XE::GraphicsService::TextureCreateView( XE::Graphics
 			break;
 		}
 
-		view->SRVHandle = texture->Parent->SRVAllocator.Alloc();
-		view->SRVCPUHandle.ptr = texture->Parent->SRVHeap->GetCPUDescriptorHandleForHeapStart().ptr + view->SRVHandle.GetValue() * texture->Parent->SRVItemSize;
+		view->SRVHandle = texture->Parent->CSUAllocator.Alloc();
+		view->SRVCPUHandle.ptr = texture->Parent->CSUHeap->GetCPUDescriptorHandleForHeapStart().ptr + view->SRVHandle.GetValue() * texture->Parent->CSUItemSize;
 
 		texture->Parent->Raw->CreateShaderResourceView( texture->Raw.Get(), &srv_desc, view->SRVCPUHandle );
 	}
@@ -2289,21 +2344,22 @@ XE::GraphicsTextureViewRPtr XE::GraphicsService::TextureCreateView( XE::Graphics
 	return view;
 }
 
-void XE::GraphicsService::DeviceEnumerateFeatures( XE::GraphicsDeviceRPtr device, XE::Array< XE::GraphicsFeatureName > & features )
+void XE::GraphicsService::DeviceEnumerateFeatures( XE::GraphicsDevicePtr device, XE::Array< XE::GraphicsFeatureName > & features )
 {
-
+	// TODO: 
 }
 
-bool XE::GraphicsService::DeviceGetLimits( XE::GraphicsDeviceRPtr device, XE::GraphicsSupportedLimits & limits )
+bool XE::GraphicsService::DeviceGetLimits( XE::GraphicsDevicePtr device, XE::GraphicsSupportedLimits & limits )
 {
+	// TODO: 
 	return {};
 }
 
-XE::GraphicsQueueRPtr XE::GraphicsService::DeviceGetQueue( XE::GraphicsDeviceRPtr device )
+XE::GraphicsQueuePtr XE::GraphicsService::DeviceGetQueue( XE::GraphicsDevicePtr device )
 {
 	if ( device->Queue )
 	{
-		return XE::GraphicsQueueRPtr( device->Queue );
+		return XE::GraphicsQueuePtr( device->Queue );
 	}
 
 	auto queue = _p->_Queues.Alloc();
@@ -2315,38 +2371,40 @@ XE::GraphicsQueueRPtr XE::GraphicsService::DeviceGetQueue( XE::GraphicsDeviceRPt
 
 	if ( SUCCEEDED( device->Raw->CreateFence( 0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS( queue->Fence.GetAddressOf() ) ) ) )
 	{
-		return XE::GraphicsQueueRPtr( device->Queue );
+		return XE::GraphicsQueuePtr( device->Queue );
 	}
 
 	return {};
 }
 
-bool XE::GraphicsService::DeviceHasFeature( XE::GraphicsDeviceRPtr device, XE::GraphicsFeatureName feature )
+bool XE::GraphicsService::DeviceHasFeature( XE::GraphicsDevicePtr device, XE::GraphicsFeatureName feature )
 {
+	// TODO: 
 	return {};
 }
 
-bool XE::GraphicsService::DevicePopErrorScope( XE::GraphicsDeviceRPtr device, ErrorCallback callback )
+bool XE::GraphicsService::DevicePopErrorScope( XE::GraphicsDevicePtr device, ErrorCallback callback )
 {
+	// TODO: 
 	return {};
 }
 
-void XE::GraphicsService::DevicePushErrorScope( XE::GraphicsDeviceRPtr device, XE::GraphicsErrorFilter filter )
+void XE::GraphicsService::DevicePushErrorScope( XE::GraphicsDevicePtr device, XE::GraphicsErrorFilter filter )
 {
-
+	// TODO: 
 }
 
-void XE::GraphicsService::DeviceSetDeviceLostCallback( XE::GraphicsDeviceRPtr device, DeviceLostCallback callback )
+void XE::GraphicsService::DeviceSetDeviceLostCallback( XE::GraphicsDevicePtr device, DeviceLostCallback callback )
 {
-
+	// TODO: 
 }
 
-void XE::GraphicsService::DeviceSetUncapturedErrorCallback( XE::GraphicsDeviceRPtr device, ErrorCallback callback )
+void XE::GraphicsService::DeviceSetUncapturedErrorCallback( XE::GraphicsDevicePtr device, ErrorCallback callback )
 {
-
+	// TODO: 
 }
 
-void XE::GraphicsService::QueueOnSubmittedWorkDone( XE::GraphicsQueueRPtr queue, QueueWorkDoneCallback callback )
+void XE::GraphicsService::QueueOnSubmittedWorkDone( XE::GraphicsQueuePtr queue, QueueWorkDoneCallback callback )
 {
 	UINT64 value = queue->Fence->GetCompletedValue();
 	if ( value == 0 )
@@ -2381,7 +2439,7 @@ void XE::GraphicsService::QueueOnSubmittedWorkDone( XE::GraphicsQueueRPtr queue,
 	callback( XE::GraphicsQueueWorkDoneStatus::ERROR );
 }
 
-void XE::GraphicsService::QueueSubmit( XE::GraphicsQueueRPtr queue, const XE::Array< XE::GraphicsCommandBufferRPtr > & commands )
+void XE::GraphicsService::QueueSubmit( XE::GraphicsQueuePtr queue, const XE::Array< XE::GraphicsCommandBufferPtr > & commands )
 {
 	queue->FreeBufferList.insert( queue->FreeBufferList.end(), commands.begin(), commands.end() );
 
@@ -2395,28 +2453,28 @@ void XE::GraphicsService::QueueSubmit( XE::GraphicsQueueRPtr queue, const XE::Ar
 	queue->Raw->ExecuteCommandLists( lists.size(), lists.data() );
 }
 
-void XE::GraphicsService::QueueWriteBuffer( XE::GraphicsQueueRPtr queue, XE::GraphicsBufferRPtr buffer, XE::uint64 buffer_offset, XE::MemoryView data )
+void XE::GraphicsService::QueueWriteBuffer( XE::GraphicsQueuePtr queue, XE::GraphicsBufferPtr buffer, XE::uint64 buffer_offset, XE::MemoryView data )
 {
-
+	// TODO: 
 }
 
-void XE::GraphicsService::QueueWriteTexture( XE::GraphicsQueueRPtr queue, const XE::GraphicsImageCopyTexture & dst, XE::MemoryView data, const XE::GraphicsTextureDataLayout & data_layout, const XE::Vec3f & write_size )
+void XE::GraphicsService::QueueWriteTexture( XE::GraphicsQueuePtr queue, const XE::GraphicsImageCopyTexture & dst, XE::MemoryView data, const XE::GraphicsTextureDataLayout & data_layout, const XE::Vec3f & write_size )
 {
-
+	// TODO: 
 }
 
-void XE::GraphicsService::BufferMapAsync( XE::GraphicsBufferRPtr buffer, XE::GraphicsMapModeFlags mode, size_t offset, size_t size, BufferMapCallback callback, void * userdata )
+void XE::GraphicsService::BufferMapAsync( XE::GraphicsBufferPtr buffer, XE::GraphicsMapModeFlags mode, size_t offset, size_t size, BufferMapCallback callback, void * userdata )
 {
-
+	// TODO: 
 }
 
-XE::Span< const XE::uint8 > XE::GraphicsService::BufferGetConstMappedRange( XE::GraphicsBufferRPtr buffer, XE::uint64 offset, XE::uint64 size )
+XE::Span< const XE::uint8 > XE::GraphicsService::BufferGetConstMappedRange( XE::GraphicsBufferPtr buffer, XE::uint64 offset, XE::uint64 size )
 {
 	auto data = BufferGetMappedRange( buffer, offset, size );
 	return { data.data(), data.size() };
 }
 
-XE::Span< XE::uint8 > XE::GraphicsService::BufferGetMappedRange( XE::GraphicsBufferRPtr buffer, XE::uint64 offset, XE::uint64 size )
+XE::Span< XE::uint8 > XE::GraphicsService::BufferGetMappedRange( XE::GraphicsBufferPtr buffer, XE::uint64 offset, XE::uint64 size )
 {
 	buffer->MapRange.Begin = offset;
 	buffer->MapRange.End = offset + size;
@@ -2430,12 +2488,12 @@ XE::Span< XE::uint8 > XE::GraphicsService::BufferGetMappedRange( XE::GraphicsBuf
 	return {};
 }
 
-void XE::GraphicsService::BufferUnmap( XE::GraphicsBufferRPtr buffer )
+void XE::GraphicsService::BufferUnmap( XE::GraphicsBufferPtr buffer )
 {
 	buffer->Raw->Unmap( 0, &buffer->MapRange );
 }
 
-XE::GraphicsComputePassEncoderRPtr XE::GraphicsService::CommandEncoderBeginComputePass( XE::GraphicsCommandEncoderRPtr command_encoder, const XE::GraphicsComputePassDescriptor & descriptor )
+XE::GraphicsComputePassEncoderPtr XE::GraphicsService::CommandEncoderBeginComputePass( XE::GraphicsCommandEncoderPtr command_encoder, const XE::GraphicsComputePassDescriptor & descriptor )
 {
 	D3D12CommandListPtr list = command_encoder->Raw;
 
@@ -2454,7 +2512,7 @@ XE::GraphicsComputePassEncoderRPtr XE::GraphicsService::CommandEncoderBeginCompu
 	return pass;
 }
 
-XE::GraphicsRenderPassEncoderRPtr XE::GraphicsService::CommandEncoderBeginRenderPass( XE::GraphicsCommandEncoderRPtr command_encoder, const XE::GraphicsRenderPassDescriptor & descriptor )
+XE::GraphicsRenderPassEncoderPtr XE::GraphicsService::CommandEncoderBeginRenderPass( XE::GraphicsCommandEncoderPtr command_encoder, const XE::GraphicsRenderPassDescriptor & descriptor )
 {
 	D3D12CommandListPtr list = command_encoder->Raw;
 
@@ -2473,12 +2531,12 @@ XE::GraphicsRenderPassEncoderRPtr XE::GraphicsService::CommandEncoderBeginRender
 	return pass;
 }
 
-void XE::GraphicsService::CommandEncoderCopyBufferToBuffer( XE::GraphicsCommandEncoderRPtr command_encoder, XE::GraphicsBufferRPtr src, XE::uint64 src_offset, XE::GraphicsBufferRPtr dst, XE::uint64 dst_offset, XE::uint64 size )
+void XE::GraphicsService::CommandEncoderCopyBufferToBuffer( XE::GraphicsCommandEncoderPtr command_encoder, XE::GraphicsBufferPtr src, XE::uint64 src_offset, XE::GraphicsBufferPtr dst, XE::uint64 dst_offset, XE::uint64 size )
 {
 	command_encoder->Raw->CopyBufferRegion( dst->Raw.Get(), dst_offset, src->Raw.Get(), src_offset, size );
 }
 
-void XE::GraphicsService::CommandEncoderCopyBufferToTexture( XE::GraphicsCommandEncoderRPtr command_encoder, const XE::GraphicsImageCopyBuffer & src, const XE::GraphicsImageCopyTexture & dst, const XE::Vec3f & copy_size )
+void XE::GraphicsService::CommandEncoderCopyBufferToTexture( XE::GraphicsCommandEncoderPtr command_encoder, const XE::GraphicsImageCopyBuffer & src, const XE::GraphicsImageCopyTexture & dst, const XE::Vec3f & copy_size )
 {
 	D3D12_BOX box = {};
 	{
@@ -2513,7 +2571,7 @@ void XE::GraphicsService::CommandEncoderCopyBufferToTexture( XE::GraphicsCommand
 	command_encoder->Raw->CopyTextureRegion( &dst_location, dst.Origin.x, dst.Origin.y, dst.Origin.z, &src_location, &box );
 }
 
-void XE::GraphicsService::CommandEncoderCopyTextureToBuffer( XE::GraphicsCommandEncoderRPtr command_encoder, const XE::GraphicsImageCopyTexture & src, const XE::GraphicsImageCopyBuffer & dst, const XE::Vec3f & copy_size )
+void XE::GraphicsService::CommandEncoderCopyTextureToBuffer( XE::GraphicsCommandEncoderPtr command_encoder, const XE::GraphicsImageCopyTexture & src, const XE::GraphicsImageCopyBuffer & dst, const XE::Vec3f & copy_size )
 {
 	D3D12_BOX box = {};
 	{
@@ -2548,7 +2606,7 @@ void XE::GraphicsService::CommandEncoderCopyTextureToBuffer( XE::GraphicsCommand
 	command_encoder->Raw->CopyTextureRegion( &dst_location, 0, 0, 0, &src_location, &box );
 }
 
-void XE::GraphicsService::CommandEncoderCopyTextureToTexture( XE::GraphicsCommandEncoderRPtr command_encoder, const XE::GraphicsImageCopyTexture & src, const XE::GraphicsImageCopyTexture & dst, const XE::Vec3f & copy_size )
+void XE::GraphicsService::CommandEncoderCopyTextureToTexture( XE::GraphicsCommandEncoderPtr command_encoder, const XE::GraphicsImageCopyTexture & src, const XE::GraphicsImageCopyTexture & dst, const XE::Vec3f & copy_size )
 {
 	D3D12_BOX box = {};
 	{
@@ -2579,7 +2637,7 @@ void XE::GraphicsService::CommandEncoderCopyTextureToTexture( XE::GraphicsComman
 	command_encoder->Raw->CopyTextureRegion( &dst_location, dst.Origin.x, dst.Origin.y, dst.Origin.z, &src_location, &box );
 }
 
-XE::GraphicsCommandBufferRPtr XE::GraphicsService::CommandEncoderFinish( XE::GraphicsCommandEncoderRPtr command_encoder, const XE::GraphicsCommandBufferDescriptor & descriptor )
+XE::GraphicsCommandBufferPtr XE::GraphicsService::CommandEncoderFinish( XE::GraphicsCommandEncoderPtr command_encoder, const XE::GraphicsCommandBufferDescriptor & descriptor )
 {
 	command_encoder->Raw->Close();
 	auto list = command_encoder->Raw;
@@ -2594,286 +2652,355 @@ XE::GraphicsCommandBufferRPtr XE::GraphicsService::CommandEncoderFinish( XE::Gra
 	return buf;
 }
 
-void XE::GraphicsService::CommandEncoderInsertDebugMarker( XE::GraphicsCommandEncoderRPtr command_encoder, const XE::String & marker_label )
+void XE::GraphicsService::CommandEncoderInsertDebugMarker( XE::GraphicsCommandEncoderPtr command_encoder, const XE::String & marker_label )
 {
 	command_encoder->Raw->SetMarker( 0, marker_label.c_str(), marker_label.size() );
 }
 
-void XE::GraphicsService::CommandEncoderPopDebugGroup( XE::GraphicsCommandEncoderRPtr command_encoder )
+void XE::GraphicsService::CommandEncoderPopDebugGroup( XE::GraphicsCommandEncoderPtr command_encoder )
 {
 	command_encoder->Raw->EndEvent();
 }
 
-void XE::GraphicsService::CommandEncoderPushDebugGroup( XE::GraphicsCommandEncoderRPtr command_encoder, const XE::String & group_label )
+void XE::GraphicsService::CommandEncoderPushDebugGroup( XE::GraphicsCommandEncoderPtr command_encoder, const XE::String & group_label )
 {
 	command_encoder->Raw->BeginEvent( 0, group_label.c_str(), group_label.size() );
 }
 
-void XE::GraphicsService::CommandEncoderResolveQuerySet( XE::GraphicsCommandEncoderRPtr command_encoder, XE::GraphicsQuerySetRPtr query_set, XE::uint32 first_query, XE::uint32 query_count, XE::GraphicsBufferRPtr dst, XE::uint64 dst_offset )
+void XE::GraphicsService::CommandEncoderResolveQuerySet( XE::GraphicsCommandEncoderPtr command_encoder, XE::GraphicsQuerySetPtr query_set, XE::uint32 first_query, XE::uint32 query_count, XE::GraphicsBufferPtr dst, XE::uint64 dst_offset )
 {
-	command_encoder->Raw->ResolveQueryData( query_set->QueryHeap.Get(), Cast( query_set->Desc.Type ), first_query, query_count, dst->Raw.Get(), dst_offset );
+	command_encoder->Raw->ResolveQueryData( query_set->Raw.Get(), Cast( query_set->Desc.Type ), first_query, query_count, dst->Raw.Get(), dst_offset );
 }
 
-void XE::GraphicsService::CommandEncoderWriteTimestamp( XE::GraphicsCommandEncoderRPtr command_encoder, XE::GraphicsQuerySetRPtr query_set, XE::uint32 query_index )
+void XE::GraphicsService::CommandEncoderWriteTimestamp( XE::GraphicsCommandEncoderPtr command_encoder, XE::GraphicsQuerySetPtr query_set, XE::uint32 query_index )
 {
-	command_encoder->Raw->EndQuery( query_set->QueryHeap.Get(), D3D12_QUERY_TYPE_TIMESTAMP, query_index );
+	command_encoder->Raw->EndQuery( query_set->Raw.Get(), D3D12_QUERY_TYPE_TIMESTAMP, query_index );
 }
 
-void XE::GraphicsService::ComputePassEncoderBeginPipelineStatisticsQuery( XE::GraphicsComputePassEncoderRPtr compute_pass_encoder, XE::GraphicsQuerySetRPtr query_set, XE::uint32 query_index )
+void XE::GraphicsService::ComputePassEncoderBeginPipelineStatisticsQuery( XE::GraphicsComputePassEncoderPtr compute_pass_encoder, XE::GraphicsQuerySetPtr query_set, XE::uint32 query_index )
 {
 	compute_pass_encoder->QuerySet = query_set;
 	compute_pass_encoder->QueryIndex = query_index;
-	compute_pass_encoder->Parent->Raw->BeginQuery( query_set->QueryHeap.Get(), D3D12_QUERY_TYPE_PIPELINE_STATISTICS, query_index );
+	compute_pass_encoder->Raw->BeginQuery( query_set->Raw.Get(), D3D12_QUERY_TYPE_PIPELINE_STATISTICS, query_index );
 }
 
-void XE::GraphicsService::ComputePassEncoderDispatch( XE::GraphicsComputePassEncoderRPtr compute_pass_encoder, XE::uint32 workgroup_count_x, XE::uint32 workgroup_count_y, XE::uint32 workgroup_count_z )
+void XE::GraphicsService::ComputePassEncoderDispatch( XE::GraphicsComputePassEncoderPtr compute_pass_encoder, XE::uint32 workgroup_count_x, XE::uint32 workgroup_count_y, XE::uint32 workgroup_count_z )
 {
-	compute_pass_encoder->Parent->Raw->Dispatch( workgroup_count_x, workgroup_count_y, workgroup_count_z );
+	compute_pass_encoder->Raw->Dispatch( workgroup_count_x, workgroup_count_y, workgroup_count_z );
 }
 
-void XE::GraphicsService::ComputePassEncoderDispatchIndirect( XE::GraphicsComputePassEncoderRPtr compute_pass_encoder, XE::GraphicsBufferRPtr indirect_buffer, XE::uint64 indirect_offset )
+void XE::GraphicsService::ComputePassEncoderDispatchIndirect( XE::GraphicsComputePassEncoderPtr compute_pass_encoder, XE::GraphicsBufferPtr indirect_buffer, XE::uint64 indirect_offset )
 {
-	compute_pass_encoder->Parent->Raw->ExecuteIndirect( compute_pass_encoder->Parent->Parent->DispatchIndirectSignature.Get(), 1, indirect_buffer->Raw.Get(), indirect_offset, nullptr, 0 );
+	compute_pass_encoder->Raw->ExecuteIndirect( compute_pass_encoder->Parent->Parent->DispatchIndirectSignature.Get(), 1, indirect_buffer->Raw.Get(), indirect_offset, nullptr, 0 );
 }
 
-void XE::GraphicsService::ComputePassEncoderEnd( XE::GraphicsComputePassEncoderRPtr compute_pass_encoder )
+void XE::GraphicsService::ComputePassEncoderEnd( XE::GraphicsComputePassEncoderPtr compute_pass_encoder )
 {
-	compute_pass_encoder->Parent->Raw->SetDescriptorHeaps( 0, nullptr );
-	compute_pass_encoder->Parent->Raw->EndEvent();
+	compute_pass_encoder->Raw->SetDescriptorHeaps( 0, nullptr );
+	compute_pass_encoder->Raw->EndEvent();
 }
 
-void XE::GraphicsService::ComputePassEncoderEndPipelineStatisticsQuery( XE::GraphicsComputePassEncoderRPtr compute_pass_encoder )
+void XE::GraphicsService::ComputePassEncoderEndPipelineStatisticsQuery( XE::GraphicsComputePassEncoderPtr compute_pass_encoder )
 {
-	compute_pass_encoder->Parent->Raw->EndQuery( compute_pass_encoder->QuerySet->QueryHeap.Get(), D3D12_QUERY_TYPE_PIPELINE_STATISTICS, compute_pass_encoder->QueryIndex );
+	compute_pass_encoder->Raw->EndQuery( compute_pass_encoder->QuerySet->Raw.Get(), D3D12_QUERY_TYPE_PIPELINE_STATISTICS, compute_pass_encoder->QueryIndex );
 
 	compute_pass_encoder->QuerySet = {};
 	compute_pass_encoder->QueryIndex = 0;
 }
 
-void XE::GraphicsService::ComputePassEncoderInsertDebugMarker( XE::GraphicsComputePassEncoderRPtr compute_pass_encoder, const XE::String & marker_label )
+void XE::GraphicsService::ComputePassEncoderInsertDebugMarker( XE::GraphicsComputePassEncoderPtr compute_pass_encoder, const XE::String & marker_label )
 {
-	compute_pass_encoder->Parent->Raw->SetMarker( 0, marker_label.c_str(), marker_label.size() );
+	compute_pass_encoder->Raw->SetMarker( 0, marker_label.c_str(), marker_label.size() );
 }
 
-void XE::GraphicsService::ComputePassEncoderPopDebugGroup( XE::GraphicsComputePassEncoderRPtr compute_pass_encoder )
+void XE::GraphicsService::ComputePassEncoderPopDebugGroup( XE::GraphicsComputePassEncoderPtr compute_pass_encoder )
 {
-	compute_pass_encoder->Parent->Raw->EndEvent();
+	compute_pass_encoder->Raw->EndEvent();
 }
 
-void XE::GraphicsService::ComputePassEncoderPushDebugGroup( XE::GraphicsComputePassEncoderRPtr compute_pass_encoder, const XE::String & group_label )
+void XE::GraphicsService::ComputePassEncoderPushDebugGroup( XE::GraphicsComputePassEncoderPtr compute_pass_encoder, const XE::String & group_label )
 {
-	compute_pass_encoder->Parent->Raw->BeginEvent( 0, group_label.c_str(), group_label.size() );
+	compute_pass_encoder->Raw->BeginEvent( 0, group_label.c_str(), group_label.size() );
 }
 
-void XE::GraphicsService::ComputePassEncoderSetBindGroup( XE::GraphicsComputePassEncoderRPtr compute_pass_encoder, XE::uint32 group_index, XE::GraphicsBindGroupRPtr group, XE::uint32 dynamic_offset_count, XE::uint32 & dynamic_offsets )
+void XE::GraphicsService::ComputePassEncoderSetBindGroup( XE::GraphicsComputePassEncoderPtr compute_pass_encoder, XE::uint32 group_index, XE::GraphicsBindGroupPtr group, XE::uint32 dynamic_offset_count, XE::uint32 & dynamic_offsets )
 {
-
+	// TODO: 
 }
 
-void XE::GraphicsService::ComputePassEncoderSetPipeline( XE::GraphicsComputePassEncoderRPtr compute_pass_encoder, XE::GraphicsComputePipelineRPtr pipeline )
+void XE::GraphicsService::ComputePassEncoderSetPipeline( XE::GraphicsComputePassEncoderPtr compute_pass_encoder, XE::GraphicsComputePipelinePtr pipeline )
 {
-	compute_pass_encoder->Parent->Raw->SetComputeRootSignature( pipeline->Desc.Layout->Raw.Get() );
-	compute_pass_encoder->Parent->Raw->SetPipelineState( pipeline->Raw.Get() );
+	compute_pass_encoder->Raw->SetComputeRootSignature( pipeline->Desc.Layout->Raw.Get() );
+	compute_pass_encoder->Raw->SetPipelineState( pipeline->Raw.Get() );
 }
 
-void XE::GraphicsService::RenderPassEncoderBeginOcclusionQuery( XE::GraphicsRenderPassEncoderRPtr render_pass_encoder, XE::uint32 query_index )
+void XE::GraphicsService::RenderPassEncoderBeginOcclusionQuery( XE::GraphicsRenderPassEncoderPtr render_pass_encoder, XE::GraphicsQuerySetPtr query_set, XE::uint32 query_index )
 {
-
+	render_pass_encoder->OcclusionQuery = query_set;
+	render_pass_encoder->OcclusionQueryIndex = query_index;
+	render_pass_encoder->Raw->BeginQuery( query_set->Raw.Get(), D3D12_QUERY_TYPE_OCCLUSION, query_index );
 }
 
-void XE::GraphicsService::RenderPassEncoderBeginPipelineStatisticsQuery( XE::GraphicsRenderPassEncoderRPtr render_pass_encoder, XE::GraphicsQuerySetRPtr query_set, XE::uint32 query_index )
+void XE::GraphicsService::RenderPassEncoderBeginPipelineStatisticsQuery( XE::GraphicsRenderPassEncoderPtr render_pass_encoder, XE::GraphicsQuerySetPtr query_set, XE::uint32 query_index )
 {
-
+	render_pass_encoder->PipelineStatisticsQuery = query_set;
+	render_pass_encoder->PipelineStatisticsQueryIndex = query_index;
+	render_pass_encoder->Raw->BeginQuery( query_set->Raw.Get(), D3D12_QUERY_TYPE_PIPELINE_STATISTICS, query_index );
 }
 
-void XE::GraphicsService::RenderPassEncoderDraw( XE::GraphicsRenderPassEncoderRPtr render_pass_encoder, XE::uint32 vertex_count, XE::uint32 instance_count, XE::uint32 first_vertex, XE::uint32 first_instance )
+void XE::GraphicsService::RenderPassEncoderDraw( XE::GraphicsRenderPassEncoderPtr render_pass_encoder, XE::uint32 vertex_count, XE::uint32 instance_count, XE::uint32 first_vertex, XE::uint32 first_instance )
 {
-
+	render_pass_encoder->Raw->DrawInstanced( vertex_count, instance_count, first_vertex, first_instance );
 }
 
-void XE::GraphicsService::RenderPassEncoderDrawIndexed( XE::GraphicsRenderPassEncoderRPtr render_pass_encoder, XE::uint32 index_count, XE::uint32 instance_count, XE::uint32 first_index, XE::int32 base_vertex, XE::uint32 first_instance )
+void XE::GraphicsService::RenderPassEncoderDrawIndexed( XE::GraphicsRenderPassEncoderPtr render_pass_encoder, XE::uint32 index_count, XE::uint32 instance_count, XE::uint32 first_index, XE::int32 base_vertex, XE::uint32 first_instance )
 {
-
+	render_pass_encoder->Raw->DrawIndexedInstanced( index_count, instance_count, first_index, base_vertex, first_instance );
 }
 
-void XE::GraphicsService::RenderPassEncoderDrawIndexedIndirect( XE::GraphicsRenderPassEncoderRPtr render_pass_encoder, XE::GraphicsBufferRPtr indirect_buffer, XE::uint64 indirect_offset )
+void XE::GraphicsService::RenderPassEncoderDrawIndexedIndirect( XE::GraphicsRenderPassEncoderPtr render_pass_encoder, XE::GraphicsBufferPtr indirect_buffer, XE::uint64 indirect_offset )
 {
-
+	render_pass_encoder->Raw->ExecuteIndirect( render_pass_encoder->Parent->Parent->DrawIndexedIndirectSignature.Get(), 1, indirect_buffer->Raw.Get(), indirect_offset, nullptr, 0 );
 }
 
-void XE::GraphicsService::RenderPassEncoderDrawIndirect( XE::GraphicsRenderPassEncoderRPtr render_pass_encoder, XE::GraphicsBufferRPtr indirect_buffer, XE::uint64 indirect_offset )
+void XE::GraphicsService::RenderPassEncoderDrawIndirect( XE::GraphicsRenderPassEncoderPtr render_pass_encoder, XE::GraphicsBufferPtr indirect_buffer, XE::uint64 indirect_offset )
 {
-
+	render_pass_encoder->Raw->ExecuteIndirect( render_pass_encoder->Parent->Parent->DrawIndirectSignature.Get(), 1, indirect_buffer->Raw.Get(), indirect_offset, nullptr, 0 );
 }
 
-void XE::GraphicsService::RenderPassEncoderEnd( XE::GraphicsRenderPassEncoderRPtr render_pass_encoder )
+void XE::GraphicsService::RenderPassEncoderEnd( XE::GraphicsRenderPassEncoderPtr render_pass_encoder )
 {
-
+	render_pass_encoder->Raw->SetDescriptorHeaps( 0, nullptr );
+	render_pass_encoder->Raw->EndEvent();
 }
 
-void XE::GraphicsService::RenderPassEncoderEndOcclusionQuery( XE::GraphicsRenderPassEncoderRPtr render_pass_encoder )
+void XE::GraphicsService::RenderPassEncoderEndOcclusionQuery( XE::GraphicsRenderPassEncoderPtr render_pass_encoder )
 {
-
+	render_pass_encoder->Raw->EndQuery( render_pass_encoder->OcclusionQuery->Raw.Get(), D3D12_QUERY_TYPE_OCCLUSION, render_pass_encoder->OcclusionQueryIndex );
+	render_pass_encoder->OcclusionQueryIndex = 0;
+	render_pass_encoder->OcclusionQuery = nullptr;
 }
 
-void XE::GraphicsService::RenderPassEncoderEndPipelineStatisticsQuery( XE::GraphicsRenderPassEncoderRPtr render_pass_encoder )
+void XE::GraphicsService::RenderPassEncoderEndPipelineStatisticsQuery( XE::GraphicsRenderPassEncoderPtr render_pass_encoder )
 {
-
+	render_pass_encoder->Raw->EndQuery( render_pass_encoder->PipelineStatisticsQuery->Raw.Get(), D3D12_QUERY_TYPE_PIPELINE_STATISTICS, render_pass_encoder->PipelineStatisticsQueryIndex );
+	render_pass_encoder->PipelineStatisticsQueryIndex = 0;
+	render_pass_encoder->PipelineStatisticsQuery = nullptr;
 }
 
-void XE::GraphicsService::RenderPassEncoderExecuteBundles( XE::GraphicsRenderPassEncoderRPtr render_pass_encoder, const XE::Array< XE::GraphicsRenderBundleRPtr > & bundles )
+void XE::GraphicsService::RenderPassEncoderExecuteBundles( XE::GraphicsRenderPassEncoderPtr render_pass_encoder, const XE::Array< XE::GraphicsRenderBundlePtr > & bundles )
 {
-
+	for ( const auto & it : bundles )
+	{
+		render_pass_encoder->Raw->ExecuteBundle( it->Raw.Get() );
+	}
 }
 
-void XE::GraphicsService::RenderPassEncoderInsertDebugMarker( XE::GraphicsRenderPassEncoderRPtr render_pass_encoder, const XE::String & marker_label )
+void XE::GraphicsService::RenderPassEncoderInsertDebugMarker( XE::GraphicsRenderPassEncoderPtr render_pass_encoder, const XE::String & marker_label )
 {
-
+	render_pass_encoder->Raw->SetMarker( 0, marker_label.c_str(), marker_label.size() );
 }
 
-void XE::GraphicsService::RenderPassEncoderPopDebugGroup( XE::GraphicsRenderPassEncoderRPtr render_pass_encoder )
+void XE::GraphicsService::RenderPassEncoderPopDebugGroup( XE::GraphicsRenderPassEncoderPtr render_pass_encoder )
 {
-
+	render_pass_encoder->Raw->EndEvent();
 }
 
-void XE::GraphicsService::RenderPassEncoderPushDebugGroup( XE::GraphicsRenderPassEncoderRPtr render_pass_encoder, const XE::String & group_label )
+void XE::GraphicsService::RenderPassEncoderPushDebugGroup( XE::GraphicsRenderPassEncoderPtr render_pass_encoder, const XE::String & group_label )
 {
-
+	render_pass_encoder->Raw->BeginEvent( 0, group_label.c_str(), group_label.size() );
 }
 
-void XE::GraphicsService::RenderPassEncoderSetBindGroup( XE::GraphicsRenderPassEncoderRPtr render_pass_encoder, XE::uint32 group_index, XE::GraphicsBindGroupRPtr group, XE::uint32 dynamic_offset_count, XE::uint32 & dynamic_offsets )
+void XE::GraphicsService::RenderPassEncoderSetBindGroup( XE::GraphicsRenderPassEncoderPtr render_pass_encoder, XE::uint32 group_index, XE::GraphicsBindGroupPtr group, XE::uint32 dynamic_offset_count, XE::uint32 & dynamic_offsets )
 {
-
+	// TODO: 
 }
 
-void XE::GraphicsService::RenderPassEncoderSetBlendConstant( XE::GraphicsRenderPassEncoderRPtr render_pass_encoder, const XE::Color & color )
+void XE::GraphicsService::RenderPassEncoderSetBlendConstant( XE::GraphicsRenderPassEncoderPtr render_pass_encoder, const XE::Color & color )
 {
-
+	XE::FColor fc = color;
+	render_pass_encoder->Raw->OMSetBlendFactor( fc.d );
 }
 
-void XE::GraphicsService::RenderPassEncoderSetIndexBuffer( XE::GraphicsRenderPassEncoderRPtr render_pass_encoder, XE::GraphicsBufferRPtr buffer, XE::GraphicsIndexFormat format, XE::uint64 offset, XE::uint64 size )
+void XE::GraphicsService::RenderPassEncoderSetIndexBuffer( XE::GraphicsRenderPassEncoderPtr render_pass_encoder, XE::GraphicsBufferPtr buffer, XE::GraphicsIndexFormat format, XE::uint64 offset, XE::uint64 size )
 {
+	D3D12_INDEX_BUFFER_VIEW view = {};
+	{
+		view.BufferLocation = buffer->Raw->GetGPUVirtualAddress();
+		view.SizeInBytes = buffer->Desc.Size;
+		view.Format = Cast( format );
+	}
 
+	render_pass_encoder->Raw->IASetIndexBuffer( &view );
 }
 
-void XE::GraphicsService::RenderPassEncoderSetPipeline( XE::GraphicsRenderPassEncoderRPtr render_pass_encoder, XE::GraphicsRenderPipelineRPtr pipeline )
+void XE::GraphicsService::RenderPassEncoderSetPipeline( XE::GraphicsRenderPassEncoderPtr render_pass_encoder, XE::GraphicsRenderPipelinePtr pipeline )
 {
-
+	render_pass_encoder->Raw->SetComputeRootSignature( pipeline->Desc.Layout->Raw.Get() );
+	render_pass_encoder->Raw->SetPipelineState( pipeline->Raw.Get() );
 }
 
-void XE::GraphicsService::RenderPassEncoderSetScissorRect( XE::GraphicsRenderPassEncoderRPtr render_pass_encoder, const XE::Recti & rect )
+void XE::GraphicsService::RenderPassEncoderSetScissorRect( XE::GraphicsRenderPassEncoderPtr render_pass_encoder, const XE::Recti & rect )
 {
+	D3D12_RECT r = {};
+	{
+		r.left = rect.GetLeft();
+		r.right = rect.GetRight();
+		r.top = rect.GetTop();
+		r.bottom = rect.GetBottom();
+	}
 
+	render_pass_encoder->Raw->RSSetScissorRects( 1, &r );
 }
 
-void XE::GraphicsService::RenderPassEncoderSetStencilReference( XE::GraphicsRenderPassEncoderRPtr render_pass_encoder, XE::uint32 reference )
+void XE::GraphicsService::RenderPassEncoderSetStencilReference( XE::GraphicsRenderPassEncoderPtr render_pass_encoder, XE::uint32 reference )
 {
-
+	render_pass_encoder->Raw->OMSetStencilRef( reference );
 }
 
-void XE::GraphicsService::RenderPassEncoderSetVertexBuffer( XE::GraphicsRenderPassEncoderRPtr render_pass_encoder, XE::uint32 slot, XE::GraphicsBufferRPtr buffer, XE::uint64 offset, XE::uint64 size )
+void XE::GraphicsService::RenderPassEncoderSetVertexBuffer( XE::GraphicsRenderPassEncoderPtr render_pass_encoder, XE::uint32 slot, XE::GraphicsBufferPtr buffer, XE::uint64 offset, XE::uint64 size )
 {
+	D3D12_VERTEX_BUFFER_VIEW view = {};
+	{
+		view.BufferLocation = buffer->Raw->GetGPUVirtualAddress();
+		view.SizeInBytes = buffer->Desc.Size;
+	}
 
+	if ( render_pass_encoder->VertexBuffers.size() <= slot )
+	{
+		render_pass_encoder->VertexBuffers.resize( slot );
+	}
+
+	render_pass_encoder->VertexBuffers[slot] = view;
 }
 
-void XE::GraphicsService::RenderPassEncoderSetViewport( XE::GraphicsRenderPassEncoderRPtr render_pass_encoder, XE::float32 x, XE::float32 y, XE::float32 width, XE::float32 height, XE::float32 min_depth, XE::float32 max_depth )
+void XE::GraphicsService::RenderPassEncoderSetViewport( XE::GraphicsRenderPassEncoderPtr render_pass_encoder, XE::float32 x, XE::float32 y, XE::float32 width, XE::float32 height, XE::float32 min_depth, XE::float32 max_depth )
 {
+	D3D12_VIEWPORT view_port = {};
+	{
+		view_port.TopLeftX = x;
+		view_port.TopLeftY = y;
+		view_port.Width = width;
+		view_port.Height = height;
+		view_port.MinDepth = min_depth;
+		view_port.MaxDepth = max_depth;
+	}
 
+	render_pass_encoder->Raw->RSSetViewports( 1, &view_port );
 }
 
-void XE::GraphicsService::RenderBundleEncoderDraw( XE::GraphicsRenderBundleEncoderRPtr render_bundle_encoder, XE::uint32 vertex_count, XE::uint32 instance_count, XE::uint32 first_vertex, XE::uint32 first_instance )
+void XE::GraphicsService::RenderBundleEncoderDraw( XE::GraphicsRenderBundleEncoderPtr render_bundle_encoder, XE::uint32 vertex_count, XE::uint32 instance_count, XE::uint32 first_vertex, XE::uint32 first_instance )
 {
-
+	// TODO: 
 }
 
-void XE::GraphicsService::RenderBundleEncoderDrawIndexed( XE::GraphicsRenderBundleEncoderRPtr render_bundle_encoder, XE::uint32 index_count, XE::uint32 instance_count, XE::uint32 first_index, XE::int32 base_vertex, XE::uint32 first_instance )
+void XE::GraphicsService::RenderBundleEncoderDrawIndexed( XE::GraphicsRenderBundleEncoderPtr render_bundle_encoder, XE::uint32 index_count, XE::uint32 instance_count, XE::uint32 first_index, XE::int32 base_vertex, XE::uint32 first_instance )
 {
-
+	// TODO: 
 }
 
-void XE::GraphicsService::RenderBundleEncoderDrawIndexedIndirect( XE::GraphicsRenderBundleEncoderRPtr render_bundle_encoder, XE::GraphicsBufferRPtr indirect_buffer, XE::uint64 indirect_offset )
+void XE::GraphicsService::RenderBundleEncoderDrawIndexedIndirect( XE::GraphicsRenderBundleEncoderPtr render_bundle_encoder, XE::GraphicsBufferPtr indirect_buffer, XE::uint64 indirect_offset )
 {
-
+	// TODO: 
 }
 
-void XE::GraphicsService::RenderBundleEncoderDrawIndirect( XE::GraphicsRenderBundleEncoderRPtr render_bundle_encoder, XE::GraphicsBufferRPtr indirect_buffer, XE::uint64 indirect_offset )
+void XE::GraphicsService::RenderBundleEncoderDrawIndirect( XE::GraphicsRenderBundleEncoderPtr render_bundle_encoder, XE::GraphicsBufferPtr indirect_buffer, XE::uint64 indirect_offset )
 {
-
+	// TODO: 
 }
 
-XE::GraphicsRenderBundleRPtr XE::GraphicsService::RenderBundleEncoderFinish( XE::GraphicsRenderBundleEncoderRPtr render_bundle_encoder, const XE::GraphicsRenderBundleDescriptor & descriptor )
+XE::GraphicsRenderBundlePtr XE::GraphicsService::RenderBundleEncoderFinish( XE::GraphicsRenderBundleEncoderPtr render_bundle_encoder, const XE::GraphicsRenderBundleDescriptor & descriptor )
 {
+	// TODO: 
 	return {};
 }
 
-void XE::GraphicsService::RenderBundleEncoderInsertDebugMarker( XE::GraphicsRenderBundleEncoderRPtr render_bundle_encoder, const XE::String & marker_label )
+void XE::GraphicsService::RenderBundleEncoderInsertDebugMarker( XE::GraphicsRenderBundleEncoderPtr render_bundle_encoder, const XE::String & marker_label )
 {
-
+	// TODO: 
 }
 
-void XE::GraphicsService::RenderBundleEncoderPopDebugGroup( XE::GraphicsRenderBundleEncoderRPtr render_bundle_encoder )
+void XE::GraphicsService::RenderBundleEncoderPopDebugGroup( XE::GraphicsRenderBundleEncoderPtr render_bundle_encoder )
 {
-
+	// TODO: 
 }
 
-void XE::GraphicsService::RenderBundleEncoderPushDebugGroup( XE::GraphicsRenderBundleEncoderRPtr render_bundle_encoder, const XE::String & group_label )
+void XE::GraphicsService::RenderBundleEncoderPushDebugGroup( XE::GraphicsRenderBundleEncoderPtr render_bundle_encoder, const XE::String & group_label )
 {
-
+	// TODO: 
 }
 
-void XE::GraphicsService::RenderBundleEncoderSetBindGroup( XE::GraphicsRenderBundleEncoderRPtr render_bundle_encoder, XE::uint32 group_index, XE::GraphicsBindGroupRPtr group, XE::uint32 dynamic_offset_count, XE::uint32 & dynamic_offsets )
+void XE::GraphicsService::RenderBundleEncoderSetBindGroup( XE::GraphicsRenderBundleEncoderPtr render_bundle_encoder, XE::uint32 group_index, XE::GraphicsBindGroupPtr group, XE::uint32 dynamic_offset_count, XE::uint32 & dynamic_offsets )
 {
-
+	// TODO: 
 }
 
-void XE::GraphicsService::RenderBundleEncoderSetIndexBuffer( XE::GraphicsRenderBundleEncoderRPtr render_bundle_encoder, XE::GraphicsBufferRPtr buffer, XE::GraphicsIndexFormat format, XE::uint64 offset, XE::uint64 size )
+void XE::GraphicsService::RenderBundleEncoderSetIndexBuffer( XE::GraphicsRenderBundleEncoderPtr render_bundle_encoder, XE::GraphicsBufferPtr buffer, XE::GraphicsIndexFormat format, XE::uint64 offset, XE::uint64 size )
 {
-
+	// TODO: 
 }
 
-void XE::GraphicsService::RenderBundleEncoderSetPipeline( XE::GraphicsRenderBundleEncoderRPtr render_bundle_encoder, XE::GraphicsRenderPipelineRPtr pipeline )
+void XE::GraphicsService::RenderBundleEncoderSetPipeline( XE::GraphicsRenderBundleEncoderPtr render_bundle_encoder, XE::GraphicsRenderPipelinePtr pipeline )
 {
-
+	// TODO: 
 }
 
-void XE::GraphicsService::RenderBundleEncoderSetVertexBuffer( XE::GraphicsRenderBundleEncoderRPtr render_bundle_encoder, XE::uint32 slot, XE::GraphicsBufferRPtr buffer, XE::uint64 offset, XE::uint64 size )
+void XE::GraphicsService::RenderBundleEncoderSetVertexBuffer( XE::GraphicsRenderBundleEncoderPtr render_bundle_encoder, XE::uint32 slot, XE::GraphicsBufferPtr buffer, XE::uint64 offset, XE::uint64 size )
 {
-
+	// TODO: 
 }
 
-XE::GraphicsBindGroupLayoutRPtr XE::GraphicsService::ComputePipelineGetBindGroupLayout( XE::GraphicsComputePipelineRPtr compute_pipeline, XE::uint32 group_index )
+XE::GraphicsBindGroupLayoutPtr XE::GraphicsService::ComputePipelineGetBindGroupLayout( XE::GraphicsComputePipelinePtr compute_pipeline, XE::uint32 group_index )
 {
+	return compute_pipeline->Desc.Layout->Desc.BindGroupLayouts[group_index];
+}
+
+XE::GraphicsBindGroupLayoutPtr XE::GraphicsService::RenderPipelineGetBindGroupLayout( XE::GraphicsRenderPipelinePtr render_pipeline, XE::uint32 group_index )
+{
+	return render_pipeline->Desc.Layout->Desc.BindGroupLayouts[group_index];
+}
+
+void XE::GraphicsService::ShaderModuleGetCompilationInfo( XE::GraphicsShaderModulePtr shader_module, CompilationInfoCallback callback )
+{
+	// TODO: 
+}
+
+void XE::GraphicsService::ShaderModuleSetLabel( XE::GraphicsShaderModulePtr shader_module, const XE::String & label )
+{
+	// TODO: 
+}
+
+XE::GraphicsTextureFormat XE::GraphicsService::SurfaceGetPreferredFormat( XE::GraphicsSurfacePtr surface, XE::GraphicsAdapterPtr adapter )
+{
+	// TODO: 
 	return {};
 }
 
-XE::GraphicsBindGroupLayoutRPtr XE::GraphicsService::RenderPipelineGetBindGroupLayout( XE::GraphicsRenderPipelineRPtr render_pipeline, XE::uint32 group_index )
+XE::GraphicsTextureViewPtr XE::GraphicsService::SwapChainGetCurrentTextureView( XE::GraphicsSwapChainPtr swap_chain )
 {
+	// TODO: 
 	return {};
 }
 
-void XE::GraphicsService::ShaderModuleGetCompilationInfo( XE::GraphicsShaderModuleRPtr shader_module, CompilationInfoCallback callback )
+void XE::GraphicsService::SwapChainPresent( XE::GraphicsSwapChainPtr swap_chain )
 {
+	UINT interval = 0;
+	UINT flags = DXGI_PRESENT_ALLOW_TEARING;
 
-}
+	switch ( swap_chain->Desc.PresentMode )
+	{
+	case XE::GraphicsPresentMode::IMMEDIATE:
+		interval = 0;
+		flags = DXGI_PRESENT_ALLOW_TEARING;
+		break;
+	case XE::GraphicsPresentMode::MAILBOX:
+	case XE::GraphicsPresentMode::FIFO:
+		interval = 1;
+		flags = 0;
+		break;
+	}
 
-void XE::GraphicsService::ShaderModuleSetLabel( XE::GraphicsShaderModuleRPtr shader_module, const XE::String & label )
-{
-
-}
-
-XE::GraphicsTextureFormat XE::GraphicsService::SurfaceGetPreferredFormat( XE::GraphicsSurfaceRPtr surface, XE::GraphicsAdapterRPtr adapter )
-{
-	return {};
-}
-
-XE::GraphicsTextureViewRPtr XE::GraphicsService::SwapChainGetCurrentTextureView( XE::GraphicsSwapChainRPtr swap_chain )
-{
-
-}
-
-void XE::GraphicsService::SwapChainPresent( XE::GraphicsSwapChainRPtr swap_chain )
-{
-
+	swap_chain->Raw->Present( interval, flags );
 }
 
 #endif // GRAPHICS_API == GRAPHICS_D3D12

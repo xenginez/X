@@ -80,7 +80,7 @@ private:
 	ImGuiStyle * _Style = nullptr;
 	ImGuiContext * _Context = nullptr;
 
-	XE::GraphicsRenderPassEncoderHandle _PassEncoder;
+	XE::GraphicsRenderPassEncoderPtr _PassEncoder;
 };
 
 END_XE_NAMESPACE

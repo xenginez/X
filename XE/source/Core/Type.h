@@ -85,28 +85,28 @@ static constexpr XE::uint64 GRAPHICS_MAX_SHADER_MODULE = 0;
 static constexpr XE::uint64 GRAPHICS_MAX_TEXTURE = 0;
 static constexpr XE::uint64 GRAPHICS_MAX_TEXTURE_VIEW = 0;
 
-DECL_REF( GraphicsAdapter );
-DECL_REF( GraphicsDevice );
-DECL_REF( GraphicsBindGroup );
-DECL_REF( GraphicsBindGroupLayout );
-DECL_REF( GraphicsBuffer );
-DECL_REF( GraphicsCommandBuffer );
-DECL_REF( GraphicsCommandEncoder );
-DECL_REF( GraphicsComputePassEncoder );
-DECL_REF( GraphicsComputePipeline );
-DECL_REF( GraphicsPipelineLayout );
-DECL_REF( GraphicsQuerySet );
-DECL_REF( GraphicsQueue );
-DECL_REF( GraphicsRenderBundle );
-DECL_REF( GraphicsRenderBundleEncoder );
-DECL_REF( GraphicsRenderPassEncoder );
-DECL_REF( GraphicsRenderPipeline );
-DECL_REF( GraphicsSampler );
-DECL_REF( GraphicsShaderModule );
-DECL_REF( GraphicsSurface );
-DECL_REF( GraphicsSwapChain );
-DECL_REF( GraphicsTexture );
-DECL_REF( GraphicsTextureView );
+DECL_PTR( GraphicsAdapter );
+DECL_PTR( GraphicsDevice );
+DECL_PTR( GraphicsBindGroup );
+DECL_PTR( GraphicsBindGroupLayout );
+DECL_PTR( GraphicsBuffer );
+DECL_PTR( GraphicsCommandBuffer );
+DECL_PTR( GraphicsCommandEncoder );
+DECL_PTR( GraphicsComputePassEncoder );
+DECL_PTR( GraphicsComputePipeline );
+DECL_PTR( GraphicsPipelineLayout );
+DECL_PTR( GraphicsQuerySet );
+DECL_PTR( GraphicsQueue );
+DECL_PTR( GraphicsRenderBundle );
+DECL_PTR( GraphicsRenderBundleEncoder );
+DECL_PTR( GraphicsRenderPassEncoder );
+DECL_PTR( GraphicsRenderPipeline );
+DECL_PTR( GraphicsSampler );
+DECL_PTR( GraphicsShaderModule );
+DECL_PTR( GraphicsSurface );
+DECL_PTR( GraphicsSwapChain );
+DECL_PTR( GraphicsTexture );
+DECL_PTR( GraphicsTextureView );
 
 enum class GraphicsAdapterType
 {
@@ -700,11 +700,11 @@ struct XE_API GraphicsAdapterProperties
 struct XE_API GraphicsBindGroupEntry
 {
     XE::uint32 Binding;
-    XE::GraphicsBufferRPtr Buffer;
+    XE::GraphicsBufferPtr Buffer;
     XE::uint64 Offset;
     XE::uint64 Size;
-    XE::GraphicsSamplerRPtr Sampler;
-    XE::GraphicsTextureViewRPtr TextureView;
+    XE::GraphicsSamplerPtr Sampler;
+    XE::GraphicsTextureViewPtr TextureView;
 };
 
 struct XE_API GraphicsBlendComponent
@@ -751,7 +751,7 @@ struct XE_API GraphicsCompilationMessage
 
 struct XE_API GraphicsComputePassTimestampWrite
 {
-    XE::GraphicsQuerySetRPtr QuerySet;
+    XE::GraphicsQuerySetPtr QuerySet;
     XE::uint32 QueryIndex;
     XE::GraphicsComputePassTimestampLocation Location;
 };
@@ -802,7 +802,7 @@ struct XE_API GraphicsMultisampleState
 struct XE_API GraphicsPipelineLayoutDescriptor
 {
     XE::String Label;
-    XE::Array<XE::GraphicsBindGroupLayoutRPtr> BindGroupLayouts;
+    XE::Array<XE::GraphicsBindGroupLayoutPtr> BindGroupLayouts;
 };
 
 struct XE_API GraphicsPrimitiveState
@@ -844,7 +844,7 @@ struct XE_API GraphicsRenderBundleEncoderDescriptor
 
 struct XE_API GraphicsRenderPassDepthStencilAttachment
 {
-    XE::GraphicsTextureViewRPtr View;
+    XE::GraphicsTextureViewPtr View;
     XE::GraphicsLoadOp DepthLoadOp;
     XE::GraphicsStoreOp DepthStoreOp;
     XE::float32 DepthClearValue;
@@ -857,14 +857,14 @@ struct XE_API GraphicsRenderPassDepthStencilAttachment
 
 struct XE_API GraphicsRenderPassTimestampWrite
 {
-    XE::GraphicsQuerySetRPtr QuerySet;
+    XE::GraphicsQuerySetPtr QuerySet;
     XE::uint32 QueryIndex;
     XE::GraphicsRenderPassTimestampLocation Location;
 };
 
 struct XE_API GraphicsRequestAdapterOptions
 {
-//    XE::GraphicsSurfaceRPtr CompatibleSurface;
+//    XE::GraphicsSurfacePtr CompatibleSurface;
     XE::GraphicsPowerPreference PowerPreference;
     bool ForceFallbackAdapter;
 };
@@ -892,7 +892,7 @@ struct XE_API GraphicsSamplerDescriptor
 struct XE_API GraphicsShaderModuleCompilationHint
 {
     XE::String EntryPoint;
-    XE::GraphicsPipelineLayoutRPtr Layout;
+    XE::GraphicsPipelineLayoutPtr Layout;
 };
 
 struct XE_API GraphicsShaderModuleCodeDescriptor
@@ -967,7 +967,7 @@ struct XE_API GraphicsVertexAttribute
 struct XE_API GraphicsBindGroupDescriptor
 {
     XE::String Label;
-    XE::GraphicsBindGroupLayoutRPtr Layout;
+    XE::GraphicsBindGroupLayoutPtr Layout;
     XE::Array< XE::GraphicsBindGroupEntry > Entries;
 };
 
@@ -1016,12 +1016,12 @@ struct XE_API GraphicsDepthStencilState
 struct XE_API GraphicsImageCopyBuffer
 {
     XE::GraphicsTextureDataLayout Layout;
-    XE::GraphicsBufferRPtr Buffer;
+    XE::GraphicsBufferPtr Buffer;
 };
 
 struct XE_API GraphicsImageCopyTexture
 {
-    XE::GraphicsTextureRPtr Texture;
+    XE::GraphicsTexturePtr Texture;
     XE::uint32 MipLevel;
     XE::Vec3f Origin;
     XE::GraphicsTextureAspect Aspect;
@@ -1029,15 +1029,15 @@ struct XE_API GraphicsImageCopyTexture
 
 struct XE_API GraphicsProgrammableStageDescriptor
 {
-    XE::GraphicsShaderModuleRPtr Shader;
+    XE::GraphicsShaderModulePtr Shader;
     XE::String EntryPoint;
     XE::Array< XE::GraphicsConstantEntry > Constants;
 };
 
 struct XE_API GraphicsRenderPassColorAttachment
 {
-    XE::GraphicsTextureViewRPtr View;
-    XE::GraphicsTextureViewRPtr ResolveTarget;
+    XE::GraphicsTextureViewPtr View;
+    XE::GraphicsTextureViewPtr ResolveTarget;
     XE::GraphicsLoadOp LoadOp;
     XE::GraphicsStoreOp StoreOp;
     XE::Color ClearValue;
@@ -1096,7 +1096,7 @@ struct XE_API GraphicsColorTargetState
 struct XE_API GraphicsComputePipelineDescriptor
 {
     XE::String Label;
-    XE::GraphicsPipelineLayoutRPtr Layout;
+    XE::GraphicsPipelineLayoutPtr Layout;
     XE::GraphicsProgrammableStageDescriptor Compute;
 };
 
@@ -1113,13 +1113,13 @@ struct XE_API GraphicsRenderPassDescriptor
     XE::String Label;
     XE::Array < XE::GraphicsRenderPassColorAttachment > ColorAttachments;
     XE::GraphicsRenderPassDepthStencilAttachment DepthStencilAttachment;
-    XE::GraphicsQuerySetRPtr OcclusionQuerySet;
+    XE::GraphicsQuerySetPtr OcclusionQuerySet;
     XE::Array < XE::GraphicsRenderPassTimestampWrite > TimestampWrites;
 };
 
 struct XE_API GraphicsVertexState
 {
-    XE::GraphicsShaderModuleRPtr Module;
+    XE::GraphicsShaderModulePtr Module;
     XE::String EntryPoint;
     XE::Array < XE::GraphicsConstantEntry > Constants;
     XE::Array < XE::GraphicsVertexBufferLayout > Buffers;
@@ -1127,7 +1127,7 @@ struct XE_API GraphicsVertexState
 
 struct XE_API GraphicsFragmentState
 {
-    XE::GraphicsShaderModuleRPtr Module;
+    XE::GraphicsShaderModulePtr Module;
     XE::String EntryPoint;
     XE::Array < XE::GraphicsConstantEntry > Constants;
     XE::Array < XE::GraphicsColorTargetState > Targets;
@@ -1136,7 +1136,7 @@ struct XE_API GraphicsFragmentState
 struct XE_API GraphicsRenderPipelineDescriptor
 {
     XE::String Label;
-    XE::GraphicsPipelineLayoutRPtr Layout;
+    XE::GraphicsPipelineLayoutPtr Layout;
     XE::GraphicsVertexState Vertex;
     XE::GraphicsPrimitiveState Primitive;
     XE::GraphicsDepthStencilState DepthStencil;
