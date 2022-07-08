@@ -13,8 +13,6 @@ type->Property( "SpeedOfSound", &XE::AudioService::GetSpeedOfSound, &XE::AudioSe
 type->Property( "DopplerFactor", &XE::AudioService::GetDopplerFactor, &XE::AudioService::SetDopplerFactor )->Attribute( XE::RangeAttribute( 0.0f, 1.0f ) );
 END_META()
 
-#define CAP_SIZE 2048
-
 namespace
 {
 	ALCenum AL_Format( XE::uint32 bits, XE::uint32 channels )
@@ -96,7 +94,7 @@ struct XE::AudioService::Private
 
 	bool _Capture = false;
 	ALCint _CaptureSample = 0;
-	std::array< XE::int8, CAP_SIZE > _CaptureBuffer;
+	XE::Array< XE::int8 > _CaptureBuffer;
 
 	std::array<AHIBuffer, XE::AUDIO_MAX_BUFFER > _Buffers;
 	std::array<AHISource, XE::AUDIO_MAX_SOURCE > _Sources;
@@ -868,7 +866,7 @@ void XE::AudioService::OnUpdate( XE::AudioFrame * frame )
 
 			if ( _p->_CaptureDevice == nullptr )
 			{
-				_p->_CaptureDevice = alcCaptureOpenDevice( nullptr, Frequency, AL_Format( Bits, Channels ), Frequency / ( Bits / 8 ) );
+				_p->_CaptureDevice = alcCaptureOpenDevice( nullptr, Frequency, AL_Format( Bits, Channels ), (ALCsizei)( (XE::uint64)Frequency * (XE::uint64)Bits * (XE::uint64)Channels ) );
 				AL_Error();
 
 				alcCaptureStart( _p->_CaptureDevice );
@@ -876,6 +874,8 @@ void XE::AudioService::OnUpdate( XE::AudioFrame * frame )
 
 				alcGetIntegerv( _p->_CaptureDevice, ALC_CAPTURE_SAMPLES, 1, &_p->_CaptureSample );
 				AL_Error();
+
+				_p->_CaptureBuffer.resize( (XE::uint64)Frequency * (XE::uint64)Bits * (XE::uint64)Channels );
 			}
 			else
 			{
@@ -890,13 +890,10 @@ void XE::AudioService::OnUpdate( XE::AudioFrame * frame )
 
 			if ( _p->_CaptureDevice != nullptr )
 			{
-				ALCint samples;
-				XE::int8 buffer[CAP_SIZE];
-
-				alcCaptureSamples( _p->_CaptureDevice, _p->_CaptureBuffer.data(), std::min<XE::uint64>( samples, CAP_SIZE ) );
+				alcCaptureSamples( _p->_CaptureDevice, _p->_CaptureBuffer.data(), _p->_CaptureSample );
 				AL_Error();
 
-				( (XE::CaptureBufferCallbackType)callback )( (void *)userdata, { buffer, std::min<XE::uint64>( samples, CAP_SIZE ) } );
+				( (XE::CaptureBufferCallbackType)callback )( (void *)userdata, { _p->_CaptureBuffer.data(), _p->_CaptureBuffer.size() } );
 			}
 			else
 			{
@@ -922,6 +919,9 @@ void XE::AudioService::OnUpdate( XE::AudioFrame * frame )
 				alcCaptureCloseDevice( _p->_CaptureDevice );
 
 				_p->_CaptureDevice = nullptr;
+				_p->_CaptureBuffer.clear();
+				_p->_CaptureBuffer.shrink_to_fit();
+				_p->_CaptureSample = 0;
 			}
 		}
 		break;

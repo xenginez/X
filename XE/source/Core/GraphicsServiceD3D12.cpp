@@ -603,7 +603,7 @@ namespace
 	using D3D12CommandListPtr = ComPtr < ID3D12GraphicsCommandList >;
 	using D3D12GraphicsCommandListPtr = ComPtr < ID3D12GraphicsCommandList >;
 	using D3D12PipelineStatePtr = ComPtr < ID3D12PipelineState >;
-	using D3D12SwapChainPtr = ComPtr < IDXGISwapChain1 >;
+	using D3D12SwapChainPtr = ComPtr < IDXGISwapChain4 >;
 	using D3D12CommandSignaturePtr = ComPtr< ID3D12CommandSignature >;
 	using D3D12RootSignaturePtr = ComPtr< ID3D12RootSignature >;
 	using D3D12QueryHeapPtr = ComPtr< ID3D12QueryHeap >;
@@ -616,9 +616,6 @@ namespace XE
 	class GraphicsSurface : public XE::EnableSharedFromThis< GraphicsSurface >
 	{
 	public:
-		~GraphicsSurface() = default;
-
-	public:
 		XE::GraphicsSurfaceDescriptor Desc;
 
 		XE::GraphicsSwapChainPtr SwapChain;
@@ -626,22 +623,19 @@ namespace XE
 	class GraphicsSwapChain : public XE::EnableSharedFromThis< GraphicsSwapChain >
 	{
 	public:
-		~GraphicsSwapChain() = default;
-
-	public:
 		XE::GraphicsSwapChainDescriptor Desc;
 
 		D3D12SwapChainPtr Raw = nullptr;
+
+		std::array< XE::GraphicsTexturePtr, 2 > Textures;
+		std::array< XE::GraphicsTextureViewPtr, 2 > TextureViews;
 
 		XE::GraphicsSurfacePtr Parent;
 	};
 	class GraphicsAdapter : public XE::EnableSharedFromThis< GraphicsAdapter >
 	{
 	public:
-		~GraphicsAdapter() = default;
-
-	public:
-		XE::uint64 Desc;
+		XE::uint64 Desc = 0;
 
 		D3D12AdapterPtr Raw = nullptr;
 
@@ -649,9 +643,6 @@ namespace XE
 	};
 	class GraphicsDevice : public XE::EnableSharedFromThis< GraphicsDevice >
 	{
-	public:
-		~GraphicsDevice() = default;
-
 	public:
 		XE::GraphicsDeviceDescriptor Desc;
 
@@ -678,14 +669,14 @@ namespace XE
 
 		XE::ConcurrentQueue<D3D12CommandAllocatorPtr> CommandAllocators;
 
+		XE::GraphicsService::ErrorCallback ErrorCallback;
+		XE::GraphicsService::DeviceLostCallback LostCallback;
+
 		XE::GraphicsQueue * Queue = nullptr;
 		XE::GraphicsAdapterPtr Parent = nullptr;
 	};
 	class GraphicsQueue : public XE::EnableSharedFromThis< GraphicsQueue >
 	{
-	public:
-		~GraphicsQueue() = default;
-
 	public:
 		XE::GraphicsQueueDescriptor Desc;
 
@@ -699,9 +690,6 @@ namespace XE
 	};
 	class GraphicsBindGroup : public XE::EnableSharedFromThis< GraphicsBindGroup >
 	{
-	public:
-		~GraphicsBindGroup() = default;
-
 	public:
 		XE::GraphicsBindGroupDescriptor Desc;
 
@@ -717,18 +705,12 @@ namespace XE
 	class GraphicsBindGroupLayout : public XE::EnableSharedFromThis< GraphicsBindGroupLayout >
 	{
 	public:
-		~GraphicsBindGroupLayout() = default;
-
-	public:
 		XE::GraphicsBindGroupLayoutDescriptor Desc;
 
 		XE::GraphicsDevicePtr Parent;
 	};
 	class GraphicsBuffer : public XE::EnableSharedFromThis< GraphicsBuffer >
 	{
-	public:
-		~GraphicsBuffer() = default;
-
 	public:
 		XE::GraphicsBufferDescriptor Desc;
 
@@ -742,9 +724,6 @@ namespace XE
 	class GraphicsCommandBuffer : public XE::EnableSharedFromThis< GraphicsCommandBuffer >
 	{
 	public:
-		~GraphicsCommandBuffer() = default;
-
-	public:
 		XE::GraphicsCommandBufferDescriptor Desc;
 
 		D3D12GraphicsCommandListPtr Raw = nullptr;
@@ -753,9 +732,6 @@ namespace XE
 	};
 	class GraphicsCommandEncoder : public XE::EnableSharedFromThis< GraphicsCommandEncoder >
 	{
-	public:
-		~GraphicsCommandEncoder() = default;
-
 	public:
 		XE::GraphicsCommandEncoderDescriptor Desc;
 		
@@ -769,9 +745,6 @@ namespace XE
 	class GraphicsComputePassEncoder : public XE::EnableSharedFromThis< GraphicsComputePassEncoder >
 	{
 	public:
-		~GraphicsComputePassEncoder() = default;
-
-	public:
 		XE::GraphicsComputePassDescriptor Desc;
 
 		D3D12CommandListPtr Raw;
@@ -784,9 +757,6 @@ namespace XE
 	class GraphicsComputePipeline : public XE::EnableSharedFromThis< GraphicsComputePipeline >
 	{
 	public:
-		~GraphicsComputePipeline() = default;
-
-	public:
 		XE::GraphicsComputePipelineDescriptor Desc;
 
 		D3D12PipelineStatePtr Raw = nullptr;
@@ -798,9 +768,6 @@ namespace XE
 	class GraphicsPipelineLayout : public XE::EnableSharedFromThis< GraphicsPipelineLayout >
 	{
 	public:
-		~GraphicsPipelineLayout() = default;
-
-	public:
 		XE::GraphicsPipelineLayoutDescriptor Desc;
 
 		D3D12RootSignaturePtr Raw = nullptr;
@@ -811,9 +778,6 @@ namespace XE
 	class GraphicsQuerySet : public XE::EnableSharedFromThis< GraphicsQuerySet >
 	{
 	public:
-		~GraphicsQuerySet() = default;
-
-	public:
 		XE::GraphicsQuerySetDescriptor Desc;
 
 		D3D12QueryHeapPtr Raw = nullptr;
@@ -823,11 +787,9 @@ namespace XE
 	class GraphicsRenderBundle : public XE::EnableSharedFromThis< GraphicsRenderBundle >
 	{
 	public:
-		~GraphicsRenderBundle() = default;
-
-	public:
 		XE::GraphicsRenderBundleDescriptor Desc;
 
+		D3D12CommandAllocatorPtr CommandAllocator;
 		D3D12CommandListPtr Raw;
 
 		XE::GraphicsDevicePtr Parent;
@@ -835,18 +797,17 @@ namespace XE
 	class GraphicsRenderBundleEncoder : public XE::EnableSharedFromThis< GraphicsRenderBundleEncoder >
 	{
 	public:
-		~GraphicsRenderBundleEncoder() = default;
-
-	public:
 		XE::GraphicsRenderBundleEncoderDescriptor Desc;
 
-		XE::GraphicsCommandEncoderPtr Encoder;
+		D3D12CommandAllocatorPtr CommandAllocator;
+		D3D12CommandListPtr Raw;
+
+		XE::Array< D3D12_VERTEX_BUFFER_VIEW > VertexBuffers;
+
+		XE::GraphicsDevicePtr Parent;
 	};
 	class GraphicsRenderPassEncoder : public XE::EnableSharedFromThis< GraphicsRenderPassEncoder >
 	{
-	public:
-		~GraphicsRenderPassEncoder() = default;
-
 	public:
 		XE::GraphicsRenderPassDescriptor Desc;
 
@@ -864,9 +825,6 @@ namespace XE
 	class GraphicsRenderPipeline : public XE::EnableSharedFromThis< GraphicsRenderPipeline >
 	{
 	public:
-		~GraphicsRenderPipeline() = default;
-
-	public:
 		XE::GraphicsRenderPipelineDescriptor Desc;
 
 		D3D12PipelineStatePtr Raw = nullptr;
@@ -880,9 +838,6 @@ namespace XE
 	class GraphicsSampler : public XE::EnableSharedFromThis< GraphicsSampler >
 	{
 	public:
-		~GraphicsSampler() = default;
-
-	public:
 		XE::GraphicsSamplerDescriptor Desc;
 
 		XE::Handle< int > SamplerHeapHandle;
@@ -893,18 +848,12 @@ namespace XE
 	class GraphicsShaderModule : public XE::EnableSharedFromThis< GraphicsShaderModule >
 	{
 	public:
-		~GraphicsShaderModule() = default;
-
-	public:
 		XE::GraphicsShaderModuleDescriptor Desc;
 
 		XE::GraphicsDevicePtr Parent;
 	};
 	class GraphicsTexture : public XE::EnableSharedFromThis< GraphicsTexture >
 	{
-	public:
-		~GraphicsTexture() = default;
-
 	public:
 		XE::GraphicsTextureDescriptor Desc;
 
@@ -914,9 +863,6 @@ namespace XE
 	};
 	class GraphicsTextureView : public XE::EnableSharedFromThis< GraphicsTextureView >
 	{
-	public:
-		~GraphicsTextureView() = default;
-
 	public:
 		XE::GraphicsTextureViewDescriptor Desc;
 
@@ -1328,8 +1274,8 @@ XE::GraphicsBindGroupPtr XE::GraphicsService::DeviceCreateBindGroup( XE::Graphic
 	XE::uint32 sampler_count = 0;
 	D3D12_CPU_DESCRIPTOR_HANDLE view_handle = group->ViewHeap->GetCPUDescriptorHandleForHeapStart();
 	D3D12_CPU_DESCRIPTOR_HANDLE sampler_handle = group->SamplerHeap->GetCPUDescriptorHandleForHeapStart();
-	XE::uint32 view_item_size = device->Raw->GetDescriptorHandleIncrementSize( D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV );
-	XE::uint32 sampler_item_size = device->Raw->GetDescriptorHandleIncrementSize( D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER );
+	XE::uint64 view_item_size = device->Raw->GetDescriptorHandleIncrementSize( D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV );
+	XE::uint64 sampler_item_size = device->Raw->GetDescriptorHandleIncrementSize( D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER );
 
 	for ( size_t i = 0; i < descriptor.Entries.size(); i++ )
 	{
@@ -1719,6 +1665,19 @@ XE::GraphicsQuerySetPtr XE::GraphicsService::DeviceCreateQuerySet( XE::GraphicsD
 
 XE::GraphicsRenderBundleEncoderPtr XE::GraphicsService::DeviceCreateRenderBundleEncoder( XE::GraphicsDevicePtr device, const XE::GraphicsRenderBundleEncoderDescriptor & descriptor )
 {
+	auto bundle = _p->_RenderBundleEncoders.Alloc();
+
+	bundle->Desc = descriptor;
+	bundle->Parent = device;
+
+	if ( SUCCEEDED( device->Raw->CreateCommandAllocator( D3D12_COMMAND_LIST_TYPE_BUNDLE, IID_PPV_ARGS( bundle->CommandAllocator.GetAddressOf() ) ) ) )
+	{
+		if ( SUCCEEDED( device->Raw->CreateCommandList( 0, D3D12_COMMAND_LIST_TYPE_BUNDLE, bundle->CommandAllocator.Get(), nullptr, IID_PPV_ARGS( bundle->Raw.GetAddressOf() ) ) ) )
+		{
+			return bundle;
+		}
+	}
+
 	return {};
 }
 
@@ -1927,19 +1886,58 @@ XE::GraphicsSwapChainPtr XE::GraphicsService::DeviceCreateSwapChain( XE::Graphic
 		desc.Flags = DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT | ( descriptor.PresentMode == GraphicsPresentMode::IMMEDIATE ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0 );
 	}
 
+	ComPtr< IDXGISwapChain1 > swap;
 	if ( surface->Desc.Window != nullptr )
 	{
-		if ( SUCCEEDED( _p->_Factory->CreateSwapChainForHwnd( device->Queue->Raw.Get(), (HWND)surface->Desc.Window->GetHandle().GetValue(), &desc, nullptr, nullptr, swap_chain->Raw.GetAddressOf() ) ) )
+		if ( SUCCEEDED( _p->_Factory->CreateSwapChainForHwnd( device->Queue->Raw.Get(), (HWND)surface->Desc.Window->GetHandle().GetValue(), &desc, nullptr, nullptr, swap.GetAddressOf() ) ) )
 		{
-			return swap_chain;
+			swap->QueryInterface( swap_chain->Raw.GetAddressOf() );
 		}
 	}
 	else
 	{
-		if ( SUCCEEDED( _p->_Factory->CreateSwapChainForComposition( device->Queue->Raw.Get(), &desc, nullptr, swap_chain->Raw.GetAddressOf() ) ) )
+		if ( SUCCEEDED( _p->_Factory->CreateSwapChainForComposition( device->Queue->Raw.Get(), &desc, nullptr, swap.GetAddressOf() ) ) )
 		{
-			return swap_chain;
+			swap->QueryInterface( swap_chain->Raw.GetAddressOf() );
 		}
+	}
+
+	if( swap_chain->Raw != nullptr )
+	{
+		for ( size_t i = 0; i < swap_chain->Textures.size(); i++ )
+		{
+			swap_chain->Textures[i] = _p->_Textures.Alloc();
+			{
+				swap_chain->Textures[i]->Parent = device;
+
+				if ( SUCCEEDED( swap->GetBuffer( i, IID_PPV_ARGS( swap_chain->Textures[i]->Raw.GetAddressOf() ) ) ) )
+				{
+					swap_chain->Textures[i]->Desc.Label = descriptor.Label + "_Texture_" + XE::ToString( i );
+					swap_chain->Textures[i]->Desc.Format = descriptor.Format;
+					swap_chain->Textures[i]->Desc.Size = { (XE::int32)descriptor.Width, (XE::int32)descriptor.Height, 1 };
+					swap_chain->Textures[i]->Desc.Dimension = XE::GraphicsTextureDimension::D2;
+					swap_chain->Textures[i]->Desc.SampleCount = 0;
+					swap_chain->Textures[i]->Desc.MipLevelCount = 1;
+					swap_chain->Textures[i]->Desc.Usage = XE::GraphicsTextureUsage::RENDER_ATTACHMENT;
+					swap_chain->Textures[i]->Desc.ViewFormats.push_back( descriptor.Format );
+
+					XE::GraphicsTextureViewDescriptor desc = {};
+					{
+						desc.Label = descriptor.Label + "_TextureView_" + XE::ToString( i );
+						desc.MipLevelCount = 1;
+						desc.ArrayLayerCount = 1;
+						desc.BaseMipLevel = 0;
+						desc.BaseArrayLayer = 0;
+						desc.Aspect = XE::GraphicsTextureAspect::ALL;
+						desc.Dimension = XE::GraphicsTextureViewDimension::D2;
+						desc.Format = descriptor.Format;
+					}
+					swap_chain->TextureViews[i] = TextureCreateView( swap_chain->Textures[i], desc );
+				}
+			}
+		}
+
+		return swap_chain;
 	}
 
 	return {};
@@ -2396,12 +2394,12 @@ void XE::GraphicsService::DevicePushErrorScope( XE::GraphicsDevicePtr device, XE
 
 void XE::GraphicsService::DeviceSetDeviceLostCallback( XE::GraphicsDevicePtr device, DeviceLostCallback callback )
 {
-	// TODO: 
+	device->LostCallback = callback;
 }
 
 void XE::GraphicsService::DeviceSetUncapturedErrorCallback( XE::GraphicsDevicePtr device, ErrorCallback callback )
 {
-	// TODO: 
+	device->ErrorCallback = callback;
 }
 
 void XE::GraphicsService::QueueOnSubmittedWorkDone( XE::GraphicsQueuePtr queue, QueueWorkDoneCallback callback )
@@ -2826,8 +2824,8 @@ void XE::GraphicsService::RenderPassEncoderSetIndexBuffer( XE::GraphicsRenderPas
 {
 	D3D12_INDEX_BUFFER_VIEW view = {};
 	{
-		view.BufferLocation = buffer->Raw->GetGPUVirtualAddress();
-		view.SizeInBytes = buffer->Desc.Size;
+		view.BufferLocation = buffer->Raw->GetGPUVirtualAddress() + offset;
+		view.SizeInBytes = size;
 		view.Format = Cast( format );
 	}
 
@@ -2836,7 +2834,7 @@ void XE::GraphicsService::RenderPassEncoderSetIndexBuffer( XE::GraphicsRenderPas
 
 void XE::GraphicsService::RenderPassEncoderSetPipeline( XE::GraphicsRenderPassEncoderPtr render_pass_encoder, XE::GraphicsRenderPipelinePtr pipeline )
 {
-	render_pass_encoder->Raw->SetComputeRootSignature( pipeline->Desc.Layout->Raw.Get() );
+	render_pass_encoder->Raw->SetGraphicsRootSignature( pipeline->Desc.Layout->Raw.Get() );
 	render_pass_encoder->Raw->SetPipelineState( pipeline->Raw.Get() );
 }
 
@@ -2862,8 +2860,9 @@ void XE::GraphicsService::RenderPassEncoderSetVertexBuffer( XE::GraphicsRenderPa
 {
 	D3D12_VERTEX_BUFFER_VIEW view = {};
 	{
-		view.BufferLocation = buffer->Raw->GetGPUVirtualAddress();
-		view.SizeInBytes = buffer->Desc.Size;
+		view.BufferLocation = buffer->Raw->GetGPUVirtualAddress() + offset;
+		view.SizeInBytes = size;
+		// TODO: view.StrideInBytes = buffer->;
 	}
 
 	if ( render_pass_encoder->VertexBuffers.size() <= slot )
@@ -2891,43 +2890,51 @@ void XE::GraphicsService::RenderPassEncoderSetViewport( XE::GraphicsRenderPassEn
 
 void XE::GraphicsService::RenderBundleEncoderDraw( XE::GraphicsRenderBundleEncoderPtr render_bundle_encoder, XE::uint32 vertex_count, XE::uint32 instance_count, XE::uint32 first_vertex, XE::uint32 first_instance )
 {
-	// TODO: 
+	render_bundle_encoder->Raw->DrawInstanced( vertex_count, instance_count, first_vertex, first_instance );
 }
 
 void XE::GraphicsService::RenderBundleEncoderDrawIndexed( XE::GraphicsRenderBundleEncoderPtr render_bundle_encoder, XE::uint32 index_count, XE::uint32 instance_count, XE::uint32 first_index, XE::int32 base_vertex, XE::uint32 first_instance )
 {
-	// TODO: 
+	render_bundle_encoder->Raw->DrawIndexedInstanced( index_count, instance_count, first_index, base_vertex, first_instance );
 }
 
 void XE::GraphicsService::RenderBundleEncoderDrawIndexedIndirect( XE::GraphicsRenderBundleEncoderPtr render_bundle_encoder, XE::GraphicsBufferPtr indirect_buffer, XE::uint64 indirect_offset )
 {
-	// TODO: 
+	render_bundle_encoder->Raw->ExecuteIndirect( render_bundle_encoder->Parent->DrawIndexedIndirectSignature.Get(), 1, indirect_buffer->Raw.Get(), indirect_offset, nullptr, 0 );
 }
 
 void XE::GraphicsService::RenderBundleEncoderDrawIndirect( XE::GraphicsRenderBundleEncoderPtr render_bundle_encoder, XE::GraphicsBufferPtr indirect_buffer, XE::uint64 indirect_offset )
 {
-	// TODO: 
+	render_bundle_encoder->Raw->ExecuteIndirect( render_bundle_encoder->Parent->DrawIndexedIndirectSignature.Get(), 1, indirect_buffer->Raw.Get(), indirect_offset, nullptr, 0 );
 }
 
 XE::GraphicsRenderBundlePtr XE::GraphicsService::RenderBundleEncoderFinish( XE::GraphicsRenderBundleEncoderPtr render_bundle_encoder, const XE::GraphicsRenderBundleDescriptor & descriptor )
 {
-	// TODO: 
-	return {};
+	auto bundle = _p->_RenderBundles.Alloc();
+
+	render_bundle_encoder->Raw->IASetVertexBuffers( 0, render_bundle_encoder->VertexBuffers.size(), render_bundle_encoder->VertexBuffers.data() );
+
+	bundle->Desc = descriptor;
+	bundle->Parent = render_bundle_encoder->Parent;
+	bundle->CommandAllocator = render_bundle_encoder->CommandAllocator;
+	bundle->Raw = render_bundle_encoder->Raw;
+
+	return bundle;
 }
 
 void XE::GraphicsService::RenderBundleEncoderInsertDebugMarker( XE::GraphicsRenderBundleEncoderPtr render_bundle_encoder, const XE::String & marker_label )
 {
-	// TODO: 
+	render_bundle_encoder->Raw->SetMarker( 0, marker_label.c_str(), marker_label.size() );
 }
 
 void XE::GraphicsService::RenderBundleEncoderPopDebugGroup( XE::GraphicsRenderBundleEncoderPtr render_bundle_encoder )
 {
-	// TODO: 
+	render_bundle_encoder->Raw->EndEvent();
 }
 
 void XE::GraphicsService::RenderBundleEncoderPushDebugGroup( XE::GraphicsRenderBundleEncoderPtr render_bundle_encoder, const XE::String & group_label )
 {
-	// TODO: 
+	render_bundle_encoder->Raw->BeginEvent( 0, group_label.c_str(), group_label.size() );
 }
 
 void XE::GraphicsService::RenderBundleEncoderSetBindGroup( XE::GraphicsRenderBundleEncoderPtr render_bundle_encoder, XE::uint32 group_index, XE::GraphicsBindGroupPtr group, XE::uint32 dynamic_offset_count, XE::uint32 & dynamic_offsets )
@@ -2937,17 +2944,37 @@ void XE::GraphicsService::RenderBundleEncoderSetBindGroup( XE::GraphicsRenderBun
 
 void XE::GraphicsService::RenderBundleEncoderSetIndexBuffer( XE::GraphicsRenderBundleEncoderPtr render_bundle_encoder, XE::GraphicsBufferPtr buffer, XE::GraphicsIndexFormat format, XE::uint64 offset, XE::uint64 size )
 {
-	// TODO: 
+	D3D12_INDEX_BUFFER_VIEW view = {};
+	{
+		view.BufferLocation = buffer->Raw->GetGPUVirtualAddress() + offset;
+		view.SizeInBytes = size;
+		view.Format = Cast( format );
+	}
+
+	render_bundle_encoder->Raw->IASetIndexBuffer( &view );
 }
 
 void XE::GraphicsService::RenderBundleEncoderSetPipeline( XE::GraphicsRenderBundleEncoderPtr render_bundle_encoder, XE::GraphicsRenderPipelinePtr pipeline )
 {
-	// TODO: 
+	render_bundle_encoder->Raw->SetGraphicsRootSignature( pipeline->Desc.Layout->Raw.Get() );
+	render_bundle_encoder->Raw->SetPipelineState( pipeline->Raw.Get() );
 }
 
 void XE::GraphicsService::RenderBundleEncoderSetVertexBuffer( XE::GraphicsRenderBundleEncoderPtr render_bundle_encoder, XE::uint32 slot, XE::GraphicsBufferPtr buffer, XE::uint64 offset, XE::uint64 size )
 {
-	// TODO: 
+	D3D12_VERTEX_BUFFER_VIEW view = {};
+	{
+		view.BufferLocation = buffer->Raw->GetGPUVirtualAddress() + offset;
+		view.SizeInBytes = size;
+		// TODO: view.StrideInBytes = buffer->
+	}
+
+	if ( render_bundle_encoder->VertexBuffers.size() <= slot )
+	{
+		render_bundle_encoder->VertexBuffers.resize( slot );
+	}
+
+	render_bundle_encoder->VertexBuffers[slot] = view;
 }
 
 XE::GraphicsBindGroupLayoutPtr XE::GraphicsService::ComputePipelineGetBindGroupLayout( XE::GraphicsComputePipelinePtr compute_pipeline, XE::uint32 group_index )
@@ -2962,24 +2989,22 @@ XE::GraphicsBindGroupLayoutPtr XE::GraphicsService::RenderPipelineGetBindGroupLa
 
 void XE::GraphicsService::ShaderModuleGetCompilationInfo( XE::GraphicsShaderModulePtr shader_module, CompilationInfoCallback callback )
 {
-	// TODO: 
+	callback( XE::GraphicsCompilationInfoRequestStatus::SUCCESS, {} );
 }
 
 void XE::GraphicsService::ShaderModuleSetLabel( XE::GraphicsShaderModulePtr shader_module, const XE::String & label )
 {
-	// TODO: 
+	shader_module->Desc.Label = label;
 }
 
 XE::GraphicsTextureFormat XE::GraphicsService::SurfaceGetPreferredFormat( XE::GraphicsSurfacePtr surface, XE::GraphicsAdapterPtr adapter )
 {
-	// TODO: 
-	return {};
+	return GraphicsTextureFormat::RGBA8SNORM;
 }
 
 XE::GraphicsTextureViewPtr XE::GraphicsService::SwapChainGetCurrentTextureView( XE::GraphicsSwapChainPtr swap_chain )
 {
-	// TODO: 
-	return {};
+	return swap_chain->TextureViews[swap_chain->Raw->GetCurrentBackBufferIndex()];
 }
 
 void XE::GraphicsService::SwapChainPresent( XE::GraphicsSwapChainPtr swap_chain )

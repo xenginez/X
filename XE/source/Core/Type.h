@@ -1023,7 +1023,7 @@ struct XE_API GraphicsImageCopyTexture
 {
     XE::GraphicsTexturePtr Texture;
     XE::uint32 MipLevel;
-    XE::Vec3f Origin;
+    XE::Vec3i Origin;
     XE::GraphicsTextureAspect Aspect;
 };
 
@@ -1066,7 +1066,7 @@ struct XE_API GraphicsTextureDescriptor
     XE::String Label;
     XE::GraphicsTextureUsageFlags Usage;
     XE::GraphicsTextureDimension Dimension;
-    XE::Vec3f Size;
+    XE::Vec3i Size;
     XE::GraphicsTextureFormat Format;
     XE::uint32 MipLevelCount;
     XE::uint32 SampleCount;
