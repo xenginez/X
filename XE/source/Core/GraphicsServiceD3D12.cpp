@@ -745,12 +745,21 @@ namespace XE
 	class GraphicsComputePassEncoder : public XE::EnableSharedFromThis< GraphicsComputePassEncoder >
 	{
 	public:
+		struct BeginPipelineStatisticsQuery { XE::uint32 query_index = 0; XE::GraphicsQuerySetPtr query_set; };
+		struct Dispatch { XE::uint32 workgroup_count_x = 0; XE::uint32 workgroup_count_y = 0; XE::uint32 workgroup_count_z = 0; };
+		struct DispatchIndirect { XE::GraphicsBufferPtr indirect_buffer; XE::uint64 indirect_offset = 0; };
+		struct EndPipelineStatisticsQuery { };
+		struct InsertDebugMarker { XE::String marker_label; };
+		struct PopDebugGroup { };
+		struct PushDebugGroup { XE::String group_label; };
+		struct SetBindGroup { XE::uint32 group_index = 0; XE::GraphicsBindGroupPtr group; XE::uint32 dynamic_offset_count = 0; XE::uint32 dynamic_offsets = 0; };
+		struct SetPipeline { XE::GraphicsComputePipelinePtr pipeline; };
+		using Info = std::variant< std::monostate, BeginPipelineStatisticsQuery, Dispatch, DispatchIndirect, EndPipelineStatisticsQuery, InsertDebugMarker, PopDebugGroup, PushDebugGroup, SetBindGroup, SetPipeline >;
+
+	public:
 		XE::GraphicsComputePassDescriptor Desc;
 
-		D3D12CommandListPtr Raw;
-
-		XE::uint32 QueryIndex = 0;
-		XE::GraphicsQuerySetPtr QuerySet;
+		XE::Queue< Info > CommandInfos;
 
 		XE::GraphicsCommandEncoderPtr Parent;
 	};
@@ -797,28 +806,57 @@ namespace XE
 	class GraphicsRenderBundleEncoder : public XE::EnableSharedFromThis< GraphicsRenderBundleEncoder >
 	{
 	public:
+		struct BeginOcclusionQuery { XE::GraphicsQuerySetPtr query_set; XE::uint32 query_index = 0; };
+		struct BeginPipelineStatisticsQuery { XE::GraphicsQuerySetPtr query_set; XE::uint32 query_index = 0; };
+		struct Draw { XE::uint32 vertex_count; XE::uint32 instance_count; XE::uint32 first_vertex; XE::uint32 first_instance; };
+		struct DrawIndexed { XE::uint32 index_count; XE::uint32 instance_count; XE::uint32 first_index; XE::int32 base_vertex; XE::uint32 first_instance; };
+		struct DrawIndexedIndirect { XE::GraphicsBufferPtr indirect_buffer; XE::uint64 indirect_offset = 0; };
+		struct DrawIndirect { XE::GraphicsBufferPtr indirect_buffer; XE::uint64 indirect_offset = 0; };
+		struct InsertDebugMarker { XE::String marker_label; };
+		struct PopDebugGroup {};
+		struct PushDebugGroup { XE::String group_label; };
+		struct SetBindGroup { XE::uint32 group_index = 0; XE::GraphicsBindGroupPtr group; XE::uint32 dynamic_offset_count = 0; XE::uint32 dynamic_offsets = 0; };
+		struct SetIndexBuffer { XE::GraphicsBufferPtr buffer; XE::GraphicsIndexFormat format = GraphicsIndexFormat::UINT16; XE::uint64 offset = 0; XE::uint64 size = 0; };
+		struct SetPipeline { XE::GraphicsRenderPipelinePtr pipeline; };
+		struct SetVertexBuffer { XE::uint32 slot = 0; XE::GraphicsBufferPtr buffer; XE::uint64 offset = 0; XE::uint64 size = 0; };
+		using Info = std::variant< std::monostate, BeginOcclusionQuery, BeginPipelineStatisticsQuery, Draw, DrawIndexed, DrawIndexedIndirect, DrawIndirect, InsertDebugMarker, PopDebugGroup, PushDebugGroup, SetBindGroup, SetIndexBuffer, SetPipeline, SetVertexBuffer >;
+
+	public:
 		XE::GraphicsRenderBundleEncoderDescriptor Desc;
 
-		D3D12CommandAllocatorPtr CommandAllocator;
-		D3D12CommandListPtr Raw;
-
-		XE::Array< D3D12_VERTEX_BUFFER_VIEW > VertexBuffers;
+		XE::Queue< Info > CommandInfos;
 
 		XE::GraphicsDevicePtr Parent;
 	};
 	class GraphicsRenderPassEncoder : public XE::EnableSharedFromThis< GraphicsRenderPassEncoder >
 	{
 	public:
+		struct BeginOcclusionQuery { XE::GraphicsQuerySetPtr query_set; XE::uint32 query_index = 0; };
+		struct BeginPipelineStatisticsQuery { XE::GraphicsQuerySetPtr query_set; XE::uint32 query_index = 0; };
+		struct Draw { XE::uint32 vertex_count; XE::uint32 instance_count; XE::uint32 first_vertex; XE::uint32 first_instance; };
+		struct DrawIndexed { XE::uint32 index_count; XE::uint32 instance_count; XE::uint32 first_index; XE::int32 base_vertex; XE::uint32 first_instance; };
+		struct DrawIndexedIndirect { XE::GraphicsBufferPtr indirect_buffer; XE::uint64 indirect_offset = 0; };
+		struct DrawIndirect { XE::GraphicsBufferPtr indirect_buffer; XE::uint64 indirect_offset = 0; };
+		struct EndOcclusionQuery {};
+		struct EndPipelineStatisticsQuery {};
+		struct ExecuteBundles { XE::Array< XE::GraphicsRenderBundlePtr > bundles; };
+		struct InsertDebugMarker { XE::String marker_label; };
+		struct PopDebugGroup {};
+		struct PushDebugGroup { XE::String group_label; };
+		struct SetBindGroup { XE::uint32 group_index = 0; XE::GraphicsBindGroupPtr group; XE::uint32 dynamic_offset_count = 0; XE::uint32 dynamic_offsets = 0; };
+		struct SetBlendConstant { XE::Color color; };
+		struct SetIndexBuffer { XE::GraphicsBufferPtr buffer; XE::GraphicsIndexFormat format = GraphicsIndexFormat::UINT16; XE::uint64 offset = 0; XE::uint64 size = 0; };
+		struct SetPipeline { XE::GraphicsRenderPipelinePtr pipeline; };
+		struct SetScissorRect { D3D12_RECT rect; };
+		struct SetStencilReference { XE::uint32 reference = 0; };
+		struct SetVertexBuffer { XE::uint32 slot = 0; XE::GraphicsBufferPtr buffer; XE::uint64 offset = 0; XE::uint64 size = 0; };
+		struct SetViewport { D3D12_VIEWPORT viewport; };
+		using Info = std::variant< std::monostate, BeginOcclusionQuery, BeginPipelineStatisticsQuery, Draw, DrawIndexed, DrawIndexedIndirect, DrawIndirect, EndOcclusionQuery, EndPipelineStatisticsQuery, ExecuteBundles, InsertDebugMarker, PopDebugGroup, PushDebugGroup, SetBindGroup, SetBlendConstant, SetIndexBuffer, SetPipeline, SetScissorRect, SetStencilReference, SetVertexBuffer, SetViewport >;
+
+	public:
 		XE::GraphicsRenderPassDescriptor Desc;
 
-		D3D12CommandListPtr Raw;
-
-		XE::uint32 OcclusionQueryIndex = 0;
-		XE::GraphicsQuerySetPtr OcclusionQuery;
-		XE::uint32 PipelineStatisticsQueryIndex = 0;
-		XE::GraphicsQuerySetPtr PipelineStatisticsQuery;
-
-		XE::Array< D3D12_VERTEX_BUFFER_VIEW > VertexBuffers;
+		XE::Queue< Info > CommandInfos;
 
 		XE::GraphicsCommandEncoderPtr Parent;
 	};
@@ -1438,21 +1476,16 @@ XE::GraphicsCommandEncoderPtr XE::GraphicsService::DeviceCreateCommandEncoder( X
 	encoder->Desc = descriptor;
 	encoder->Parent = device;
 
-	D3D12CommandAllocatorPtr allocator;
-	if ( device->CommandAllocators.try_pop( allocator ) )
+	if ( device->CommandAllocators.try_pop( encoder->Allocator ) )
 	{
-		encoder->Allocator = allocator;
+		encoder->Allocator->Reset();
 	}
-	else if ( SUCCEEDED( device->Raw->CreateCommandAllocator( D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS( allocator.GetAddressOf() ) ) ) )
-	{
-		encoder->Allocator = allocator;
-		device->Raw->CreateCommandList( 0, D3D12_COMMAND_LIST_TYPE_DIRECT, encoder->Allocator.Get(), nullptr, IID_PPV_ARGS( encoder->Raw.GetAddressOf() ) );
-		encoder->Raw->Close();
-	}
-	else
+	else if ( !SUCCEEDED( device->Raw->CreateCommandAllocator( D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS( encoder->Allocator.GetAddressOf() ) ) ) )
 	{
 		return {};
 	}
+
+	device->Raw->CreateCommandList( 0, D3D12_COMMAND_LIST_TYPE_DIRECT, encoder->Allocator.Get(), nullptr, IID_PPV_ARGS( encoder->Raw.GetAddressOf() ) );
 
 	return encoder;
 }
@@ -1670,15 +1703,7 @@ XE::GraphicsRenderBundleEncoderPtr XE::GraphicsService::DeviceCreateRenderBundle
 	bundle->Desc = descriptor;
 	bundle->Parent = device;
 
-	if ( SUCCEEDED( device->Raw->CreateCommandAllocator( D3D12_COMMAND_LIST_TYPE_BUNDLE, IID_PPV_ARGS( bundle->CommandAllocator.GetAddressOf() ) ) ) )
-	{
-		if ( SUCCEEDED( device->Raw->CreateCommandList( 0, D3D12_COMMAND_LIST_TYPE_BUNDLE, bundle->CommandAllocator.Get(), nullptr, IID_PPV_ARGS( bundle->Raw.GetAddressOf() ) ) ) )
-		{
-			return bundle;
-		}
-	}
-
-	return {};
+	return bundle;
 }
 
 XE::GraphicsRenderPipelinePtr XE::GraphicsService::DeviceCreateRenderPipeline( XE::GraphicsDevicePtr device, const XE::GraphicsRenderPipelineDescriptor & descriptor )
@@ -2443,10 +2468,7 @@ void XE::GraphicsService::QueueSubmit( XE::GraphicsQueuePtr queue, const XE::Arr
 
 	XE::Array< ID3D12CommandList * > lists( commands.size(), XE::MemoryResource::GetFrameMemoryResource() );
 
-	for ( auto & cmd : commands )
-	{
-		lists.push_back( cmd->Raw.Get() );
-	}
+	std::for_each( commands.begin(), commands.end(), [&]( const auto & cmd ) { lists.push_back( cmd->Raw.Get() ); } );
 
 	queue->Raw->ExecuteCommandLists( lists.size(), lists.data() );
 }
@@ -2493,17 +2515,8 @@ void XE::GraphicsService::BufferUnmap( XE::GraphicsBufferPtr buffer )
 
 XE::GraphicsComputePassEncoderPtr XE::GraphicsService::CommandEncoderBeginComputePass( XE::GraphicsCommandEncoderPtr command_encoder, const XE::GraphicsComputePassDescriptor & descriptor )
 {
-	D3D12CommandListPtr list = command_encoder->Raw;
-
-	ID3D12DescriptorHeap * heaps[2] = { command_encoder->Parent->CSUHeap.Get(), command_encoder->Parent->SmaplerHeap.Get() };
-
-	list.Reset();
-	list->BeginEvent( 0, command_encoder->Desc.Label.c_str(), command_encoder->Desc.Label.size() );
-	list->SetDescriptorHeaps( 2, heaps );
-
 	auto pass = _p->_ComputePassEncoders.Alloc();
 
-	pass->Raw = list;
 	pass->Desc = descriptor;
 	pass->Parent = command_encoder;
 
@@ -2512,17 +2525,8 @@ XE::GraphicsComputePassEncoderPtr XE::GraphicsService::CommandEncoderBeginComput
 
 XE::GraphicsRenderPassEncoderPtr XE::GraphicsService::CommandEncoderBeginRenderPass( XE::GraphicsCommandEncoderPtr command_encoder, const XE::GraphicsRenderPassDescriptor & descriptor )
 {
-	D3D12CommandListPtr list = command_encoder->Raw;
-
-	ID3D12DescriptorHeap * heaps[2] = { command_encoder->Parent->CSUHeap.Get(), command_encoder->Parent->SmaplerHeap.Get() };
-
-	list.Reset();
-	list->BeginEvent( 0, command_encoder->Desc.Label.c_str(), command_encoder->Desc.Label.size() );
-	list->SetDescriptorHeaps( 2, heaps );
-
 	auto pass = _p->_RenderPassEncoders.Alloc();
 
-	pass->Raw = list;
 	pass->Desc = descriptor;
 	pass->Parent = command_encoder;
 
@@ -2638,14 +2642,16 @@ void XE::GraphicsService::CommandEncoderCopyTextureToTexture( XE::GraphicsComman
 XE::GraphicsCommandBufferPtr XE::GraphicsService::CommandEncoderFinish( XE::GraphicsCommandEncoderPtr command_encoder, const XE::GraphicsCommandBufferDescriptor & descriptor )
 {
 	command_encoder->Raw->Close();
-	auto list = command_encoder->Raw;
-	command_encoder->Raw = nullptr;
 
 	auto buf = _p->_CommandBuffers.Alloc();
 
 	buf->Desc = descriptor;
-	buf->Raw = list;
+	buf->Raw = command_encoder->Raw;
 	buf->Parent = command_encoder;
+
+	command_encoder->Parent->CommandAllocators.push( command_encoder->Allocator );
+	command_encoder->Allocator = nullptr;
+	command_encoder->Raw = nullptr;
 
 	return buf;
 }
@@ -2677,304 +2683,514 @@ void XE::GraphicsService::CommandEncoderWriteTimestamp( XE::GraphicsCommandEncod
 
 void XE::GraphicsService::ComputePassEncoderBeginPipelineStatisticsQuery( XE::GraphicsComputePassEncoderPtr compute_pass_encoder, XE::GraphicsQuerySetPtr query_set, XE::uint32 query_index )
 {
-	compute_pass_encoder->QuerySet = query_set;
-	compute_pass_encoder->QueryIndex = query_index;
-	compute_pass_encoder->Raw->BeginQuery( query_set->Raw.Get(), D3D12_QUERY_TYPE_PIPELINE_STATISTICS, query_index );
+	XE::GraphicsComputePassEncoder::BeginPipelineStatisticsQuery info;
+	{
+		info.query_set = query_set;
+		info.query_index = query_index;
+	}
+	compute_pass_encoder->CommandInfos.push( info );
 }
 
 void XE::GraphicsService::ComputePassEncoderDispatch( XE::GraphicsComputePassEncoderPtr compute_pass_encoder, XE::uint32 workgroup_count_x, XE::uint32 workgroup_count_y, XE::uint32 workgroup_count_z )
 {
-	compute_pass_encoder->Raw->Dispatch( workgroup_count_x, workgroup_count_y, workgroup_count_z );
+	XE::GraphicsComputePassEncoder::Dispatch info;
+	{
+		info.workgroup_count_x = workgroup_count_x;
+		info.workgroup_count_y = workgroup_count_y;
+		info.workgroup_count_z = workgroup_count_z;
+	}
+	compute_pass_encoder->CommandInfos.push( info );
 }
 
 void XE::GraphicsService::ComputePassEncoderDispatchIndirect( XE::GraphicsComputePassEncoderPtr compute_pass_encoder, XE::GraphicsBufferPtr indirect_buffer, XE::uint64 indirect_offset )
 {
-	compute_pass_encoder->Raw->ExecuteIndirect( compute_pass_encoder->Parent->Parent->DispatchIndirectSignature.Get(), 1, indirect_buffer->Raw.Get(), indirect_offset, nullptr, 0 );
+	XE::GraphicsComputePassEncoder::DispatchIndirect info;
+	{
+		info.indirect_buffer = indirect_buffer;
+		info.indirect_offset = indirect_offset;
+	}
+	compute_pass_encoder->CommandInfos.push( info );
 }
 
 void XE::GraphicsService::ComputePassEncoderEnd( XE::GraphicsComputePassEncoderPtr compute_pass_encoder )
 {
-	compute_pass_encoder->Raw->SetDescriptorHeaps( 0, nullptr );
-	compute_pass_encoder->Raw->EndEvent();
+	XE::Stack< XE::GraphicsComputePassEncoder::BeginPipelineStatisticsQuery > PipelineStatisticsQueryStack( XE::MemoryResource::GetFrameMemoryResource() );
+
+	D3D12CommandListPtr list = compute_pass_encoder->Parent->Raw;
+	ID3D12DescriptorHeap * heaps[2] = { compute_pass_encoder->Parent->Parent->CSUHeap.Get(), compute_pass_encoder->Parent->Parent->SmaplerHeap.Get() };
+
+	list->BeginEvent( 0, compute_pass_encoder->Desc.Label.c_str(), compute_pass_encoder->Desc.Label.size() );
+	list->SetDescriptorHeaps( 2, heaps );
+
+	while ( !compute_pass_encoder->CommandInfos.empty() )
+	{
+		std::visit( XE::Overloaded{
+			[&]( const std::monostate & info ) {},
+			[&]( const XE::GraphicsComputePassEncoder::BeginPipelineStatisticsQuery & info ) { PipelineStatisticsQueryStack.push( info );  list->BeginQuery( info.query_set->Raw.Get(), D3D12_QUERY_TYPE_PIPELINE_STATISTICS, info.query_index ); },
+			[&]( const XE::GraphicsComputePassEncoder::Dispatch & info ) { list->Dispatch( info.workgroup_count_x, info.workgroup_count_y, info.workgroup_count_z ); },
+			[&]( const XE::GraphicsComputePassEncoder::DispatchIndirect & info ) { list->ExecuteIndirect( compute_pass_encoder->Parent->Parent->DispatchIndirectSignature.Get(), 1, info.indirect_buffer->Raw.Get(), info.indirect_offset, nullptr, 0 ); },
+			[&]( const XE::GraphicsComputePassEncoder::EndPipelineStatisticsQuery & info ) { list->EndQuery( PipelineStatisticsQueryStack.top().query_set->Raw.Get(), D3D12_QUERY_TYPE_PIPELINE_STATISTICS,  PipelineStatisticsQueryStack.top().query_index ); PipelineStatisticsQueryStack.pop(); },
+			[&]( const XE::GraphicsComputePassEncoder::InsertDebugMarker & info ) { list->SetMarker( 0, info.marker_label.c_str(), info.marker_label.size() ); },
+			[&]( const XE::GraphicsComputePassEncoder::PopDebugGroup & info ) { list->EndEvent(); },
+			[&]( const XE::GraphicsComputePassEncoder::PushDebugGroup & info ) { list->BeginEvent( 0, info.group_label.c_str(), info.group_label.size() ); },
+			[&]( const XE::GraphicsComputePassEncoder::SetBindGroup & info ) { /* TODO */ },
+			[&]( const XE::GraphicsComputePassEncoder::SetPipeline & info ) { list->SetComputeRootSignature( info.pipeline->Desc.Layout->Raw.Get() ); list->SetPipelineState( info.pipeline->Raw.Get() ); } },
+			compute_pass_encoder->CommandInfos.front() );
+
+		compute_pass_encoder->CommandInfos.pop();
+	}
+
+	list->SetDescriptorHeaps( 0, nullptr );
+	list->EndEvent();
 }
 
 void XE::GraphicsService::ComputePassEncoderEndPipelineStatisticsQuery( XE::GraphicsComputePassEncoderPtr compute_pass_encoder )
 {
-	compute_pass_encoder->Raw->EndQuery( compute_pass_encoder->QuerySet->Raw.Get(), D3D12_QUERY_TYPE_PIPELINE_STATISTICS, compute_pass_encoder->QueryIndex );
-
-	compute_pass_encoder->QuerySet = {};
-	compute_pass_encoder->QueryIndex = 0;
+	compute_pass_encoder->CommandInfos.push( XE::GraphicsComputePassEncoder::EndPipelineStatisticsQuery() );
 }
 
 void XE::GraphicsService::ComputePassEncoderInsertDebugMarker( XE::GraphicsComputePassEncoderPtr compute_pass_encoder, const XE::String & marker_label )
 {
-	compute_pass_encoder->Raw->SetMarker( 0, marker_label.c_str(), marker_label.size() );
+	XE::GraphicsComputePassEncoder::InsertDebugMarker info;
+	{
+		info.marker_label = marker_label;
+	}
+	compute_pass_encoder->CommandInfos.push( info );
 }
 
 void XE::GraphicsService::ComputePassEncoderPopDebugGroup( XE::GraphicsComputePassEncoderPtr compute_pass_encoder )
 {
-	compute_pass_encoder->Raw->EndEvent();
+	compute_pass_encoder->CommandInfos.push( XE::GraphicsComputePassEncoder::PopDebugGroup() );
 }
 
 void XE::GraphicsService::ComputePassEncoderPushDebugGroup( XE::GraphicsComputePassEncoderPtr compute_pass_encoder, const XE::String & group_label )
 {
-	compute_pass_encoder->Raw->BeginEvent( 0, group_label.c_str(), group_label.size() );
+	XE::GraphicsComputePassEncoder::PushDebugGroup info;
+	{
+		info.group_label = group_label;
+	}
+	compute_pass_encoder->CommandInfos.push( info );
 }
 
-void XE::GraphicsService::ComputePassEncoderSetBindGroup( XE::GraphicsComputePassEncoderPtr compute_pass_encoder, XE::uint32 group_index, XE::GraphicsBindGroupPtr group, XE::uint32 dynamic_offset_count, XE::uint32 & dynamic_offsets )
+void XE::GraphicsService::ComputePassEncoderSetBindGroup( XE::GraphicsComputePassEncoderPtr compute_pass_encoder, XE::uint32 group_index, XE::GraphicsBindGroupPtr group, XE::uint32 dynamic_offset_count, XE::uint32 dynamic_offsets )
 {
-	// TODO: 
+	XE::GraphicsComputePassEncoder::SetBindGroup info;
+	{
+		info.group_index = group_index;
+		info.group = group;
+		info.dynamic_offset_count = dynamic_offset_count;
+		info.dynamic_offsets = dynamic_offsets;
+	}
+	compute_pass_encoder->CommandInfos.push( info );
 }
 
 void XE::GraphicsService::ComputePassEncoderSetPipeline( XE::GraphicsComputePassEncoderPtr compute_pass_encoder, XE::GraphicsComputePipelinePtr pipeline )
 {
-	compute_pass_encoder->Raw->SetComputeRootSignature( pipeline->Desc.Layout->Raw.Get() );
-	compute_pass_encoder->Raw->SetPipelineState( pipeline->Raw.Get() );
+	XE::GraphicsComputePassEncoder::SetPipeline info;
+	{
+		info.pipeline = pipeline;
+	}
+	compute_pass_encoder->CommandInfos.push( info );
 }
 
 void XE::GraphicsService::RenderPassEncoderBeginOcclusionQuery( XE::GraphicsRenderPassEncoderPtr render_pass_encoder, XE::GraphicsQuerySetPtr query_set, XE::uint32 query_index )
 {
-	render_pass_encoder->OcclusionQuery = query_set;
-	render_pass_encoder->OcclusionQueryIndex = query_index;
-	render_pass_encoder->Raw->BeginQuery( query_set->Raw.Get(), D3D12_QUERY_TYPE_OCCLUSION, query_index );
+	XE::GraphicsRenderPassEncoder::BeginOcclusionQuery info;
+	{
+		info.query_set = query_set;
+		info.query_index = query_index;
+	}
+	render_pass_encoder->CommandInfos.push( info );
 }
 
 void XE::GraphicsService::RenderPassEncoderBeginPipelineStatisticsQuery( XE::GraphicsRenderPassEncoderPtr render_pass_encoder, XE::GraphicsQuerySetPtr query_set, XE::uint32 query_index )
 {
-	render_pass_encoder->PipelineStatisticsQuery = query_set;
-	render_pass_encoder->PipelineStatisticsQueryIndex = query_index;
-	render_pass_encoder->Raw->BeginQuery( query_set->Raw.Get(), D3D12_QUERY_TYPE_PIPELINE_STATISTICS, query_index );
+	XE::GraphicsRenderPassEncoder::BeginPipelineStatisticsQuery info;
+	{
+		info.query_set = query_set;
+		info.query_index = query_index;
+	}
+	render_pass_encoder->CommandInfos.push( info );
 }
 
 void XE::GraphicsService::RenderPassEncoderDraw( XE::GraphicsRenderPassEncoderPtr render_pass_encoder, XE::uint32 vertex_count, XE::uint32 instance_count, XE::uint32 first_vertex, XE::uint32 first_instance )
 {
-	render_pass_encoder->Raw->DrawInstanced( vertex_count, instance_count, first_vertex, first_instance );
+	XE::GraphicsRenderPassEncoder::Draw info;
+	{
+		info.vertex_count = vertex_count;
+		info.instance_count = instance_count;
+		info.first_vertex = first_vertex;
+		info.first_instance = first_instance;
+	}
+	render_pass_encoder->CommandInfos.push( info );
 }
 
 void XE::GraphicsService::RenderPassEncoderDrawIndexed( XE::GraphicsRenderPassEncoderPtr render_pass_encoder, XE::uint32 index_count, XE::uint32 instance_count, XE::uint32 first_index, XE::int32 base_vertex, XE::uint32 first_instance )
 {
-	render_pass_encoder->Raw->DrawIndexedInstanced( index_count, instance_count, first_index, base_vertex, first_instance );
+	XE::GraphicsRenderPassEncoder::DrawIndexed info;
+	{
+		info.index_count = index_count;
+		info.instance_count = instance_count;
+		info.first_index = first_index;
+		info.base_vertex = base_vertex;
+		info.first_instance = first_instance;
+	}
+	render_pass_encoder->CommandInfos.push( info );
 }
 
 void XE::GraphicsService::RenderPassEncoderDrawIndexedIndirect( XE::GraphicsRenderPassEncoderPtr render_pass_encoder, XE::GraphicsBufferPtr indirect_buffer, XE::uint64 indirect_offset )
 {
-	render_pass_encoder->Raw->ExecuteIndirect( render_pass_encoder->Parent->Parent->DrawIndexedIndirectSignature.Get(), 1, indirect_buffer->Raw.Get(), indirect_offset, nullptr, 0 );
+	XE::GraphicsRenderPassEncoder::DrawIndexedIndirect info;
+	{
+		info.indirect_buffer = indirect_buffer;
+		info.indirect_offset = indirect_offset;
+	}
+	render_pass_encoder->CommandInfos.push( info );
 }
 
 void XE::GraphicsService::RenderPassEncoderDrawIndirect( XE::GraphicsRenderPassEncoderPtr render_pass_encoder, XE::GraphicsBufferPtr indirect_buffer, XE::uint64 indirect_offset )
 {
-	render_pass_encoder->Raw->ExecuteIndirect( render_pass_encoder->Parent->Parent->DrawIndirectSignature.Get(), 1, indirect_buffer->Raw.Get(), indirect_offset, nullptr, 0 );
+	XE::GraphicsRenderPassEncoder::DrawIndirect info;
+	{
+		info.indirect_buffer = indirect_buffer;
+		info.indirect_offset = indirect_offset;
+	}
+	render_pass_encoder->CommandInfos.push( info );
 }
 
 void XE::GraphicsService::RenderPassEncoderEnd( XE::GraphicsRenderPassEncoderPtr render_pass_encoder )
 {
-	render_pass_encoder->Raw->SetDescriptorHeaps( 0, nullptr );
-	render_pass_encoder->Raw->EndEvent();
+	XE::Array< D3D12_VERTEX_BUFFER_VIEW > VertexBuffers( XE::MemoryResource::GetFrameMemoryResource() );
+	XE::Stack< XE::GraphicsRenderPassEncoder::BeginOcclusionQuery > OcclusionQueryStack( XE::MemoryResource::GetFrameMemoryResource() );
+	XE::Stack< XE::GraphicsRenderPassEncoder::BeginPipelineStatisticsQuery > PipelineStatisticsQueryStack( XE::MemoryResource::GetFrameMemoryResource() );
+
+	D3D12CommandListPtr list = render_pass_encoder->Parent->Raw;
+	ID3D12DescriptorHeap * heaps[2] = { render_pass_encoder->Parent->Parent->CSUHeap.Get(), render_pass_encoder->Parent->Parent->SmaplerHeap.Get() };
+
+	list->BeginEvent( 0, render_pass_encoder->Parent->Desc.Label.c_str(), render_pass_encoder->Parent->Desc.Label.size() );
+	list->SetDescriptorHeaps( 2, heaps );
+
+	while ( !render_pass_encoder->CommandInfos.empty() )
+	{
+		std::visit( XE::Overloaded{
+			[&]( const std::monostate & info ) {},
+			[&]( const XE::GraphicsRenderPassEncoder::BeginOcclusionQuery & info ) { OcclusionQueryStack.push( info ); list->BeginQuery( info.query_set->Raw.Get(), D3D12_QUERY_TYPE_OCCLUSION, info.query_index ); },
+			[&]( const XE::GraphicsRenderPassEncoder::BeginPipelineStatisticsQuery & info ) { PipelineStatisticsQueryStack.push( info ); list->BeginQuery( info.query_set->Raw.Get(), D3D12_QUERY_TYPE_PIPELINE_STATISTICS, info.query_index ); },
+			[&]( const XE::GraphicsRenderPassEncoder::Draw & info ) { list->IASetVertexBuffers(0, VertexBuffers.size(), VertexBuffers.data() ); list->DrawInstanced( info.vertex_count, info.instance_count, info.first_vertex, info.first_instance ); },
+			[&]( const XE::GraphicsRenderPassEncoder::DrawIndexed & info ) { list->IASetVertexBuffers( 0, VertexBuffers.size(), VertexBuffers.data() );  list->DrawIndexedInstanced( info.index_count, info.instance_count, info.first_index, info.base_vertex, info.first_instance ); },
+			[&]( const XE::GraphicsRenderPassEncoder::DrawIndexedIndirect & info ) { list->IASetVertexBuffers( 0, VertexBuffers.size(), VertexBuffers.data() );  list->ExecuteIndirect( render_pass_encoder->Parent->Parent->DrawIndexedIndirectSignature.Get(), 1, info.indirect_buffer->Raw.Get(), info.indirect_offset, nullptr, 0 ); },
+			[&]( const XE::GraphicsRenderPassEncoder::DrawIndirect & info ) { list->IASetVertexBuffers( 0, VertexBuffers.size(), VertexBuffers.data() );  list->ExecuteIndirect( render_pass_encoder->Parent->Parent->DrawIndirectSignature.Get(), 1, info.indirect_buffer->Raw.Get(), info.indirect_offset, nullptr, 0 ); },
+			[&]( const XE::GraphicsRenderPassEncoder::EndOcclusionQuery & info ) { list->EndQuery( OcclusionQueryStack.top().query_set->Raw.Get(), D3D12_QUERY_TYPE_OCCLUSION, OcclusionQueryStack.top().query_index ); OcclusionQueryStack.pop(); },
+			[&]( const XE::GraphicsRenderPassEncoder::EndPipelineStatisticsQuery & info ) { list->EndQuery( PipelineStatisticsQueryStack.top().query_set->Raw.Get(), D3D12_QUERY_TYPE_PIPELINE_STATISTICS,  PipelineStatisticsQueryStack.top().query_index ); PipelineStatisticsQueryStack.pop(); },
+			[&]( const XE::GraphicsRenderPassEncoder::ExecuteBundles & info ) { for ( const auto & it : info.bundles ) list->ExecuteBundle( it->Raw.Get() ); },
+			[&]( const XE::GraphicsRenderPassEncoder::InsertDebugMarker & info ) { list->SetMarker( 0, info.marker_label.c_str(), info.marker_label.size() ); },
+			[&]( const XE::GraphicsRenderPassEncoder::PopDebugGroup & info ) { list->EndEvent(); },
+			[&]( const XE::GraphicsRenderPassEncoder::PushDebugGroup & info ) { list->BeginEvent( 0, info.group_label.c_str(), info.group_label.size() ); },
+			[&]( const XE::GraphicsRenderPassEncoder::SetBindGroup & info ) { /* TODO */ },
+			[&]( const XE::GraphicsRenderPassEncoder::SetBlendConstant & info ) { list->OMSetBlendFactor( XE::FColor( info.color ).d ); },
+			[&]( const XE::GraphicsRenderPassEncoder::SetIndexBuffer & info ) { D3D12_INDEX_BUFFER_VIEW view{ info.buffer->Raw->GetGPUVirtualAddress() + info.offset, (UINT)info.size, Cast( info.format ) }; list->IASetIndexBuffer( &view ); },
+			[&]( const XE::GraphicsRenderPassEncoder::SetPipeline & info ) { list->SetGraphicsRootSignature( info.pipeline->Desc.Layout->Raw.Get() ); list->SetPipelineState( info.pipeline->Raw.Get() ); for ( size_t i = 0; i < VertexBuffers.size(); i++ ) { VertexBuffers[i].StrideInBytes = info.pipeline->Desc.Vertex.Buffers[i].ArrayStride; } },
+			[&]( const XE::GraphicsRenderPassEncoder::SetScissorRect & info ) { list->RSSetScissorRects( 1, &info.rect ); },
+			[&]( const XE::GraphicsRenderPassEncoder::SetStencilReference & info ) { list->OMSetStencilRef( info.reference ); },
+			[&]( const XE::GraphicsRenderPassEncoder::SetVertexBuffer & info ) { if ( VertexBuffers.size() <= info.slot ) VertexBuffers.resize( (XE::uint64)info.slot + 1 ); VertexBuffers[info.slot].BufferLocation = info.buffer->Raw->GetGPUVirtualAddress() + info.offset; VertexBuffers[info.slot].SizeInBytes = info.size; VertexBuffers[info.slot].StrideInBytes; },
+			[&]( const XE::GraphicsRenderPassEncoder::SetViewport & info ) { list->RSSetViewports( 1, &info.viewport ); } }
+		, render_pass_encoder->CommandInfos.front() );
+
+		render_pass_encoder->CommandInfos.pop();
+	}
+
+	list->SetDescriptorHeaps( 0, nullptr );
+	list->EndEvent();
 }
 
 void XE::GraphicsService::RenderPassEncoderEndOcclusionQuery( XE::GraphicsRenderPassEncoderPtr render_pass_encoder )
 {
-	render_pass_encoder->Raw->EndQuery( render_pass_encoder->OcclusionQuery->Raw.Get(), D3D12_QUERY_TYPE_OCCLUSION, render_pass_encoder->OcclusionQueryIndex );
-	render_pass_encoder->OcclusionQueryIndex = 0;
-	render_pass_encoder->OcclusionQuery = nullptr;
+	render_pass_encoder->CommandInfos.push( XE::GraphicsRenderPassEncoder::EndOcclusionQuery() );
 }
 
 void XE::GraphicsService::RenderPassEncoderEndPipelineStatisticsQuery( XE::GraphicsRenderPassEncoderPtr render_pass_encoder )
 {
-	render_pass_encoder->Raw->EndQuery( render_pass_encoder->PipelineStatisticsQuery->Raw.Get(), D3D12_QUERY_TYPE_PIPELINE_STATISTICS, render_pass_encoder->PipelineStatisticsQueryIndex );
-	render_pass_encoder->PipelineStatisticsQueryIndex = 0;
-	render_pass_encoder->PipelineStatisticsQuery = nullptr;
+	render_pass_encoder->CommandInfos.push( XE::GraphicsRenderPassEncoder::EndPipelineStatisticsQuery() );
 }
 
 void XE::GraphicsService::RenderPassEncoderExecuteBundles( XE::GraphicsRenderPassEncoderPtr render_pass_encoder, const XE::Array< XE::GraphicsRenderBundlePtr > & bundles )
 {
-	for ( const auto & it : bundles )
+	XE::GraphicsRenderPassEncoder::ExecuteBundles info;
 	{
-		render_pass_encoder->Raw->ExecuteBundle( it->Raw.Get() );
+		info.bundles = bundles;
 	}
+	render_pass_encoder->CommandInfos.push( info );
 }
 
 void XE::GraphicsService::RenderPassEncoderInsertDebugMarker( XE::GraphicsRenderPassEncoderPtr render_pass_encoder, const XE::String & marker_label )
 {
-	render_pass_encoder->Raw->SetMarker( 0, marker_label.c_str(), marker_label.size() );
+	XE::GraphicsRenderPassEncoder::InsertDebugMarker info;
+	{
+		info.marker_label = marker_label;
+	}
+	render_pass_encoder->CommandInfos.push( info );
 }
 
 void XE::GraphicsService::RenderPassEncoderPopDebugGroup( XE::GraphicsRenderPassEncoderPtr render_pass_encoder )
 {
-	render_pass_encoder->Raw->EndEvent();
+	render_pass_encoder->CommandInfos.push( XE::GraphicsRenderPassEncoder::PopDebugGroup() );
 }
 
 void XE::GraphicsService::RenderPassEncoderPushDebugGroup( XE::GraphicsRenderPassEncoderPtr render_pass_encoder, const XE::String & group_label )
 {
-	render_pass_encoder->Raw->BeginEvent( 0, group_label.c_str(), group_label.size() );
+	XE::GraphicsRenderPassEncoder::PushDebugGroup info;
+	{
+		info.group_label = group_label;
+	}
+	render_pass_encoder->CommandInfos.push( info );
 }
 
-void XE::GraphicsService::RenderPassEncoderSetBindGroup( XE::GraphicsRenderPassEncoderPtr render_pass_encoder, XE::uint32 group_index, XE::GraphicsBindGroupPtr group, XE::uint32 dynamic_offset_count, XE::uint32 & dynamic_offsets )
+void XE::GraphicsService::RenderPassEncoderSetBindGroup( XE::GraphicsRenderPassEncoderPtr render_pass_encoder, XE::uint32 group_index, XE::GraphicsBindGroupPtr group, XE::uint32 dynamic_offset_count, XE::uint32 dynamic_offsets )
 {
-	// TODO: 
+	XE::GraphicsRenderPassEncoder::SetBindGroup info;
+	{
+		info.group_index = group_index;
+		info.group = group;
+		info.dynamic_offset_count = dynamic_offset_count;
+		info.dynamic_offsets = dynamic_offsets;
+	}
+	render_pass_encoder->CommandInfos.push( info );
 }
 
 void XE::GraphicsService::RenderPassEncoderSetBlendConstant( XE::GraphicsRenderPassEncoderPtr render_pass_encoder, const XE::Color & color )
 {
-	XE::FColor fc = color;
-	render_pass_encoder->Raw->OMSetBlendFactor( fc.d );
+	XE::GraphicsRenderPassEncoder::SetBlendConstant info;
+	{
+		info.color = color;
+	}
+	render_pass_encoder->CommandInfos.push( info );
 }
 
 void XE::GraphicsService::RenderPassEncoderSetIndexBuffer( XE::GraphicsRenderPassEncoderPtr render_pass_encoder, XE::GraphicsBufferPtr buffer, XE::GraphicsIndexFormat format, XE::uint64 offset, XE::uint64 size )
 {
-	D3D12_INDEX_BUFFER_VIEW view = {};
+	XE::GraphicsRenderPassEncoder::SetIndexBuffer info;
 	{
-		view.BufferLocation = buffer->Raw->GetGPUVirtualAddress() + offset;
-		view.SizeInBytes = size;
-		view.Format = Cast( format );
+		info.buffer = buffer;
+		info.format = format;
+		info.offset = offset;
+		info.size = size;
 	}
-
-	render_pass_encoder->Raw->IASetIndexBuffer( &view );
+	render_pass_encoder->CommandInfos.push( info );
 }
 
 void XE::GraphicsService::RenderPassEncoderSetPipeline( XE::GraphicsRenderPassEncoderPtr render_pass_encoder, XE::GraphicsRenderPipelinePtr pipeline )
 {
-	render_pass_encoder->Raw->SetGraphicsRootSignature( pipeline->Desc.Layout->Raw.Get() );
-	render_pass_encoder->Raw->SetPipelineState( pipeline->Raw.Get() );
+	XE::GraphicsRenderPassEncoder::SetPipeline info;
+	{
+		info.pipeline = pipeline;
+	}
+	render_pass_encoder->CommandInfos.push( info );
 }
 
 void XE::GraphicsService::RenderPassEncoderSetScissorRect( XE::GraphicsRenderPassEncoderPtr render_pass_encoder, const XE::Recti & rect )
 {
-	D3D12_RECT r = {};
+	XE::GraphicsRenderPassEncoder::SetScissorRect info;
 	{
-		r.left = rect.GetLeft();
-		r.right = rect.GetRight();
-		r.top = rect.GetTop();
-		r.bottom = rect.GetBottom();
+		info.rect.left = rect.GetLeft();
+		info.rect.right = rect.GetRight();
+		info.rect.top = rect.GetTop();
+		info.rect.bottom = rect.GetBottom();
 	}
-
-	render_pass_encoder->Raw->RSSetScissorRects( 1, &r );
+	render_pass_encoder->CommandInfos.push( info );
 }
 
 void XE::GraphicsService::RenderPassEncoderSetStencilReference( XE::GraphicsRenderPassEncoderPtr render_pass_encoder, XE::uint32 reference )
 {
-	render_pass_encoder->Raw->OMSetStencilRef( reference );
+	XE::GraphicsRenderPassEncoder::SetStencilReference info;
+	{
+		info.reference = reference;
+	}
+	render_pass_encoder->CommandInfos.push( info );
 }
 
 void XE::GraphicsService::RenderPassEncoderSetVertexBuffer( XE::GraphicsRenderPassEncoderPtr render_pass_encoder, XE::uint32 slot, XE::GraphicsBufferPtr buffer, XE::uint64 offset, XE::uint64 size )
 {
-	D3D12_VERTEX_BUFFER_VIEW view = {};
+	XE::GraphicsRenderPassEncoder::SetVertexBuffer info;
 	{
-		view.BufferLocation = buffer->Raw->GetGPUVirtualAddress() + offset;
-		view.SizeInBytes = size;
-		// TODO: view.StrideInBytes = buffer->;
+		info.slot = slot;
+		info.size = size;
+		info.buffer = buffer;
+		info.offset = offset;
 	}
-
-	if ( render_pass_encoder->VertexBuffers.size() <= slot )
-	{
-		render_pass_encoder->VertexBuffers.resize( slot );
-	}
-
-	render_pass_encoder->VertexBuffers[slot] = view;
+	render_pass_encoder->CommandInfos.push( info );
 }
 
 void XE::GraphicsService::RenderPassEncoderSetViewport( XE::GraphicsRenderPassEncoderPtr render_pass_encoder, XE::float32 x, XE::float32 y, XE::float32 width, XE::float32 height, XE::float32 min_depth, XE::float32 max_depth )
 {
-	D3D12_VIEWPORT view_port = {};
+	XE::GraphicsRenderPassEncoder::SetViewport info;
 	{
-		view_port.TopLeftX = x;
-		view_port.TopLeftY = y;
-		view_port.Width = width;
-		view_port.Height = height;
-		view_port.MinDepth = min_depth;
-		view_port.MaxDepth = max_depth;
+		info.viewport.TopLeftX = x;
+		info.viewport.TopLeftY = y;
+		info.viewport.Width = width;
+		info.viewport.Height = height;
+		info.viewport.MinDepth = min_depth;
+		info.viewport.MaxDepth = max_depth;
 	}
-
-	render_pass_encoder->Raw->RSSetViewports( 1, &view_port );
+	render_pass_encoder->CommandInfos.push( info );
 }
 
 void XE::GraphicsService::RenderBundleEncoderDraw( XE::GraphicsRenderBundleEncoderPtr render_bundle_encoder, XE::uint32 vertex_count, XE::uint32 instance_count, XE::uint32 first_vertex, XE::uint32 first_instance )
 {
-	render_bundle_encoder->Raw->DrawInstanced( vertex_count, instance_count, first_vertex, first_instance );
+	XE::GraphicsRenderBundleEncoder::Draw info;
+	{
+		info.vertex_count = vertex_count;
+		info.instance_count = instance_count;
+		info.first_vertex = first_vertex;
+		info.first_instance = first_instance;
+	}
+	render_bundle_encoder->CommandInfos.push( info );
 }
 
 void XE::GraphicsService::RenderBundleEncoderDrawIndexed( XE::GraphicsRenderBundleEncoderPtr render_bundle_encoder, XE::uint32 index_count, XE::uint32 instance_count, XE::uint32 first_index, XE::int32 base_vertex, XE::uint32 first_instance )
 {
-	render_bundle_encoder->Raw->DrawIndexedInstanced( index_count, instance_count, first_index, base_vertex, first_instance );
+	XE::GraphicsRenderBundleEncoder::DrawIndexed info;
+	{
+		info.index_count = index_count;
+		info.instance_count = instance_count;
+		info.first_index = first_index;
+		info.base_vertex = base_vertex;
+		info.first_instance = first_instance;
+	}
+	render_bundle_encoder->CommandInfos.push( info );
 }
 
 void XE::GraphicsService::RenderBundleEncoderDrawIndexedIndirect( XE::GraphicsRenderBundleEncoderPtr render_bundle_encoder, XE::GraphicsBufferPtr indirect_buffer, XE::uint64 indirect_offset )
 {
-	render_bundle_encoder->Raw->ExecuteIndirect( render_bundle_encoder->Parent->DrawIndexedIndirectSignature.Get(), 1, indirect_buffer->Raw.Get(), indirect_offset, nullptr, 0 );
+	XE::GraphicsRenderBundleEncoder::DrawIndexedIndirect info;
+	{
+		info.indirect_buffer = indirect_buffer;
+		info.indirect_offset = indirect_offset;
+	}
+	render_bundle_encoder->CommandInfos.push( info );
 }
 
 void XE::GraphicsService::RenderBundleEncoderDrawIndirect( XE::GraphicsRenderBundleEncoderPtr render_bundle_encoder, XE::GraphicsBufferPtr indirect_buffer, XE::uint64 indirect_offset )
 {
-	render_bundle_encoder->Raw->ExecuteIndirect( render_bundle_encoder->Parent->DrawIndexedIndirectSignature.Get(), 1, indirect_buffer->Raw.Get(), indirect_offset, nullptr, 0 );
+	XE::GraphicsRenderBundleEncoder::DrawIndirect info;
+	{
+		info.indirect_buffer = indirect_buffer;
+		info.indirect_offset = indirect_offset;
+	}
+	render_bundle_encoder->CommandInfos.push( info );
 }
 
 XE::GraphicsRenderBundlePtr XE::GraphicsService::RenderBundleEncoderFinish( XE::GraphicsRenderBundleEncoderPtr render_bundle_encoder, const XE::GraphicsRenderBundleDescriptor & descriptor )
 {
 	auto bundle = _p->_RenderBundles.Alloc();
 
-	render_bundle_encoder->Raw->IASetVertexBuffers( 0, render_bundle_encoder->VertexBuffers.size(), render_bundle_encoder->VertexBuffers.data() );
-
 	bundle->Desc = descriptor;
 	bundle->Parent = render_bundle_encoder->Parent;
-	bundle->CommandAllocator = render_bundle_encoder->CommandAllocator;
-	bundle->Raw = render_bundle_encoder->Raw;
 
-	return bundle;
+	if ( SUCCEEDED( bundle->Parent->Raw->CreateCommandAllocator( D3D12_COMMAND_LIST_TYPE_BUNDLE, IID_PPV_ARGS( bundle->CommandAllocator.GetAddressOf() ) ) ) )
+	{
+		if ( SUCCEEDED( bundle->Parent->Raw->CreateCommandList( 0, D3D12_COMMAND_LIST_TYPE_BUNDLE, bundle->CommandAllocator.Get(), nullptr, IID_PPV_ARGS( bundle->Raw.GetAddressOf() ) ) ) )
+		{
+			XE::Array< D3D12_VERTEX_BUFFER_VIEW > VertexBuffers( XE::MemoryResource::GetFrameMemoryResource() );
+			XE::Stack< XE::GraphicsRenderBundleEncoder::BeginOcclusionQuery > OcclusionQueryStack( XE::MemoryResource::GetFrameMemoryResource() );
+			XE::Stack< XE::GraphicsRenderBundleEncoder::BeginPipelineStatisticsQuery > PipelineStatisticsQueryStack( XE::MemoryResource::GetFrameMemoryResource() );
+
+			D3D12CommandListPtr list = bundle->Raw;
+			
+			while ( !render_bundle_encoder->CommandInfos.empty() )
+			{
+				std::visit( XE::Overloaded{
+					[&]( const std::monostate & info ) {},
+					[&]( const XE::GraphicsRenderBundleEncoder::BeginOcclusionQuery & info ) { OcclusionQueryStack.push( info ); list->BeginQuery( info.query_set->Raw.Get(), D3D12_QUERY_TYPE_OCCLUSION, info.query_index ); },
+					[&]( const XE::GraphicsRenderBundleEncoder::BeginPipelineStatisticsQuery & info ) { PipelineStatisticsQueryStack.push( info ); list->BeginQuery( info.query_set->Raw.Get(), D3D12_QUERY_TYPE_PIPELINE_STATISTICS, info.query_index ); },
+					[&]( const XE::GraphicsRenderBundleEncoder::Draw & info ) { list->IASetVertexBuffers( 0, VertexBuffers.size(), VertexBuffers.data() ); list->DrawInstanced( info.vertex_count, info.instance_count, info.first_vertex, info.first_instance ); },
+					[&]( const XE::GraphicsRenderBundleEncoder::DrawIndexed & info ) { list->IASetVertexBuffers( 0, VertexBuffers.size(), VertexBuffers.data() );  list->DrawIndexedInstanced( info.index_count, info.instance_count, info.first_index, info.base_vertex, info.first_instance ); },
+					[&]( const XE::GraphicsRenderBundleEncoder::DrawIndexedIndirect & info ) { list->IASetVertexBuffers( 0, VertexBuffers.size(), VertexBuffers.data() );  list->ExecuteIndirect( bundle->Parent->DrawIndexedIndirectSignature.Get(), 1, info.indirect_buffer->Raw.Get(), info.indirect_offset, nullptr, 0 ); },
+					[&]( const XE::GraphicsRenderBundleEncoder::DrawIndirect & info ) { list->IASetVertexBuffers( 0, VertexBuffers.size(), VertexBuffers.data() );  list->ExecuteIndirect( bundle->Parent->DrawIndirectSignature.Get(), 1, info.indirect_buffer->Raw.Get(), info.indirect_offset, nullptr, 0 ); },
+					[&]( const XE::GraphicsRenderBundleEncoder::InsertDebugMarker & info ) { list->SetMarker( 0, info.marker_label.c_str(), info.marker_label.size() ); },
+					[&]( const XE::GraphicsRenderBundleEncoder::PopDebugGroup & info ) { list->EndEvent(); },
+					[&]( const XE::GraphicsRenderBundleEncoder::PushDebugGroup & info ) { list->BeginEvent( 0, info.group_label.c_str(), info.group_label.size() ); },
+					[&]( const XE::GraphicsRenderBundleEncoder::SetBindGroup & info ) { /* TODO */ },
+					[&]( const XE::GraphicsRenderBundleEncoder::SetIndexBuffer & info ) { D3D12_INDEX_BUFFER_VIEW view{ info.buffer->Raw->GetGPUVirtualAddress() + info.offset, (UINT)info.size, Cast( info.format ) }; list->IASetIndexBuffer( &view ); },
+					[&]( const XE::GraphicsRenderBundleEncoder::SetPipeline & info ) { list->SetGraphicsRootSignature( info.pipeline->Desc.Layout->Raw.Get() ); list->SetPipelineState( info.pipeline->Raw.Get() ); for ( size_t i = 0; i < VertexBuffers.size(); i++ ) { VertexBuffers[i].StrideInBytes = info.pipeline->Desc.Vertex.Buffers[i].ArrayStride; } },
+					[&]( const XE::GraphicsRenderBundleEncoder::SetVertexBuffer & info ) { if ( VertexBuffers.size() <= info.slot ) VertexBuffers.resize( (XE::uint64)info.slot + 1 ); VertexBuffers[info.slot].BufferLocation = info.buffer->Raw->GetGPUVirtualAddress() + info.offset; VertexBuffers[info.slot].SizeInBytes = info.size; VertexBuffers[info.slot].StrideInBytes; } }
+				, render_bundle_encoder->CommandInfos.front() );
+
+				render_bundle_encoder->CommandInfos.pop();
+			}
+
+			return bundle;
+		}
+	}
+
+	return {};
 }
 
 void XE::GraphicsService::RenderBundleEncoderInsertDebugMarker( XE::GraphicsRenderBundleEncoderPtr render_bundle_encoder, const XE::String & marker_label )
 {
-	render_bundle_encoder->Raw->SetMarker( 0, marker_label.c_str(), marker_label.size() );
+	XE::GraphicsRenderBundleEncoder::InsertDebugMarker info;
+	{
+		info.marker_label = marker_label;
+	}
+	render_bundle_encoder->CommandInfos.push( info );
 }
 
 void XE::GraphicsService::RenderBundleEncoderPopDebugGroup( XE::GraphicsRenderBundleEncoderPtr render_bundle_encoder )
 {
-	render_bundle_encoder->Raw->EndEvent();
+	render_bundle_encoder->CommandInfos.push( XE::GraphicsRenderBundleEncoder::PopDebugGroup() );
 }
 
 void XE::GraphicsService::RenderBundleEncoderPushDebugGroup( XE::GraphicsRenderBundleEncoderPtr render_bundle_encoder, const XE::String & group_label )
 {
-	render_bundle_encoder->Raw->BeginEvent( 0, group_label.c_str(), group_label.size() );
+	XE::GraphicsRenderBundleEncoder::PushDebugGroup info;
+	{
+		info.group_label = group_label;
+	}
+	render_bundle_encoder->CommandInfos.push( info );
 }
 
-void XE::GraphicsService::RenderBundleEncoderSetBindGroup( XE::GraphicsRenderBundleEncoderPtr render_bundle_encoder, XE::uint32 group_index, XE::GraphicsBindGroupPtr group, XE::uint32 dynamic_offset_count, XE::uint32 & dynamic_offsets )
+void XE::GraphicsService::RenderBundleEncoderSetBindGroup( XE::GraphicsRenderBundleEncoderPtr render_bundle_encoder, XE::uint32 group_index, XE::GraphicsBindGroupPtr group, XE::uint32 dynamic_offset_count, XE::uint32 dynamic_offsets )
 {
-	// TODO: 
+	XE::GraphicsRenderBundleEncoder::SetBindGroup info;
+	{
+		info.group_index = group_index;
+		info.group = group;
+		info.dynamic_offset_count = dynamic_offset_count;
+		info.dynamic_offsets = dynamic_offsets;
+	}
+	render_bundle_encoder->CommandInfos.push( info );
 }
 
 void XE::GraphicsService::RenderBundleEncoderSetIndexBuffer( XE::GraphicsRenderBundleEncoderPtr render_bundle_encoder, XE::GraphicsBufferPtr buffer, XE::GraphicsIndexFormat format, XE::uint64 offset, XE::uint64 size )
 {
-	D3D12_INDEX_BUFFER_VIEW view = {};
+	XE::GraphicsRenderBundleEncoder::SetIndexBuffer info;
 	{
-		view.BufferLocation = buffer->Raw->GetGPUVirtualAddress() + offset;
-		view.SizeInBytes = size;
-		view.Format = Cast( format );
+		info.buffer = buffer;
+		info.format = format;
+		info.offset = offset;
+		info.size = size;
 	}
-
-	render_bundle_encoder->Raw->IASetIndexBuffer( &view );
+	render_bundle_encoder->CommandInfos.push( info );
 }
 
 void XE::GraphicsService::RenderBundleEncoderSetPipeline( XE::GraphicsRenderBundleEncoderPtr render_bundle_encoder, XE::GraphicsRenderPipelinePtr pipeline )
 {
-	render_bundle_encoder->Raw->SetGraphicsRootSignature( pipeline->Desc.Layout->Raw.Get() );
-	render_bundle_encoder->Raw->SetPipelineState( pipeline->Raw.Get() );
+	XE::GraphicsRenderBundleEncoder::SetPipeline info;
+	{
+		info.pipeline = pipeline;
+	}
+	render_bundle_encoder->CommandInfos.push( info );
 }
 
 void XE::GraphicsService::RenderBundleEncoderSetVertexBuffer( XE::GraphicsRenderBundleEncoderPtr render_bundle_encoder, XE::uint32 slot, XE::GraphicsBufferPtr buffer, XE::uint64 offset, XE::uint64 size )
 {
-	D3D12_VERTEX_BUFFER_VIEW view = {};
+	XE::GraphicsRenderBundleEncoder::SetVertexBuffer info;
 	{
-		view.BufferLocation = buffer->Raw->GetGPUVirtualAddress() + offset;
-		view.SizeInBytes = size;
-		// TODO: view.StrideInBytes = buffer->
+		info.slot = slot;
+		info.size = size;
+		info.buffer = buffer;
+		info.offset = offset;
 	}
-
-	if ( render_bundle_encoder->VertexBuffers.size() <= slot )
-	{
-		render_bundle_encoder->VertexBuffers.resize( slot );
-	}
-
-	render_bundle_encoder->VertexBuffers[slot] = view;
+	render_bundle_encoder->CommandInfos.push( info );
 }
 
 XE::GraphicsBindGroupLayoutPtr XE::GraphicsService::ComputePipelineGetBindGroupLayout( XE::GraphicsComputePipelinePtr compute_pipeline, XE::uint32 group_index )
