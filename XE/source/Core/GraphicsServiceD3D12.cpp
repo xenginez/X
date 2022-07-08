@@ -752,7 +752,7 @@ namespace XE
 		struct InsertDebugMarker { XE::String marker_label; };
 		struct PopDebugGroup { };
 		struct PushDebugGroup { XE::String group_label; };
-		struct SetBindGroup { XE::uint32 group_index = 0; XE::GraphicsBindGroupPtr group; XE::uint32 dynamic_offset_count = 0; XE::uint32 dynamic_offsets = 0; };
+		struct SetBindGroup { XE::uint32 group_index = 0; XE::GraphicsBindGroupPtr group; XE::Array< XE::uint32 > dynamic_offsets; };
 		struct SetPipeline { XE::GraphicsComputePipelinePtr pipeline; };
 		using Info = std::variant< std::monostate, BeginPipelineStatisticsQuery, Dispatch, DispatchIndirect, EndPipelineStatisticsQuery, InsertDebugMarker, PopDebugGroup, PushDebugGroup, SetBindGroup, SetPipeline >;
 
@@ -815,7 +815,7 @@ namespace XE
 		struct InsertDebugMarker { XE::String marker_label; };
 		struct PopDebugGroup {};
 		struct PushDebugGroup { XE::String group_label; };
-		struct SetBindGroup { XE::uint32 group_index = 0; XE::GraphicsBindGroupPtr group; XE::uint32 dynamic_offset_count = 0; XE::uint32 dynamic_offsets = 0; };
+		struct SetBindGroup { XE::uint32 group_index = 0; XE::GraphicsBindGroupPtr group; XE::Array< XE::uint32 > dynamic_offsets; };
 		struct SetIndexBuffer { XE::GraphicsBufferPtr buffer; XE::GraphicsIndexFormat format = GraphicsIndexFormat::UINT16; XE::uint64 offset = 0; XE::uint64 size = 0; };
 		struct SetPipeline { XE::GraphicsRenderPipelinePtr pipeline; };
 		struct SetVertexBuffer { XE::uint32 slot = 0; XE::GraphicsBufferPtr buffer; XE::uint64 offset = 0; XE::uint64 size = 0; };
@@ -843,7 +843,7 @@ namespace XE
 		struct InsertDebugMarker { XE::String marker_label; };
 		struct PopDebugGroup {};
 		struct PushDebugGroup { XE::String group_label; };
-		struct SetBindGroup { XE::uint32 group_index = 0; XE::GraphicsBindGroupPtr group; XE::uint32 dynamic_offset_count = 0; XE::uint32 dynamic_offsets = 0; };
+		struct SetBindGroup { XE::uint32 group_index = 0; XE::GraphicsBindGroupPtr group; XE::Array< XE::uint32 > dynamic_offsets; };
 		struct SetBlendConstant { XE::Color color; };
 		struct SetIndexBuffer { XE::GraphicsBufferPtr buffer; XE::GraphicsIndexFormat format = GraphicsIndexFormat::UINT16; XE::uint64 offset = 0; XE::uint64 size = 0; };
 		struct SetPipeline { XE::GraphicsRenderPipelinePtr pipeline; };
@@ -2772,13 +2772,12 @@ void XE::GraphicsService::ComputePassEncoderPushDebugGroup( XE::GraphicsComputeP
 	compute_pass_encoder->CommandInfos.push( info );
 }
 
-void XE::GraphicsService::ComputePassEncoderSetBindGroup( XE::GraphicsComputePassEncoderPtr compute_pass_encoder, XE::uint32 group_index, XE::GraphicsBindGroupPtr group, XE::uint32 dynamic_offset_count, XE::uint32 dynamic_offsets )
+void XE::GraphicsService::ComputePassEncoderSetBindGroup( XE::GraphicsComputePassEncoderPtr compute_pass_encoder, XE::uint32 group_index, XE::GraphicsBindGroupPtr group, const XE::Array< XE::uint32 > & dynamic_offsets )
 {
 	XE::GraphicsComputePassEncoder::SetBindGroup info;
 	{
 		info.group_index = group_index;
 		info.group = group;
-		info.dynamic_offset_count = dynamic_offset_count;
 		info.dynamic_offsets = dynamic_offsets;
 	}
 	compute_pass_encoder->CommandInfos.push( info );
@@ -2945,13 +2944,12 @@ void XE::GraphicsService::RenderPassEncoderPushDebugGroup( XE::GraphicsRenderPas
 	render_pass_encoder->CommandInfos.push( info );
 }
 
-void XE::GraphicsService::RenderPassEncoderSetBindGroup( XE::GraphicsRenderPassEncoderPtr render_pass_encoder, XE::uint32 group_index, XE::GraphicsBindGroupPtr group, XE::uint32 dynamic_offset_count, XE::uint32 dynamic_offsets )
+void XE::GraphicsService::RenderPassEncoderSetBindGroup( XE::GraphicsRenderPassEncoderPtr render_pass_encoder, XE::uint32 group_index, XE::GraphicsBindGroupPtr group, const XE::Array< XE::uint32 > & dynamic_offsets )
 {
 	XE::GraphicsRenderPassEncoder::SetBindGroup info;
 	{
 		info.group_index = group_index;
 		info.group = group;
-		info.dynamic_offset_count = dynamic_offset_count;
 		info.dynamic_offsets = dynamic_offsets;
 	}
 	render_pass_encoder->CommandInfos.push( info );
@@ -3148,13 +3146,12 @@ void XE::GraphicsService::RenderBundleEncoderPushDebugGroup( XE::GraphicsRenderB
 	render_bundle_encoder->CommandInfos.push( info );
 }
 
-void XE::GraphicsService::RenderBundleEncoderSetBindGroup( XE::GraphicsRenderBundleEncoderPtr render_bundle_encoder, XE::uint32 group_index, XE::GraphicsBindGroupPtr group, XE::uint32 dynamic_offset_count, XE::uint32 dynamic_offsets )
+void XE::GraphicsService::RenderBundleEncoderSetBindGroup( XE::GraphicsRenderBundleEncoderPtr render_bundle_encoder, XE::uint32 group_index, XE::GraphicsBindGroupPtr group, const XE::Array< XE::uint32 > & dynamic_offsets )
 {
 	XE::GraphicsRenderBundleEncoder::SetBindGroup info;
 	{
 		info.group_index = group_index;
 		info.group = group;
-		info.dynamic_offset_count = dynamic_offset_count;
 		info.dynamic_offsets = dynamic_offsets;
 	}
 	render_bundle_encoder->CommandInfos.push( info );

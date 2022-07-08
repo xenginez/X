@@ -4,8 +4,6 @@
 
 IMPLEMENT_META( ImGuiStyle );
 
-#define GRAPHICS_SERVICE (XE::CoreFramework::GetCurrentFramework()->GetServiceT< XE::GraphicsService >())
-
 namespace
 {
 	struct RenderResources
@@ -124,6 +122,8 @@ struct XE::ImGuiImpl::Private
 	XE::Array< XE::GraphicsBindGroupPtr > _BindGroups;
 	XE::Array< XE::GraphicsTextureViewPtr > _TextureViews;
 	XE::ConcurrentHashMap< ImGuiContext *, ImGuiContextPrivate * > _Impls;
+
+	XE::GraphicsServicePtr _GraphicsService;
 };
 
 XE::ImGuiImpl::ImGuiImpl()
@@ -139,8 +139,9 @@ XE::ImGuiImpl::~ImGuiImpl()
 
 void XE::ImGuiImpl::Startup( XE::GraphicsDevicePtr device, XE::int32 num_frames_in_flight, XE::GraphicsTextureFormat rt_format )
 {
+	_p->_GraphicsService = XE::CoreFramework::GetCurrentFramework()->GetServiceT< XE::GraphicsService >();
 	_p->_Device = device;
-	_p->_DefaultQueue = GRAPHICS_SERVICE->DeviceGetQueue( device );
+	_p->_DefaultQueue = _p->_GraphicsService->DeviceGetQueue( device );
 	_p->_RenderTargetFormat = rt_format;
 	_p->_FrameResources = new FrameResources[num_frames_in_flight];
 	_p->_NumFramesInFlight = num_frames_in_flight;
@@ -176,6 +177,8 @@ void XE::ImGuiImpl::Clearup()
 	_p->_Device = {};
 	_p->_NumFramesInFlight = 0;
 	_p->_FrameIndex = std::numeric_limits<XE::uint32>::max();
+
+	_p->_GraphicsService = nullptr;
 }
 
 bool XE::ImGuiImpl::StartupContext( ImGuiContext * ctx )
@@ -219,7 +222,10 @@ void XE::ImGuiImpl::RenderContext( ImGuiContext * ctx, XE::GraphicsRenderPassEnc
 	ImGuiContextPrivate * p = nullptr;
 	if ( !_p->_Impls.find( ctx, p ) )
 	{
-		ImDrawData * draw_data = ctx->Viewports[0]->DrawDataP.Valid ? &ctx->Viewports[0]->DrawDataP : nullptr;
+		if ( !ctx->Viewports[0]->DrawDataP.Valid )
+			return;
+
+		ImDrawData * draw_data = &ctx->Viewports[0]->DrawDataP;
 
 		// Avoid rendering when minimized
 		if ( draw_data->DisplaySize.x <= 0.0f || draw_data->DisplaySize.y <= 0.0f )
@@ -245,7 +251,7 @@ void XE::ImGuiImpl::RenderContext( ImGuiContext * ctx, XE::GraphicsRenderPassEnc
 				fr->VertexBufferSize * sizeof( ImDrawVert ),
 				false
 			};
-			fr->VertexBuffer = GRAPHICS_SERVICE->DeviceCreateBuffer( _p->_Device, vb_desc );
+			fr->VertexBuffer = _p->_GraphicsService->DeviceCreateBuffer( _p->_Device, vb_desc );
 			if ( !fr->VertexBuffer )
 				return;
 
@@ -265,7 +271,7 @@ void XE::ImGuiImpl::RenderContext( ImGuiContext * ctx, XE::GraphicsRenderPassEnc
 				fr->IndexBufferSize * sizeof( ImDrawIdx ),
 				false
 			};
-			fr->IndexBuffer = GRAPHICS_SERVICE->DeviceCreateBuffer( _p->_Device, ib_desc );
+			fr->IndexBuffer = _p->_GraphicsService->DeviceCreateBuffer( _p->_Device, ib_desc );
 			if ( !fr->IndexBuffer )
 				return;
 
@@ -285,8 +291,8 @@ void XE::ImGuiImpl::RenderContext( ImGuiContext * ctx, XE::GraphicsRenderPassEnc
 		}
 		XE::uint64 vb_write_size = ( (char *)vtx_dst - (char *)fr->VertexBufferHost + 3 ) & ~3;
 		XE::uint64 ib_write_size = ( (char *)idx_dst - (char *)fr->IndexBufferHost + 3 ) & ~3;
-		GRAPHICS_SERVICE->QueueWriteBuffer( _p->_DefaultQueue, fr->VertexBuffer, 0, { reinterpret_cast<const char *>( fr->VertexBufferHost ), vb_write_size } );
-		GRAPHICS_SERVICE->QueueWriteBuffer( _p->_DefaultQueue, fr->IndexBuffer, 0, { reinterpret_cast<const char *>( fr->IndexBufferHost ), ib_write_size } );
+		_p->_GraphicsService->QueueWriteBuffer( _p->_DefaultQueue, fr->VertexBuffer, 0, { reinterpret_cast<const char *>( fr->VertexBufferHost ), vb_write_size } );
+		_p->_GraphicsService->QueueWriteBuffer( _p->_DefaultQueue, fr->IndexBuffer, 0, { reinterpret_cast<const char *>( fr->IndexBufferHost ), ib_write_size } );
 
 		// Setup desired render state
 		SetupRenderState( ctx, draw_data, pass_encoder, fr );
@@ -324,8 +330,7 @@ void XE::ImGuiImpl::RenderContext( ImGuiContext * ctx, XE::GraphicsRenderPassEnc
 						_p->_BindGroups.push_back( bind_group );
 						p->_Resources.ImageBindGroups.SetInt( tex_id_hash, _p->_BindGroups.size() - 1 );
 					}
-					XE::uint32 dyn_off = 0;
-					GRAPHICS_SERVICE->RenderPassEncoderSetBindGroup( pass_encoder, 1, bind_group, 0, dyn_off );
+					_p->_GraphicsService->RenderPassEncoderSetBindGroup( pass_encoder, 1, bind_group, {} );
 
 					// Project scissor/clipping rectangles into framebuffer space
 					ImVec2 clip_min( ( pcmd->ClipRect.x - clip_off.x ) * clip_scale.x, ( pcmd->ClipRect.y - clip_off.y ) * clip_scale.y );
@@ -334,8 +339,8 @@ void XE::ImGuiImpl::RenderContext( ImGuiContext * ctx, XE::GraphicsRenderPassEnc
 						continue;
 
 					// Apply scissor/clipping rectangle, Draw
-					GRAPHICS_SERVICE->RenderPassEncoderSetScissorRect( pass_encoder, { (XE::int32)clip_min.x, (XE::int32)clip_min.y, (XE::int32)( clip_max.x - clip_min.x ), (XE::int32)( clip_max.y - clip_min.y ) } );
-					GRAPHICS_SERVICE->RenderPassEncoderDrawIndexed( pass_encoder, pcmd->ElemCount, 1, pcmd->IdxOffset + global_idx_offset, pcmd->VtxOffset + global_vtx_offset, 0 );
+					_p->_GraphicsService->RenderPassEncoderSetScissorRect( pass_encoder, { (XE::int32)clip_min.x, (XE::int32)clip_min.y, (XE::int32)( clip_max.x - clip_min.x ), (XE::int32)( clip_max.y - clip_min.y ) } );
+					_p->_GraphicsService->RenderPassEncoderDrawIndexed( pass_encoder, pcmd->ElemCount, 1, pcmd->IdxOffset + global_idx_offset, pcmd->VtxOffset + global_vtx_offset, 0 );
 				}
 			}
 			global_idx_offset += cmd_list->IdxBuffer.Size;
@@ -428,15 +433,15 @@ bool XE::ImGuiImpl::CreateDeviceObjects( ImGuiContext * ctx )
 		depth_stencil_state.DepthBiasClamp = 0;
 		depth_stencil_state.DepthBiasSlopeScale = 0;
 
-		p->_PipelineState = GRAPHICS_SERVICE->DeviceCreateRenderPipeline( _p->_Device, graphics_pipeline_desc );
+		p->_PipelineState = _p->_GraphicsService->DeviceCreateRenderPipeline( _p->_Device, graphics_pipeline_desc );
 
 		CreateFontsTexture( ctx );
 		CreateUniformBuffer( ctx );
 
 		// Create resource bind group
 		XE::GraphicsBindGroupLayoutPtr bg_layouts[2] = {
-		GRAPHICS_SERVICE->RenderPipelineGetBindGroupLayout( p->_PipelineState, 0 ) ,
-		GRAPHICS_SERVICE->RenderPipelineGetBindGroupLayout( p->_PipelineState, 1 ) };
+		_p->_GraphicsService->RenderPipelineGetBindGroupLayout( p->_PipelineState, 0 ) ,
+		_p->_GraphicsService->RenderPipelineGetBindGroupLayout( p->_PipelineState, 1 ) };
 
 		XE::GraphicsBindGroupDescriptor common_bg_descriptor = {};
 		common_bg_descriptor.Layout = bg_layouts[0];
@@ -445,7 +450,7 @@ bool XE::ImGuiImpl::CreateDeviceObjects( ImGuiContext * ctx )
 			{ 0, p->_Resources.Uniforms, 0, sizeof( XE::Mat4x4f ), {}, {} },
 			{ 1, {},                      0, 0, p->_Resources.Sampler, {} },
 		};
-		p->_Resources.CommonBindGroup = GRAPHICS_SERVICE->DeviceCreateBindGroup( _p->_Device, common_bg_descriptor );
+		p->_Resources.CommonBindGroup = _p->_GraphicsService->DeviceCreateBindGroup( _p->_Device, common_bg_descriptor );
 
 		XE::GraphicsBindGroupPtr image_bind_group = CreateImageBindGroup( bg_layouts[1], p->_Resources.FontTextureView );
 		p->_Resources.ImageBindGroup = image_bind_group;
@@ -485,20 +490,20 @@ void XE::ImGuiImpl::SetupRenderState( ImGuiContext * ctx, ImDrawData * draw_data
 				0.0f,         0.0f,           0.5f,       0.0f,
 				( R + L ) / ( L - R ),  ( T + B ) / ( B - T ),    0.5f,       1.0f,
 			};
-			GRAPHICS_SERVICE->QueueWriteBuffer( _p->_DefaultQueue, p->_Resources.Uniforms, 0, { reinterpret_cast<const char *>( &mvp ), sizeof( mvp ) } );
+			_p->_GraphicsService->QueueWriteBuffer( _p->_DefaultQueue, p->_Resources.Uniforms, 0, { reinterpret_cast<const char *>( &mvp ), sizeof( mvp ) } );
 		}
 
 		// Setup viewport
-		GRAPHICS_SERVICE->RenderPassEncoderSetViewport( pass_encoder, 0, 0, draw_data->FramebufferScale.x * draw_data->DisplaySize.x, draw_data->FramebufferScale.y * draw_data->DisplaySize.y, 0, 1 );
+		_p->_GraphicsService->RenderPassEncoderSetViewport( pass_encoder, 0, 0, draw_data->FramebufferScale.x * draw_data->DisplaySize.x, draw_data->FramebufferScale.y * draw_data->DisplaySize.y, 0, 1 );
 
 		// Bind shader and vertex buffers
-		GRAPHICS_SERVICE->RenderPassEncoderSetVertexBuffer( pass_encoder, 0, frame_resources->VertexBuffer, 0, frame_resources->VertexBufferSize * sizeof( ImDrawVert ) );
-		GRAPHICS_SERVICE->RenderPassEncoderSetIndexBuffer( pass_encoder, frame_resources->IndexBuffer, sizeof( ImDrawIdx ) == 2 ? XE::GraphicsIndexFormat::UINT16 : XE::GraphicsIndexFormat::UINT32, 0, frame_resources->IndexBufferSize * sizeof( ImDrawIdx ) );
-		GRAPHICS_SERVICE->RenderPassEncoderSetPipeline( pass_encoder, p->_PipelineState );
-		XE::uint32 dyn_off = 0; GRAPHICS_SERVICE->RenderPassEncoderSetBindGroup( pass_encoder, 0, p->_Resources.CommonBindGroup, 0, dyn_off );
+		_p->_GraphicsService->RenderPassEncoderSetVertexBuffer( pass_encoder, 0, frame_resources->VertexBuffer, 0, frame_resources->VertexBufferSize * sizeof( ImDrawVert ) );
+		_p->_GraphicsService->RenderPassEncoderSetIndexBuffer( pass_encoder, frame_resources->IndexBuffer, sizeof( ImDrawIdx ) == 2 ? XE::GraphicsIndexFormat::UINT16 : XE::GraphicsIndexFormat::UINT32, 0, frame_resources->IndexBufferSize * sizeof( ImDrawIdx ) );
+		_p->_GraphicsService->RenderPassEncoderSetPipeline( pass_encoder, p->_PipelineState );
+		_p->_GraphicsService->RenderPassEncoderSetBindGroup( pass_encoder, 0, p->_Resources.CommonBindGroup, {} );
 
 		// Setup blend factor
-		GRAPHICS_SERVICE->RenderPassEncoderSetBlendConstant( pass_encoder, { 0, 0, 0, 0 } );
+		_p->_GraphicsService->RenderPassEncoderSetBlendConstant( pass_encoder, { 0, 0, 0, 0 } );
 	}
 }
 
@@ -525,7 +530,7 @@ void XE::ImGuiImpl::CreateFontsTexture( ImGuiContext * ctx )
 			tex_desc.Format = XE::GraphicsTextureFormat::RGBA8UNORM;
 			tex_desc.MipLevelCount = 1;
 			tex_desc.Usage = XE::MakeFlags( XE::GraphicsTextureUsage::COPY_DST, XE::GraphicsTextureUsage::TEXTURE_BINDING );
-			p->_Resources.FontTexture = GRAPHICS_SERVICE->DeviceCreateTexture( _p->_Device, tex_desc );
+			p->_Resources.FontTexture = _p->_GraphicsService->DeviceCreateTexture( _p->_Device, tex_desc );
 
 			XE::GraphicsTextureViewDescriptor tex_view_desc = {};
 			tex_view_desc.Format = XE::GraphicsTextureFormat::RGBA8UNORM;
@@ -535,7 +540,7 @@ void XE::ImGuiImpl::CreateFontsTexture( ImGuiContext * ctx )
 			tex_view_desc.BaseArrayLayer = 0;
 			tex_view_desc.ArrayLayerCount = 1;
 			tex_view_desc.Aspect = XE::GraphicsTextureAspect::ALL;
-			p->_Resources.FontTextureView = GRAPHICS_SERVICE->TextureCreateView( p->_Resources.FontTexture, tex_view_desc );
+			p->_Resources.FontTextureView = _p->_GraphicsService->TextureCreateView( p->_Resources.FontTexture, tex_view_desc );
 		}
 
 		// Upload texture data
@@ -550,7 +555,7 @@ void XE::ImGuiImpl::CreateFontsTexture( ImGuiContext * ctx )
 			layout.BytesPerRow = width * size_pp;
 			layout.RowsPerImage = height;
 			XE::Vec3i size = { (XE::int32)width, (XE::int32)height, 1 };
-			GRAPHICS_SERVICE->QueueWriteTexture( _p->_DefaultQueue, dst_view, { reinterpret_cast<const char *>( pixels ), (XE::uint64)( width * size_pp * height ) }, layout, size );
+			_p->_GraphicsService->QueueWriteTexture( _p->_DefaultQueue, dst_view, { reinterpret_cast<const char *>( pixels ), ( (XE::uint64)width * (XE::uint64)size_pp * (XE::uint64)height ) }, layout, size );
 		}
 
 		// Create the associated sampler
@@ -564,7 +569,7 @@ void XE::ImGuiImpl::CreateFontsTexture( ImGuiContext * ctx )
 			sampler_desc.AddressModeV = XE::GraphicsAddressMode::REPEAT;
 			sampler_desc.AddressModeW = XE::GraphicsAddressMode::REPEAT;
 			sampler_desc.MaxAnisotropy = 1;
-			p->_Resources.Sampler = GRAPHICS_SERVICE->DeviceCreateSampler( _p->_Device, sampler_desc );
+			p->_Resources.Sampler = _p->_GraphicsService->DeviceCreateSampler( _p->_Device, sampler_desc );
 		}
 
 		// Store our identifier
@@ -586,7 +591,7 @@ void XE::ImGuiImpl::CreateUniformBuffer( ImGuiContext * ctx )
 			sizeof( XE::Mat4x4f ),
 			false
 		};
-		p->_Resources.Uniforms = GRAPHICS_SERVICE->DeviceCreateBuffer( _p->_Device, ub_desc );
+		p->_Resources.Uniforms = _p->_GraphicsService->DeviceCreateBuffer( _p->_Device, ub_desc );
 	}
 }
 
@@ -597,7 +602,7 @@ XE::GraphicsProgrammableStageDescriptor XE::ImGuiImpl::CreateShaderModule( const
 	XE::GraphicsShaderModuleDescriptor desc = {};
 	desc.Code = { reinterpret_cast<const char *>( binary_data ), binary_data_size };
 
-	stage_desc.Shader = GRAPHICS_SERVICE->DeviceCreateShaderModule( _p->_Device, desc );
+	stage_desc.Shader = _p->_GraphicsService->DeviceCreateShaderModule( _p->_Device, desc );
 	stage_desc.EntryPoint = "main";
 
 	return stage_desc;
@@ -610,5 +615,5 @@ XE::GraphicsBindGroupPtr XE::ImGuiImpl::CreateImageBindGroup( XE::GraphicsBindGr
 	image_bg_descriptor.Layout = layout;
 	image_bg_descriptor.Entries = { { 0, {}, 0, 0, {}, texture } };
 
-	return GRAPHICS_SERVICE->DeviceCreateBindGroup( _p->_Device, image_bg_descriptor );
+	return _p->_GraphicsService->DeviceCreateBindGroup( _p->_Device, image_bg_descriptor );
 }
