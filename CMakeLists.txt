@@ -7,7 +7,6 @@ option(X_BUILD_XS "build XS library" OFF)
 option(X_BUILD_XV "build XV library" OFF)
 option(X_NO_RENDER "not render api" OFF)
 option(X_SHARED_LIBS "build dynamic library" ON)
-option(X_BUILD_TESTS "build test executable" OFF)
 
 if (CMAKE_SYSTEM_NAME MATCHES "Linux")
 	set(X_PLATFORM linux)
