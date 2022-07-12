@@ -11,7 +11,7 @@
 
 #include <QStandardItemModel>
 
-#include "../DockWidget.h"
+#include "Core/Core.h"
 
 UI_DECL( LoggerEditor );
 

@@ -9,9 +9,9 @@
 #ifndef ASSETSEDITOR_H__5E9D7DFE_346F_4735_AFAE_DE82F5673EC8
 #define ASSETSEDITOR_H__5E9D7DFE_346F_4735_AFAE_DE82F5673EC8
 
-#include "../DockWidget.h"
-
 #include <QSqlDatabase>
+
+#include "Core/Core.h"
 
 UI_DECL( AssetExplorerEditor );
 

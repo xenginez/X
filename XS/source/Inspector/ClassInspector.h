@@ -11,7 +11,7 @@
 
 #include <QTreeWidget>
 
-#include "../Inspector.h"
+#include "Core/Core.h"
 
 BEG_XS_NAMESPACE
 

@@ -9,8 +9,6 @@
 #include <QItemDelegate>
 #include <QDesktopServices>
 
-#include "MainWindow.h"
-
 namespace
 {
 	class ListViewItemDelegate : public QItemDelegate

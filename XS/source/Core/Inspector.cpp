@@ -3,10 +3,6 @@
 #include <QMap>
 #include <QVBoxLayout>
 
-#include "Inspectors/EnumInspector.h"
-#include "Inspectors/FlagInspector.h"
-#include "Inspectors/ClassInspector.h"
-
 namespace
 {
 	QMap< XE::MetaTypeCPtr, QString > _Registers = {};
@@ -48,16 +44,16 @@ XS::Inspector * XS::Inspector::Create( XS::ObjectProxy * proxy, QWidget * parent
 		{
 			if ( proxy->FindAttributeT< XE::FlagAttribute >() != nullptr )
 			{
-				result = new XS::FlagInspector( parent );
+				result = XS::Registry::ConstructT< XS::Inspector >( "XS::FlagInspector", parent );//new XS::FlagInspector( parent );
 			}
 			else
 			{
-			 	result = new XS::EnumInspector( parent );
+			 	result = XS::Registry::ConstructT< XS::Inspector >( "XS::EnumInspector", parent );//new XS::EnumInspector( parent );
 			}
 		}
 		else
 		{
-			result = new XS::ClassInspector( parent );
+			result = XS::Registry::ConstructT< XS::Inspector >( "XS::ClassInspector", parent );//new XS::ClassInspector( parent );
 		}
 	}
 

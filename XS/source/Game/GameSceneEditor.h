@@ -9,7 +9,7 @@
 #ifndef GAMESCENEEDITOR_H__391B86FC_35F4_4404_B14D_AB5418BE3285
 #define GAMESCENEEDITOR_H__391B86FC_35F4_4404_B14D_AB5418BE3285
 
-#include "../DockWidget.h"
+#include "Core/Core.h"
 
 UI_DECL( GameSceneEditor );
 
@@ -28,11 +28,15 @@ public:
 	WId display() const;
 
 private slots:
-	void OnFpsClicked( bool checked = false );
-	void OnAudioClicked( bool checked = false );
-	void OnToolsClicked( bool checked = false );
-	void OnRatioCurrentIndexChanged( int index );
-	void OnCameraCurrentIndexChanged( int index );
+	void OnLayoutClicked( bool checked = false );
+	void OnGameSceneFpsClicked( bool checked = false );
+	void OnGameSceneAudioClicked( bool checked = false );
+	void OnGameSceneToolsClicked( bool checked = false );
+	void OnGameSceneRatioCurrentIndexChanged( int index );
+	void OnGameSceneCameraCurrentIndexChanged( int index );
+
+private:
+	QWidget * CreateGameScene();
 
 private:
 	Ui::GameSceneEditor * ui;

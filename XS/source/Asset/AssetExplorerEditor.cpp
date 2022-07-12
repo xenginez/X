@@ -10,8 +10,6 @@
 #include <QFileSystemModel>
 #include <QFileIconProvider>
 
-#include "CoreFramework.h"
-
 #define ITEM_ICON_SCALE 100
 #define ITEM_HIGHT_EXT 20
 

@@ -11,7 +11,7 @@
 
 #include <QLineEdit>
 
-#include "../Inspector.h"
+#include "Core/Core.h"
 
 BEG_XS_NAMESPACE
 
