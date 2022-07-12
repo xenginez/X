@@ -2483,7 +2483,7 @@ void XE::GraphicsService::QueueWriteTexture( XE::GraphicsQueuePtr queue, const X
 	// TODO: 
 }
 
-void XE::GraphicsService::BufferMapAsync( XE::GraphicsBufferPtr buffer, XE::GraphicsMapModeFlags mode, size_t offset, size_t size, BufferMapCallback callback, void * userdata )
+void XE::GraphicsService::BufferMapAsync( XE::GraphicsBufferPtr buffer, XE::GraphicsMapModeFlags mode, size_t offset, size_t size, BufferMapCallback callback )
 {
 	// TODO: 
 }

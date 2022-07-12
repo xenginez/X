@@ -745,7 +745,6 @@ struct XE_API GraphicsCompilationMessage
     XE::uint64 LineNum;
     XE::uint64 LinePos;
     XE::uint64 Offset;
-	XE::uint64 Length;
 	XE::GraphicsCompilationMessageType Type;
 };
 
@@ -759,7 +758,7 @@ struct XE_API GraphicsComputePassTimestampWrite
 struct XE_API GraphicsConstantEntry
 {
     XE::String Key;
-    double Value;
+    XE::float64 Value;
 };
 
 struct XE_API GraphicsLimits
@@ -864,7 +863,7 @@ struct XE_API GraphicsRenderPassTimestampWrite
 
 struct XE_API GraphicsRequestAdapterOptions
 {
-//    XE::GraphicsSurfacePtr CompatibleSurface;
+    XE::GraphicsSurfacePtr CompatibleSurface;
     XE::GraphicsPowerPreference PowerPreference;
     bool ForceFallbackAdapter;
 };
@@ -1040,7 +1039,7 @@ struct XE_API GraphicsRenderPassColorAttachment
     XE::GraphicsTextureViewPtr ResolveTarget;
     XE::GraphicsLoadOp LoadOp;
     XE::GraphicsStoreOp StoreOp;
-    XE::Color ClearValue;
+    XE::FColor ClearValue;
 };
 
 struct XE_API GraphicsRequiredLimits
