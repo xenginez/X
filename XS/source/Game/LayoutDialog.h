@@ -9,7 +9,9 @@
 #ifndef LAYOUTDIALOG_H__40CFF3B5_C5A3_42FF_B957_FA61244AA0C5
 #define LAYOUTDIALOG_H__40CFF3B5_C5A3_42FF_B957_FA61244AA0C5
 
+#include <random>
 #include <QSize>
+#include <QVector>
 
 #include "Core/Core.h"
 
@@ -26,15 +28,28 @@ public:
 
 	~LayoutDialog() override;
 
-public slots:
+private slots:
 	void OnLayoutSize( QSize size );
 
 	void OnLayoutCustomSize();
 
 private:
-	Ui::LayoutDialog * ui;
-	QSize _Size;
+	void ResizeLayout();
 
+	QColor RandomColor();
+
+protected:
+	bool eventFilter( QObject * o, QEvent * e ) override;
+
+private:
+	Ui::LayoutDialog * ui;
+	QSize _Size = { 1, 1 };
+	bool _MousePress = false;
+	QPoint _MousePos = { 0, 0 };
+	int _ColorIdx = 0;
+	QColor _MouseColor = Qt::black;
+	std::random_device _RandomDevice;
+	QVector< QVector< QLabel * > > _Labels;
 };
 
 END_XS_NAMESPACE
