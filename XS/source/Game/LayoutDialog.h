@@ -24,9 +24,14 @@ class XS_API LayoutDialog : public QDialog
 	Q_OBJECT
 
 public:
-	LayoutDialog( QWidget * parent = nullptr );
+	LayoutDialog( QSize size = { 1,1 }, QWidget * parent = nullptr );
 
 	~LayoutDialog() override;
+
+public:
+	const QSize & GetRebuildSize() const;
+
+	const QVector< QRect > & GetRebuildRects() const;
 
 private slots:
 	void OnLayoutSize( QSize size );
@@ -34,18 +39,26 @@ private slots:
 	void OnLayoutCustomSize();
 
 private:
-	void ResizeLayout();
+	void ResizeLayout( bool select );
 
 	QColor RandomColor();
 
+	void Rebuild();
+
 protected:
+	void showEvent( QShowEvent * e ) override;
+
 	bool eventFilter( QObject * o, QEvent * e ) override;
 
 private:
 	Ui::LayoutDialog * ui;
+	
 	QSize _Size = { 1, 1 };
+	QVector< QRect > _Rects;
+
 	bool _MousePress = false;
 	QPoint _MousePos = { 0, 0 };
+
 	int _ColorIdx = 0;
 	QColor _MouseColor = Qt::black;
 	std::random_device _RandomDevice;

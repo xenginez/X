@@ -3,12 +3,13 @@
 #include "ui_SizeDialog.h"
 #include "ui_LayoutDialog.h"
 
+#include <QPushButton>
 #include <QGridLayout>
 #include <QMouseEvent>
+#include <QMessageBox>
 
 namespace
 {
-
 	class QLabelUserData : public QObjectUserData
 	{
 	public:
@@ -54,8 +55,8 @@ namespace
 	};
 }
 
-XS::LayoutDialog::LayoutDialog( QWidget * parent /*= nullptr */ )
-	:ui( new Ui::LayoutDialog )
+XS::LayoutDialog::LayoutDialog( QSize size /*= { 1,1 }*/, QWidget * parent /*= nullptr */ )
+	:ui( new Ui::LayoutDialog ), _Size( size )
 {
 	ui->setupUi( this );
 	setWindowFlags( Qt::Dialog | Qt::WindowCloseButtonHint );
@@ -65,6 +66,15 @@ XS::LayoutDialog::LayoutDialog( QWidget * parent /*= nullptr */ )
 	ui->layout_9->setIcon( QIcon( "SkinIcons:/images/gamescene/icon_gamescene_layout_9.png" ) );
 	ui->layout_custom->setIcon( QIcon( "SkinIcons:/images/gamescene/icon_gamescene_layout_custom.png" ) );
 
+	QPushButton * ok_btn = ui->buttonBox->button( QDialogButtonBox::Ok );
+	QPushButton * cel_btn = ui->buttonBox->button( QDialogButtonBox::Cancel );
+
+	disconnect( ok_btn );
+	disconnect( cel_btn );
+
+	connect( ok_btn, &QPushButton::clicked, [this]() { Rebuild(); if ( _Rects.empty() ) { QMessageBox::warning( this, tr( "error" ), tr( "There are non-rectangles" ), QMessageBox::Yes ); } else { accepted(); } } );
+	connect( cel_btn, &QPushButton::clicked, [this]() { rejected(); } );
+
 	connect( ui->layout_1, &QToolButton::clicked, [this]() { OnLayoutSize( { 1, 1 } ); } );
 	connect( ui->layout_4, &QToolButton::clicked, [this]() { OnLayoutSize( { 2, 2 } ); } );
 	connect( ui->layout_9, &QToolButton::clicked, [this]() { OnLayoutSize( { 3, 3 } ); } );
@@ -73,12 +83,35 @@ XS::LayoutDialog::LayoutDialog( QWidget * parent /*= nullptr */ )
 
 XS::LayoutDialog::~LayoutDialog()
 {
-
+	delete ui;
 }
 
 void XS::LayoutDialog::OnLayoutSize( QSize size )
 {
+	_Size = size;
 
+	if ( ( _Size.width() == 1 && _Size.height() == 1 ) || ( _Size.width() == 2 && _Size.height() == 2 ) || ( _Size.width() == 3 && _Size.height() == 3 ) )
+	{
+		ResizeLayout( false );
+
+		for ( auto & row : _Labels )
+		{
+			for ( auto item : row )
+			{
+				QLabelUserData * data = (QLabelUserData *)item->userData( Qt::UserRole + 1 );
+
+				data->prev = data->flag;
+				data->flag = RandomColor();
+				data->select = false;
+
+				item->setStyleSheet( QString( "background-color: rgba(%1, %2, %3, 100);" ).arg( data->flag.red() ).arg( data->flag.green() ).arg( data->flag.blue() ) );
+			}
+		}
+	}
+	else
+	{
+		ResizeLayout( true );
+	}
 }
 
 void XS::LayoutDialog::OnLayoutCustomSize()
@@ -93,14 +126,11 @@ void XS::LayoutDialog::OnLayoutCustomSize()
 
 	if ( dialog.exec() == QDialog::Accepted )
 	{
-		_Size.setWidth( ui.col->value() );
-		_Size.setHeight( ui.row->value() );
-
-		ResizeLayout();
+		OnLayoutSize( { ui.col->value(), ui.row->value() } );
 	}
 }
 
-void XS::LayoutDialog::ResizeLayout()
+void XS::LayoutDialog::ResizeLayout( bool select )
 {
 	for ( auto & row : _Labels )
 	{
@@ -125,12 +155,16 @@ void XS::LayoutDialog::ResizeLayout()
 			QLabel * label = new QLabel( this );
 
 			label->setObjectName( QString( "label_%1_%2" ).arg( x, 2, 10, QChar( '0' ) ).arg( y, 2, 10, QChar( '0' ) ) );
-			label->setMouseTracking( true );
 			label->setAlignment( Qt::AlignCenter );
 			label->setStyleSheet( "background-color: rgba(0, 0, 0, 100);" );
 			label->setText( QString( "%1-%2" ).arg( x, 2, 10, QChar( '0' ) ).arg( y, 2, 10, QChar( '0' ) ) );
 			label->setUserData( Qt::UserRole + 1, new QLabelUserData( x, y ) );
-			label->installEventFilter( this );
+
+			if ( select )
+			{
+				label->setMouseTracking( true );
+				label->installEventFilter( this );
+			}
 
 			ui->gridLayout->addWidget( label, x, y );
 
@@ -144,6 +178,70 @@ QColor XS::LayoutDialog::RandomColor()
 	_ColorIdx = _ColorIdx % 25;
 
 	return Colors[_ColorIdx++];
+}
+
+void XS::LayoutDialog::Rebuild()
+{
+	_Rects.clear();
+
+	QMap< unsigned int, QVector< QLabelUserData * > > maps;
+
+	for ( const auto & row : _Labels )
+	{
+		for ( auto item : row )
+		{
+			auto data = (QLabelUserData *)item->userData( Qt::UserRole + 1 );
+
+			maps[data->flag.rgba()].push_back( data );
+		}
+	}
+
+	for ( const auto & it : maps )
+	{
+		QPoint p1, p2, p3, p4;
+		int min_x, max_x, min_y, max_y;
+
+		min_x = it[0]->x;
+		max_x = it[0]->x;
+		min_y = it[0]->y;
+		max_y = it[0]->y;
+
+		for ( auto data : it )
+		{
+			min_x = std::min( min_x, data->x );
+			max_x = std::max( max_x, data->x );
+			min_y = std::min( min_y, data->y );
+			max_y = std::max( max_y, data->y );
+
+			if ( data->x == min_x && data->y == min_y ) p1.setX( data->x ); p1.setY( data->y );
+			if ( data->x == max_x && data->y == min_y ) p2.setX( data->x ); p2.setY( data->y );
+			if ( data->x == min_x && data->y == max_y ) p3.setX( data->x ); p3.setY( data->y );
+			if ( data->x == max_x && data->y == max_y ) p4.setX( data->x ); p4.setY( data->y );
+
+		}
+
+		QPointF center;
+		center.setX( ( p1.x() + p2.x() + p3.x() + p4.x() ) / 4.0f );
+		center.setY( ( p1.y() + p2.y() + p3.y() + p4.y() ) / 4.0f );
+
+		float dd1 = std::sqrt( std::pow( center.x() - p1.x(), 2 ) + std::pow( center.y() - p1.y(), 2 ) );
+		float dd2 = std::sqrt( std::pow( center.x() - p2.x(), 2 ) + std::pow( center.y() - p2.y(), 2 ) );
+		float dd3 = std::sqrt( std::pow( center.x() - p3.x(), 2 ) + std::pow( center.y() - p3.y(), 2 ) );
+		float dd4 = std::sqrt( std::pow( center.x() - p4.x(), 2 ) + std::pow( center.y() - p4.y(), 2 ) );
+
+		if ( std::abs( dd1 - dd2 ) < std::numeric_limits<float>::epsilon() && std::abs( dd1 - dd3 ) < std::numeric_limits<float>::epsilon() && std::abs( dd1 - dd4 ) < std::numeric_limits<float>::epsilon() )
+		{
+			QRect rect;
+			rect.setTopLeft( p1 );
+			rect.setBottomRight( p4 );
+			_Rects.push_back( rect );
+		}
+		else
+		{
+			_Rects.clear();
+			return;
+		}
+	}
 }
 
 bool XS::LayoutDialog::eventFilter( QObject * o, QEvent * e )
@@ -219,4 +317,21 @@ bool XS::LayoutDialog::eventFilter( QObject * o, QEvent * e )
 	}
 
 	return QDialog::eventFilter( o, e );
+}
+
+void XS::LayoutDialog::showEvent( QShowEvent * e )
+{
+	QDialog::showEvent( e );
+
+	OnLayoutSize( _Size );
+}
+
+const QSize & XS::LayoutDialog::GetRebuildSize() const
+{
+	return _Size;
+}
+
+const QVector< QRect > & XS::LayoutDialog::GetRebuildRects() const
+{
+	return _Rects;
 }

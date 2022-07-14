@@ -10,6 +10,7 @@
 #define GAMESCENEEDITOR_H__391B86FC_35F4_4404_B14D_AB5418BE3285
 
 #include "Core/Core.h"
+#include "GameScene.h"
 
 UI_DECL( GameSceneEditor );
 
@@ -24,22 +25,21 @@ public:
 
 	~GameSceneEditor();
 
-public:
-	WId display() const;
-
 private slots:
 	void OnLayoutClicked( bool checked = false );
-	void OnGameSceneFpsClicked( bool checked = false );
-	void OnGameSceneAudioClicked( bool checked = false );
-	void OnGameSceneToolsClicked( bool checked = false );
-	void OnGameSceneRatioCurrentIndexChanged( int index );
-	void OnGameSceneCameraCurrentIndexChanged( int index );
 
 private:
-	QWidget * CreateGameScene();
+	XS::GameScene * CreateGameScene();
+
+private:
+	void ReLayout();
 
 private:
 	Ui::GameSceneEditor * ui;
+
+	QSize _LayoutSize;
+	QVector< QRect > _Layouts;
+	QVector< XS::GameScene * > _GameScenes;
 };
 
 END_XS_NAMESPACE

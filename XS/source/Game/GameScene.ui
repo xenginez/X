@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>GameSceneEditor</class>
- <widget class="QWidget" name="GameSceneEditor">
+ <class>GameScene</class>
+ <widget class="QWidget" name="GameScene">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>972</width>
-    <height>655</height>
+    <width>770</width>
+    <height>646</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -66,7 +66,58 @@
        <number>0</number>
       </property>
       <item>
-       <widget class="QToolButton" name="layout">
+       <widget class="QLabel" name="title">
+        <property name="text">
+         <string>view_00</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="camera"/>
+      </item>
+      <item>
+       <widget class="QComboBox" name="ratio"/>
+      </item>
+      <item>
+       <widget class="QToolButton" name="audio">
+        <property name="minimumSize">
+         <size>
+          <width>20</width>
+          <height>20</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>20</width>
+          <height>20</height>
+         </size>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="fps">
+        <property name="minimumSize">
+         <size>
+          <width>20</width>
+          <height>20</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>20</width>
+          <height>20</height>
+         </size>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="tools">
         <property name="minimumSize">
          <size>
           <width>20</width>
@@ -91,7 +142,7 @@
         </property>
         <property name="sizeHint" stdset="0">
          <size>
-          <width>528</width>
+          <width>40</width>
           <height>20</height>
          </size>
         </property>
@@ -101,9 +152,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QWidget" name="display" native="true">
-     <layout class="QGridLayout" name="gridLayout"/>
-    </widget>
+    <widget class="QWidget" name="display" native="true"/>
    </item>
   </layout>
  </widget>
