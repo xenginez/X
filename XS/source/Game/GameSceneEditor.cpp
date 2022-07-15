@@ -26,6 +26,47 @@ XS::GameSceneEditor::~GameSceneEditor()
 	delete ui;
 }
 
+void XS::GameSceneEditor::SaveLayout( QSettings & settings )
+{
+	XS::DockWidget::SaveLayout( settings );
+
+	settings.beginGroup( objectName() );
+	{
+		settings.setValue( "layout_size", _LayoutSize );
+		settings.beginWriteArray( "layouts", _Layouts.size() );
+		for ( size_t i = 0; i < _Layouts.size(); i++ )
+		{
+			settings.setArrayIndex( i );
+			settings.setValue( "rect", _Layouts[i] );
+		}
+		settings.endArray();
+	}
+	settings.endGroup();
+}
+
+void XS::GameSceneEditor::LoadLayout( QSettings & settings )
+{
+	XS::DockWidget::LoadLayout( settings );
+
+	settings.beginGroup( objectName() );
+	{
+		if ( settings.contains( "layout_size" ) )
+		{
+			_LayoutSize = settings.value( "layout_size" ).value<QSize>();
+			_Layouts.resize( settings.beginReadArray( "layouts" ) );
+			for ( size_t i = 0; i < _Layouts.size(); i++ )
+			{
+				settings.setArrayIndex( i );
+				_Layouts[i] = settings.value( "rect" ).value<QRect>();
+			}
+			settings.endArray();
+		}
+	}
+	settings.endGroup();
+
+	ReLayout();
+}
+
 void XS::GameSceneEditor::OnLayoutClicked( bool checked /*= false */ )
 {
 	XS::LayoutDialog dialog( _LayoutSize, this );
@@ -39,16 +80,23 @@ void XS::GameSceneEditor::OnLayoutClicked( bool checked /*= false */ )
 	}
 }
 
-XS::GameScene * XS::GameSceneEditor::CreateGameScene()
-{
-	XS::GameScene * scene = new XS::GameScene( QString( "view_%1" ).arg( _GameScenes.size() ), this );
-
-	_GameScenes.push_back( scene );
-
-	return scene;
-}
-
 void XS::GameSceneEditor::ReLayout()
 {
+	for ( auto it : _GameScenes )
+	{
+		it->deleteLater();
+	}
+	_GameScenes.clear();
 
+	ui->gridLayout;
+
+	for ( size_t i = 0; i < _Layouts.size(); i++ )
+	{
+		const auto & rect = _Layouts[i];
+		XS::GameScene * scene = new XS::GameScene( this );
+
+		ui->gridLayout->addWidget( scene, rect.y(), rect.x(), rect.height(), rect.width() );
+
+		_GameScenes.push_back( scene );
+	}
 }

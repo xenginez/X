@@ -14,12 +14,12 @@ namespace
 	{
 	public:
 		QLabelUserData( int x, int y )
-			:x( x ), y( y )
+			:pos( x, y )
 		{
 		}
 
 	public:
-		int x, y;
+		QPoint pos;
 		bool select = false;
 		QColor flag = Qt::black;
 		QColor prev = Qt::black;
@@ -142,15 +142,15 @@ void XS::LayoutDialog::ResizeLayout( bool select )
 	}
 	_Labels.clear();
 
-	_Labels.resize( _Size.height() );
+	_Labels.resize( _Size.width() );
 	for ( auto & row : _Labels )
 	{
-		row.resize( _Size.width() );
+		row.resize( _Size.height() );
 	}
 
-	for ( int x = 0; x < _Size.height(); x++ )
+	for ( int x = 0; x < _Size.width(); x++ )
 	{
-		for ( int y = 0; y < _Size.width(); y++ )
+		for ( int y = 0; y < _Size.height(); y++ )
 		{
 			QLabel * label = new QLabel( this );
 
@@ -166,7 +166,7 @@ void XS::LayoutDialog::ResizeLayout( bool select )
 				label->installEventFilter( this );
 			}
 
-			ui->gridLayout->addWidget( label, x, y );
+			ui->gridLayout->addWidget( label, y, x );
 
 			_Labels[x][y] = label;
 		}
@@ -201,23 +201,22 @@ void XS::LayoutDialog::Rebuild()
 		QPoint p1, p2, p3, p4;
 		int min_x, max_x, min_y, max_y;
 
-		min_x = it[0]->x;
-		max_x = it[0]->x;
-		min_y = it[0]->y;
-		max_y = it[0]->y;
+		min_x = it[0]->pos.x();
+		max_x = it[0]->pos.x();
+		min_y = it[0]->pos.y();
+		max_y = it[0]->pos.y();
 
 		for ( auto data : it )
 		{
-			min_x = std::min( min_x, data->x );
-			max_x = std::max( max_x, data->x );
-			min_y = std::min( min_y, data->y );
-			max_y = std::max( max_y, data->y );
+			min_x = std::min( min_x, data->pos.x() );
+			max_x = std::max( max_x, data->pos.x() );
+			min_y = std::min( min_y, data->pos.y() );
+			max_y = std::max( max_y, data->pos.y() );
 
-			if ( data->x == min_x && data->y == min_y ) p1.setX( data->x ); p1.setY( data->y );
-			if ( data->x == max_x && data->y == min_y ) p2.setX( data->x ); p2.setY( data->y );
-			if ( data->x == min_x && data->y == max_y ) p3.setX( data->x ); p3.setY( data->y );
-			if ( data->x == max_x && data->y == max_y ) p4.setX( data->x ); p4.setY( data->y );
-
+			if ( data->pos.x() == min_x && data->pos.y() == min_y ) { p1 = data->pos; }
+			if ( data->pos.x() == max_x && data->pos.y() == min_y ) { p2 = data->pos; }
+			if ( data->pos.x() == min_x && data->pos.y() == max_y ) { p3 = data->pos; }
+			if ( data->pos.x() == max_x && data->pos.y() == max_y ) { p4 = data->pos; }
 		}
 
 		QPointF center;
@@ -231,10 +230,7 @@ void XS::LayoutDialog::Rebuild()
 
 		if ( std::abs( dd1 - dd2 ) < std::numeric_limits<float>::epsilon() && std::abs( dd1 - dd3 ) < std::numeric_limits<float>::epsilon() && std::abs( dd1 - dd4 ) < std::numeric_limits<float>::epsilon() )
 		{
-			QRect rect;
-			rect.setTopLeft( p1 );
-			rect.setBottomRight( p4 );
-			_Rects.push_back( rect );
+			_Rects.push_back( QRect( p1.x(), p1.y(), p4.x() - p1.x() + 1, p4.y() - p1.y() + 1 ) );
 		}
 		else
 		{

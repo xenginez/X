@@ -25,11 +25,13 @@ public:
 
 	~GameSceneEditor();
 
+public:
+	void SaveLayout( QSettings & settings ) override;
+
+	void LoadLayout( QSettings & settings ) override;
+
 private slots:
 	void OnLayoutClicked( bool checked = false );
-
-private:
-	XS::GameScene * CreateGameScene();
 
 private:
 	void ReLayout();
@@ -37,8 +39,9 @@ private:
 private:
 	Ui::GameSceneEditor * ui;
 
-	QSize _LayoutSize;
-	QVector< QRect > _Layouts;
+	QSize _LayoutSize = { 1,1 };
+	QVector< QRect > _Layouts = { QRect( 0,0,1,1 ) };
+
 	QVector< XS::GameScene * > _GameScenes;
 };
 

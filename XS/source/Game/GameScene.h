@@ -15,17 +15,23 @@ UI_DECL( GameScene );
 
 BEG_XS_NAMESPACE
 
-class XS_API GameScene : public QWidget
+class XS_API GameScene : public QFrame
 {
 	Q_OBJECT
 
 public:
-	GameScene( const QString & title, QWidget * parent = nullptr );
+	GameScene( QWidget * parent = nullptr );
 
 	~GameScene() override;
 
 public:
 
+protected:
+	void showEvent( QShowEvent * event ) override;
+
+	void closeEvent( QCloseEvent * event ) override;
+
+	void resizeEvent( QResizeEvent * event ) override;
 
 private:
 	Ui::GameScene * ui;
