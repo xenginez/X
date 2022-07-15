@@ -27,16 +27,18 @@ public:
 public:
 	WId display() const;
 
+public:
+	void SaveLayout( QSettings & settings ) override;
+
+	void LoadLayout( QSettings & settings ) override;
+
 private slots:
-	void OnAudioClicked( bool checked = false );
-	void OnCameraClicked( bool checked = false );
-	void OnGridClicked( bool checked = false );
+	void OnD23Clicked( bool checked = false );
 	void OnIconsClicked( bool checked = false );
-	void OnLightClicked( bool checked = false );
-	void OnMoveClicked( bool checked = false );
-	void OnRotateClicked( bool checked = false );
-	void OnScaleClicked( bool checked = false );
-	void OnSearchFinished();
+	void OnTransformClicked( bool checked = false );
+
+protected:
+	void paintEvent( QPaintEvent * event ) override;
 
 private:
 	Ui::EditSceneEditor * ui;

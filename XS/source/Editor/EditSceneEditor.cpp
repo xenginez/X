@@ -2,6 +2,8 @@
 
 #include "ui_EditSceneEditor.h"
 
+#include <QMenu>
+
 REG_WIDGET( XS::EditSceneEditor );
 
 XS::EditSceneEditor::EditSceneEditor( QWidget * parent /*= nullptr */ )
@@ -13,24 +15,16 @@ XS::EditSceneEditor::EditSceneEditor( QWidget * parent /*= nullptr */ )
 
 	setTitleBar( ui->title_bar );
 
-	ui->audio->setIcon( QIcon( "SkinIcons:/images/editscene/icon_editscene_audio.png" ) );
-	ui->camera->setIcon( QIcon( "SkinIcons:/images/editscene/icon_editscene_camera.png" ) );
-	ui->grid->setIcon( QIcon( "SkinIcons:/images/editscene/icon_editscene_grid.png" ) );
 	ui->icons->setIcon( QIcon( "SkinIcons:/images/editscene/icon_editscene_icons.png" ) );
-	ui->light->setIcon( QIcon( "SkinIcons:/images/editscene/icon_editscene_light.png" ) );
 	ui->move->setIcon( QIcon( "SkinIcons:/images/editscene/icon_editscene_move.png" ) );
-	ui->rotate->setIcon( QIcon( "SkinIcons:/images/editscene/icon_editscene_rotate.png" ) );
 	ui->scale->setIcon( QIcon( "SkinIcons:/images/editscene/icon_editscene_scale.png" ) );
-	ui->search->addAction( QIcon( "SkinIcons:/images/editscene/icon_editscene_search.png" ), QLineEdit::ActionPosition::LeadingPosition );
+	ui->rotate->setIcon( QIcon( "SkinIcons:/images/editscene/icon_editscene_rotate.png" ) );
 
-	connect( ui->audio, &QToolButton::clicked, this, &EditSceneEditor::OnAudioClicked );
-	connect( ui->camera, &QToolButton::clicked, this, &EditSceneEditor::OnCameraClicked );
+	connect( ui->d23, &QToolButton::clicked, this, &EditSceneEditor::OnD23Clicked );
 	connect( ui->icons, &QToolButton::clicked, this, &EditSceneEditor::OnIconsClicked );
-	connect( ui->light, &QToolButton::clicked, this, &EditSceneEditor::OnLightClicked );
-	connect( ui->move, &QToolButton::clicked, this, &EditSceneEditor::OnMoveClicked );
-	connect( ui->rotate, &QToolButton::clicked, this, &EditSceneEditor::OnRotateClicked );
-	connect( ui->scale, &QToolButton::clicked, this, &EditSceneEditor::OnScaleClicked );
-	connect( ui->search, &QLineEdit::editingFinished, this, &EditSceneEditor::OnSearchFinished );
+	connect( ui->move, &QToolButton::clicked, this, &EditSceneEditor::OnTransformClicked );
+	connect( ui->scale, &QToolButton::clicked, this, &EditSceneEditor::OnTransformClicked );
+	connect( ui->rotate, &QToolButton::clicked, this, &EditSceneEditor::OnTransformClicked );
 }
 
 XS::EditSceneEditor::~EditSceneEditor()
@@ -43,47 +37,68 @@ WId XS::EditSceneEditor::display() const
 	return ui->display->winId();
 }
 
-void XS::EditSceneEditor::OnAudioClicked( bool checked /*= false */ )
+void XS::EditSceneEditor::SaveLayout( QSettings & settings )
 {
+	settings.beginGroup( objectName() );
+	{
+		
+		settings.setValue( "2d_3d", ui->d23->text() );
 
+		int checked = 0;
+		if ( ui->move->isChecked() ) checked = 1;
+		else if ( ui->scale->isChecked() ) checked = 2;
+		else if ( ui->rotate->isChecked() ) checked = 3;
+		settings.setValue( "transform_checked", checked );
+	}
+	settings.endGroup();
 }
 
-void XS::EditSceneEditor::OnCameraClicked( bool checked /*= false */ )
+void XS::EditSceneEditor::LoadLayout( QSettings & settings )
 {
-
+	settings.beginGroup( objectName() );
+	{
+		ui->d23->setText( settings.value( "2d_3d", "2D" ).toString() );
+		switch ( settings.value( "transform_checked", 0 ).toInt() )
+		{
+		case 1: ui->move->setChecked( true ); break;
+		case 2: ui->scale->setChecked( true ); break;
+		case 3: ui->rotate->setChecked( true ); break;
+		}
+	}
+	settings.endGroup();
 }
 
-void XS::EditSceneEditor::OnGridClicked( bool checked /*= false */ )
+void XS::EditSceneEditor::OnD23Clicked( bool checked /*= false */ )
 {
-
+	ui->d23->setText( ( ui->d23->text() == "2D" ) ? "3D" : "2D" );
 }
 
 void XS::EditSceneEditor::OnIconsClicked( bool checked /*= false */ )
 {
+	QMenu menu( this );
 
+
+	menu.exec( cursor().pos() );
 }
 
-void XS::EditSceneEditor::OnLightClicked( bool checked /*= false */ )
+void XS::EditSceneEditor::OnTransformClicked( bool checked /*= false */ )
 {
-
+	if ( sender() != ui->move ) ui->move->setChecked( false );
+	if ( sender() != ui->scale ) ui->scale->setChecked( false );
+	if ( sender() != ui->rotate ) ui->rotate->setChecked( false );
 }
 
-void XS::EditSceneEditor::OnMoveClicked( bool checked /*= false */ )
+void XS::EditSceneEditor::paintEvent( QPaintEvent * event )
 {
+	XS::DockWidget::paintEvent( event );
 
-}
+	if ( ui->d23->text() == "2D" )
+	{
 
-void XS::EditSceneEditor::OnRotateClicked( bool checked /*= false */ )
-{
+	}
+	else
+	{
 
-}
-
-void XS::EditSceneEditor::OnScaleClicked( bool checked /*= false */ )
-{
-
-}
-
-void XS::EditSceneEditor::OnSearchFinished()
-{
+	}
 
 }
