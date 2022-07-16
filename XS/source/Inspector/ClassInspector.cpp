@@ -29,7 +29,7 @@ void XS::ClassInspector::Refresh()
 			{
 				auto proxy = new XS::ObjectProxy( GetObjectProxy()->GetValue(), prop, this );
 
-				if ( proxy->FindAttributeT< XE::NonEditorAttribute >() )
+				if ( proxy->FindAttributeT< XE::NonInspectorAttribute >() )
 				{
 					return;
 				}

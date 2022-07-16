@@ -254,11 +254,6 @@ xcopy %cd%\imgui\imgui_draw.cpp %RD3_PATH%\..\XE\source\GUI\ /y
 xcopy %cd%\imgui\imgui_tables.cpp %RD3_PATH%\..\XE\source\GUI\ /y
 xcopy %cd%\imgui\imgui_widgets.cpp %RD3_PATH%\..\XE\source\GUI\ /y
 
-:BUILD_MINIZ_CPP
-echo "copy miniz-cpp head file to depends"
-cd %RD3_PATH%
-xcopy %cd%\miniz-cpp\zip_file.hpp %RD3_PATH%\..\depends\include\miniz-cpp\ /s /y
-
 
 :EXIT
 pause

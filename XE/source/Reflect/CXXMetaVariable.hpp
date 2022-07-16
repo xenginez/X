@@ -13,43 +13,14 @@
 
 BEG_XE_NAMESPACE
 
-class XE_API MetaVariableImpl : public MetaVariable
-{
-public:
-	MetaVariableImpl( const String & Name, bool IsConst, bool IsObject, bool IsPointer, bool IsSharedPtr, bool IsReference, MetaTypeCPtr Value, MetaModuleCPtr Module )
-		:MetaVariable( Name, IsConst, IsObject, IsPointer, IsSharedPtr, IsReference, Value, Module )
-	{
-
-	}
-
-public:
-	template< typename T > MetaVariableImpl & Attribute( const T & val )
-	{
-		static_assert( std::is_base_of_v< XE::MetaAttribute, XE::TypeTraits< T >::raw_t >, "does not belong to meta attribute" );
-
-		_Attributes.push_back( XE::MakeShared< T >( val ) );
-
-		return *this;
-	}
-
-	template< typename T, typename ... ARGS > MetaVariableImpl & Attribute( const T & val, ARGS &&... args )
-	{
-		Attribute( val );
-
-		Attribute( std::forward< ARGS >( args )... );
-
-		return *this;
-	}
-};
-
-template< typename ValueType > class CXXMetaVariable : public MetaPropertyImpl
+template< typename ValueType > class CXXMetaVariable : public MetaVariable
 {
 public:
 	using VariableType = ValueType;
 
 public:
 	CXXMetaVariable( const String & Name, VariableType * Value, MetaModuleCPtr Module )
-		:MetaVariableImpl( Name, true, !std::is_pointer_v< ValueType > && !std::is_reference_v< ValueType > && !std::is_weak_ptr_v< ValueType > && !std::is_shared_ptr_v< ValueType >, std::is_pointer_v< ValueType >, std::is_shared_ptr_v< ValueType > || std::is_weak_ptr_v< ValueType >, std::is_reference_v< ValueType >, TypeID< typename TypeTraits< ValueType >::raw_t >::Get(), Module ), _Value( Value )
+		:MetaVariable( Name, true, !std::is_pointer_v< ValueType > && !std::is_reference_v< ValueType > && !std::is_weak_ptr_v< ValueType > && !std::is_shared_ptr_v< ValueType >, std::is_pointer_v< ValueType >, std::is_shared_ptr_v< ValueType > || std::is_weak_ptr_v< ValueType >, std::is_reference_v< ValueType >, TypeID< typename TypeTraits< ValueType >::raw_t >::Get(), Module ), _Value( Value )
 	{
 
 	}

@@ -17,6 +17,8 @@ class RenderPass;
 class RenderBuilder;
 class RenderResource;
 
+class RenderTexture;
+class RenderMaterial;
 
 class RenderService;
 class LightComponent;

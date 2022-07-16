@@ -1,8 +1,8 @@
 #include "Event.h"
 
 BEG_META( XE::Event )
-REG_PROPERTY( "handle", &Event::handle )->Attribute( XE::NonEditorAttribute() );
-REG_PROPERTY( "parameter", &Event::parameter )->Attribute( XE::NonEditorAttribute() );
+REG_PROPERTY( "handle", &Event::handle )->Attribute( XE::NonInspectorAttribute() );
+REG_PROPERTY( "parameter", &Event::parameter )->Attribute( XE::NonInspectorAttribute() );
 END_META()
 
 XE::Event::Event()

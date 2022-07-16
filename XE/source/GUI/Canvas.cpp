@@ -15,7 +15,7 @@ type->Property( "Rect", &XE::Canvas::_Rect );
 type->Property( "Model", &XE::Canvas::_Controller );
 type->Property( "Style", &XE::Canvas::GetStyle, &XE::Canvas::SetStyle );
 type->Property( "Layout", &XE::Canvas::_Layout );
-type->Property( "Children", &XE::Canvas::_Children )->Attribute( XE::NonEditorAttribute() );
+type->Property( "Children", &XE::Canvas::_Children )->Attribute( XE::NonInspectorAttribute() );
 END_META()
 
 XE::Canvas::Canvas()

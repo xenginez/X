@@ -1,7 +1,7 @@
 #include "Action.h"
 
 BEG_META( XE::ActionBase )
-type->Property( "Callbacks", &XE::ActionBase::_Callbacks )->Attribute( XE::NonEditorAttribute() );
+type->Property( "Callbacks", &XE::ActionBase::_Callbacks )->Attribute( XE::NonInspectorAttribute() );
 END_META()
 
 XE::ActionBase::ActionBase()

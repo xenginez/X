@@ -126,8 +126,6 @@ public:
 
 	XE::CoreFrameworkPtr GetFramework() const;
 
-	XE::GameObjectPtr GetParentGameObject() const;
-
 	XE::ServicePtr GetService( const XE::String & val ) const;
 
 	XE::ServicePtr GetService( const XE::MetaClassCPtr & val ) const;

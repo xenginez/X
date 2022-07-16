@@ -26,6 +26,34 @@ XE::MetaClassPtr XE::FlagAttribute::GetMetaClass() const
 }
 
 
+XE::MetaClassPtr XE::LinkAttribute::GetMetaClassStatic()
+{
+	static auto p = XE::MakeShared< XE::CXXMetaClass< XE::LinkAttribute > >( "LinkAttribute", nullptr, nullptr, GetModule() );
+	return p;
+}
+
+XE::MetaClassPtr XE::LinkAttribute::GetMetaClass() const
+{
+	return GetMetaClassStatic();
+}
+
+XE::LinkAttribute::LinkAttribute( const XE::String & name, const XE::Delegate<bool( const XE::Variant & link )> & callback )
+	:_Name( name ), _Callback( callback )
+{
+
+}
+
+const XE::String & XE::LinkAttribute::GetLinkName() const
+{
+	return _Name;
+}
+
+const XE::Delegate<bool( const XE::Variant &) > & XE::LinkAttribute::GetLinkCallback() const
+{
+	return _Callback;
+}
+
+
 XE::RangeAttribute::RangeAttribute( XE::float64 min, XE::float64 max, XE::float64 step /*= 1.0 */ )
 	:_Min( min ), _Max( max ), _Step( step )
 {
@@ -70,18 +98,6 @@ XE::MetaClassPtr XE::NonCloneAttribute::GetMetaClass() const
 }
 
 
-XE::MetaClassPtr XE::NonEditorAttribute::GetMetaClassStatic()
-{
-	static auto p = XE::MakeShared< XE::CXXMetaClass< XE::NonEditorAttribute > >( "NonEditorAttribute", MetaAttribute::GetMetaClassStatic(), nullptr, GetModule() );
-	return p;
-}
-
-XE::MetaClassPtr XE::NonEditorAttribute::GetMetaClass() const
-{
-	return GetMetaClassStatic();
-}
-
-
 XE::MetaClassPtr XE::InspectorAttribute::GetMetaClassStatic()
 {
 	static auto p = XE::MakeShared< XE::CXXMetaClass< XE::InspectorAttribute > >( "InspectorAttribute", MetaAttribute::GetMetaClassStatic(), nullptr, GetModule() );
@@ -102,6 +118,18 @@ XE::InspectorAttribute::InspectorAttribute( const XE::String & type )
 const XE::String & XE::InspectorAttribute::GetTypeName() const
 {
 	return _Type;
+}
+
+
+XE::MetaClassPtr XE::NonInspectorAttribute::GetMetaClassStatic()
+{
+	static auto p = XE::MakeShared< XE::CXXMetaClass< XE::NonInspectorAttribute > >( "NonInspectorAttribute", MetaAttribute::GetMetaClassStatic(), nullptr, GetModule() );
+	return p;
+}
+
+XE::MetaClassPtr XE::NonInspectorAttribute::GetMetaClass() const
+{
+	return GetMetaClassStatic();
 }
 
 

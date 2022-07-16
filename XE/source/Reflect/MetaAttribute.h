@@ -34,6 +34,26 @@ public:
 	virtual XE::MetaClassPtr GetMetaClass() const;
 };
 
+class XE_API LinkAttribute : public MetaAttribute
+{
+public:
+	static XE::MetaClassPtr GetMetaClassStatic();
+
+	virtual XE::MetaClassPtr GetMetaClass() const;
+
+public:
+	LinkAttribute( const XE::String & name, const XE::Delegate<bool( const XE::Variant & )> & callback );
+
+public:
+	const XE::String & GetLinkName() const;
+
+	const XE::Delegate<bool( const XE::Variant & link )> & GetLinkCallback() const;
+
+private:
+	XE::String _Name;
+	XE::Delegate<bool( const XE::Variant & )> _Callback;
+};
+
 class XE_API RangeAttribute : public MetaAttribute
 {
 public:
@@ -68,17 +88,6 @@ public:
 	NonCloneAttribute() = default;
 };
 
-class XE_API NonEditorAttribute : public MetaAttribute
-{
-public:
-	static XE::MetaClassPtr GetMetaClassStatic();
-
-	virtual XE::MetaClassPtr GetMetaClass() const;
-
-public:
-	NonEditorAttribute() = default;
-};
-
 class XE_API InspectorAttribute : public MetaAttribute
 {
 public:
@@ -94,6 +103,17 @@ public:
 
 private:
 	XE::String _Type;
+};
+
+class XE_API NonInspectorAttribute : public MetaAttribute
+{
+public:
+	static XE::MetaClassPtr GetMetaClassStatic();
+
+	virtual XE::MetaClassPtr GetMetaClass() const;
+
+public:
+	NonInspectorAttribute() = default;
 };
 
 class XE_API NonSerializeAttribute : public MetaAttribute

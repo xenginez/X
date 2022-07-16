@@ -31,7 +31,7 @@ public:
 
 private slots:
 	void OnD23Clicked( bool checked = false );
-	void OnIconsClicked( bool checked = false );
+	void OnToolsClicked( bool checked = false );
 	void OnTransformClicked( bool checked = false );
 
 protected:

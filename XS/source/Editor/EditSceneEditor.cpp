@@ -15,13 +15,13 @@ XS::EditSceneEditor::EditSceneEditor( QWidget * parent /*= nullptr */ )
 
 	setTitleBar( ui->title_bar );
 
-	ui->icons->setIcon( QIcon( "SkinIcons:/images/editscene/icon_editscene_icons.png" ) );
+	ui->tools->setIcon( QIcon( "SkinIcons:/images/editscene/icon_editscene_tools.png" ) );
 	ui->move->setIcon( QIcon( "SkinIcons:/images/editscene/icon_editscene_move.png" ) );
 	ui->scale->setIcon( QIcon( "SkinIcons:/images/editscene/icon_editscene_scale.png" ) );
 	ui->rotate->setIcon( QIcon( "SkinIcons:/images/editscene/icon_editscene_rotate.png" ) );
 
 	connect( ui->d23, &QToolButton::clicked, this, &EditSceneEditor::OnD23Clicked );
-	connect( ui->icons, &QToolButton::clicked, this, &EditSceneEditor::OnIconsClicked );
+	connect( ui->tools, &QToolButton::clicked, this, &EditSceneEditor::OnToolsClicked );
 	connect( ui->move, &QToolButton::clicked, this, &EditSceneEditor::OnTransformClicked );
 	connect( ui->scale, &QToolButton::clicked, this, &EditSceneEditor::OnTransformClicked );
 	connect( ui->rotate, &QToolButton::clicked, this, &EditSceneEditor::OnTransformClicked );
@@ -69,7 +69,7 @@ void XS::EditSceneEditor::OnD23Clicked( bool checked /*= false */ )
 	ui->d23->setText( ( ui->d23->text() == "2D" ) ? "3D" : "2D" );
 }
 
-void XS::EditSceneEditor::OnIconsClicked( bool checked /*= false */ )
+void XS::EditSceneEditor::OnToolsClicked( bool checked /*= false */ )
 {
 	QMenu menu( this );
 
@@ -88,6 +88,9 @@ bool XS::EditSceneEditor::eventFilter( QObject * watched, QEvent * event )
 {
 	if ( watched == ui->display )
 	{
+
+
+		ui->display->repaint();
 	}
 
 	return XS::DockWidget::eventFilter( watched, event );

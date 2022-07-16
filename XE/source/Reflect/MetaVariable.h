@@ -45,6 +45,24 @@ public:
 	}
 
 public:
+	template< typename T > MetaVariable * Attribute( const T & val )
+	{
+		static_assert( std::is_base_of_v< XE::MetaAttribute, XE::TypeTraits< T >::raw_t >, "does not belong to meta attribute" );
+
+		_Attributes.push_back( XE::MakeShared< T >( val ) );
+
+		return this;
+	}
+
+	template< typename T, typename ... ARGS > MetaVariable * Attribute( const T & val, ARGS &&... args )
+	{
+		Attribute( val );
+
+		Attribute( std::forward< ARGS >( args )... );
+
+		return this;
+	}
+public:
 	XE::Variant Get() const;
 
 	void Set(const XE::Variant & val ) const;
@@ -61,8 +79,6 @@ private:
 	bool _IsSharedPtr;
 	bool _IsReference;
 	XE::MetaTypeCWPtr _Value;
-
-protected:
 	XE::Array< XE::MetaAttributeCPtr > _Attributes;
 };
 

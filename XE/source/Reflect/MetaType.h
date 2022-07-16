@@ -41,7 +41,7 @@ public:
 	virtual void Deserialize( XE::IArchive & arc, XE::Variant & obj ) const = 0;
 
 public:
-	template< typename T > MetaType & Attribute( const T & val )
+	template< typename T > MetaType * Attribute( const T & val )
 	{
 		static_assert( std::is_base_of_v< XE::MetaAttribute, XE::TypeTraits< T >::raw_t >, "does not belong to meta attribute" );
 
@@ -52,16 +52,16 @@ public:
 
 		_Attributes.push_back( XE::MakeShared< T >( val ) );
 
-		return *this;
+		return this;
 	}
 
-	template< typename T, typename ... ARGS > MetaType & Attribute( const T & val, ARGS &&... args )
+	template< typename T, typename ... ARGS > MetaType * Attribute( const T & val, ARGS &&... args )
 	{
 		Attribute( val );
 
 		Attribute( std::forward< ARGS >( args )... );
 
-		return *this;
+		return this;
 	}
 
 private:

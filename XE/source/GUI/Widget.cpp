@@ -7,10 +7,10 @@ BEG_META( XE::Widget )
 type->Property( "Name", &XE::Widget::_Name );
 type->Property( "Enable", &XE::Widget::_Enable );
 type->Property( "Rect", &XE::Widget::_Rect );
-type->Property( "Frame", &XE::Widget::_Frame )->Attribute( XE::NonEditorAttribute() );
+type->Property( "Frame", &XE::Widget::_Frame )->Attribute( XE::NonInspectorAttribute() );
 type->Property( "Layout", &XE::Widget::_Layout );
 type->Property( "LayoutItem", &XE::Widget::_LayoutItem );
-type->Property( "Children", &XE::Widget::_Children )->Attribute( XE::NonEditorAttribute() );
+type->Property( "Children", &XE::Widget::_Children )->Attribute( XE::NonInspectorAttribute() );
 END_META()
 
 XE::Widget::Widget()

@@ -43,7 +43,6 @@
     <li><a href="https://github.com/ocornut/imgui.git">imgui</a></li>
     <li><a href="https://github.com/skywind3000/kcp.git">kcp</a></li>
     <li><a href="https://github.com/jonasmr/microprofile.git">microprofile</a></li>
-    <li><a href="https://github.com/tfussell/miniz-cpp.git">miniz-cpp</a></li>
     <li><a href="https://github.com/kcat/openal-soft.git">openal-soft</a></li>
     <li><a href="https://github.com/zeux/pugixml.git">pugixml</a></li>
     <li><a href="https://github.com/Tencent/rapidjson.git">rapidjson</a></li>

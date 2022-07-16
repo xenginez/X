@@ -21,7 +21,7 @@ class IArchive;
 class MetaAttribute;
 class RangeAttribute;
 class NonCloneAttribute;
-class NonEditorAttribute;
+class NonInspectorAttribute;
 class NonSerializeAttribute;
 
 class MetaInfo;

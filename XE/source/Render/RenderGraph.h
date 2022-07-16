@@ -48,9 +48,9 @@ public:
 	virtual ~RenderPass() = default;
 
 public:
-	virtual void Setup( const RenderBuilderPtr & builder ) = 0;
+	virtual void Setup( const RenderBuilderPtr & builder ) const = 0;
 
-	virtual void Execute( const XE::RenderResourcePtr & resource ) = 0;
+	virtual void Execute( const XE::RenderResourcePtr & resource ) const = 0;
 };
 DECL_XE_CLASS( RenderPass );
 

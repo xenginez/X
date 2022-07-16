@@ -258,11 +258,6 @@ XE::CoreFrameworkPtr XE::GameObjectComponent::GetFramework() const
 	return XE::CoreFramework::GetCurrentFramework();
 }
 
-XE::GameObjectPtr XE::GameObjectComponent::GetParentGameObject() const
-{
-	return GetGameObject()->GetParent();
-}
-
 XE::ServicePtr XE::GameObjectComponent::GetService( const XE::String & val ) const
 {
 	return GetFramework()->GetService( XE::Reflection::FindClass( val ) );
