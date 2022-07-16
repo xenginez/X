@@ -1,5 +1,6 @@
 #include "CameraComponent.h"
 
+#include "RenderGraph.h"
 #include "RenderTexture.h"
 #include "RenderService.h"
 

@@ -9,11 +9,12 @@
 #ifndef RENDERSERVICE_H__753D8DD6_A8F5_4DB9_A414_F0464B975761
 #define RENDERSERVICE_H__753D8DD6_A8F5_4DB9_A414_F0464B975761
 
-#include "Core/Asset.h"
 #include "Core/Service.h"
 #include "Utils/Handle.hpp"
 
-#include "Type.h"
+#include "LightComponent.h"
+#include "RenderComponent.h"
+#include "CameraComponent.h"
 
 BEG_XE_NAMESPACE
 
@@ -63,11 +64,11 @@ private:
 	XE::Array< XE::CameraComponentPtr > _Cameras;
 	XE::QueueHandleAllocator< XE::Handle< XE::CameraComponent > > _CameraQueue;
 
-//	XE::QTree< XE::LightComponentPtr > _StaticLights;
+	XE::OCTree< XE::LightComponentPtr > _StaticLights;
 	XE::Array< XE::LightComponentPtr > _DynamicLights;
 	XE::QueueHandleAllocator< XE::Handle< XE::LightComponent > > _DynamicLightQueue;
 
-//	XE::QTree< XE::RenderComponentPtr > _StaticRenders;
+	XE::OCTree< XE::RenderComponentPtr > _StaticRenders;
 	XE::Array< XE::RenderComponentPtr > _DynamicRenders;
 	XE::QueueHandleAllocator< XE::Handle< XE::RenderComponent > > _DynamicRenderQueue;
 };

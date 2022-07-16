@@ -30,8 +30,6 @@ public:
 protected:
 	void OnStartup() override;
 
-	void OnUpdate( XE::float32 dt ) override;
-
 	void OnClearup() override;
 
 public:
@@ -39,11 +37,23 @@ public:
 
 	void SetDynamic( bool val );
 
+public:
+	XE::AABB GetBoundingBox() const;
+
 private:
 	bool _Dynamic = false;
 	XE::Disposable _Disposable;
 };
 
 END_XE_NAMESPACE
+
+template<> class XE::MakeAABB< XE::LightComponentPtr >
+{
+public:
+	XE::AABB operator()( const XE::LightComponentPtr & val )
+	{
+		return val->GetBoundingBox();
+	}
+};
 
 #endif//LIGHTCOMPONENT_H__33D47F37_FE49_41CB_93C2_65DA590FD74D

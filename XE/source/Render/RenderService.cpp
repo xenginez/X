@@ -70,7 +70,9 @@ XE::Disposable XE::RenderService::RegisterLight( const XE::LightComponentPtr & v
 	}
 	else
 	{
-		
+		_StaticLights.Insert( val );
+
+		return { [this, val]() { _StaticLights.Remove( val ); } };
 	}
 }
 
@@ -88,7 +90,9 @@ XE::Disposable XE::RenderService::RegisterRender( const XE::RenderComponentPtr &
 	}
 	else
 	{
+		_StaticRenders.Insert( val );
 
+		return { [this, val]() { _StaticRenders.Remove( val ); } };
 	}
 }
 

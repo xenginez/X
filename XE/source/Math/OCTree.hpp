@@ -9,12 +9,256 @@
 #ifndef OCTREE_HPP__A57E4FF7_6104_48B7_A4FD_0114648F4E85
 #define OCTREE_HPP__A57E4FF7_6104_48B7_A4FD_0114648F4E85
 
-#include "Type.h"
+#include "AABB.h"
 
 BEG_XE_NAMESPACE
 
-template< typename _Ty, typename _By = MakeAABB< _Ty > >
-class OCTree : public NonCopyable
+template< typename T, XE::uint64 D = 8, typename A = std::pmr::polymorphic_allocator< T > > class OCTree : public NonCopyable
+{
+public:
+	static constexpr XE::uint64 MAX_DEPTH_COUNT = D;
+
+public:
+	using ValueType = T;
+	using BoxType = XE::AABB;
+	using AllocatorType = A;
+
+private:
+	struct Box
+	{
+		Box( const AllocatorType & val = {} )
+			: Values( val )
+		{
+
+		}
+
+		BoxType Bounding;
+		XE::uint64 Depth = 0;
+		XE::uint64 Children = 0;
+		XE::Array< ValueType > Values;
+	};
+
+public:
+	OCTree( const AllocatorType & val = {} )
+		:_Boxs( val.resource() )
+	{
+
+	}
+
+public:
+	void Insert( const ValueType & val )
+	{
+		if ( _Boxs.empty() )
+		{
+			_Boxs.resize( 1 );
+
+			_Boxs[0].Bounding = _Make( val );
+			_Boxs[0].Depth = 0;
+			_Boxs[0].Children = 0;
+			_Boxs[0].Values.push_back( val );
+		}
+		else
+		{
+			Insert( 0, val );
+		}
+	}
+
+	void Remove( const ValueType & val )
+	{
+		if ( _Boxs.empty() )
+		{
+			return;
+		}
+
+		Remove( 0, val );
+	}
+
+	void Clear();
+
+public:
+	template< typename G > void Intersect( const G & geometry, XE::Array< ValueType > & outs )
+	{
+		Intersect( geometry, {}, outs );
+	}
+
+	template< typename G > void Intersect( const G & geometry, XE::Span< const ValueType > exclude, XE::Array< ValueType > & outs )
+	{
+		if ( _Boxs.empty() )
+		{
+			return;
+		}
+
+		if ( _Boxs[0].Bounding.Intersect( geometry ) )
+		{
+			for ( const auto & it : _Boxs[0].Values )
+			{
+				if (_Make(it).Intersect( geometry ) )
+				{
+					if ( std::find( exclude.begin(), exclude.end(), it ) == exclude.end() )
+					{
+						outs.push_back( it );
+					}
+				}
+			}
+
+			if ( _Boxs[0].Children != 0 )
+			{
+				for ( size_t i = _Boxs[0].Children; i < _Boxs[0].Children + 8; i++ )
+				{
+					Intersect( i, geometry, exclude, outs );
+				}
+			}
+		}
+	}
+
+private:
+	void Rebuild( XE::uint64 parent )
+	{
+		if ( _Boxs[parent].Children != 0 )
+		{
+			for ( size_t i = _Boxs[parent].Children; i < _Boxs[parent].Children + 8; i++ )
+			{
+				switch ( i - parent )
+				{
+				case 0: _Boxs[i].Bounding = { _Boxs[parent].Bounding.GetFarLeftTop(), _Boxs[parent].Bounding.GetCenter() }; break;
+				case 1: _Boxs[i].Bounding = { _Boxs[parent].Bounding.GetFarRightTop(), _Boxs[parent].Bounding.GetCenter() }; break;
+				case 2: _Boxs[i].Bounding = { _Boxs[parent].Bounding.GetFarLeftBottom(), _Boxs[parent].Bounding.GetCenter() }; break;
+				case 3: _Boxs[i].Bounding = { _Boxs[parent].Bounding.GetFarRightBottom(), _Boxs[parent].Bounding.GetCenter() }; break;
+				case 4: _Boxs[i].Bounding = { _Boxs[parent].Bounding.GetNearLeftTop(), _Boxs[parent].Bounding.GetCenter() }; break;
+				case 5: _Boxs[i].Bounding = { _Boxs[parent].Bounding.GetNearRightTop(), _Boxs[parent].Bounding.GetCenter() }; break;
+				case 6: _Boxs[i].Bounding = { _Boxs[parent].Bounding.GetNearLeftBottom(), _Boxs[parent].Bounding.GetCenter() }; break;
+				case 7: _Boxs[i].Bounding = { _Boxs[parent].Bounding.GetNearRightBottom(), _Boxs[parent].Bounding.GetCenter() }; break;
+				}
+
+				Rebuild( i );
+			}
+		}
+	}
+
+	void Insert( XE::uint64 parent, const ValueType & val )
+	{
+		auto aabb = _Make( val );
+
+		if ( ( _Boxs[parent].Children == 0 && _Boxs[parent].Values.size() < 10 ) || _Boxs[parent].Depth == MAX_DEPTH_COUNT )
+		{
+			_Boxs[parent].Bounding.Merge( aabb );
+
+			_Boxs[parent].Values.push_back( val );
+		}
+		else if( _Boxs[parent].Children == 0 )
+		{
+			auto child = _Boxs.size();
+			_Boxs.resize( _Boxs.size() + 8 );
+			_Boxs[parent].Children = child;
+			_Boxs[parent].Bounding.Merge( aabb );
+
+			for ( size_t i = child; i < child + 8; i++ )
+			{
+				_Boxs[child].Depth = _Boxs[parent].Depth + 1;
+				_Boxs[child].Children = 0;
+				Rebuild( parent );
+			}
+
+			for ( size_t i = child; i <= child + 8; i++ )
+			{
+				if ( _Boxs[i].Bounding.Intersect( aabb ) )
+				{
+					_Boxs[i].Values.push_back( val );
+				}
+			}
+
+			for ( const auto & it : _Boxs[parent].Values )
+			{
+				for ( size_t i = child; i <= child + 8; i++ )
+				{
+					if ( _Boxs[i].Bounding.Intersect( _Make( it ) ) )
+					{
+						_Boxs[i].Values.push_back( it );
+					}
+				}
+			}
+
+			_Boxs[parent].Values.clear();
+			_Boxs[parent].Values.shrink_to_fit();
+		}
+		else
+		{
+			if ( !_Boxs[parent].Bounding.Contains( _Make( val ) ) )
+			{
+				_Boxs[parent].Bounding.Merge( aabb );
+
+				Rebuild( parent );
+			}
+
+			for ( size_t i = _Boxs[parent].Children; i < _Boxs[parent].Children + 8; i++ )
+			{
+				if (_Boxs[i].Bounding.Intersect( aabb ) )
+				{
+					Insert( i, val );
+				}
+			}
+		}
+	}
+
+	void Remove( XE::uint64 parent, const ValueType & val )
+	{
+		auto aabb = _Make( val );
+
+		if ( _Boxs[parent].Bounding.Intersect( aabb ) )
+		{
+			if ( _Boxs[parent].Children == 0 )
+			{
+				auto it = std::find( _Boxs[parent].Values.begin(), _Boxs[parent].Values.end(), val );
+				if (it != _Boxs[parent].Values.end() )
+				{
+					_Boxs[parent].Values.erase( it );
+				}
+			}
+			else
+			{
+				for ( size_t i = _Boxs[parent].Children; i < _Boxs[parent].Children + 8; i++ )
+				{
+					Remove( i, val );
+				}
+			}
+		}
+	}
+
+	template< typename G > void Intersect( XE::uint64 node_idx, const G & geometry, XE::Span< const ValueType > exclude, XE::Array< ValueType > & outs )
+	{
+		if ( node_idx < _Boxs.size() )
+		{
+			if ( _Boxs[node_idx].Bounding.Intersect( geometry ) )
+			{
+				for ( const auto & it : _Boxs[node_idx].Values )
+				{
+					if ( _Make( it ).Intersect( geometry ) )
+					{
+						if ( std::find( exclude.begin(), exclude.end(), it ) == exclude.end() )
+						{
+							outs.push_back( it );
+						}
+					}
+				}
+
+				if ( _Boxs[node_idx].Children != 0 )
+				{
+					for ( size_t i = _Boxs[node_idx].Children; i < _Boxs[node_idx].Children + 8; i++ )
+					{
+						Intersect( i, geometry, exclude, outs );
+					}
+				}
+			}
+		}
+	}
+
+private:
+	XE::Array< Box > _Boxs;
+	XE::MakeAABB< ValueType > _Make;
+};
+
+/*
+template< typename _Ty, typename _By = MakeAABB< _Ty > > class OCTree : public NonCopyable
 {
 public:
 	static constexpr XE::uint32 MaxDepthCount = 8;
@@ -308,7 +552,7 @@ private:
 	Array< Node > _Nodes;
 	BoundBoxType _BoundBox;
 };
-
+*/
 END_XE_NAMESPACE
 
 #endif // OCTREE_HPP__A57E4FF7_6104_48B7_A4FD_0114648F4E85

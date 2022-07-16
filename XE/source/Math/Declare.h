@@ -47,8 +47,6 @@ template< typename T > using Mat4 = Mat< T, 4, 4 >;
 
 template< typename _Ty > class MakeRect;
 template< typename _Ty > class MakeAABB;
-template< typename _Ty, typename _By > class QTree;
-template< typename _Ty, typename _By > class OCTree;
 
 END_XE_NAMESPACE
 

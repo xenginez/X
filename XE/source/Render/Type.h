@@ -28,7 +28,7 @@ DECL_PTR( CameraComponent );
 DECL_PTR( RenderComponent );
 
 using RenderGraph = XE::Graph< XE::RenderPassPtr >;
-DECL_PTR( RenderGraph );
+using RenderGraphPtr = XE::SharedPtr< RenderGraph >;
 
 enum class ProjectionType
 {
