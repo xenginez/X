@@ -19,3 +19,8 @@ QShortcut * XS::Widget::AddShortcuts( const QString & name, const QKeySequence &
 {
 	return GetParent< XS::DockWidget >()->AddShortcuts( name, key );
 }
+
+XS::CoreFramework * XS::Widget::GetFramework()
+{
+	return XS::CoreFramework::GetCurrentFramework();
+}

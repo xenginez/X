@@ -207,10 +207,18 @@
     </widget>
    </item>
    <item>
-    <widget class="QWidget" name="display" native="true"/>
+    <widget class="XS::RenderWidget" name="display" native="true"/>
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>XS::RenderWidget</class>
+   <extends>QWidget</extends>
+   <header>Core/RenderWidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

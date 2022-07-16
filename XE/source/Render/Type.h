@@ -10,6 +10,7 @@
 #define TYPE_H__F5415E7B_FE49_440C_86FC_57B459E6B43E
 
 #include "Declare.h"
+#include "Math/Graph.hpp"
 
 BEG_XE_NAMESPACE
 
@@ -20,6 +21,8 @@ DECL_PTR( RenderResource );
 DECL_PTR( LightComponent );
 DECL_PTR( CameraComponent );
 DECL_PTR( RenderComponent );
+
+using RenderGraph = XE::Graph< XE::SharedPtr< XE::RenderPass > >;
 
 END_XE_NAMESPACE
 

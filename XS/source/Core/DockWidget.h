@@ -16,6 +16,7 @@
 #include <QUndoCommand>
 
 #include "Registry.h"
+#include "CoreFramework.h"
 
 class QToolButton;
 
@@ -51,6 +52,9 @@ public:
 	DockWidget( QWidget * parent = nullptr );
 
 	~DockWidget();
+
+public:
+	static XS::CoreFramework * GetFramework();
 
 public:
 	virtual void SaveLayout( QSettings & settings );

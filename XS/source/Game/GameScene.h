@@ -24,14 +24,8 @@ public:
 
 	~GameScene() override;
 
-public:
-
 protected:
-	void showEvent( QShowEvent * event ) override;
-
-	void closeEvent( QCloseEvent * event ) override;
-
-	void resizeEvent( QResizeEvent * event ) override;
+	bool eventFilter( QObject * watched, QEvent * event ) override;
 
 private:
 	Ui::GameScene * ui;

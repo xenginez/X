@@ -17,6 +17,7 @@
 #include "MainWindow.h"
 #include "ObjectProxy.h"
 #include "WindowProxy.h"
+#include "RenderWidget.h"
 #include "CoreFramework.h"
 
 #endif//CORE_H__4D4F6934_D4EE_487A_96BD_72F058EC1C0F

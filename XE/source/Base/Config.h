@@ -90,12 +90,15 @@
 
 #define COMPILER_GCC 1
 #define COMPILER_MSVC 2
-#define COMPILER_CLANG 3
+#define COMPILER_EMCC 3
+#define COMPILER_CLANG 4
 
 #if defined( __GNUC__ )
 #   define COMPILER COMPILER_GCC
 #elif defined( _MSC_VER )
 #   define COMPILER COMPILER_MSVC
+#elif defined( __EMSCRIPTEN__ )
+#   define COMPILER COMPILER_EMCC
 #elif defined( __clang__ )
 #   define COMPILER COMPILER_CLANG
 #else
@@ -154,6 +157,10 @@
 #   define DLL_IMPORT __declspec( dllimport )
 #   define DLL_EXPORT __declspec( dllexport )
 #   define DLL_VAR_WEAK __declspec( selectany )
+#elif COMPILER == COMPILER_EMCC
+#   define DLL_IMPORT 
+#   define DLL_EXPORT EMSCRIPTEN_KEEPALIVE
+#   define DLL_VAR_WEAK EMSCRIPTEN_KEEPALIVE
 #elif COMPILER == COMPILER_GCC || COMPILER == COMPILER_CLANG
 #   define DLL_IMPORT __attribute__ ((visibility ("default")))
 #   define DLL_EXPORT __attribute__ ((visibility ("default")))
@@ -174,6 +181,10 @@
 #	define DLL_EXT_NAME ".dylib"
 #elif PLATFORM_OS & OS_PLAY_STATION
 #	define DLL_EXT_NAME ".so"
+#elif PLATFORM_OS & OS_WEB
+#	define DLL_EXT_NAME ".wasm"
+#else
+#   error "unknown PLATFORM_OS!"
 #endif
 
 #ifdef XE_EXPORT

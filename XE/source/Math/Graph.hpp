@@ -224,4 +224,15 @@ private:
 
 END_XE_NAMESPACE
 
+template< typename ... Types > struct ::ClassID< XE::Graph< Types... > >
+{
+	static XE::MetaClassCPtr Get( const XE::Graph< Types... > * val = nullptr )
+	{
+		static constexpr char __xe__sig__[] = __FUNCTION__;
+
+		static auto meta = XE::MetaInfo::NewMetaInfo< XE::CXXTplMetaClass< XE::Graph< Types... >, Types... > >( XE::Hash( __xe__sig__ ), "Graph", nullptr, nullptr, XE::GetModule() );
+		return meta;
+	}
+};
+
 #endif//GRAPH_HPP__0D72231B_C9AC_4413_B06B_EA4C9966C4BD

@@ -215,3 +215,8 @@ QShortcut * XS::DockWidget::AddShortcuts( const QString & name, const QKeySequen
 {
 	return GetParent< XS::MainWindow >()->AddShortcuts( QString( metaObject()->className() ) + "." + name, key, this );
 }
+
+XS::CoreFramework * XS::DockWidget::GetFramework()
+{
+	return XS::CoreFramework::GetCurrentFramework();
+}

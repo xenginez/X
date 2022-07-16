@@ -10,6 +10,7 @@
 #define TYPE_H__30CAD44D_274D_4F6D_BF9B_E9A055B63588
 
 #include "Declare.h"
+#include "Math/Graph.hpp"
 #include "Utils/Handle.hpp"
 
 BEG_XE_NAMESPACE
@@ -20,6 +21,9 @@ DECL_PTR( World );
 DECL_PTR( GameObject );
 DECL_PTR( EntitySystem );
 DECL_PTR( GameObjectComponent );
+
+using EntitySystemGraph = XE::Graph< XE::SharedPtr< XE::EntitySystem > >;
+using EntitySystemPaths = XE::List< XE::Array< XE::EntitySystemGraph::vertex_const_iterator > >;
 
 END_XE_NAMESPACE
 

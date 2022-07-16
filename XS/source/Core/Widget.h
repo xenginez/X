@@ -23,6 +23,9 @@ public:
 	~Widget() override;
 
 public:
+	static XS::CoreFramework * GetFramework();
+
+public:
 	template< typename T > T * GetParent() const
 	{
 		QWidget * parent = parentWidget();

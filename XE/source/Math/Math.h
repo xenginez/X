@@ -40,6 +40,7 @@
 #include "SIMD.h"
 #include "Mathf.h"
 
+#include "Graph.hpp"
 #include "QTree.hpp"
 #include "OCTree.hpp"
 

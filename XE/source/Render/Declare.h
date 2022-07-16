@@ -30,8 +30,6 @@ class PointLightComponent;
 class StaticMeshComponent;
 class DirectionalLightComponent;
 
-using RenderGraph = XE::Graph< XE::SharedPtr< XE::RenderPass > >;
-
 END_XE_NAMESPACE
 
 #endif//DECLARE_H__2C7FF4A4_D367_4A7D_AAEC_4B8217B3D7A7

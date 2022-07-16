@@ -18,7 +18,7 @@
 #
 ## Support
 
-| ![](https://img.shields.io/badge/graphics-platform-blue) | ![Windows](https://img.shields.io/badge/windows-blue?logo=windows) | ![MacOS](https://img.shields.io/badge/macos-blue?logo=macos) | ![Linux](https://img.shields.io/badge/linux-blue?logo=linux) | ![Android](https://img.shields.io/badge/android-blue?logo=android) | ![iOS](https://img.shields.io/badge/ios-blue?logo=ios) | ![Browser](https://img.shields.io/badge/browser-blue?logo=googlechrome) | ![Xbox](https://img.shields.io/badge/xbox-blue?logo=xbox) | ![Nintendo](https://img.shields.io/badge/nintendo-blue?logo=nintendoswitch) | ![PlayStation](https://img.shields.io/badge/playstation-blue?logo=playstation) |
+| ![](https://img.shields.io/badge/graphics-platform-blue) | ![Windows](https://img.shields.io/badge/windows-blue) | ![MacOS](https://img.shields.io/badge/macos-blue) | ![Android](https://img.shields.io/badge/android-blue) | ![iOS](https://img.shields.io/badge/ios-blue) | ![Browser](https://img.shields.io/badge/browser-blue) | ![Xbox](https://img.shields.io/badge/xbox-blue) | ![Nintendo](https://img.shields.io/badge/nintendo-blue) | ![PlayStation](https://img.shields.io/badge/playstation-blue) |
 | ----------------- | :---------: | :---------: | :---------: | :---------: | :---------: | :---------: | :---------: | :---------: | :---------: |
 | ![webgl](https://img.shields.io/badge/webgl-5B5B5B) |   |   |   |   |   |   |   |   |   |
 | ![metal](https://img.shields.io/badge/metal-5B5B5B)  |   |   |   |   |   |   |   |   |   |
@@ -37,7 +37,7 @@
   <summary><a href="https://github.com/xenginez/X/tree/master/3rdparty">3rdparty</a>: Tripartite library list</summary>
   <ul>
     <li><a href="https://github.com/chriskohlhoff/asio.git">asio</a></li>
-    <li><a href="https://github.com/chriskohlhoff/asio.git">assimp</a></li>
+    <li><a href="https://github.com/assimp/assimp.git">assimp</a></li>
     <li><a href="https://github.com/pytorch/cpuinfo.git">cpuinfo</a></li>
     <li><a href="https://github.com/p-ranav/csv2.git">csv2</a></li>
     <li><a href="https://github.com/ocornut/imgui.git">imgui</a></li>

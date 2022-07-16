@@ -16,7 +16,7 @@ XS::GameScene::GameScene( QWidget * parent /*= nullptr */ )
 	ui->ratio_icon->setPixmap( QPixmap( "SkinIcons:/images/gamescene/icon_gamescene_ratio.png" ) );
 	ui->camera_icon->setPixmap( QPixmap( "SkinIcons:/images/gamescene/icon_gamescene_camera.png" ) );
 
-	// XS::CoreFramework::GetCurrentFramework()->GetServiceT< XE::RenderService >();
+	ui->display->installEventFilter( this );
 }
 
 XS::GameScene::~GameScene()
@@ -24,23 +24,11 @@ XS::GameScene::~GameScene()
 	delete ui;
 }
 
-void XS::GameScene::showEvent( QShowEvent * event )
+bool XS::GameScene::eventFilter( QObject * watched, QEvent * event )
 {
-	QFrame::showEvent( event );
+	if ( watched == ui->display )
+	{
+	}
 
-	// TODO: 
-}
-
-void XS::GameScene::closeEvent( QCloseEvent * event )
-{
-	// TODO: 
-
-	QFrame::closeEvent( event );
-}
-
-void XS::GameScene::resizeEvent( QResizeEvent * event )
-{
-	QFrame::resizeEvent( event );
-
-	// TODO: 
+	return QFrame::eventFilter( watched, event );
 }

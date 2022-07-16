@@ -25,9 +25,6 @@ public:
 	~EditSceneEditor();
 
 public:
-	WId display() const;
-
-public:
 	void SaveLayout( QSettings & settings ) override;
 
 	void LoadLayout( QSettings & settings ) override;
@@ -38,7 +35,7 @@ private slots:
 	void OnTransformClicked( bool checked = false );
 
 protected:
-	void paintEvent( QPaintEvent * event ) override;
+	bool eventFilter( QObject * watched, QEvent * event ) override;
 
 private:
 	Ui::EditSceneEditor * ui;

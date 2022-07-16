@@ -25,6 +25,8 @@ XS::EditSceneEditor::EditSceneEditor( QWidget * parent /*= nullptr */ )
 	connect( ui->move, &QToolButton::clicked, this, &EditSceneEditor::OnTransformClicked );
 	connect( ui->scale, &QToolButton::clicked, this, &EditSceneEditor::OnTransformClicked );
 	connect( ui->rotate, &QToolButton::clicked, this, &EditSceneEditor::OnTransformClicked );
+
+	ui->display->installEventFilter( this );
 }
 
 XS::EditSceneEditor::~EditSceneEditor()
@@ -32,16 +34,10 @@ XS::EditSceneEditor::~EditSceneEditor()
 	delete ui;
 }
 
-WId XS::EditSceneEditor::display() const
-{
-	return ui->display->winId();
-}
-
 void XS::EditSceneEditor::SaveLayout( QSettings & settings )
 {
 	settings.beginGroup( objectName() );
 	{
-		
 		settings.setValue( "2d_3d", ui->d23->text() );
 
 		int checked = 0;
@@ -88,17 +84,11 @@ void XS::EditSceneEditor::OnTransformClicked( bool checked /*= false */ )
 	if ( sender() != ui->rotate ) ui->rotate->setChecked( false );
 }
 
-void XS::EditSceneEditor::paintEvent( QPaintEvent * event )
+bool XS::EditSceneEditor::eventFilter( QObject * watched, QEvent * event )
 {
-	XS::DockWidget::paintEvent( event );
-
-	if ( ui->d23->text() == "2D" )
+	if ( watched == ui->display )
 	{
-
-	}
-	else
-	{
-
 	}
 
+	return XS::DockWidget::eventFilter( watched, event );
 }
