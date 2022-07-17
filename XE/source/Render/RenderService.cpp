@@ -10,6 +10,35 @@
 
 IMPLEMENT_META( XE::RenderService );
 
+namespace
+{
+	static XE::uint64 RenderTextureTemporary_Index = 0;
+
+	class RenderTextureTemporary
+	{
+	public:
+		RenderTextureTemporary( XE::int32 width, XE::int32 height, const XE::GraphicsServicePtr & service, const XE::GraphicsDevicePtr & device )
+		{
+			Desc.Label = "RenderTextureTemporary_" + XE::ToString( RenderTextureTemporary_Index++ );
+			Desc.Size.x = ALIGNED( width, 512 );
+			Desc.Size.y = ALIGNED( height, 512 );
+			Desc.Size.z = 1;
+			Desc.Dimension = XE::GraphicsTextureDimension::D2;
+			Desc.Format = XE::GraphicsTextureFormat::RGBA8SNORM;
+			Desc.SampleCount = 1;
+			Desc.MipLevelCount = 1;
+			Desc.Usage = XE::MakeFlags( XE::GraphicsTextureUsage::COPY_SRC, XE::GraphicsTextureUsage::COPY_DST, XE::GraphicsTextureUsage::TEXTURE_BINDING, XE::GraphicsTextureUsage::STORAGE_BINDING, XE::GraphicsTextureUsage::RENDER_ATTACHMENT );
+
+			Texture = service->DeviceCreateTexture( device, Desc );
+		}
+
+	public:
+		XE::GraphicsTexturePtr Texture;
+		XE::GraphicsTextureDescriptor Desc;
+	};
+	using RenderTextureTemporaryPtr = XE::SharedPtr< RenderTextureTemporary >;
+}
+
 struct XE::RenderService::Private
 {
 	XE::RenderTexturePtr _MainTexture;
@@ -17,6 +46,9 @@ struct XE::RenderService::Private
 	XE::GraphicsDevicePtr _GraphicsDevice;
 	XE::GraphicsSurfacePtr _GraphicsSurface;
 	XE::GraphicsSwapChainPtr _GraphicsSwapChain;
+
+	std::mutex _TexturePoolMutex;
+	XE::List< RenderTextureTemporaryPtr > _TexturePool;
 
 	XE::RenderGraphPtr _DefaultGraph;
 	XE::CameraComponentPtr _MainCamera;
@@ -129,8 +161,6 @@ XE::RenderResourcePtr XE::RenderService::CreateResource( const XE::RenderGraphPt
 {
 	XE::RenderResourcePtr resource = XE::MakeShared< XE::RenderResource >();
 	{
-		resource->_Service = XE_THIS( XE::RenderService );
-
 		XE::RenderBuilder builder;
 
 		auto vertices = val->GetGraphPass().vertices();
@@ -140,6 +170,69 @@ XE::RenderResourcePtr XE::RenderService::CreateResource( const XE::RenderGraphPt
 		}
 	}
 	return resource;
+}
+
+XE::RenderTexturePtr XE::RenderService::GetRenderTextureFromPool( XE::int32 width, XE::int32 height, XE::GraphicsTextureFormat format )
+{
+	if ( auto service = GetFramework()->GetServiceT< XE::GraphicsService >() )
+	{
+		RenderTextureTemporaryPtr temporary;
+
+		{
+			std::unique_lock< std::mutex > lock( _p->_TexturePoolMutex );
+
+			for ( auto it = _p->_TexturePool.begin(); it != _p->_TexturePool.end(); ++it )
+			{
+				auto tex = *it;
+
+				if ( tex->Desc.Size.x >= width && tex->Desc.Size.y >= height && tex->Desc.Format == format )
+				{
+					temporary = tex;
+
+					_p->_TexturePool.erase( it );
+
+					break;
+				}
+			}
+		}
+
+		if ( temporary == nullptr )
+		{
+			temporary = XE::MakeShared< RenderTextureTemporary >( width, height, format, service, _p->_GraphicsDevice );
+		}
+
+		XE::GraphicsTextureViewDescriptor desc = {};
+		{
+			desc.Label = temporary->Desc.Label + "_View";
+			desc.Format = format;
+			desc.Aspect = GraphicsTextureAspect::ALL;
+			desc.BaseMipLevel = 0;
+			desc.BaseArrayLayer = 0;
+			desc.MipLevelCount = 1;
+			desc.ArrayLayerCount = 1;
+			desc.Dimension = GraphicsTextureViewDimension::D2;
+		}
+		auto view = service->TextureCreateView( temporary->Texture, desc );
+
+		if ( view != nullptr )
+		{
+			auto alloc = XE::AllocatorProxy< XE::RenderTexture >::GetAllocator();
+			auto tex = alloc.allocate( 1 ); alloc.construct( tex );
+
+			tex->ResetTextureView( view );
+
+			return XE::RenderTexturePtr( tex, [this, temporary]( XE::RenderTexture * val )
+			{
+				auto alloc = XE::AllocatorProxy< XE::RenderTexture >::GetAllocator();
+				alloc.destroy( val ); alloc.deallocate( val, 1 );
+
+				std::unique_lock< std::mutex > lock( _p->_TexturePoolMutex );
+				_p->_TexturePool.push_back( temporary );
+			} );
+		}
+	}
+
+	return nullptr;
 }
 
 XE::Disposable XE::RenderService::RegisterLight( const XE::LightComponentPtr & val )

@@ -27,6 +27,13 @@ public:
 
 private:
 	void ResetTextureView( const XE::GraphicsTextureViewPtr & val );
+
+private:
+	XE::uint32 _Width;
+	XE::uint32 _Height;
+	XE::uint32 _Depth;
+	XE::GraphicsTextureFormat _Format;
+	XE::GraphicsTextureViewPtr _TextureView;
 };
 
 END_XE_NAMESPACE

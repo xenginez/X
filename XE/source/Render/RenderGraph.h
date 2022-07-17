@@ -21,9 +21,17 @@ public:
 	virtual ~RenderPass() = default;
 
 public:
+	const XE::String & GetName() const;
+
+	void SetName( const XE::String & val );
+
+public:
 	virtual void Setup( XE::RenderBuilder & val ) const = 0;
 
 	virtual void Execute( XE::RenderPassData & val ) const = 0;
+
+private:
+	XE::String _Name;
 };
 DECL_XE_CLASS( RenderPass );
 
@@ -32,7 +40,7 @@ class XE_API RenderGraph : public XE::EnableSharedFromThis< XE::RenderGraph >
 public:
 	RenderGraph() = default;
 
-	~RenderGraph() = default;
+	virtual ~RenderGraph() = default;
 
 public:
 	const XE::String & GetName() const;
@@ -52,11 +60,32 @@ DECL_XE_CLASS( RenderGraph );
 class XE_API RenderPassData
 {
 public:
+	RenderPassData() = default;
 
+	~RenderPassData() = default;
+
+public:
+	XE::Variant GetValue( XE::RenderResourceHandle val ) const;
+
+	void SetValue( XE::RenderResourceHandle handle, const XE::Variant & val );
+
+public:
+	template< typename T > T Get( XE::RenderResourceHandle val ) const
+	{
+		return GetValue( val ).Value< T >();
+	}
+
+	template< typename T > void Set( XE::RenderResourceHandle handle, const T & val )
+	{
+		SetValue( handle, val );
+	}
+
+public:
+	XE::CoreFrameworkPtr GetFramework() const;
 
 private:
-	XE::RenderService * Service = nullptr;
-	XE::RenderResource * Resource = nullptr;
+	XE::RenderResource * _Resource = nullptr;
+	XE::Array< XE::Pair< XE::String, XE::Variant > > _Resources;
 };
 DECL_XE_CLASS( RenderPassData );
 
@@ -82,6 +111,8 @@ public:
 	RenderBuilder & ReadWrite( XE::RenderResourceHandle val );
 
 public:
+	XE::RenderResourceHandle Get( const XE::String & val );
+
 	XE::RenderResourceHandle Create( const XE::String & val );
 
 private:
@@ -92,6 +123,7 @@ DECL_XE_CLASS( RenderBuilder );
 class XE_API RenderResource : public XE::EnableSharedFromThis< RenderResource >
 {
 	friend class RenderService;
+	friend class RenderPassData;
 
 public:
 	RenderResource() = default;
@@ -99,9 +131,8 @@ public:
 	~RenderResource() = default;
 
 private:
-	XE::RenderServiceWPtr _Service;
-	XE::Array< XE::Variant > _Resources;
-	XE::Map< const XE::RenderPass *, XE::RenderPassData > _PassDataMap;
+	XE::Map< XE::String, XE::Variant > _Resources;
+	XE::Map< XE::RenderPass *, XE::RenderPassData > _PassDataMap;
 };
 DECL_XE_CLASS( RenderResource );
 
@@ -112,10 +143,8 @@ class XE_API RenderExecutor : public XE::NonCopyable
 public:
 	void Execute( const XE::RenderResourcePtr & resource, const XE::RenderGraphPtr & graph, const XE::RenderTexturePtr & texture );
 
-	void Submit();
-
 private:
-
+	void Submit();
 };
 DECL_XE_CLASS( RenderExecutor );
 

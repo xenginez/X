@@ -53,6 +53,9 @@ public:
 public:
 	XE::RenderResourcePtr CreateResource( const XE::RenderGraphPtr & val );
 
+public:
+	XE::RenderTexturePtr GetRenderTextureFromPool( XE::int32 width, XE::int32 height, XE::GraphicsTextureFormat format );
+
 private:
 	XE::Disposable RegisterLight( const XE::LightComponentPtr & val );
 
