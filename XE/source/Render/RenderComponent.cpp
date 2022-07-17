@@ -25,7 +25,7 @@ void XE::RenderComponent::OnClearup()
 
 }
 
-void XE::RenderComponent::Render( const XE::GraphicsCommandEncoderPtr & encoder )
+void XE::RenderComponent::Render( const XE::GraphicsCommandEncoderPtr & encoder ) const
 {
 
 }

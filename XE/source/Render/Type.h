@@ -12,23 +12,13 @@
 #include "Declare.h"
 #include "Math/Graph.hpp"
 #include "Utils/Flags.hpp"
+#include "Utils/Handle.hpp"
+#include "Utils/RefCount.h"
 
 BEG_XE_NAMESPACE
 
-DECL_PTR( RenderPass );
-DECL_PTR( RenderBuilder );
-DECL_PTR( RenderResource );
+DECL_HANDLE( RenderResource );
 
-DECL_PTR( RenderTexture );
-DECL_PTR( RenderMaterial );
-
-DECL_PTR( RenderService );
-DECL_PTR( LightComponent );
-DECL_PTR( CameraComponent );
-DECL_PTR( RenderComponent );
-
-using RenderGraph = XE::Graph< XE::RenderPassPtr >;
-using RenderGraphPtr = XE::SharedPtr< RenderGraph >;
 
 enum class ProjectionType
 {
@@ -45,6 +35,7 @@ enum class CameraClearFlag
 	STENCIL = 1 << 2,
 };
 DECL_XE_ENUM( CameraClearFlag ); DECL_FLAGS( CameraClearFlag, CameraClearFlags );
+
 
 struct XE_API PerspectiveInfo
 {

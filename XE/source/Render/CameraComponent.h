@@ -9,7 +9,6 @@
 #ifndef CAMERACOMPONENT_H__5F675737_2B16_4C7B_BD8F_5B84B24DD1F9
 #define CAMERACOMPONENT_H__5F675737_2B16_4C7B_BD8F_5B84B24DD1F9
 
-#include "Core/Asset.h"
 #include "Scene/GameObject.h"
 
 #include "Type.h"
@@ -27,6 +26,9 @@ public:
 	CameraComponent();
 
 	~CameraComponent();
+
+private:
+	void Render( XE::RenderExecutor & val ) const;
 
 protected:
 	void OnStartup() override;
@@ -70,9 +72,9 @@ public:
 
 	void SetRenderGraph( const XE::RenderGraphPtr & val );
 
-	const XE::AssetPtr< XE::RenderTexture > & GetRenderTexture() const;
+	const XE::RenderTexturePtr & GetRenderTexture() const;
 
-	void SetRenderTexture( const XE::AssetPtr< XE::RenderTexture > & val );
+	void SetRenderTexture( const XE::RenderTexturePtr & val );
 
 private:
 	XE::Disposable _Disposable;
@@ -88,7 +90,8 @@ private:
 	XE::OrthographicInfo _Orthographic;
 
 	XE::RenderGraphPtr _RenderGraph;
-	XE::AssetPtr< XE::RenderTexture > _RenderTexture;
+	XE::RenderTexturePtr _RenderTexture;
+	XE::RenderResourcePtr _RenderResource;
 };
 
 END_XE_NAMESPACE

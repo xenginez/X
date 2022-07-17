@@ -48,16 +48,18 @@ public:
 
 	~ConcurrentQueue()
 	{
-		node * old_head = _Head.load();
+		node * head = _Head.load();
 
-		while( old_head != nullptr )
+		while ( !_Head.compare_exchange_weak( head, nullptr ) );
+
+		while( head != nullptr )
 		{
-			_Head = old_head->next.load();
+			auto next = head->next.load();
 
-			node_allocator_traits::destroy( _Alloc, old_head );
-			node_allocator_traits::deallocate( _Alloc, old_head, 1 );
+			node_allocator_traits::destroy( _Alloc, head );
+			node_allocator_traits::deallocate( _Alloc, head, 1 );
 
-			old_head = _Head.load();
+			head = next;
 		}
 	}
 
@@ -143,6 +145,24 @@ public:
 		_Head.compare_exchange_weak( expected, desired );
 
 		return head_next != nullptr;
+	}
+
+	void clear()
+	{
+		node * head = _Head.load();
+		node * p = node_allocator_traits::allocate( _Alloc, 1 ); node_allocator_traits::construct( _Alloc, p );
+
+		while ( !_Head.compare_exchange_weak( head, p ) );
+
+		while ( head != nullptr )
+		{
+			node * next = head->next.load();
+
+			node_allocator_traits::destroy( _Alloc, head );
+			node_allocator_traits::deallocate( _Alloc, head, 1 );
+
+			head = next;
+		}
 	}
 
 public:

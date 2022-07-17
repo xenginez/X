@@ -23,18 +23,6 @@
 
 BEG_XE_NAMESPACE
 
-DECL_PTR( Service );
-DECL_PTR( EventService );
-DECL_PTR( TimerService );
-DECL_PTR( AudioService );
-DECL_PTR( CacheService );
-DECL_PTR( AssetsService );
-DECL_PTR( ThreadService );
-DECL_PTR( PhysicsService );
-DECL_PTR( GraphicsService );
-DECL_PTR( LocalizationService );
-class CoreFramework;  using CoreFrameworkPtr = CoreFramework * ;
-
 static constexpr char CONFIG_FILE_NAME[] = "Config.json";
 static constexpr char LANGUAGE_FILE_NAME[] = "Language.csv";
 static constexpr char CACHEDATA_FILE_NAME[] = "Cache.cache";
@@ -85,29 +73,6 @@ static constexpr XE::uint64 GRAPHICS_MAX_SHADER_MODULE = 0;
 static constexpr XE::uint64 GRAPHICS_MAX_TEXTURE = 0;
 static constexpr XE::uint64 GRAPHICS_MAX_TEXTURE_VIEW = 0;
 
-DECL_PTR( GraphicsAdapter );
-DECL_PTR( GraphicsDevice );
-DECL_PTR( GraphicsBindGroup );
-DECL_PTR( GraphicsBindGroupLayout );
-DECL_PTR( GraphicsBuffer );
-DECL_PTR( GraphicsCommandBuffer );
-DECL_PTR( GraphicsCommandEncoder );
-DECL_PTR( GraphicsComputePassEncoder );
-DECL_PTR( GraphicsComputePipeline );
-DECL_PTR( GraphicsPipelineLayout );
-DECL_PTR( GraphicsQuerySet );
-DECL_PTR( GraphicsQueue );
-DECL_PTR( GraphicsRenderBundle );
-DECL_PTR( GraphicsRenderBundleEncoder );
-DECL_PTR( GraphicsRenderPassEncoder );
-DECL_PTR( GraphicsRenderPipeline );
-DECL_PTR( GraphicsSampler );
-DECL_PTR( GraphicsShaderModule );
-DECL_PTR( GraphicsSurface );
-DECL_PTR( GraphicsSwapChain );
-DECL_PTR( GraphicsTexture );
-DECL_PTR( GraphicsTextureView );
-
 enum class GraphicsAdapterType
 {
     DISCRETE_GPU = 0x00000000,
@@ -135,6 +100,7 @@ enum class GraphicsBackendType
     VULKAN = 0x00000005,
     OPENGL = 0x00000006,
     OPENGLES = 0x00000007,
+    DEFAULT = 0x7FFFFFFF,
 };
 DECL_XE_ENUM( GraphicsBackendType );
 

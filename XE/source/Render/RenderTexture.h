@@ -17,10 +17,16 @@ class XE_API RenderTexture : public XE::Object
 {
 	OBJECT( RenderTexture, XE::Object )
 
+private:
+	friend class RenderService;
+
 public:
 	RenderTexture();
 
 	~RenderTexture() override;
+
+private:
+	void ResetTextureView( const XE::GraphicsTextureViewPtr & val );
 };
 
 END_XE_NAMESPACE

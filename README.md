@@ -19,16 +19,14 @@
 ## Support
 
 | ![](https://img.shields.io/badge/graphics-platform-blue) | ![Windows](https://img.shields.io/badge/windows-blue) | ![MacOS](https://img.shields.io/badge/macos-blue) | ![Android](https://img.shields.io/badge/android-blue) | ![iOS](https://img.shields.io/badge/ios-blue) | ![Browser](https://img.shields.io/badge/browser-blue) | ![Xbox](https://img.shields.io/badge/xbox-blue) | ![Nintendo](https://img.shields.io/badge/nintendo-blue) | ![PlayStation](https://img.shields.io/badge/playstation-blue) |
-| ----------------- | :---------: | :---------: | :---------: | :---------: | :---------: | :---------: | :---------: | :---------: | :---------: |
-| ![webgl](https://img.shields.io/badge/webgl-5B5B5B) |   |   |   |   |   |   |   |   |   |
-| ![metal](https://img.shields.io/badge/metal-5B5B5B)  |   |   |   |   |   |   |   |   |   |
-| ![vulkan](https://img.shields.io/badge/vulkan-5B5B5B) |   |   |   |   |   |   |   |   |   |
-| ![opengl](https://img.shields.io/badge/opengl-5B5B5B) |   |   |   |   |   |   |   |   |   |
-| ![webgpu](https://img.shields.io/badge/webgpu-5B5B5B) |   |   |   |   |   | ✔ |   |   |   |
-| ![directx11](https://img.shields.io/badge/directx11-5B5B5B) |   |   |   |   |   |   |   |   |   |
-| ![directx12](https://img.shields.io/badge/directx12-5B5B5B) | ✔ |   |   |   |   |   |   |   |   |
-| ![opengles2.0](https://img.shields.io/badge/opengles2.0-5B5B5B) |   |   |   |   |   |   |   |   |   |
-| ![opengles3.0](https://img.shields.io/badge/opengles3.0-5B5B5B) |   |   |   |   |   |   |   |   |   |
+| ----------------- | :---------: | :---------: | :---------: | :---------: | :---------: | :---------: | :---------: | :---------: |
+| ![d3d11](https://img.shields.io/badge/d3d11-5B5B5B) |   |   |   |   |   |   |   |   |
+| ![d3d12](https://img.shields.io/badge/d3d12-5B5B5B) | ✔ |   |   |   |   |   |   |   |
+| ![metal](https://img.shields.io/badge/metal-5B5B5B)  |   |   |   |   |   |   |   |   |
+| ![vulkan](https://img.shields.io/badge/vulkan-5B5B5B) |   |   |   |   |   |   |   |   |
+| ![webgpu](https://img.shields.io/badge/webgpu-5B5B5B) |   |   |   |   | ✔ |   |   |   |
+| ![opengl](https://img.shields.io/badge/opengl-5B5B5B) |   |   |   |   |   |   |   |   |
+| ![opengles](https://img.shields.io/badge/opengles-5B5B5B) |   |   |   |   |   |   |   |   |
 
 #
 

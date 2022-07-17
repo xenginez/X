@@ -30,12 +30,12 @@ public:
 protected:
 	void OnStartup() override;
 
-	virtual void OnRender( const XE::GraphicsCommandEncoderPtr & encoder ) = 0;
+	virtual void OnRender( const XE::GraphicsCommandEncoderPtr & encoder ) const = 0;
 
 	void OnClearup() override;
 
 private:
-	void Render( const XE::GraphicsCommandEncoderPtr & encoder );
+	void Render( const XE::GraphicsCommandEncoderPtr & encoder ) const;
 
 public:
 	bool GetDynamic() const;

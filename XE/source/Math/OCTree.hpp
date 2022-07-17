@@ -73,7 +73,10 @@ public:
 		Remove( 0, val );
 	}
 
-	void Clear();
+	void Clear()
+	{
+		_Boxs.clear();
+	}
 
 public:
 	template< typename G > void Intersect( const G & geometry, XE::Array< ValueType > & outs )

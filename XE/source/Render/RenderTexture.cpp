@@ -12,3 +12,8 @@ XE::RenderTexture::~RenderTexture()
 {
 
 }
+
+void XE::RenderTexture::ResetTextureView( const XE::GraphicsTextureViewPtr & val )
+{
+
+}

@@ -10,11 +10,8 @@
 #define RENDERSERVICE_H__753D8DD6_A8F5_4DB9_A414_F0464B975761
 
 #include "Core/Service.h"
-#include "Utils/Handle.hpp"
 
-#include "LightComponent.h"
-#include "RenderComponent.h"
-#include "CameraComponent.h"
+#include "Type.h"
 
 BEG_XE_NAMESPACE
 
@@ -26,6 +23,9 @@ private:
 	friend class LightComponent;
 	friend class CameraComponent;
 	friend class RenderComponent;
+
+private:
+	struct Private;
 
 public:
 	RenderService();
@@ -50,6 +50,9 @@ public:
 
 	void SetDefaultRenderGraph( const XE::RenderGraphPtr & val );
 
+public:
+	XE::RenderResourcePtr CreateResource( const XE::RenderGraphPtr & val );
+
 private:
 	XE::Disposable RegisterLight( const XE::LightComponentPtr & val );
 
@@ -58,19 +61,7 @@ private:
 	XE::Disposable RegisterCamera( const XE::CameraComponentPtr & val );
 
 private:
-	XE::RenderGraphPtr _DefaultGraph;
-	XE::CameraComponentPtr _MainCamera;
-
-	XE::Array< XE::CameraComponentPtr > _Cameras;
-	XE::QueueHandleAllocator< XE::Handle< XE::CameraComponent > > _CameraQueue;
-
-	XE::OCTree< XE::LightComponentPtr > _StaticLights;
-	XE::Array< XE::LightComponentPtr > _DynamicLights;
-	XE::QueueHandleAllocator< XE::Handle< XE::LightComponent > > _DynamicLightQueue;
-
-	XE::OCTree< XE::RenderComponentPtr > _StaticRenders;
-	XE::Array< XE::RenderComponentPtr > _DynamicRenders;
-	XE::QueueHandleAllocator< XE::Handle< XE::RenderComponent > > _DynamicRenderQueue;
+	Private * _p;
 };
 
 END_XE_NAMESPACE

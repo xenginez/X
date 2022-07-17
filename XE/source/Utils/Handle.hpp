@@ -276,7 +276,7 @@ public:
 	void Reset()
 	{
 		_Cur = 0;
-		_Queue = {};
+		_Queue.clear();
 	}
 
 private:

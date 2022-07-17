@@ -1,5 +1,7 @@
 #include "CameraComponent.h"
 
+#include "Core/GraphicsService.h"
+
 #include "RenderGraph.h"
 #include "RenderTexture.h"
 #include "RenderService.h"
@@ -27,9 +29,25 @@ XE::CameraComponent::~CameraComponent()
 
 }
 
+void XE::CameraComponent::Render( XE::RenderExecutor & val ) const
+{
+	if ( _RenderResource && _RenderGraph && _RenderTexture )
+	{
+		val.Execute( _RenderResource, _RenderGraph, _RenderTexture );
+	}
+}
+
 void XE::CameraComponent::OnStartup()
 {
-	_Disposable = GetService< XE::RenderService >()->RegisterCamera( XE_THIS( XE::CameraComponent ) );
+	if ( auto service = GetService< XE::RenderService >() )
+	{
+		_Disposable = service->RegisterCamera( XE_THIS( XE::CameraComponent ) );
+
+		if ( _RenderGraph )
+		{
+			_RenderResource = service->CreateResource( _RenderGraph );
+		}
+	}
 }
 
 void XE::CameraComponent::OnClearup()
@@ -127,12 +145,12 @@ void XE::CameraComponent::SetRenderGraph( const XE::RenderGraphPtr & val )
 	_RenderGraph = val;
 }
 
-const XE::AssetPtr< XE::RenderTexture > & XE::CameraComponent::GetRenderTexture() const
+const XE::RenderTexturePtr & XE::CameraComponent::GetRenderTexture() const
 {
 	return _RenderTexture;
 }
 
-void XE::CameraComponent::SetRenderTexture( const XE::AssetPtr< XE::RenderTexture > & val )
+void XE::CameraComponent::SetRenderTexture( const XE::RenderTexturePtr & val )
 {
 	_RenderTexture = val;
 }
