@@ -12,14 +12,16 @@ IMPLEMENT_META( XE::RenderService );
 
 namespace
 {
-	static XE::uint64 RenderTextureTemporary_Index = 0;
+	static XE::uint64 TEMPORARY_INDEX = 0;
+	static constexpr XE::uint64 TEMPORARY_POOL_MAX_SIZE = 32;
+	static constexpr XE::uint64 GRAPHICS_FRAME_SYNC_SIZE = 2;
 
-	class RenderTextureTemporary
+	class RenderTextureTemporary : public XE::EnableSharedFromThis< RenderTextureTemporary >
 	{
 	public:
 		RenderTextureTemporary( XE::int32 width, XE::int32 height, const XE::GraphicsServicePtr & service, const XE::GraphicsDevicePtr & device )
 		{
-			Desc.Label = "RenderTextureTemporary_" + XE::ToString( RenderTextureTemporary_Index++ );
+			Desc.Label = "RenderTextureTemporary_" + XE::ToString( TEMPORARY_INDEX++ );
 			Desc.Size.x = ALIGNED( width, 512 );
 			Desc.Size.y = ALIGNED( height, 512 );
 			Desc.Size.z = 1;
@@ -41,7 +43,7 @@ namespace
 
 struct XE::RenderService::Private
 {
-	XE::RenderTexturePtr _MainTexture;
+	XE::uint64 _FrameIndex = 0;
 	XE::GraphicsQueuePtr _GraphicsQueue;
 	XE::GraphicsDevicePtr _GraphicsDevice;
 	XE::GraphicsSurfacePtr _GraphicsSurface;
@@ -49,6 +51,7 @@ struct XE::RenderService::Private
 
 	std::mutex _TexturePoolMutex;
 	XE::List< RenderTextureTemporaryPtr > _TexturePool;
+	XE::Map< XE::String, RenderTextureTemporaryPtr > _GlobalTexture;
 
 	XE::RenderGraphPtr _DefaultGraph;
 	XE::CameraComponentPtr _MainCamera;
@@ -80,19 +83,70 @@ void XE::RenderService::Prepare()
 
 void XE::RenderService::Startup()
 {
+	if ( auto graphics = GetFramework()->GetServiceT< XE::GraphicsService >() )
+	{
+		XE::GraphicsSurfaceDescriptor surface_desc = {};
+		{
+			surface_desc.Label = "MainWindow";
+			surface_desc.Window = GetFramework()->GetMainWindow();
+		}
+		_p->_GraphicsSurface = graphics->CreateSurface( surface_desc );
 
+		XE::GraphicsRequestAdapterOptions adapter_options = {};
+		{
+			adapter_options.CompatibleSurface = _p->_GraphicsSurface;
+			adapter_options.ForceFallbackAdapter = false;
+			adapter_options.PowerPreference = GraphicsPowerPreference::HIGH_PERFORMANCE;
+		}
+		graphics->RequestAdapter( adapter_options, [&]( XE::GraphicsRequestAdapterStatus status, XE::GraphicsAdapterPtr adapter )
+		{
+			if ( status == XE::GraphicsRequestAdapterStatus::SUCCESS )
+			{
+				XE::GraphicsDeviceDescriptor desc = {};
+				{
+					desc.Label = "MainWindowDevice";
+					desc.DefaultQueue.Label = "MainWindowCommandQueue";
+					//desc.RequiredLimits.Limits.
+				}
+				graphics->AdapterRequestDevice( adapter, desc, [&]( XE::GraphicsRequestDeviceStatus status, XE::GraphicsDevicePtr device )
+				{
+					if ( status == XE::GraphicsRequestDeviceStatus::SUCCESS )
+					{
+						_p->_GraphicsDevice = device;
+						_p->_GraphicsQueue = graphics->DeviceGetQueue( device );
+					}
+				} );
+			}
+		} );
+
+		XE::GraphicsSwapChainDescriptor swap_desc = {};
+		{
+			auto size = GetFramework()->GetMainWindow()->GetWindowSize();
+
+			swap_desc.Label = "MainWindowSwapChain";
+			swap_desc.Width = size.first;
+			swap_desc.Height = size.second;
+			swap_desc.Format = GraphicsTextureFormat::RGBA8SNORM;
+			swap_desc.PresentMode = GraphicsPresentMode::IMMEDIATE;
+			swap_desc.Usage = XE::MakeFlags( XE::GraphicsTextureUsage::RENDER_ATTACHMENT );
+		}
+		_p->_GraphicsSwapChain = graphics->DeviceCreateSwapChain( _p->_GraphicsDevice, _p->_GraphicsSurface, swap_desc );
+	}
 }
 
 void XE::RenderService::Update()
 {
-	XE::Array< XE::GraphicsCommandBufferPtr > command_buffers;
 	if ( auto graphics = GetFramework()->GetServiceT< XE::GraphicsService >() )
 	{
-		_p->_MainTexture->ResetTextureView( graphics->SwapChainGetCurrentTextureView( _p->_GraphicsSwapChain ) );
-
 		if ( _p->_MainCamera )
 		{
-			_p->_MainCamera->SetRenderTexture( _p->_MainTexture );
+			auto texture = XE::MakeShared< XE::RenderTexture >();
+
+			auto size = GetFramework()->GetMainWindow()->GetWindowSize();
+
+			texture->ResetTextureView( size.first, size.second, 1, XE::GraphicsTextureFormat::RGBA8SNORM, XE::GraphicsTextureDimension::D2, graphics->SwapChainGetCurrentTextureView( _p->_GraphicsSwapChain ) );
+
+			_p->_MainCamera->SetRenderTexture( texture );
 
 			XE::RenderExecutor executor;
 
@@ -112,11 +166,22 @@ void XE::RenderService::Update()
 				executor.Submit();
 			}
 		}
+
+		graphics->SwapChainPresent( _p->_GraphicsSwapChain );
+
+		if ( ++_p->_FrameIndex == GRAPHICS_FRAME_SYNC_SIZE )
+		{
+			graphics->QueueOnSubmittedWorkDone( _p->_GraphicsQueue, nullptr );
+			_p->_FrameIndex = 0;
+		}
 	}
 }
 
 void XE::RenderService::Clearup()
 {
+	_p->_FrameIndex = 0;
+	TEMPORARY_INDEX = 0;
+
 	_p->_MainCamera = nullptr;
 	_p->_DefaultGraph = nullptr;
 
@@ -198,7 +263,7 @@ XE::RenderTexturePtr XE::RenderService::GetRenderTextureFromPool( XE::int32 widt
 
 		if ( temporary == nullptr )
 		{
-			temporary = XE::MakeShared< RenderTextureTemporary >( width, height, format, service, _p->_GraphicsDevice );
+			temporary = XE::MakeShared< RenderTextureTemporary >( width, height, service, _p->_GraphicsDevice );
 		}
 
 		XE::GraphicsTextureViewDescriptor desc = {};
@@ -219,15 +284,19 @@ XE::RenderTexturePtr XE::RenderService::GetRenderTextureFromPool( XE::int32 widt
 			auto alloc = XE::AllocatorProxy< XE::RenderTexture >::GetAllocator();
 			auto tex = alloc.allocate( 1 ); alloc.construct( tex );
 
-			tex->ResetTextureView( view );
+			tex->ResetTextureView( width, height, 1, format, XE::GraphicsTextureDimension::D2, view );
 
 			return XE::RenderTexturePtr( tex, [this, temporary]( XE::RenderTexture * val )
 			{
+				std::unique_lock< std::mutex > lock( _p->_TexturePoolMutex );
+
+				if ( _p->_TexturePool.size() < TEMPORARY_POOL_MAX_SIZE )
+				{
+					_p->_TexturePool.push_back( temporary );
+				}
+
 				auto alloc = XE::AllocatorProxy< XE::RenderTexture >::GetAllocator();
 				alloc.destroy( val ); alloc.deallocate( val, 1 );
-
-				std::unique_lock< std::mutex > lock( _p->_TexturePoolMutex );
-				_p->_TexturePool.push_back( temporary );
 			} );
 		}
 	}

@@ -187,7 +187,7 @@ void MouseInputHandleMessage( XE::InputState * cur_state, XE::InputState * pre_s
 {
 
 }
-#elif PLATFORM_OS & OS_WEB
+#elif PLATFORM_OS & OS_HTML5
 void MouseInputHandleMessage( XE::InputState * cur_state, XE::InputState * pre_state, const XE::InputEventInfo & info )
 {
 

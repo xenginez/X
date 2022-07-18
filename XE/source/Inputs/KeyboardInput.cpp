@@ -228,7 +228,7 @@ void KeyboardInputHandleMessage( XE::InputState * cur_state, XE::InputState * pr
 {
 
 }
-#elif PLATFORM_OS & OS_WEB
+#elif PLATFORM_OS & OS_HTML5
 void KeyboardInputHandleMessage( XE::InputState * cur_state, XE::InputState * pre_state, const XE::InputEventInfo & info )
 {
 

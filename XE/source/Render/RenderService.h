@@ -56,6 +56,11 @@ public:
 public:
 	XE::RenderTexturePtr GetRenderTextureFromPool( XE::int32 width, XE::int32 height, XE::GraphicsTextureFormat format );
 
+public:
+	XE::RenderTexturePtr GetRenderTextureFromGlobal( const XE::String & name );
+
+	XE::RenderTexturePtr CreateRenderTextureFromGlobal( const XE::String & name, XE::int32 width, XE::int32 height, XE::GraphicsTextureFormat format );
+
 private:
 	XE::Disposable RegisterLight( const XE::LightComponentPtr & val );
 

@@ -14,15 +14,9 @@
 
 BEG_XE_NAMESPACE
 
-class RenderPass;
-class RenderGraph;
 class RenderBuilder;
-class RenderResource;
 class RenderPassData;
 class RenderExecutor;
-
-class RenderTexture;
-class RenderMaterial;
 
 class RenderService;
 class LightComponent;
@@ -40,8 +34,13 @@ DECL_PTR( RenderPass );
 DECL_PTR( RenderGraph );
 DECL_PTR( RenderResource );
 
+DECL_PTR( RenderMesh );
+DECL_PTR( RenderShader );
+DECL_PTR( RenderBuffer );
 DECL_PTR( RenderTexture );
 DECL_PTR( RenderMaterial );
+DECL_PTR( RenderGBuffer );
+DECL_PTR( RenderVirtualTexture );
 
 DECL_PTR( RenderService );
 DECL_PTR( LightComponent );
