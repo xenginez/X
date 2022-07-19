@@ -1,6 +1,7 @@
 #include "GUIService.h"
 
 #include "Utils/Window.h"
+#include "Utils/Platform.h"
 #include "Core/CoreFramework.h"
 #include "Core/ThreadService.h"
 
@@ -95,9 +96,7 @@ void XE::GUIService::Clearup()
 
 XE::Vec2i XE::GUIService::GetScreenSize() const
 {
-	auto sz = GetFramework()->GetMainWindow()->GetScreenSize();
-
-	return { static_cast<XE::int32>( sz.first ), static_cast<XE::int32>( sz.second ) };
+	return { XE::Platform::GetSrceenWidth(), XE::Platform::GetSrceenHeight() };
 }
 
 ImFontAtlas * XE::GUIService::GetFontAtlas() const

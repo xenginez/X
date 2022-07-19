@@ -154,4 +154,22 @@ XE::Language XE::Platform::GetDefaultLanguage()
 	}
 }
 
+XE::int32 XE::Platform::GetSrceenWidth()
+{
+	::RECT rect;
+
+	::GetClientRect( ::GetDesktopWindow(), &rect );
+
+	return rect.right - rect.left;
+}
+
+XE::int32 XE::Platform::GetSrceenHeight()
+{
+	::RECT rect;
+
+	::GetClientRect( ::GetDesktopWindow(), &rect );
+
+	return rect.bottom - rect.top;
+}
+
 #endif

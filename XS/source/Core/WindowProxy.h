@@ -21,40 +21,40 @@ public:
 	WindowProxy( XS::MainWindow * window );
 
 public:
-	virtual void ShowWindow();
+	void ShowWindow() override;
 
-	virtual void HideWindow();
+	void HideWindow() override;
 
-	virtual void MinimizeWindow();
+	void MinimizeWindow() override;
 
-	virtual void MaximizeWindow();
+	void MaximizeWindow() override;
 
-	virtual bool GetWindowFocus();
+	bool GetWindowFocus() override;
 
-	virtual void FullscreenWindow();
+	void FullscreenWindow() override;
 
-	virtual void SetWindowTitle( const XE::String & title );
+	void SetWindowTitle( const XE::String & title ) override;
 
-	virtual XE::Pair< XE::uint32, XE::uint32 > GetWindowSize();
+	XE::Pair< XE::int32, XE::int32 > GetWindowSize() override;
 
-	virtual XE::Pair< XE::uint32, XE::uint32 > GetScreenSize();
-
-	virtual void SetWindowRect( XE::uint32 x, XE::uint32 y, XE::uint32 w, XE::uint32 h, bool topmost = false );
+	void SetWindowRect( XE::int32 x, XE::int32 y, XE::int32 w, XE::int32 h, bool topmost = false ) override;
 
 public:
-	virtual bool IsShow() const;
+	bool IsShow() const override;
 
-	virtual bool IsHide() const;
+	bool IsHide() const override;
 
-	virtual bool IsMinimize() const;
+	bool IsMinimize() const override;
 
-	virtual bool IsMaximize() const;
+	bool IsMaximize() const override;
 
-	virtual bool IsFullscreen() const;
+	bool IsFullscreen() const override;
 
 public:
-	virtual void MessageLoop();
+	void MessageLoop() override;
 
+private:
+	XS::MainWindow * _Window = nullptr;
 };
 DECL_PTR( WindowProxy );
 

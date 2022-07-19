@@ -82,11 +82,9 @@ public:
 
 	virtual void SetWindowTitle( const XE::String & title );
 
-	virtual XE::Pair< XE::uint32, XE::uint32 > GetWindowSize();
+	virtual XE::Pair< XE::int32, XE::int32 > GetWindowSize();
 
-	virtual XE::Pair< XE::uint32, XE::uint32 > GetScreenSize();
-
-	virtual void SetWindowRect( XE::uint32 x, XE::uint32 y, XE::uint32 w, XE::uint32 h, bool topmost = false );
+	virtual void SetWindowRect( XE::int32 x, XE::int32 y, XE::int32 w, XE::int32 h, bool topmost = false );
 
 public:
 	virtual bool IsShow() const;
@@ -103,6 +101,16 @@ public:
 	virtual void MessageLoop();
 
 public:
+	XE::int32 GetWindowWidth()
+	{
+		return GetWindowSize().first;
+	}
+
+	XE::int32 GetWindowHeight()
+	{
+		return GetWindowSize().second;
+	}
+
 	XE::WindowHandle GetHandle()
 	{
 		return _Window;

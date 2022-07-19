@@ -36,38 +36,27 @@ protected:
 	void OnClearup() override;
 
 public:
-	XE::CameraClearFlags GetClearFlags() const;
+	XE::float32 GetFOV() const;
 
-	void SetClearFlags( XE::CameraClearFlags val );
+	void SetFOV( XE::float32 val );
 
-	const XE::Color & GetClearColor() const;
+	XE::float32 GetNear() const;
 
-	void SetClearColor( const XE::Color & val );
+	void SetNear( XE::float32 val );
 
-	XE::float32 GetClearDepth() const;
+	XE::float32 GetFar() const;
 
-	void SetClearDepth( XE::float32 val );
+	void SetFar( XE::float32 val );
 
-	XE::uint32 GetClearStencil() const;
+	XE::CameraType GetCameraType() const;
 
-	void SetClearStencil( XE::uint32 val );
-
-	XE::ProjectionType GetProjectionType() const;
-
-	void SetProjectionType( XE::ProjectionType val );
-
-	const XE::PerspectiveInfo & GetPerspective() const;
-
-	void SetPerspective( const XE::PerspectiveInfo & val );
-
-	const XE::OrthographicInfo & GetOrthographic() const;
-
-	void SetOrthographic( const XE::OrthographicInfo & val );
+	void SetCameraType( XE::CameraType val );
 
 	const XE::Rectf & GetViewport() const;
 
 	void SetViewport( const XE::Rectf & val );
 
+public:
 	const XE::RenderGraphPtr & GetRenderGraph() const;
 
 	void SetRenderGraph( const XE::RenderGraphPtr & val );
@@ -76,18 +65,19 @@ public:
 
 	void SetRenderTexture( const XE::RenderTexturePtr & val );
 
+public:
+	XE::Mat4x4f GetView() const;
+
+	XE::Mat4x4f GetProjection() const;
+
 private:
 	XE::Disposable _Disposable;
 
-	XE::CameraClearFlags _ClearFlags = XE::MakeFlags( XE::CameraClearFlag::COLOR, XE::CameraClearFlag::DEPTH, XE::CameraClearFlag::STENCIL );
-	XE::Color _ClearColor = XE::Color::Black;
-	XE::float32 _ClearDepth = 0.0f;
-	XE::uint32 _ClearStencil = 1;
-
-	XE::Rectf _Viewport = { 0.0f, 0.0f, 1.0f, 1.0f };
-	XE::ProjectionType _Projection = ProjectionType::ORTHOGRAPHIC;
-	XE::PerspectiveInfo _Perspective;
-	XE::OrthographicInfo _Orthographic;
+	XE::float32 _FOV = 60.0f;
+	XE::float32 _Near = 0.1f;
+	XE::float32 _Far = 1000.0f;
+	XE::CameraType _Type = XE::CameraType::ORTHOGRAPHIC;
+	XE::Rectf _Viewport = { 0, 0, 1, 1 };
 
 	XE::RenderGraphPtr _RenderGraph;
 	XE::RenderTexturePtr _RenderTexture;

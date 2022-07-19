@@ -19,39 +19,12 @@ BEG_XE_NAMESPACE
 
 DECL_HANDLE( RenderResource );
 
-
-enum class ProjectionType
+enum class CameraType
 {
 	PERSPECTIVE,
 	ORTHOGRAPHIC,
 };
-DECL_XE_ENUM( ProjectionType );
-
-enum class CameraClearFlag
-{
-	NONE = 0,
-	COLOR = 1 << 0,
-	DEPTH = 1 << 1,
-	STENCIL = 1 << 2,
-};
-DECL_XE_ENUM( CameraClearFlag ); DECL_FLAGS( CameraClearFlag, CameraClearFlags );
-
-
-struct XE_API PerspectiveInfo
-{
-	XE::float32 Fov = 60.0f;
-	XE::float32 ZNear = 0.1f;
-	XE::float32 ZFar = 1000.0f;
-};
-DECL_XE_CLASS( PerspectiveInfo );
-
-struct XE_API OrthographicInfo
-{
-	XE::float32 Size = 5;
-	XE::float32 ZNear = 0.1f;
-	XE::float32 ZFar = 1000.0f;
-};
-DECL_XE_CLASS( OrthographicInfo );
+DECL_XE_ENUM( CameraType );
 
 END_XE_NAMESPACE
 

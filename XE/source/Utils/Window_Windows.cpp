@@ -70,9 +70,9 @@ void XE::Window::SetWindowTitle( const XE::String & title )
 	::SetWindowTextW( reinterpret_cast< HWND >( _Window.GetValue() ), XE::StringConvert< XE::AnsiEncode, XE::WideEncode >::convert( title.c_str() ).c_str() );
 }
 
-XE::Pair< XE::uint32, XE::uint32 > XE::Window::GetWindowSize()
+XE::Pair< XE::int32, XE::int32 > XE::Window::GetWindowSize()
 {
-	XE::Pair< XE::uint32, XE::uint32 > result;
+	XE::Pair< XE::int32, XE::int32 > result;
 
 	::RECT rect;
 
@@ -84,21 +84,7 @@ XE::Pair< XE::uint32, XE::uint32 > XE::Window::GetWindowSize()
 	return result;
 }
 
-XE::Pair< XE::uint32, XE::uint32 > XE::Window::GetScreenSize()
-{
-	XE::Pair< XE::uint32, XE::uint32 > result;
-
-	::RECT rect;
-
-	::GetClientRect( ::GetDesktopWindow(), &rect );
-
-	result.first = rect.right - rect.left;
-	result.second = rect.bottom - rect.top;
-
-	return result;
-}
-
-void XE::Window::SetWindowRect( XE::uint32 x, XE::uint32 y, XE::uint32 w, XE::uint32 h, bool topmost )
+void XE::Window::SetWindowRect( XE::int32 x, XE::int32 y, XE::int32 w, XE::int32 h, bool topmost )
 {
 	::SetWindowLong( reinterpret_cast<HWND>( _Window.GetValue() ), GWL_STYLE, WS_OVERLAPPEDWINDOW );
 	::SetWindowPos( reinterpret_cast< HWND >( _Window.GetValue() ), topmost ? HWND_TOPMOST : HWND_NOTOPMOST, x, y, w, h, SWP_SHOWWINDOW );

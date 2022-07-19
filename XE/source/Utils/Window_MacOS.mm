@@ -70,13 +70,13 @@ void XE::Window::SetWindowTitle( const XE::String & title )
 	[window setTitle : s] ;
 }
 
-XE::Pair< XE::uint32, XE::uint32 > XE::Window::GetWindowSize()
+XE::Pair< XE::int32, XE::int32 > XE::Window::GetWindowSize()
 {
 	NSWindow * window = reinterpret_cast< NSWindow * >( _Window.GetValue() );
 
 	NSRect * rect = [window contentRect];
 
-	XE::Pair< XE::uint32, XE::uint32 > result;
+	XE::Pair< XE::int32, XE::int32 > result;
 
 	result.first = [rect width];
 	result.second = [rect height];
@@ -84,21 +84,7 @@ XE::Pair< XE::uint32, XE::uint32 > XE::Window::GetWindowSize()
 	return result;
 }
 
-XE::Pair< XE::uint32, XE::uint32 > XE::Window::GetScreenSize()
-{
-	NSScreen * screen = [NSScreen mainScreen];
-
-	NSRect * rect = [screen frame];
-
-	XE::Pair< XE::uint32, XE::uint32 > result;
-
-	result.first = [rect width];
-	result.second = [rect height];
-
-	return result;
-}
-
-void XE::Window::SetWindowRect( XE::uint32 x, XE::uint32 y, XE::uint32 w, XE::uint32 h, bool topmost )
+void XE::Window::SetWindowRect( XE::int32 x, XE::int32 y, XE::int32 w, XE::int32 h, bool topmost )
 {
 	NSWindow * window = reinterpret_cast< NSWindow * >( _Window.GetValue() );
 

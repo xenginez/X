@@ -152,4 +152,14 @@ XE::Language XE::Platform::GetDefaultLanguage()
 	return Language::ENGLISH;
 }
 
+XE::int32 XE::Platform::GetSrceenWidth()
+{
+	return [[[NSScreen mainScreen] frame] width];
+}
+
+XE::int32 XE::Platform::GetSrceenHeight()
+{
+	return [[[NSScreen mainScreen] frame] height];
+}
+
 #endif

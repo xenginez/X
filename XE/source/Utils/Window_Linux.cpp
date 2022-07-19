@@ -51,7 +51,7 @@ void XE::Window::SetWindowTitle( const XE::String & title )
 
 }
 
-XE::Pair< XE::uint32, XE::uint32 > XE::Window::GetWindowSize()
+XE::Pair< XE::int32, XE::int32 > XE::Window::GetWindowSize()
 {
 
 }
@@ -61,7 +61,7 @@ XE::Pair< XE::uint32, XE::uint32 > XE::Window::GetScreenSize()
 
 }
 
-void XE::Window::SetWindowRect( XE::uint32 x, XE::uint32 y, XE::uint32 w, XE::uint32 h, bool topmost )
+void XE::Window::SetWindowRect( XE::int32 x, XE::int32 y, XE::int32 w, XE::int32 h, bool topmost )
 {
 
 }

@@ -11,85 +11,80 @@ XS::WindowProxy::WindowProxy( XS::MainWindow * window )
 	: XE::Window( XE::HandleCast< XE::Window >( window->winId() ), nullptr )
 #endif
 {
-
+	_Window = window;
 }
 
 void XS::WindowProxy::ShowWindow()
 {
-
+	_Window->show();
 }
 
 void XS::WindowProxy::HideWindow()
 {
-
+	_Window->hide();
 }
 
 void XS::WindowProxy::MinimizeWindow()
 {
-
+	_Window->showMinimized();
 }
 
 void XS::WindowProxy::MaximizeWindow()
 {
-
+	_Window->showMaximized();
 }
 
 bool XS::WindowProxy::GetWindowFocus()
 {
-	return true;
+	return _Window->hasFocus();
 }
 
 void XS::WindowProxy::FullscreenWindow()
 {
-
+	_Window->showFullScreen();
 }
 
 void XS::WindowProxy::SetWindowTitle( const XE::String & title )
 {
-
+	_Window->setWindowTitle( QString::fromUtf8( title.c_str() ) );
 }
 
-XE::Pair< XE::uint32, XE::uint32 > XS::WindowProxy::GetWindowSize()
+XE::Pair< XE::int32, XE::int32 > XS::WindowProxy::GetWindowSize()
 {
-	return {};
+	return { _Window->width(), _Window->height() };
 }
 
-XE::Pair< XE::uint32, XE::uint32 > XS::WindowProxy::GetScreenSize()
+void XS::WindowProxy::SetWindowRect( XE::int32 x, XE::int32 y, XE::int32 w, XE::int32 h, bool topmost /*= false */ )
 {
-	return {};
-}
-
-void XS::WindowProxy::SetWindowRect( XE::uint32 x, XE::uint32 y, XE::uint32 w, XE::uint32 h, bool topmost /*= false */ )
-{
-
+	_Window->setGeometry( x, y, w, h );
 }
 
 bool XS::WindowProxy::IsShow() const
 {
-	return true;
+	return !_Window->isHidden();
 }
 
 bool XS::WindowProxy::IsHide() const
 {
-	return false;
+	return _Window->isHidden();
 }
 
 bool XS::WindowProxy::IsMinimize() const
 {
-	return false;
+	return _Window->isMinimized();
 }
 
 bool XS::WindowProxy::IsMaximize() const
 {
-	return false;
+	return _Window->isMaximized();
 }
 
 bool XS::WindowProxy::IsFullscreen() const
 {
-	return true;
+	return _Window->isFullScreen();
 }
 
 void XS::WindowProxy::MessageLoop()
 {
-
+	// TODO: 
 }

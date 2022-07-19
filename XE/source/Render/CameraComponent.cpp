@@ -1,19 +1,18 @@
 #include "CameraComponent.h"
 
+#include "Math/Mathf.h"
 #include "Core/GraphicsService.h"
+#include "Scene/GameObject.h"
 
 #include "RenderGraph.h"
 #include "RenderTexture.h"
 #include "RenderService.h"
 
 BEG_META( XE::CameraComponent )
-type->Property( "ClearFlags", &XE::CameraComponent::_ClearFlags );
-type->Property( "ClearColor", &XE::CameraComponent::_ClearColor )->Attribute( XE::NonInspectorAttribute() )->Attribute( XE::LinkAttribute( "ClearFlags", []( const XE::Variant & link ) { return link.Value< XE::CameraClearFlags >() && XE::CameraClearFlag::COLOR; } ) );
-type->Property( "ClearDepth", &XE::CameraComponent::_ClearDepth )->Attribute( XE::NonInspectorAttribute() )->Attribute( XE::LinkAttribute( "ClearFlags", []( const XE::Variant & link ) { return link.Value< XE::CameraClearFlags >() && XE::CameraClearFlag::DEPTH; } ) );
-type->Property( "ClearStencil", &XE::CameraComponent::_ClearStencil )->Attribute( XE::NonInspectorAttribute() )->Attribute( XE::LinkAttribute( "ClearFlags", []( const XE::Variant & link ) { return link.Value< XE::CameraClearFlags >() && XE::CameraClearFlag::STENCIL; } ) );
-type->Property( "Projection", &XE::CameraComponent::_Projection );
-type->Property( "Perspective", &XE::CameraComponent::_Perspective )->Attribute( XE::NonInspectorAttribute() )->Attribute( XE::LinkAttribute( "Projection", []( const XE::Variant & link ) { return link.Value< XE::ProjectionType >() == XE::ProjectionType::PERSPECTIVE; } ) );
-type->Property( "Orthographic", &XE::CameraComponent::_Orthographic )->Attribute( XE::NonInspectorAttribute() )->Attribute( XE::LinkAttribute( "Projection", []( const XE::Variant & link ) { return link.Value< XE::ProjectionType >() == XE::ProjectionType::ORTHOGRAPHIC; } ) );
+type->Property( "Type", &XE::CameraComponent::_Type );
+type->Property( "FOV", &XE::CameraComponent::_FOV );
+type->Property( "Near", &XE::CameraComponent::_Near );
+type->Property( "Far", &XE::CameraComponent::_Far );
 type->Property( "Viewport", &XE::CameraComponent::_Viewport );
 type->Property( "RenderGraph", &XE::CameraComponent::_RenderGraph );
 type->Property( "RenderTexture", &XE::CameraComponent::_RenderTexture );
@@ -55,74 +54,44 @@ void XE::CameraComponent::OnClearup()
 	_Disposable.Dispose();
 }
 
-XE::CameraClearFlags XE::CameraComponent::GetClearFlags() const
+XE::float32 XE::CameraComponent::GetFOV() const
 {
-	return _ClearFlags;
+	return _FOV;
 }
 
-void XE::CameraComponent::SetClearFlags( XE::CameraClearFlags val )
+void XE::CameraComponent::SetFOV( XE::float32 val )
 {
-	_ClearFlags = val;
+	_FOV = val;
 }
 
-const XE::Color & XE::CameraComponent::GetClearColor() const
+XE::float32 XE::CameraComponent::GetNear() const
 {
-	return _ClearColor;
+	return _Near;
 }
 
-void XE::CameraComponent::SetClearColor( const XE::Color & val )
+void XE::CameraComponent::SetNear( XE::float32 val )
 {
-	_ClearColor = val;
+	_Near = val;
 }
 
-XE::float32 XE::CameraComponent::GetClearDepth() const
+XE::float32 XE::CameraComponent::GetFar() const
 {
-	return _ClearDepth;
+	return _Far;
 }
 
-void XE::CameraComponent::SetClearDepth( XE::float32 val )
+void XE::CameraComponent::SetFar( XE::float32 val )
 {
-	_ClearDepth = val;
+	_Far = val;
 }
 
-XE::uint32 XE::CameraComponent::GetClearStencil() const
+XE::CameraType XE::CameraComponent::GetCameraType() const
 {
-	return _ClearStencil;
+	return _Type;
 }
 
-void XE::CameraComponent::SetClearStencil( XE::uint32 val )
+void XE::CameraComponent::SetCameraType( XE::CameraType val )
 {
-	_ClearStencil = val;
-}
-
-XE::ProjectionType XE::CameraComponent::GetProjectionType() const
-{
-	return _Projection;
-}
-
-void XE::CameraComponent::SetProjectionType( XE::ProjectionType val )
-{
-	_Projection = val;
-}
-
-const XE::PerspectiveInfo & XE::CameraComponent::GetPerspective() const
-{
-	return _Perspective;
-}
-
-void XE::CameraComponent::SetPerspective( const XE::PerspectiveInfo & val )
-{
-	_Perspective = val;
-}
-
-const XE::OrthographicInfo & XE::CameraComponent::GetOrthographic() const
-{
-	return _Orthographic;
-}
-
-void XE::CameraComponent::SetOrthographic( const XE::OrthographicInfo & val )
-{
-	_Orthographic = val;
+	_Type = val;
 }
 
 const XE::Rectf & XE::CameraComponent::GetViewport() const
@@ -153,4 +122,31 @@ const XE::RenderTexturePtr & XE::CameraComponent::GetRenderTexture() const
 void XE::CameraComponent::SetRenderTexture( const XE::RenderTexturePtr & val )
 {
 	_RenderTexture = val;
+}
+
+XE::Mat4x4f XE::CameraComponent::GetView() const
+{
+	return XE::Mathf::View( GetGameObject()->GetTransform().GetWorldPosition(), GetGameObject()->GetTransform().GetWorldRotation() );
+}
+
+XE::Mat4x4f XE::CameraComponent::GetProjection() const
+{
+	XE::float32 w = 1, h = 1;
+	if ( _RenderTexture )
+	{
+		w = _RenderTexture->GetWidth() * _Viewport.width;
+		h = _RenderTexture->GetHeight() * _Viewport.height;
+	}
+	auto aspect = w / h;
+
+	if ( _Type == XE::CameraType::PERSPECTIVE )
+	{
+		return XE::Mathf::ProjectionPerspective( _FOV, aspect, _Near, _Far );
+	}
+	else
+	{
+		auto width = _FOV * 10 * aspect;
+		auto height = _FOV * 10;
+		return XE::Mathf::ProjectionOrthographic( -( width / 2 ), width / 2, height / 2, -( height / 2 ), _Near, _Far );
+	}
 }
