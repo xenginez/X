@@ -34,6 +34,7 @@ static constexpr char USERDATAS_DIRECTORY[] = "UserDatas";
 
 static constexpr char CONFIG_GRAPHICS_VSYNC[] = "Graphics/VSync";
 static constexpr char CONFIG_GRAPHICS_DEBUG[] = "Graphics/Debug";
+static constexpr char CONFIG_GRAPHICS_BACKEND[] = "Graphics/Backend";
 
 enum class ThreadType
 {

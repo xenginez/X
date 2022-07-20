@@ -65,22 +65,30 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////
 // GRAPHICS
-#define GRAPHICS_NULL      1 << 1
+#define GRAPHICS_D3D11     1 << 1
 #define GRAPHICS_D3D12     1 << 2
 #define GRAPHICS_METAL     1 << 3
 #define GRAPHICS_VULKAN    1 << 4
 #define GRAPHICS_WEBGPU    1 << 5
+#define GRAPHICS_OPENGL    1 << 6
+#define GRAPHICS_OPENGLES  1 << 7
 
-#if defined( XE_NO_RENDER )
-#define GRAPHICS_API GRAPHICS_NULL
-#elif ( PLATFORM_OS & ( OS_WINDOWS | OS_XBOX ) )
-#define GRAPHICS_API GRAPHICS_D3D12
-#elif ( PLATFORM_OS & ( OS_MAC | OS_IOS ) )
-#define GRAPHICS_API GRAPHICS_METAL
-#elif ( PLATFORM_OS & ( OS_LINUX | OS_ANDROID ) )
-#define GRAPHICS_API GRAPHICS_VULKAN
+#if   ( PLATFORM_OS & OS_WINDOWS )
+#define GRAPHICS_API ( GRAPHICS_D3D11 | GRAPHICS_D3D12 | GRAPHICS_VULKAN | GRAPHICS_OPENGL | GRAPHICS_OPENGLES )
+#elif ( PLATFORM_OS & OS_XBOX )
+#define GRAPHICS_API ( GRAPHICS_D3D12 )
+#elif ( PLATFORM_OS & OS_MAC )
+#define GRAPHICS_API ( GRAPHICS_METAL | GRAPHICS_VULKAN | GRAPHICS_OPENGL | GRAPHICS_OPENGLES )
+#elif ( PLATFORM_OS & OS_IOS )
+#define GRAPHICS_API ( GRAPHICS_METAL | GRAPHICS_OPENGLES )
+#elif ( PLATFORM_OS & OS_LINUX )
+#define GRAPHICS_API ( GRAPHICS_VULKAN | GRAPHICS_OPENGL | GRAPHICS_OPENGLES )
+#elif ( PLATFORM_OS & OS_ANDROID )
+#define GRAPHICS_API ( GRAPHICS_VULKAN | GRAPHICS_OPENGLES )
 #elif ( PLATFORM_OS & OS_HTML5 )
-#define GRAPHICS_API GRAPHICS_WEBGPU
+#define GRAPHICS_API ( GRAPHICS_WEBGPU )
+#else
+#define GRAPHICS_API ( 0 )
 #endif
 
 /////////////////////////////////////////////////////////////////////////////////////////

@@ -216,7 +216,172 @@ void KeyboardInputHandleMessage( XE::InputState * cur_state, XE::InputState * pr
 #include <X11/XKBlib.h>
 void KeyboardInputHandleMessage( XE::InputState * cur_state, XE::InputState * pre_state, const XE::InputEventInfo & info )
 {
+	static XE::Map< XE::uint32, XE::KeyCode > map =
+	{
+		{ XK_Escape, XE::KeyCode::KeyEscape },
+		{ XK_F1, XE::KeyCode::KeyF1 },
+		{ XK_F2, XE::KeyCode::KeyF2 },
+		{ XK_F3, XE::KeyCode::KeyF3 },
+		{ XK_F4, XE::KeyCode::KeyF4 },
+		{ XK_F5, XE::KeyCode::KeyF5 },
+		{ XK_F6, XE::KeyCode::KeyF6 },
+		{ XK_F7, XE::KeyCode::KeyF7 },
+		{ XK_F8, XE::KeyCode::KeyF8 },
+		{ XK_F9, XE::KeyCode::KeyF9 },
+		{ XK_F10, XE::KeyCode::KeyF10 },
+		{ XK_F11, XE::KeyCode::KeyF11 },
+		{ XK_F12, XE::KeyCode::KeyF12 },
+		{ XK_Print, XE::KeyCode::KeyPrint },
+		{ XK_Scroll_Lock, XE::KeyCode::KeyScrollLock },
+		{ XK_Pause, XE::KeyCode::KeyBreak },
+		{ XK_space, XE::KeyCode::KeySpace },
+//		{ XK_apostrophe, XE::KeyCode::KeyApostrophe },
+		{ XK_comma, XE::KeyCode::KeyComma },
+		{ XK_minus, XE::KeyCode::KeyMinus },
+		{ XK_period, XE::KeyCode::KeyPeriod },
+		{ XK_slash, XE::KeyCode::KeySlash },
+		{ XK_0, XE::KeyCode::Key0 },
+		{ XK_1, XE::KeyCode::Key1 },
+		{ XK_2, XE::KeyCode::Key2 },
+		{ XK_3, XE::KeyCode::Key3 },
+		{ XK_4, XE::KeyCode::Key4 },
+		{ XK_5, XE::KeyCode::Key5 },
+		{ XK_6, XE::KeyCode::Key6 },
+		{ XK_7, XE::KeyCode::Key7 },
+		{ XK_8, XE::KeyCode::Key8 },
+		{ XK_9, XE::KeyCode::Key9 },
+		{ XK_semicolon, XE::KeyCode::KeySemicolon },
+		{ XK_less, XE::KeyCode::KeyLess },
+//		{ XK_equal, XE::KeyCode::KeyEqual },
+		{ XK_a, XE::KeyCode::KeyA },
+		{ XK_b, XE::KeyCode::KeyB },
+		{ XK_c, XE::KeyCode::KeyC },
+		{ XK_d, XE::KeyCode::KeyD },
+		{ XK_e, XE::KeyCode::KeyE },
+		{ XK_f, XE::KeyCode::KeyF },
+		{ XK_g, XE::KeyCode::KeyG },
+		{ XK_h, XE::KeyCode::KeyH },
+		{ XK_i, XE::KeyCode::KeyI },
+		{ XK_j, XE::KeyCode::KeyJ },
+		{ XK_k, XE::KeyCode::KeyK },
+		{ XK_l, XE::KeyCode::KeyL },
+		{ XK_m, XE::KeyCode::KeyM },
+		{ XK_n, XE::KeyCode::KeyN },
+		{ XK_o, XE::KeyCode::KeyO },
+		{ XK_p, XE::KeyCode::KeyP },
+		{ XK_q, XE::KeyCode::KeyQ },
+		{ XK_r, XE::KeyCode::KeyR },
+		{ XK_s, XE::KeyCode::KeyS },
+		{ XK_t, XE::KeyCode::KeyT },
+		{ XK_u, XE::KeyCode::KeyU },
+		{ XK_v, XE::KeyCode::KeyV },
+		{ XK_w, XE::KeyCode::KeyW },
+		{ XK_x, XE::KeyCode::KeyX },
+		{ XK_y, XE::KeyCode::KeyY },
+		{ XK_z, XE::KeyCode::KeyZ },
+		{ XK_bracketleft, XE::KeyCode::KeyLeftBracket },
+		{ XK_backslash, XE::KeyCode::KeyBackslash },
+		{ XK_bracketright, XE::KeyCode::KeyRightBracket },
+//		{ XK_grave, XE::KeyCode::KeyGrave },
+		{ XK_Left, XE::KeyCode::KeyLeftArrow },
+		{ XK_Right, XE::KeyCode::KeyRightArrow },
+		{ XK_Up, XE::KeyCode::KeyUpArrow },
+		{ XK_Down, XE::KeyCode::KeyDownArrow },
+		{ XK_Insert, XE::KeyCode::KeyInsert },
+		{ XK_Home, XE::KeyCode::KeyHome },
+		{ XK_Delete, XE::KeyCode::KeyDelete },
+		{ XK_End, XE::KeyCode::KeyEnd },
+		{ XK_Page_Up, XE::KeyCode::KeyPageUp },
+		{ XK_Page_Down, XE::KeyCode::KeyPageDown },
+		{ XK_Num_Lock, XE::KeyCode::KeyNumlock },
+		{ XK_KP_Divide, XE::KeyCode::KeypadDivide },
+		{ XK_KP_Multiply, XE::KeyCode::KeypadMultiply },
+//		{ XK_KP_Subtract, XE::KeyCode::KeyKpSubtract },
+		{ XK_KP_Add, XE::KeyCode::KeypadPlus },
+		{ XK_KP_Enter, XE::KeyCode::KeypadEnter },
+		{ XK_KP_Insert, XE::KeyCode::KeyInsert },
+		{ XK_KP_End, XE::KeyCode::KeyEnd },
+		{ XK_KP_Down, XE::KeyCode::KeyDownArrow },
+		{ XK_KP_Page_Down, XE::KeyCode::KeyPageDown },
+		{ XK_KP_Left, XE::KeyCode::KeyLeftArrow },
+//		{ XK_KP_Begin, XE::KeyCode::KeyKpBegin },
+		{ XK_KP_Right, XE::KeyCode::KeyRightArrow },
+		{ XK_KP_Home, XE::KeyCode::KeyHome },
+		{ XK_KP_Up, XE::KeyCode::KeyUpArrow },
+		{ XK_KP_Page_Up, XE::KeyCode::KeyPageUp },
+		{ XK_KP_Delete, XE::KeyCode::KeyDelete },
+		{ XK_BackSpace, XE::KeyCode::KeyBackspace },
+		{ XK_Tab, XE::KeyCode::KeyTab },
+		{ XK_Return, XE::KeyCode::KeyReturn },
+		{ XK_Caps_Lock, XE::KeyCode::KeyCapsLock },
+		{ XK_Shift_L, XE::KeyCode::KeyLeftShift },
+		{ XK_Control_L, XE::KeyCode::KeyLeftControl },
+//		{ XK_Super_L, XE::KeyCode::KeySuperL },
+		{ XK_Alt_L, XE::KeyCode::KeyLeftAlt },
+		{ XK_Alt_R, XE::KeyCode::KeyRightAlt },
+//		{ XK_Super_R, XE::KeyCode::KeySuperR },
+		{ XK_Menu, XE::KeyCode::KeyMenu },
+		{ XK_Control_R, XE::KeyCode::KeyRightControl },
+		{ XK_Shift_R, XE::KeyCode::KeyRightShift },
+// 		{ XK_dead_circumflex, XE::KeyCode::KeyCircumflex },
+// 		{ XK_ssharp, XE::KeyCode::KeySsharp },
+// 		{ XK_dead_acute, XE::KeyCode::KeyAcute },
+// 		{ XK_ISO_Level3_Shift, XE::KeyCode::KeyAltGr },
+		{ XK_plus, XE::KeyCode::KeyPlus },
+// 		{ XK_numbersign, XE::KeyCode::KeyNumbersign },
+// 		{ XK_udiaeresis, XE::KeyCode::KeyUdiaeresis },
+// 		{ XK_adiaeresis, XE::KeyCode::KeyAdiaeresis },
+// 		{ XK_odiaeresis, XE::KeyCode::KeyOdiaeresis },
+//		{ XK_section, XE::KeyCode::KeySection },
+//		{ XK_aring, XE::KeyCode::KeyAring },
+//		{ XK_dead_diaeresis, XE::KeyCode::KeyDiaeresis },
+//		{ XK_twosuperior, XE::KeyCode::KeyTwosuperior },
+//		{ XK_parenright, XE::KeyCode::KeyRightParenthesis },
+		{ XK_dollar, XE::KeyCode::KeyDollar },
+//		{ XK_ugrave, XE::KeyCode::KeyUgrave },
+		{ XK_asterisk, XE::KeyCode::KeyAsterisk },
+		{ XK_colon, XE::KeyCode::KeyColon },
+//		{ XK_exclam, XE::KeyCode::KeyExclam },
+	};
 
+	/*
+	if ( event.type == KeyPress || event.type == KeyRelease )
+	{
+		XKeyEvent & keyEvent = event.xkey;
+		KeySym keySym = XkbKeycodeToKeysym( keyEvent.display, keyEvent.keycode, 0, 0 );
+		const bool pressed = event.type == KeyPress;
+
+		// Handle key repeat
+		if ( event.type == KeyRelease && XPending( keyEvent.display ) )
+		{
+			XEvent nextEvent;
+			XPeekEvent( keyEvent.display, &nextEvent );
+			if ( nextEvent.type == KeyPress
+				 && nextEvent.xkey.keycode == event.xkey.keycode
+				 && nextEvent.xkey.time == event.xkey.time )
+			{
+				XNextEvent( keyEvent.display, &nextEvent );
+				return;
+			}
+		}
+
+		if ( dialect_.count( keySym ) )
+		{
+			const DeviceButtonId buttonId = dialect_[keySym];
+			HandleButton( device_, nextState_, delta_, buttonId, pressed );
+		}
+
+		if ( textInputEnabled_ )
+		{
+			char buf[32];
+			int len = XLookupString( &keyEvent, buf, 32, 0, 0 );
+			if ( len == 1 )
+			{
+				textBuffer_.Put( buf[0] );
+			}
+		}
+	}
+	*/
 }
 #elif PLATFORM_OS & OS_MAC
 void KeyboardInputHandleMessage( XE::InputState * cur_state, XE::InputState * pre_state, const XE::InputEventInfo & info )

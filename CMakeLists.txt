@@ -5,7 +5,6 @@ project(X)
 option(X_BUILD_XE "build XE library" OFF)
 option(X_BUILD_XS "build XS library" OFF)
 option(X_BUILD_XV "build XV library" OFF)
-option(X_NO_RENDER "not render api" OFF)
 option(X_SHARED_LIBS "build dynamic library" ON)
 
 if (CMAKE_SYSTEM_NAME MATCHES "Linux")

@@ -1,63 +1,54 @@
 /*!
- * \file	GraphicsService.h
+ * \file	GraphicsServiceOpenGLES.h
  *
  * \author	ZhengYuanQing
  * \date	2022/07/20
  * \email	zhengyuanqing.95@gmail.com
  *
  */
-#ifndef GRAPHICSSERVICE_H__2E518E10_54F0_44DB_80B1_4C6BA33136D8
-#define GRAPHICSSERVICE_H__2E518E10_54F0_44DB_80B1_4C6BA33136D8
+#ifndef GRAPHICSSERVICEOPENGLES_H__2F828ED5_D668_4DC6_964D_5AC00D007CB6
+#define GRAPHICSSERVICEOPENGLES_H__2F828ED5_D668_4DC6_964D_5AC00D007CB6
 
-#include "Service.h"
+#include "GraphicsService.h"
+
+#if GRAPHICS_API & GRAPHICS_OPENGLES
 
 BEG_XE_NAMESPACE
 
-class XE_API GraphicsService : public XE::Service
+class GraphicsServiceOpenGLES
 {
-	OBJECT( GraphicsService, XE::Service );
-
 private:
 	struct Private;
 
 public:
-	using ErrorCallback = XE::Delegate< void( XE::GraphicsErrorType type ) >;
-	using BufferMapCallback = XE::Delegate<void( XE::GraphicsBufferMapAsyncStatus status )>;
-	using DeviceLostCallback = XE::Delegate< void( XE::GraphicsDeviceLostReason reason ) >;
-	using QueueWorkDoneCallback = XE::Delegate< void( XE::GraphicsQueueWorkDoneStatus status ) >;
-	using RequestDeviceCallback = XE::Delegate< void( XE::GraphicsRequestDeviceStatus status, XE::GraphicsDevicePtr device ) >;
-	using RequestAdapterCallback = XE::Delegate< void( XE::GraphicsRequestAdapterStatus status, XE::GraphicsAdapterPtr adapter ) >;
-	using CompilationInfoCallback = XE::Delegate< void( XE::GraphicsCompilationInfoRequestStatus status, const XE::GraphicsCompilationInfo & compilation_info ) >;
+	GraphicsServiceOpenGLES( bool debug = false );
+
+	~GraphicsServiceOpenGLES();
 
 public:
-	GraphicsService();
+	void Prepare();
 
-	~GraphicsService() override;
+	void Startup();
 
-public:
-	void Prepare() override;
+	void Update();
 
-	void Startup() override;
-
-	void Update() override;
-
-	void Clearup() override;
+	void Clearup();
 
 public:
-	XE::GraphicsBackendType GetBackendType() const;
+	XE::GraphicsBackendType GetBackendType() const { return XE::GraphicsBackendType::OPENGLES; };
 
 public:
 	XE::GraphicsSurfacePtr CreateSurface( const XE::GraphicsSurfaceDescriptor & descriptor );
 
 public:
-	void RequestAdapter( const XE::GraphicsRequestAdapterOptions & options, RequestAdapterCallback callback );
+	void RequestAdapter( const XE::GraphicsRequestAdapterOptions & options, XE::GraphicsService::RequestAdapterCallback callback );
 
 public:
 	void AdapterEnumerateFeatures( XE::GraphicsAdapterPtr adapter, XE::Array< XE::GraphicsFeatureName > & features );
 	bool AdapterGetLimits( XE::GraphicsAdapterPtr adapter, XE::GraphicsSupportedLimits & limits );
 	void AdapterGetProperties( XE::GraphicsAdapterPtr adapter, XE::GraphicsAdapterProperties & properties );
 	bool AdapterHasFeature( XE::GraphicsAdapterPtr adapter, XE::GraphicsFeatureName feature );
-	void AdapterRequestDevice( XE::GraphicsAdapterPtr adapter, const XE::GraphicsDeviceDescriptor & descriptor, RequestDeviceCallback callback );
+	void AdapterRequestDevice( XE::GraphicsAdapterPtr adapter, const XE::GraphicsDeviceDescriptor & descriptor, XE::GraphicsService::RequestDeviceCallback callback );
 
 public:
 	XE::GraphicsBindGroupPtr DeviceCreateBindGroup( XE::GraphicsDevicePtr device, const XE::GraphicsBindGroupDescriptor & descriptor );
@@ -80,19 +71,19 @@ public:
 	bool DeviceGetLimits( XE::GraphicsDevicePtr device, XE::GraphicsSupportedLimits & limits );
 	XE::GraphicsQueuePtr DeviceGetQueue( XE::GraphicsDevicePtr device );
 	bool DeviceHasFeature( XE::GraphicsDevicePtr device, XE::GraphicsFeatureName feature );
-	bool DevicePopErrorScope( XE::GraphicsDevicePtr device, ErrorCallback callback );
+	bool DevicePopErrorScope( XE::GraphicsDevicePtr device, XE::GraphicsService::ErrorCallback callback );
 	void DevicePushErrorScope( XE::GraphicsDevicePtr device, XE::GraphicsErrorFilter filter );
-	void DeviceSetDeviceLostCallback( XE::GraphicsDevicePtr device, DeviceLostCallback callback );
-	void DeviceSetUncapturedErrorCallback( XE::GraphicsDevicePtr device, ErrorCallback callback );
+	void DeviceSetDeviceLostCallback( XE::GraphicsDevicePtr device, XE::GraphicsService::DeviceLostCallback callback );
+	void DeviceSetUncapturedErrorCallback( XE::GraphicsDevicePtr device, XE::GraphicsService::ErrorCallback callback );
 
 public:
-	void QueueOnSubmittedWorkDone( XE::GraphicsQueuePtr queue, QueueWorkDoneCallback callback );
+	void QueueOnSubmittedWorkDone( XE::GraphicsQueuePtr queue, XE::GraphicsService::QueueWorkDoneCallback callback );
 	void QueueSubmit( XE::GraphicsQueuePtr queue, const XE::Array< XE::GraphicsCommandBufferPtr > & commands );
 	void QueueWriteBuffer( XE::GraphicsQueuePtr queue, XE::GraphicsBufferPtr buffer, XE::uint64 buffer_offset, XE::MemoryView data );
 	void QueueWriteTexture( XE::GraphicsQueuePtr queue, const XE::GraphicsImageCopyTexture & destination, XE::MemoryView data, const XE::GraphicsTextureDataLayout & data_layout, const XE::Vec3f & write_size );
 
 public:
-	void BufferMapAsync( XE::GraphicsBufferPtr buffer, XE::GraphicsMapModeFlags mode, size_t offset, size_t size, BufferMapCallback callback );
+	void BufferMapAsync( XE::GraphicsBufferPtr buffer, XE::GraphicsMapModeFlags mode, size_t offset, size_t size, XE::GraphicsService::BufferMapCallback callback );
 	XE::Span< const XE::uint8 > BufferGetConstMappedRange( XE::GraphicsBufferPtr buffer, XE::uint64 offset, XE::uint64 size );
 	XE::Span< XE::uint8 > BufferGetMappedRange( XE::GraphicsBufferPtr buffer, XE::uint64 offset, XE::uint64 size );
 	void BufferUnmap( XE::GraphicsBufferPtr buffer );
@@ -165,7 +156,7 @@ public:
 	XE::GraphicsBindGroupLayoutPtr RenderPipelineGetBindGroupLayout( XE::GraphicsRenderPipelinePtr render_pipeline, XE::uint32 group_index );
 
 public:
-	void ShaderModuleGetCompilationInfo( XE::GraphicsShaderModulePtr shader_module, CompilationInfoCallback callback );
+	void ShaderModuleGetCompilationInfo( XE::GraphicsShaderModulePtr shader_module, XE::GraphicsService::CompilationInfoCallback callback );
 	void ShaderModuleSetLabel( XE::GraphicsShaderModulePtr shader_module, const XE::String & label );
 
 public:
@@ -181,4 +172,6 @@ private:
 
 END_XE_NAMESPACE
 
-#endif//GRAPHICSSERVICE_H__2E518E10_54F0_44DB_80B1_4C6BA33136D8
+#endif
+
+#endif//GRAPHICSSERVICEOPENGLES_H__2F828ED5_D668_4DC6_964D_5AC00D007CB6
