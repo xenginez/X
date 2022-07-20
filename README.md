@@ -1,17 +1,17 @@
 <h1 align="center">X</h1>
 
 <h4 align="center">
-	<p>济南十一二网络科技有限公司</p>
+	<!--p>济南十一二网络科技有限公司</p-->
 	<p>cross-platform 2D and 3D game engine</p>
 	<a href="https://www.1012.games">Website</a>
 	<span> ⬡ </span>
-	<a href="https://www.1012.games">Store</a>
+	<!--a href="https://www.1012.games">PluginStore</a>
+	<span> ⬡ </span-->
+	<a href="https://github.com/xenginez/X/wiki/Guide">Guide</a>
 	<span> ⬡ </span>
-	<a href="https://www.1012.games">Guides</a>
+	<a href="https://github.com/xenginez/X/wiki/Document">Document</a>
 	<span> ⬡ </span>
-	<a href="https://www.1012.games">Documents</a>
-	<span> ⬡ </span>
-	<a href="https://www.1012.games">Feedback</a>
+	<a href="https://github.com/xenginez/X/issues">Feedback</a>
 	<p></p>
 	<div align=center><img src="https://img.shields.io/badge/license-MIT-blue"></div>
 </h4>
@@ -90,3 +90,20 @@
 #
 
 ## Screenshots
+
+
+#
+
+## Build And Install
+- Windows
+  * install [CMake](https://cmake.org)
+  * install [Visual Studio 2019](https://visualstudio.microsoft.com)
+  * run [build_win.bat](./build_win.bat)
+  * install to [build directory](./build)
+
+- Linux
+
+- MacOS
+
+- HTML5
+
