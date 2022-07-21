@@ -2,6 +2,55 @@
 
 #if GRAPHICS_API & GRAPHICS_D3D11
 
+namespace
+{
+	DECL_PTR( D3D11GraphicsSurface );
+	DECL_PTR( D3D11GraphicsSwapChain );
+	DECL_PTR( D3D11GraphicsAdapter );
+	DECL_PTR( D3D11GraphicsDevice );
+	DECL_PTR( D3D11GraphicsQueue );
+	DECL_PTR( D3D11GraphicsBindGroup );
+	DECL_PTR( D3D11GraphicsBindGroupLayout );
+	DECL_PTR( D3D11GraphicsBuffer );
+	DECL_PTR( D3D11GraphicsCommandBuffer );
+	DECL_PTR( D3D11GraphicsCommandEncoder );
+	DECL_PTR( D3D11GraphicsComputePassEncoder );
+	DECL_PTR( D3D11GraphicsComputePipeline );
+	DECL_PTR( D3D11GraphicsPipelineLayout );
+	DECL_PTR( D3D11GraphicsQuerySet );
+	DECL_PTR( D3D11GraphicsRenderBundle );
+	DECL_PTR( D3D11GraphicsRenderBundleEncoder );
+	DECL_PTR( D3D11GraphicsRenderPassEncoder );
+	DECL_PTR( D3D11GraphicsRenderPipeline );
+	DECL_PTR( D3D11GraphicsSampler );
+	DECL_PTR( D3D11GraphicsShaderModule );
+	DECL_PTR( D3D11GraphicsTexture );
+	DECL_PTR( D3D11GraphicsTextureView );
+
+	class D3D11GraphicsSurface : public XE::GraphicsSurface {};
+	class D3D11GraphicsSwapChain : public XE::GraphicsSwapChain {};
+	class D3D11GraphicsAdapter : public XE::GraphicsAdapter {};
+	class D3D11GraphicsDevice : public XE::GraphicsDevice {};
+	class D3D11GraphicsQueue : public XE::GraphicsQueue {};
+	class D3D11GraphicsBindGroup : public XE::GraphicsBindGroup {};
+	class D3D11GraphicsBindGroupLayout : public XE::GraphicsBindGroupLayout {};
+	class D3D11GraphicsBuffer : public XE::GraphicsBuffer {};
+	class D3D11GraphicsCommandBuffer : public XE::GraphicsCommandBuffer {};
+	class D3D11GraphicsCommandEncoder : public XE::GraphicsCommandEncoder {};
+	class D3D11GraphicsComputePassEncoder : public XE::GraphicsComputePassEncoder {};
+	class D3D11GraphicsComputePipeline : public XE::GraphicsComputePipeline {};
+	class D3D11GraphicsPipelineLayout : public XE::GraphicsPipelineLayout {};
+	class D3D11GraphicsQuerySet : public XE::GraphicsQuerySet {};
+	class D3D11GraphicsRenderBundle : public XE::GraphicsRenderBundle {};
+	class D3D11GraphicsRenderBundleEncoder : public XE::GraphicsRenderBundleEncoder {};
+	class D3D11GraphicsRenderPassEncoder : public XE::GraphicsRenderPassEncoder {};
+	class D3D11GraphicsRenderPipeline : public XE::GraphicsRenderPipeline {};
+	class D3D11GraphicsSampler : public XE::GraphicsSampler {};
+	class D3D11GraphicsShaderModule : public XE::GraphicsShaderModule {};
+	class D3D11GraphicsTexture : public XE::GraphicsTexture {};
+	class D3D11GraphicsTextureView : public XE::GraphicsTextureView {};
+}
+
 XE::GraphicsServiceD3D11::GraphicsServiceD3D11( bool debug /*= false */ )
 {
 

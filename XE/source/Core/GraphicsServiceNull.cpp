@@ -1,5 +1,54 @@
 #include "GraphicsServiceNull.h"
 
+namespace
+{
+	DECL_PTR( NullGraphicsSurface );
+	DECL_PTR( NullGraphicsSwapChain );
+	DECL_PTR( NullGraphicsAdapter );
+	DECL_PTR( NullGraphicsDevice );
+	DECL_PTR( NullGraphicsQueue );
+	DECL_PTR( NullGraphicsBindGroup );
+	DECL_PTR( NullGraphicsBindGroupLayout );
+	DECL_PTR( NullGraphicsBuffer );
+	DECL_PTR( NullGraphicsCommandBuffer );
+	DECL_PTR( NullGraphicsCommandEncoder );
+	DECL_PTR( NullGraphicsComputePassEncoder );
+	DECL_PTR( NullGraphicsComputePipeline );
+	DECL_PTR( NullGraphicsPipelineLayout );
+	DECL_PTR( NullGraphicsQuerySet );
+	DECL_PTR( NullGraphicsRenderBundle );
+	DECL_PTR( NullGraphicsRenderBundleEncoder );
+	DECL_PTR( NullGraphicsRenderPassEncoder );
+	DECL_PTR( NullGraphicsRenderPipeline );
+	DECL_PTR( NullGraphicsSampler );
+	DECL_PTR( NullGraphicsShaderModule );
+	DECL_PTR( NullGraphicsTexture );
+	DECL_PTR( NullGraphicsTextureView );
+
+	class NullGraphicsSurface : public XE::GraphicsSurface {};
+	class NullGraphicsSwapChain : public XE::GraphicsSwapChain {};
+	class NullGraphicsAdapter : public XE::GraphicsAdapter {};
+	class NullGraphicsDevice : public XE::GraphicsDevice {};
+	class NullGraphicsQueue : public XE::GraphicsQueue {};
+	class NullGraphicsBindGroup : public XE::GraphicsBindGroup {};
+	class NullGraphicsBindGroupLayout : public XE::GraphicsBindGroupLayout {};
+	class NullGraphicsBuffer : public XE::GraphicsBuffer {};
+	class NullGraphicsCommandBuffer : public XE::GraphicsCommandBuffer {};
+	class NullGraphicsCommandEncoder : public XE::GraphicsCommandEncoder {};
+	class NullGraphicsComputePassEncoder : public XE::GraphicsComputePassEncoder {};
+	class NullGraphicsComputePipeline : public XE::GraphicsComputePipeline {};
+	class NullGraphicsPipelineLayout : public XE::GraphicsPipelineLayout {};
+	class NullGraphicsQuerySet : public XE::GraphicsQuerySet {};
+	class NullGraphicsRenderBundle : public XE::GraphicsRenderBundle {};
+	class NullGraphicsRenderBundleEncoder : public XE::GraphicsRenderBundleEncoder {};
+	class NullGraphicsRenderPassEncoder : public XE::GraphicsRenderPassEncoder {};
+	class NullGraphicsRenderPipeline : public XE::GraphicsRenderPipeline {};
+	class NullGraphicsSampler : public XE::GraphicsSampler {};
+	class NullGraphicsShaderModule : public XE::GraphicsShaderModule {};
+	class NullGraphicsTexture : public XE::GraphicsTexture {};
+	class NullGraphicsTextureView : public XE::GraphicsTextureView {};
+}
+
 struct XE::GraphicsServiceNull::Private
 {
 

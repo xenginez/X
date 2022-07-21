@@ -14,6 +14,55 @@
 
 #import <Foundation/Foundation.h>
 
+namespace
+{
+	DECL_PTR( MTGraphicsSurface );
+	DECL_PTR( MTGraphicsSwapChain );
+	DECL_PTR( MTGraphicsAdapter );
+	DECL_PTR( MTGraphicsDevice );
+	DECL_PTR( MTGraphicsQueue );
+	DECL_PTR( MTGraphicsBindGroup );
+	DECL_PTR( MTGraphicsBindGroupLayout );
+	DECL_PTR( MTGraphicsBuffer );
+	DECL_PTR( MTGraphicsCommandBuffer );
+	DECL_PTR( MTGraphicsCommandEncoder );
+	DECL_PTR( MTGraphicsComputePassEncoder );
+	DECL_PTR( MTGraphicsComputePipeline );
+	DECL_PTR( MTGraphicsPipelineLayout );
+	DECL_PTR( MTGraphicsQuerySet );
+	DECL_PTR( MTGraphicsRenderBundle );
+	DECL_PTR( MTGraphicsRenderBundleEncoder );
+	DECL_PTR( MTGraphicsRenderPassEncoder );
+	DECL_PTR( MTGraphicsRenderPipeline );
+	DECL_PTR( MTGraphicsSampler );
+	DECL_PTR( MTGraphicsShaderModule );
+	DECL_PTR( MTGraphicsTexture );
+	DECL_PTR( MTGraphicsTextureView );
+
+	class MTGraphicsSurface : public XE::GraphicsSurface { };
+	class MTGraphicsSwapChain : public XE::GraphicsSwapChain {};
+	class MTGraphicsAdapter : public XE::GraphicsAdapter {};
+	class MTGraphicsDevice : public XE::GraphicsDevice {};
+	class MTGraphicsQueue : public XE::GraphicsQueue {};
+	class MTGraphicsBindGroup : public XE::GraphicsBindGroup {};
+	class MTGraphicsBindGroupLayout : public XE::GraphicsBindGroupLayout {};
+	class MTGraphicsBuffer : public XE::GraphicsBuffer {};
+	class MTGraphicsCommandBuffer : public XE::GraphicsCommandBuffer {};
+	class MTGraphicsCommandEncoder : public XE::GraphicsCommandEncoder {};
+	class MTGraphicsComputePassEncoder : public XE::GraphicsComputePassEncoder {};
+	class MTGraphicsComputePipeline : public XE::GraphicsComputePipeline {};
+	class MTGraphicsPipelineLayout : public XE::GraphicsPipelineLayout {};
+	class MTGraphicsQuerySet : public XE::GraphicsQuerySet {};
+	class MTGraphicsRenderBundle : public XE::GraphicsRenderBundle {};
+	class MTGraphicsRenderBundleEncoder : public XE::GraphicsRenderBundleEncoder {};
+	class MTGraphicsRenderPassEncoder : public XE::GraphicsRenderPassEncoder {};
+	class MTGraphicsRenderPipeline : public XE::GraphicsRenderPipeline {};
+	class MTGraphicsSampler : public XE::GraphicsSampler {};
+	class MTGraphicsShaderModule : public XE::GraphicsShaderModule {};
+	class MTGraphicsTexture : public XE::GraphicsTexture {};
+	class MTGraphicsTextureView : public XE::GraphicsTextureView {};
+}
+
 struct XE::GraphicsServiceMetal::Private
 {
 

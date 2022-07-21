@@ -5,15 +5,70 @@
 #define VKBIND_IMPLEMENTATION
 #include <vkbind/vkbind.h>
 
+#include "Utils/Logger.h"
+
+namespace
+{
+	DECL_PTR( VKGraphicsSurface );
+	DECL_PTR( VKGraphicsSwapChain );
+	DECL_PTR( VKGraphicsAdapter );
+	DECL_PTR( VKGraphicsDevice );
+	DECL_PTR( VKGraphicsQueue );
+	DECL_PTR( VKGraphicsBindGroup );
+	DECL_PTR( VKGraphicsBindGroupLayout );
+	DECL_PTR( VKGraphicsBuffer );
+	DECL_PTR( VKGraphicsCommandBuffer );
+	DECL_PTR( VKGraphicsCommandEncoder );
+	DECL_PTR( VKGraphicsComputePassEncoder );
+	DECL_PTR( VKGraphicsComputePipeline );
+	DECL_PTR( VKGraphicsPipelineLayout );
+	DECL_PTR( VKGraphicsQuerySet );
+	DECL_PTR( VKGraphicsRenderBundle );
+	DECL_PTR( VKGraphicsRenderBundleEncoder );
+	DECL_PTR( VKGraphicsRenderPassEncoder );
+	DECL_PTR( VKGraphicsRenderPipeline );
+	DECL_PTR( VKGraphicsSampler );
+	DECL_PTR( VKGraphicsShaderModule );
+	DECL_PTR( VKGraphicsTexture );
+	DECL_PTR( VKGraphicsTextureView );
+
+	class VKGraphicsSurface : public XE::GraphicsSurface { };
+	class VKGraphicsSwapChain : public XE::GraphicsSwapChain {};
+	class VKGraphicsAdapter : public XE::GraphicsAdapter {};
+	class VKGraphicsDevice : public XE::GraphicsDevice {};
+	class VKGraphicsQueue : public XE::GraphicsQueue {};
+	class VKGraphicsBindGroup : public XE::GraphicsBindGroup {};
+	class VKGraphicsBindGroupLayout : public XE::GraphicsBindGroupLayout {};
+	class VKGraphicsBuffer : public XE::GraphicsBuffer {};
+	class VKGraphicsCommandBuffer : public XE::GraphicsCommandBuffer {};
+	class VKGraphicsCommandEncoder : public XE::GraphicsCommandEncoder {};
+	class VKGraphicsComputePassEncoder : public XE::GraphicsComputePassEncoder {};
+	class VKGraphicsComputePipeline : public XE::GraphicsComputePipeline {};
+	class VKGraphicsPipelineLayout : public XE::GraphicsPipelineLayout {};
+	class VKGraphicsQuerySet : public XE::GraphicsQuerySet {};
+	class VKGraphicsRenderBundle : public XE::GraphicsRenderBundle {};
+	class VKGraphicsRenderBundleEncoder : public XE::GraphicsRenderBundleEncoder {};
+	class VKGraphicsRenderPassEncoder : public XE::GraphicsRenderPassEncoder {};
+	class VKGraphicsRenderPipeline : public XE::GraphicsRenderPipeline {};
+	class VKGraphicsSampler : public XE::GraphicsSampler {};
+	class VKGraphicsShaderModule : public XE::GraphicsShaderModule {};
+	class VKGraphicsTexture : public XE::GraphicsTexture {};
+	class VKGraphicsTextureView : public XE::GraphicsTextureView {};
+}
+
 struct XE::GraphicsServiceVulkan::Private
 {
+	bool _IsDebug = false;
 
+	VkbAPI _API;
+	VkInstance _Instance;
+	VkDebugReportCallbackEXT _Debug;
 };
 
 XE::GraphicsServiceVulkan::GraphicsServiceVulkan( bool debug /*= false*/ )
 	:_p( XE::New< Private >() )
 {
-
+	_p->_IsDebug = debug;
 }
 
 XE::GraphicsServiceVulkan::~GraphicsServiceVulkan()
@@ -23,6 +78,99 @@ XE::GraphicsServiceVulkan::~GraphicsServiceVulkan()
 
 void XE::GraphicsServiceVulkan::Prepare()
 {
+	if ( vkbInit( &_p->_API ) != VK_SUCCESS )
+	{
+		XE_ERROR( "" );
+		return;
+	}
+
+	VkInstanceCreateInfo inst_info = {};
+	{
+		inst_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+		inst_info.pNext = nullptr;
+		inst_info.flags = 0;
+		inst_info.pApplicationInfo = nullptr;
+		inst_info.enabledLayerCount;
+		inst_info.ppEnabledLayerNames;
+		inst_info.enabledExtensionCount;
+		inst_info.ppEnabledExtensionNames;
+	}
+	VkAllocationCallbacks allocator = {};
+	{
+		allocator.pfnAllocation = []( void * pUserData, size_t size, size_t alignment, VkSystemAllocationScope allocationScope ) -> void *
+		{
+			void * p = XE::MemoryResource::GetDefaultMemoryResource()->allocate( size + 2 * sizeof( XE::uint64 ), alignment );
+
+			XE::uint64 * h = reinterpret_cast<XE::uint64 *>( p );
+			*( h ) = size;
+			*( h + 1 ) = alignment;
+
+			return h + 2;
+		};
+		allocator.pfnFree = []( void * pUserData, void * pMemory )
+		{
+			XE::uint64 * h = reinterpret_cast<XE::uint64 *>( pMemory ) - 2;
+
+			XE::uint64 size = *( h );
+			XE::uint64 alignment = *( h + 1 );
+
+			XE::MemoryResource::GetDefaultMemoryResource()->deallocate( h, size, alignment );
+		};
+		allocator.pfnReallocation = []( void * pUserData, void * pOriginal, size_t size, size_t alignment, VkSystemAllocationScope allocationScope ) -> void *
+		{
+			void * new_p = XE::MemoryResource::GetDefaultMemoryResource()->allocate( size + 2 * sizeof( XE::uint64 ), alignment );
+
+			XE::uint64 * new_h = reinterpret_cast<XE::uint64 *>( new_p );
+			*( new_h ) = size;
+			*( new_h + 1 ) = alignment;
+
+			void * old_p = pOriginal;
+
+			XE::uint64 * old_h = reinterpret_cast<XE::uint64 *>( old_p ) - 2;
+
+			XE::uint64 old_size = *( old_h );
+			XE::uint64 old_alignment = *( old_h + 1 );
+
+			std::copy( reinterpret_cast<XE::uint8 *>( old_p ), reinterpret_cast<XE::uint8 *>( old_p ) + size, reinterpret_cast<XE::uint8 *>( new_h + 2 ) );
+
+			XE::MemoryResource::GetDefaultMemoryResource()->deallocate( old_h, old_size, old_alignment );
+
+			return new_h + 2;
+		};
+		allocator.pUserData = nullptr;
+	}
+	if ( vkCreateInstance( &inst_info, &allocator, &_p->_Instance ) != VK_SUCCESS )
+	{
+		XE_ERROR( "" );
+		return;
+	}
+
+	if ( vkbInitInstanceAPI( _p->_Instance, &_p->_API ) != VK_SUCCESS )
+	{
+		XE_ERROR( "" );
+		return;
+	}
+
+	vkbBindAPI( &_p->_API );
+
+	if ( _p->_IsDebug )
+	{
+		VkDebugReportCallbackCreateInfoEXT debugReportCallbackCreateInfo;
+		debugReportCallbackCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CREATE_INFO_EXT;
+		debugReportCallbackCreateInfo.pNext = NULL;
+		debugReportCallbackCreateInfo.flags = VK_DEBUG_REPORT_ERROR_BIT_EXT | VK_DEBUG_REPORT_WARNING_BIT_EXT | VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT | VK_DEBUG_REPORT_DEBUG_BIT_EXT;
+		debugReportCallbackCreateInfo.pfnCallback = []( VkDebugReportFlagsEXT flags, VkDebugReportObjectTypeEXT objectType, uint64_t object, size_t location, int32_t messageCode, const char * pLayerPrefix, const char * pMessage, void * pUserData ) -> VkBool32
+		{
+			return 0;
+		};
+		debugReportCallbackCreateInfo.pUserData = NULL;
+
+		if ( vkCreateDebugReportCallbackEXT( _p->_Instance, &debugReportCallbackCreateInfo, NULL, &_p->_Debug ) != VK_SUCCESS )
+		{
+			XE_ERROR( "" );
+		}
+	}
+
 
 }
 
@@ -39,6 +187,8 @@ void XE::GraphicsServiceVulkan::Update()
 void XE::GraphicsServiceVulkan::Clearup()
 {
 
+	vkDestroyInstance( _p->_Instance, nullptr );
+	vkbUninit();
 }
 
 XE::GraphicsSurfacePtr XE::GraphicsServiceVulkan::CreateSurface( const XE::GraphicsSurfaceDescriptor & descriptor )

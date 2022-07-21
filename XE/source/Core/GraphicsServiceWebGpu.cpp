@@ -4,118 +4,173 @@
 
 #include <webgpu/webgpu.h>
 
-namespace XE
+namespace
 {
-	class GraphicsSurface
+	DECL_PTR( WGPUGraphicsSurface );
+	DECL_PTR( WGPUGraphicsSwapChain );
+	DECL_PTR( WGPUGraphicsAdapter );
+	DECL_PTR( WGPUGraphicsDevice );
+	DECL_PTR( WGPUGraphicsQueue );
+	DECL_PTR( WGPUGraphicsBindGroup );
+	DECL_PTR( WGPUGraphicsBindGroupLayout );
+	DECL_PTR( WGPUGraphicsBuffer );
+	DECL_PTR( WGPUGraphicsCommandBuffer );
+	DECL_PTR( WGPUGraphicsCommandEncoder );
+	DECL_PTR( WGPUGraphicsComputePassEncoder );
+	DECL_PTR( WGPUGraphicsComputePipeline );
+	DECL_PTR( WGPUGraphicsPipelineLayout );
+	DECL_PTR( WGPUGraphicsQuerySet );
+	DECL_PTR( WGPUGraphicsRenderBundle );
+	DECL_PTR( WGPUGraphicsRenderBundleEncoder );
+	DECL_PTR( WGPUGraphicsRenderPassEncoder );
+	DECL_PTR( WGPUGraphicsRenderPipeline );
+	DECL_PTR( WGPUGraphicsSampler );
+	DECL_PTR( WGPUGraphicsShaderModule );
+	DECL_PTR( WGPUGraphicsTexture );
+	DECL_PTR( WGPUGraphicsTextureView );
+
+	class WGPUGraphicsSurface : public XE::GraphicsSurface
 	{
 	public:
 		WGPUSurface Raw;
 	};
-	class GraphicsSwapChain
+	class WGPUGraphicsSwapChain : public XE::GraphicsSwapChain
 	{
 	public:
 		WGPUSwapChain Raw;
 	};
-	class GraphicsAdapter
+	class WGPUGraphicsAdapter : public XE::GraphicsAdapter
 	{
 	public:
 		WGPUAdapter Raw;
 	};
-	class GraphicsDevice
+	class WGPUGraphicsDevice : public XE::GraphicsDevice
 	{
 	public:
 		WGPUDevice Raw;
 	};
-	class GraphicsQueue
+	class WGPUGraphicsQueue : public XE::GraphicsQueue
 	{
 	public:
 		WGPUQueue Raw;
 	};
-	class GraphicsBindGroup
+	class WGPUGraphicsBindGroup : public XE::GraphicsBindGroup
 	{
 	public:
 		WGPUBindGroup Raw;
 	};
-	class GraphicsBindGroupLayout
+	class WGPUGraphicsBindGroupLayout : public XE::GraphicsBindGroupLayout
 	{
 	public:
 		WGPUBindGroupLayout Raw;
 	};
-	class GraphicsBuffer 
+	class WGPUGraphicsBuffer : public XE::GraphicsBuffer
 	{
 	public:
 		WGPUBuffer Raw;
 	};
-	class GraphicsCommandBuffer
+	class WGPUGraphicsCommandBuffer : public XE::GraphicsCommandBuffer
 	{
 	public:
 		WGPUCommandBuffer Raw;
 	};
-	class GraphicsCommandEncoder
+	class WGPUGraphicsCommandEncoder : public XE::GraphicsCommandEncoder
 	{
 	public:
 		WGPUCommandEncoder Raw;
 	};
-	class GraphicsComputePassEncoder
+	class WGPUGraphicsComputePassEncoder : public XE::GraphicsComputePassEncoder
 	{
 	public:
 		WGPUComputePassEncoder Raw;
 	};
-	class GraphicsComputePipeline
+	class WGPUGraphicsComputePipeline : public XE::GraphicsComputePipeline
 	{
 	public:
 		WGPUComputePipeline Raw;
 	};
-	class GraphicsPipelineLayout
+	class WGPUGraphicsPipelineLayout : public XE::GraphicsPipelineLayout
 	{
 	public:
 		WGPUPipelineLayout Raw;
 	};
-	class GraphicsQuerySet
+	class WGPUGraphicsQuerySet : public XE::GraphicsQuerySet
 	{
 	public:
 		WGPUQuerySet Raw;
 	};
-	class GraphicsRenderBundle
+	class WGPUGraphicsRenderBundle : public XE::GraphicsRenderBundle
 	{
 	public:
 		WGPURenderBundle Raw;
 	};
-	class GraphicsRenderBundleEncoder
+	class WGPUGraphicsRenderBundleEncoder : public XE::GraphicsRenderBundleEncoder
 	{
 	public:
 		WGPURenderBundleEncoder Raw;
 	};
-	class GraphicsRenderPassEncoder
+	class WGPUGraphicsRenderPassEncoder : public XE::GraphicsRenderPassEncoder
 	{
 	public:
 		WGPURenderPassEncoder Raw;
 	};
-	class GraphicsRenderPipeline
+	class WGPUGraphicsRenderPipeline : public XE::GraphicsRenderPipeline
 	{
 	public:
 		WGPURenderPipeline Raw;
 	};
-	class GraphicsSampler
+	class WGPUGraphicsSampler : public XE::GraphicsSampler
 	{
 	public:
 		WGPUSampler Raw;
 	};
-	class GraphicsShaderModule
+	class WGPUGraphicsShaderModule : public XE::GraphicsShaderModule
 	{
 	public:
 		WGPUShaderModule Raw;
 	};
-	class GraphicsTexture
+	class WGPUGraphicsTexture : public XE::GraphicsTexture
 	{
 	public:
 		WGPUTexture Raw;
 	};
-	class GraphicsTextureView
+	class WGPUGraphicsTextureView : public XE::GraphicsTextureView
 	{
 	public:
 		WGPUTextureView Raw;
 	};
+
+#define CAST( NAME ) \
+	WGPU##NAME * Cast( const XE::##NAME##Ptr & val ) \
+	{ \
+		return static_cast<WGPU##NAME *>( val.get() ); \
+	}
+
+	CAST( GraphicsSurface );
+	CAST( GraphicsSwapChain );
+	CAST( GraphicsAdapter );
+	CAST( GraphicsDevice );
+	CAST( GraphicsQueue );
+	CAST( GraphicsBindGroup );
+	CAST( GraphicsBindGroupLayout );
+	CAST( GraphicsBuffer );
+	CAST( GraphicsCommandBuffer );
+	CAST( GraphicsCommandEncoder );
+	CAST( GraphicsComputePassEncoder );
+	CAST( GraphicsComputePipeline );
+	CAST( GraphicsPipelineLayout );
+	CAST( GraphicsQuerySet );
+	CAST( GraphicsRenderBundle );
+	CAST( GraphicsRenderBundleEncoder );
+	CAST( GraphicsRenderPassEncoder );
+	CAST( GraphicsRenderPipeline );
+	CAST( GraphicsSampler );
+	CAST( GraphicsShaderModule );
+	CAST( GraphicsTexture );
+	CAST( GraphicsTextureView );
+
+#undef CAST
+
 }
 
 struct XE::GraphicsServiceWebGpu::Private
@@ -158,7 +213,7 @@ void XE::GraphicsServiceWebGpu::Clearup()
 
 XE::GraphicsSurfacePtr XE::GraphicsServiceWebGpu::CreateSurface( const XE::GraphicsSurfaceDescriptor & descriptor )
 {
-	auto surface = XE::MakeShared< XE::GraphicsSurface >();
+	auto surface = XE::MakeShared< WGPUGraphicsSurface >();
 	{
 		WGPUSurfaceDescriptor desc = {};
 		{
@@ -176,7 +231,7 @@ void XE::GraphicsServiceWebGpu::RequestAdapter( const XE::GraphicsRequestAdapter
 {
 	WGPURequestAdapterOptions option = {};
 	{
-		option.compatibleSurface = options.CompatibleSurface->Raw;
+		option.compatibleSurface = Cast( options.CompatibleSurface )->Raw;
 		option.forceFallbackAdapter = options.ForceFallbackAdapter;
 		option.powerPreference = (WGPUPowerPreference)options.PowerPreference;
 	}
@@ -185,7 +240,7 @@ void XE::GraphicsServiceWebGpu::RequestAdapter( const XE::GraphicsRequestAdapter
 	{
 		XE::GraphicsService::RequestAdapterCallback * callback = (XE::GraphicsService::RequestAdapterCallback *)userdata;
 
-		auto ada = XE::MakeShared<XE::GraphicsAdapter >();
+		auto ada = XE::MakeShared< WGPUGraphicsAdapter >();
 		ada->Raw = adapter;
 
 		( *callback )( XE::GraphicsRequestAdapterStatus( status ), ada );
@@ -196,7 +251,7 @@ void XE::GraphicsServiceWebGpu::RequestAdapter( const XE::GraphicsRequestAdapter
 void XE::GraphicsServiceWebGpu::AdapterEnumerateFeatures( XE::GraphicsAdapterPtr adapter, XE::Array< XE::GraphicsFeatureName > & features )
 {
 	WGPUFeatureName names[10];
-	auto sz = wgpuAdapterEnumerateFeatures( adapter->Raw, names );
+	auto sz = wgpuAdapterEnumerateFeatures( Cast( adapter )->Raw, names );
 	for ( size_t i = 0; i < sz; i++ )
 	{
 		features.push_back( (XE::GraphicsFeatureName)names[i] );
@@ -207,7 +262,7 @@ bool XE::GraphicsServiceWebGpu::AdapterGetLimits( XE::GraphicsAdapterPtr adapter
 {
 	WGPUSupportedLimits limit;
 	
-	if ( wgpuAdapterGetLimits( adapter->Raw, &limit ) )
+	if ( wgpuAdapterGetLimits( Cast( adapter )->Raw, &limit ) )
 	{
 		limits.Limits.MaxBindGroups = limit.limits.maxBindGroups;
 		limits.Limits.MaxComputeInvocationsPerWorkgroup = limit.limits.maxBindGroups;
@@ -246,7 +301,7 @@ void XE::GraphicsServiceWebGpu::AdapterGetProperties( XE::GraphicsAdapterPtr ada
 {
 	WGPUAdapterProperties prop = {};
 
-	wgpuAdapterGetProperties( adapter->Raw, &prop );
+	wgpuAdapterGetProperties( Cast( adapter )->Raw, &prop );
 
 	properties.AdapterType = (XE::GraphicsAdapterType)prop.adapterType;
 	properties.BackendType = (XE::GraphicsBackendType)prop.backendType;
@@ -258,7 +313,7 @@ void XE::GraphicsServiceWebGpu::AdapterGetProperties( XE::GraphicsAdapterPtr ada
 
 bool XE::GraphicsServiceWebGpu::AdapterHasFeature( XE::GraphicsAdapterPtr adapter, XE::GraphicsFeatureName feature )
 {
-	return wgpuAdapterHasFeature( adapter->Raw, (WGPUFeatureName)feature );
+	return wgpuAdapterHasFeature( Cast( adapter )->Raw, (WGPUFeatureName)feature );
 }
 
 void XE::GraphicsServiceWebGpu::AdapterRequestDevice( XE::GraphicsAdapterPtr adapter, const XE::GraphicsDeviceDescriptor & descriptor, XE::GraphicsService::RequestDeviceCallback callback )
@@ -301,11 +356,11 @@ void XE::GraphicsServiceWebGpu::AdapterRequestDevice( XE::GraphicsAdapterPtr ada
 		desc.requiredFeaturesCount = descriptor.RequiredFeatures.size();
 	}
 
-	wgpuAdapterRequestDevice( adapter->Raw, &desc, []( WGPURequestDeviceStatus status, WGPUDevice device, char const * message, void * userdata )
+	wgpuAdapterRequestDevice( Cast( adapter )->Raw, &desc, []( WGPURequestDeviceStatus status, WGPUDevice device, char const * message, void * userdata )
 	{
 		XE::GraphicsService::RequestDeviceCallback * callback = (XE::GraphicsService::RequestDeviceCallback *)( userdata );
 
-		auto dev = XE::MakeShared< XE::GraphicsDevice >();
+		auto dev = XE::MakeShared< WGPUGraphicsDevice >();
 		dev->Raw = device;
 
 		( *callback )( (XE::GraphicsRequestDeviceStatus)status, dev );
@@ -315,34 +370,34 @@ void XE::GraphicsServiceWebGpu::AdapterRequestDevice( XE::GraphicsAdapterPtr ada
 
 XE::GraphicsBindGroupPtr XE::GraphicsServiceWebGpu::DeviceCreateBindGroup( XE::GraphicsDevicePtr device, const XE::GraphicsBindGroupDescriptor & descriptor )
 {
-	auto bind_group = XE::MakeShared< XE::GraphicsBindGroup >();
+	auto bind_group = XE::MakeShared< WGPUGraphicsBindGroup >();
 	{
 		XE::Array< WGPUBindGroupEntry > entries( XE::MemoryResource::GetFrameMemoryResource() ); entries.resize( descriptor.Entries.size() );
 		for ( size_t i = 0; i < descriptor.Entries.size(); i++ )
 		{
 			entries[i].binding = descriptor.Entries[i].Binding;
-			entries[i].buffer = descriptor.Entries[i].Buffer->Raw;
+			entries[i].buffer = Cast( descriptor.Entries[i].Buffer )->Raw;
 			entries[i].offset = descriptor.Entries[i].Offset;
-			entries[i].sampler = descriptor.Entries[i].Sampler->Raw;
+			entries[i].sampler = Cast( descriptor.Entries[i].Sampler )->Raw;
 			entries[i].size = descriptor.Entries[i].Size;
-			entries[i].textureView = descriptor.Entries[i].TextureView->Raw;
+			entries[i].textureView = Cast( descriptor.Entries[i].TextureView )->Raw;
 		}
 
 		WGPUBindGroupDescriptor desc = {};
 		{
 			desc.label = descriptor.Label.c_str();
-			desc.layout = descriptor.Layout->Raw;
+			desc.layout = Cast( descriptor.Layout )->Raw;
 			desc.entries = entries.data();
 			desc.entryCount = entries.size();
 		}
-		bind_group->Raw = wgpuDeviceCreateBindGroup( device->Raw, &desc );
+		bind_group->Raw = wgpuDeviceCreateBindGroup( Cast( device )->Raw, &desc );
 	}
 	return bind_group;
 }
 
 XE::GraphicsBindGroupLayoutPtr XE::GraphicsServiceWebGpu::DeviceCreateBindGroupLayout( XE::GraphicsDevicePtr device, const XE::GraphicsBindGroupLayoutDescriptor & descriptor )
 {
-	auto layout = XE::MakeShared< XE::GraphicsBindGroupLayout >();
+	auto layout = XE::MakeShared< WGPUGraphicsBindGroupLayout >();
 	{
 		XE::Array< WGPUBindGroupLayoutEntry > entries( XE::MemoryResource::GetFrameMemoryResource() ); entries.resize( descriptor.Entries.size() );
 		for ( size_t i = 0; i < descriptor.Entries.size(); i++ )
@@ -367,14 +422,14 @@ XE::GraphicsBindGroupLayoutPtr XE::GraphicsServiceWebGpu::DeviceCreateBindGroupL
 			desc.entries = entries.data();
 			desc.entryCount = entries.size();
 		}
-		layout->Raw = wgpuDeviceCreateBindGroupLayout( device->Raw, &desc );
+		layout->Raw = wgpuDeviceCreateBindGroupLayout( Cast( device )->Raw, &desc );
 	}
 	return layout;
 }
 
 XE::GraphicsBufferPtr XE::GraphicsServiceWebGpu::DeviceCreateBuffer( XE::GraphicsDevicePtr device, const XE::GraphicsBufferDescriptor & descriptor )
 {
-	auto buffer = XE::MakeShared< XE::GraphicsBuffer >();
+	auto buffer = XE::MakeShared< WGPUGraphicsBuffer >();
 	{
 		WGPUBufferDescriptor desc = {};
 		{
@@ -383,27 +438,27 @@ XE::GraphicsBufferPtr XE::GraphicsServiceWebGpu::DeviceCreateBuffer( XE::Graphic
 			desc.size = descriptor.Size;
 			desc.usage = descriptor.Usage.GetValue();
 		}
-		buffer->Raw = wgpuDeviceCreateBuffer( device->Raw, &desc );
+		buffer->Raw = wgpuDeviceCreateBuffer( Cast( device )->Raw, &desc );
 	}
 	return buffer;
 }
 
 XE::GraphicsCommandEncoderPtr XE::GraphicsServiceWebGpu::DeviceCreateCommandEncoder( XE::GraphicsDevicePtr device, const XE::GraphicsCommandEncoderDescriptor & descriptor )
 {
-	auto encoder = XE::MakeShared< XE::GraphicsCommandEncoder >();
+	auto encoder = XE::MakeShared< WGPUGraphicsCommandEncoder >();
 	{
 		WGPUCommandEncoderDescriptor desc = {};
 		{
 			desc.label = descriptor.Label.c_str();
 		}
-		encoder->Raw = wgpuDeviceCreateCommandEncoder( device->Raw, &desc );
+		encoder->Raw = wgpuDeviceCreateCommandEncoder( Cast( device )->Raw, &desc );
 	}
 	return encoder;
 }
 
 XE::GraphicsComputePipelinePtr XE::GraphicsServiceWebGpu::DeviceCreateComputePipeline( XE::GraphicsDevicePtr device, const XE::GraphicsComputePipelineDescriptor & descriptor )
 {
-	auto pipeline = XE::MakeShared< XE::GraphicsComputePipeline >();
+	auto pipeline = XE::MakeShared< WGPUGraphicsComputePipeline >();
 	{
 		XE::Array< WGPUConstantEntry > entries( XE::MemoryResource::GetFrameMemoryResource() ); entries.resize( descriptor.Compute.Constants.size() );
 		for ( size_t i = 0; i < descriptor.Compute.Constants.size(); i++ )
@@ -414,25 +469,25 @@ XE::GraphicsComputePipelinePtr XE::GraphicsServiceWebGpu::DeviceCreateComputePip
 		WGPUComputePipelineDescriptor desc = {};
 		{
 			desc.label = descriptor.Label.c_str();
-			desc.layout = descriptor.Layout->Raw;
-			desc.compute.module = descriptor.Compute.Shader->Raw;
+			desc.layout = Cast( descriptor.Layout )->Raw;
+			desc.compute.module = Cast( descriptor.Compute.Shader )->Raw;
 			desc.compute.entryPoint = descriptor.Compute.EntryPoint.c_str();
 			desc.compute.constants = entries.data();
 			desc.compute.constantCount = entries.size();
 		}
-		pipeline->Raw = wgpuDeviceCreateComputePipeline( device->Raw, &desc );
+		pipeline->Raw = wgpuDeviceCreateComputePipeline( Cast( device )->Raw, &desc );
 	}
 	return pipeline;
 }
 
 XE::GraphicsPipelineLayoutPtr XE::GraphicsServiceWebGpu::DeviceCreatePipelineLayout( XE::GraphicsDevicePtr device, const XE::GraphicsPipelineLayoutDescriptor & descriptor )
 {
-	auto layout = XE::MakeShared< XE::GraphicsPipelineLayout >();
+	auto layout = XE::MakeShared< WGPUGraphicsPipelineLayout >();
 	{
 		XE::Array< WGPUBindGroupLayout > entries( XE::MemoryResource::GetFrameMemoryResource() ); entries.resize( descriptor.BindGroupLayouts.size() );
 		for ( size_t i = 0; i < descriptor.BindGroupLayouts.size(); i++ )
 		{
-			entries[i] = descriptor.BindGroupLayouts[i]->Raw;
+			entries[i] = Cast( descriptor.BindGroupLayouts[i] )->Raw;
 		}
 
 		WGPUPipelineLayoutDescriptor desc = {};
@@ -441,14 +496,14 @@ XE::GraphicsPipelineLayoutPtr XE::GraphicsServiceWebGpu::DeviceCreatePipelineLay
 			desc.bindGroupLayouts = entries.data();
 			desc.bindGroupLayoutCount = entries.size();
 		}
-		layout->Raw = wgpuDeviceCreatePipelineLayout( device->Raw, &desc );
+		layout->Raw = wgpuDeviceCreatePipelineLayout( Cast( device )->Raw, &desc );
 	}
 	return layout;
 }
 
 XE::GraphicsQuerySetPtr XE::GraphicsServiceWebGpu::DeviceCreateQuerySet( XE::GraphicsDevicePtr device, const XE::GraphicsQuerySetDescriptor & descriptor )
 {
-	auto set = XE::MakeShared< XE::GraphicsQuerySet >();
+	auto set = XE::MakeShared< WGPUGraphicsQuerySet >();
 	{
 		WGPUQuerySetDescriptor desc = {};
 		{
@@ -457,14 +512,14 @@ XE::GraphicsQuerySetPtr XE::GraphicsServiceWebGpu::DeviceCreateQuerySet( XE::Gra
 			desc.pipelineStatistics = (WGPUPipelineStatisticName *)descriptor.PipelineStatistics.data();
 			desc.pipelineStatisticsCount = descriptor.PipelineStatistics.size();
 		}
-		set->Raw = wgpuDeviceCreateQuerySet( device->Raw, &desc );
+		set->Raw = wgpuDeviceCreateQuerySet( Cast( device )->Raw, &desc );
 	}
 	return set;
 }
 
 XE::GraphicsRenderBundleEncoderPtr XE::GraphicsServiceWebGpu::DeviceCreateRenderBundleEncoder( XE::GraphicsDevicePtr device, const XE::GraphicsRenderBundleEncoderDescriptor & descriptor )
 {
-	auto encoder = XE::MakeShared< XE::GraphicsRenderBundleEncoder >();
+	auto encoder = XE::MakeShared< WGPUGraphicsRenderBundleEncoder >();
 	{
 		WGPURenderBundleEncoderDescriptor desc = {};
 		{
@@ -476,14 +531,14 @@ XE::GraphicsRenderBundleEncoderPtr XE::GraphicsServiceWebGpu::DeviceCreateRender
 			desc.sampleCount = descriptor.SampleCount;
 			desc.stencilReadOnly = descriptor.StencilReadOnly;
 		}
-		encoder->Raw = wgpuDeviceCreateRenderBundleEncoder( device->Raw, &desc );
+		encoder->Raw = wgpuDeviceCreateRenderBundleEncoder( Cast( device )->Raw, &desc );
 	}
 	return encoder;
 }
 
 XE::GraphicsRenderPipelinePtr XE::GraphicsServiceWebGpu::DeviceCreateRenderPipeline( XE::GraphicsDevicePtr device, const XE::GraphicsRenderPipelineDescriptor & descriptor )
 {
-	auto pipeline = XE::MakeShared< XE::GraphicsRenderPipeline >();
+	auto pipeline = XE::MakeShared< WGPUGraphicsRenderPipeline >();
 	{
 		WGPUVertexState vertex = {};
 		{
@@ -504,20 +559,20 @@ XE::GraphicsRenderPipelinePtr XE::GraphicsServiceWebGpu::DeviceCreateRenderPipel
 		WGPURenderPipelineDescriptor desc = {};
 		{
 			desc.label = descriptor.Label.c_str();
-			desc.layout = descriptor.Layout->Raw;
+			desc.layout = Cast( descriptor.Layout )->Raw;
 			desc.vertex = vertex;
 			desc.fragment = &fragment;
 			desc.primitive = primitive;
 			desc.depthStencil = &depthStencil;
 		}
-		pipeline->Raw = wgpuDeviceCreateRenderPipeline( device->Raw, &desc );
+		pipeline->Raw = wgpuDeviceCreateRenderPipeline( Cast( device )->Raw, &desc );
 	}
 	return pipeline;
 }
 
 XE::GraphicsSamplerPtr XE::GraphicsServiceWebGpu::DeviceCreateSampler( XE::GraphicsDevicePtr device, const XE::GraphicsSamplerDescriptor & descriptor )
 {
-	auto sampler = XE::MakeShared< XE::GraphicsSampler >();
+	auto sampler = XE::MakeShared< WGPUGraphicsSampler >();
 	{
 		WGPUSamplerDescriptor desc = {};
 		{
@@ -533,19 +588,19 @@ XE::GraphicsSamplerPtr XE::GraphicsServiceWebGpu::DeviceCreateSampler( XE::Graph
 			desc.lodMinClamp = descriptor.LodMinClamp;
 			desc.maxAnisotropy = descriptor.MaxAnisotropy;
 		}
-		sampler->Raw = wgpuDeviceCreateSampler( device->Raw, &desc );
+		sampler->Raw = wgpuDeviceCreateSampler( Cast( device )->Raw, &desc );
 	}
 	return sampler;
 }
 
 XE::GraphicsShaderModulePtr XE::GraphicsServiceWebGpu::DeviceCreateShaderModule( XE::GraphicsDevicePtr device, const XE::GraphicsShaderModuleDescriptor & descriptor )
 {
-	auto shader = XE::MakeShared< XE::GraphicsShaderModule >();
+	auto shader = XE::MakeShared< WGPUGraphicsShaderModule >();
 	{
 		XE::Array< WGPUShaderModuleCompilationHint > hints( XE::MemoryResource::GetFrameMemoryResource() ); hints.resize( descriptor.Hints.size() );
 		for ( size_t i = 0; i < descriptor.Hints.size(); i++ )
 		{
-			hints[i].layout = descriptor.Hints[i].Layout->Raw;
+			hints[i].layout = Cast( descriptor.Hints[i].Layout )->Raw;
 			hints[i].entryPoint = descriptor.Hints[i].EntryPoint.c_str();
 		}
 		WGPUShaderModuleDescriptor desc = {};
@@ -554,14 +609,14 @@ XE::GraphicsShaderModulePtr XE::GraphicsServiceWebGpu::DeviceCreateShaderModule(
 			desc.hints = hints.data();
 			desc.hintCount = hints.size();
 		}
-		shader->Raw = wgpuDeviceCreateShaderModule( device->Raw, &desc );
+		shader->Raw = wgpuDeviceCreateShaderModule( Cast( device )->Raw, &desc );
 	}
 	return shader;
 }
 
 XE::GraphicsSwapChainPtr XE::GraphicsServiceWebGpu::DeviceCreateSwapChain( XE::GraphicsDevicePtr device, XE::GraphicsSurfacePtr surface, const XE::GraphicsSwapChainDescriptor & descriptor )
 {
-	auto swapchain = XE::MakeShared< XE::GraphicsSwapChain >();
+	auto swapchain = XE::MakeShared< WGPUGraphicsSwapChain >();
 	{
 		WGPUSwapChainDescriptor desc = {};
 		{
@@ -572,14 +627,14 @@ XE::GraphicsSwapChainPtr XE::GraphicsServiceWebGpu::DeviceCreateSwapChain( XE::G
 			desc.format = WGPUTextureFormat( descriptor.Format );
 			desc.presentMode = WGPUPresentMode( descriptor.PresentMode );
 		}
-		swapchain->Raw = wgpuDeviceCreateSwapChain( device->Raw, surface->Raw, &desc );
+		swapchain->Raw = wgpuDeviceCreateSwapChain( Cast( device )->Raw, Cast( surface )->Raw, &desc );
 	}
 	return swapchain;
 }
 
 XE::GraphicsTexturePtr XE::GraphicsServiceWebGpu::DeviceCreateTexture( XE::GraphicsDevicePtr device, const XE::GraphicsTextureDescriptor & descriptor )
 {
-	auto texture = XE::MakeShared< XE::GraphicsTexture >();
+	auto texture = XE::MakeShared< WGPUGraphicsTexture >();
 	{
 		WGPUTextureDescriptor desc = {};
 		{
@@ -595,14 +650,14 @@ XE::GraphicsTexturePtr XE::GraphicsServiceWebGpu::DeviceCreateTexture( XE::Graph
 			desc.viewFormats = (WGPUTextureFormat *)descriptor.ViewFormats.data();
 			desc.viewFormatCount = descriptor.ViewFormats.size();
 		}
-		texture->Raw = wgpuDeviceCreateTexture( device->Raw, &desc );
+		texture->Raw = wgpuDeviceCreateTexture( Cast( device )->Raw, &desc );
 	}
 	return texture;
 }
 
 XE::GraphicsTextureViewPtr XE::GraphicsServiceWebGpu::TextureCreateView( XE::GraphicsTexturePtr texture, const XE::GraphicsTextureViewDescriptor & descriptor )
 {
-	auto view = XE::MakeShared< XE::GraphicsTextureView >();
+	auto view = XE::MakeShared< WGPUGraphicsTextureView >();
 	{
 		WGPUTextureViewDescriptor desc = {};
 		{
@@ -615,7 +670,7 @@ XE::GraphicsTextureViewPtr XE::GraphicsServiceWebGpu::TextureCreateView( XE::Gra
 			desc.mipLevelCount = descriptor.MipLevelCount;
 			desc.arrayLayerCount = descriptor.ArrayLayerCount;
 		}
-		view->Raw = wgpuTextureCreateView( texture->Raw, &desc );
+		view->Raw = wgpuTextureCreateView( Cast( texture )->Raw, &desc );
 	}
 	return view;
 }
@@ -624,7 +679,7 @@ void XE::GraphicsServiceWebGpu::DeviceEnumerateFeatures( XE::GraphicsDevicePtr d
 {
 	WGPUFeatureName names[10];
 
-	auto sz = wgpuDeviceEnumerateFeatures( device->Raw, names );
+	auto sz = wgpuDeviceEnumerateFeatures( Cast( device )->Raw, names );
 
 	for ( size_t i = 0; i < sz; i++ )
 	{
@@ -636,7 +691,7 @@ bool XE::GraphicsServiceWebGpu::DeviceGetLimits( XE::GraphicsDevicePtr device, X
 {
 	WGPUSupportedLimits limit;
 
-	if ( wgpuDeviceGetLimits( device->Raw, &limit ) )
+	if ( wgpuDeviceGetLimits( Cast( device )->Raw, &limit ) )
 	{
 		limits.Limits.MaxBindGroups = limit.limits.maxBindGroups;
 		limits.Limits.MaxComputeInvocationsPerWorkgroup = limit.limits.maxBindGroups;
@@ -673,21 +728,21 @@ bool XE::GraphicsServiceWebGpu::DeviceGetLimits( XE::GraphicsDevicePtr device, X
 
 XE::GraphicsQueuePtr XE::GraphicsServiceWebGpu::DeviceGetQueue( XE::GraphicsDevicePtr device )
 {
-	auto queue = XE::MakeShared< XE::GraphicsQueue >();
+	auto queue = XE::MakeShared< WGPUGraphicsQueue >();
 	{
-		queue->Raw = wgpuDeviceGetQueue( device->Raw );
+		queue->Raw = wgpuDeviceGetQueue( Cast( device )->Raw );
 	}
 	return queue;
 }
 
 bool XE::GraphicsServiceWebGpu::DeviceHasFeature( XE::GraphicsDevicePtr device, XE::GraphicsFeatureName feature )
 {
-	return wgpuDeviceHasFeature( device->Raw, WGPUFeatureName( feature ) );
+	return wgpuDeviceHasFeature( Cast( device )->Raw, WGPUFeatureName( feature ) );
 }
 
 bool XE::GraphicsServiceWebGpu::DevicePopErrorScope( XE::GraphicsDevicePtr device, XE::GraphicsService::ErrorCallback callback )
 {
-	return wgpuDevicePopErrorScope( device->Raw, []( WGPUErrorType type, char const * message, void * userdata )
+	return wgpuDevicePopErrorScope( Cast( device )->Raw, []( WGPUErrorType type, char const * message, void * userdata )
 	{
 		XE::GraphicsService::ErrorCallback * callback = (XE::GraphicsService::ErrorCallback *)userdata;
 
@@ -698,12 +753,12 @@ bool XE::GraphicsServiceWebGpu::DevicePopErrorScope( XE::GraphicsDevicePtr devic
 
 void XE::GraphicsServiceWebGpu::DevicePushErrorScope( XE::GraphicsDevicePtr device, XE::GraphicsErrorFilter filter )
 {
-	wgpuDevicePushErrorScope( device->Raw, WGPUErrorFilter( filter ) );
+	wgpuDevicePushErrorScope( Cast( device )->Raw, WGPUErrorFilter( filter ) );
 }
 
 void XE::GraphicsServiceWebGpu::DeviceSetDeviceLostCallback( XE::GraphicsDevicePtr device, XE::GraphicsService::DeviceLostCallback callback )
 {
-	wgpuDeviceSetDeviceLostCallback( device->Raw, []( WGPUDeviceLostReason reason, char const * message, void * userdata )
+	wgpuDeviceSetDeviceLostCallback( Cast( device )->Raw, []( WGPUDeviceLostReason reason, char const * message, void * userdata )
 	{
 		XE::GraphicsService::DeviceLostCallback * callback = (XE::GraphicsService::DeviceLostCallback *)userdata;
 
@@ -714,7 +769,7 @@ void XE::GraphicsServiceWebGpu::DeviceSetDeviceLostCallback( XE::GraphicsDeviceP
 
 void XE::GraphicsServiceWebGpu::DeviceSetUncapturedErrorCallback( XE::GraphicsDevicePtr device, XE::GraphicsService::ErrorCallback callback )
 {
-	wgpuDeviceSetUncapturedErrorCallback( device->Raw, []( WGPUErrorType type, char const * message, void * userdata )
+	wgpuDeviceSetUncapturedErrorCallback( Cast( device )->Raw, []( WGPUErrorType type, char const * message, void * userdata )
 	{
 		XE::GraphicsService::ErrorCallback * callback = (XE::GraphicsService::ErrorCallback *)userdata;
 
@@ -725,7 +780,7 @@ void XE::GraphicsServiceWebGpu::DeviceSetUncapturedErrorCallback( XE::GraphicsDe
 
 void XE::GraphicsServiceWebGpu::QueueOnSubmittedWorkDone( XE::GraphicsQueuePtr queue, XE::GraphicsService::QueueWorkDoneCallback callback )
 {
-	wgpuQueueOnSubmittedWorkDone( queue->Raw, []( WGPUQueueWorkDoneStatus status, void * userdata )
+	wgpuQueueOnSubmittedWorkDone( Cast( queue )->Raw, []( WGPUQueueWorkDoneStatus status, void * userdata )
 	{
 		XE::GraphicsService::QueueWorkDoneCallback * callback = (XE::GraphicsService::QueueWorkDoneCallback *)userdata;
 
@@ -739,15 +794,15 @@ void XE::GraphicsServiceWebGpu::QueueSubmit( XE::GraphicsQueuePtr queue, const X
 	XE::Array< WGPUCommandBuffer > buffers( XE::MemoryResource::GetFrameMemoryResource() ); buffers.resize( commands.size() );
 	for ( size_t i = 0; i < commands.size(); i++ )
 	{
-		buffers[i] = commands[i]->Raw;
+		buffers[i] = Cast( commands[i] )->Raw;
 	}
 
-	wgpuQueueSubmit( queue->Raw, buffers.size(), buffers.data() );
+	wgpuQueueSubmit( Cast( queue )->Raw, buffers.size(), buffers.data() );
 }
 
 void XE::GraphicsServiceWebGpu::QueueWriteBuffer( XE::GraphicsQueuePtr queue, XE::GraphicsBufferPtr buffer, XE::uint64 buffer_offset, XE::MemoryView data )
 {
-	wgpuQueueWriteBuffer( queue->Raw, buffer->Raw, buffer_offset, data.data(), data.size() );
+	wgpuQueueWriteBuffer( Cast( queue )->Raw, Cast( buffer )->Raw, buffer_offset, data.data(), data.size() );
 }
 
 void XE::GraphicsServiceWebGpu::QueueWriteTexture( XE::GraphicsQueuePtr queue, const XE::GraphicsImageCopyTexture & dst, XE::MemoryView data, const XE::GraphicsTextureDataLayout & data_layout, const XE::Vec3f & write_size )
@@ -765,7 +820,7 @@ void XE::GraphicsServiceWebGpu::QueueWriteTexture( XE::GraphicsQueuePtr queue, c
 		cpy_dst.origin.x = dst.Origin.x;
 		cpy_dst.origin.y = dst.Origin.y;
 		cpy_dst.origin.z = dst.Origin.z;
-		cpy_dst.texture = dst.Texture->Raw;
+		cpy_dst.texture = Cast( dst.Texture )->Raw;
 	}
 	WGPUTextureDataLayout layout = {};
 	{
@@ -774,12 +829,12 @@ void XE::GraphicsServiceWebGpu::QueueWriteTexture( XE::GraphicsQueuePtr queue, c
 		layout.rowsPerImage = data_layout.RowsPerImage;
 	}
 
-	wgpuQueueWriteTexture( queue->Raw, &cpy_dst, data.data(), data.size(), &layout, &ext );
+	wgpuQueueWriteTexture( Cast( queue )->Raw, &cpy_dst, data.data(), data.size(), &layout, &ext );
 }
 
 void XE::GraphicsServiceWebGpu::BufferMapAsync( XE::GraphicsBufferPtr buffer, XE::GraphicsMapModeFlags mode, size_t offset, size_t size, XE::GraphicsService::BufferMapCallback callback )
 {
-	wgpuBufferMapAsync( buffer->Raw, mode.GetValue(), offset, size, []( WGPUBufferMapAsyncStatus status, void * userdata )
+	wgpuBufferMapAsync( Cast( buffer )->Raw, mode.GetValue(), offset, size, []( WGPUBufferMapAsyncStatus status, void * userdata )
 	{
 		XE::GraphicsService::BufferMapCallback * callback = (XE::GraphicsService::BufferMapCallback *)userdata;
 
@@ -790,27 +845,27 @@ void XE::GraphicsServiceWebGpu::BufferMapAsync( XE::GraphicsBufferPtr buffer, XE
 
 XE::Span< const XE::uint8 > XE::GraphicsServiceWebGpu::BufferGetConstMappedRange( XE::GraphicsBufferPtr buffer, XE::uint64 offset, XE::uint64 size )
 {
-	return { (const XE::uint8 *)wgpuBufferGetConstMappedRange( buffer->Raw, offset, size ), size };
+	return { (const XE::uint8 *)wgpuBufferGetConstMappedRange( Cast( buffer )->Raw, offset, size ), size };
 }
 
 XE::Span< XE::uint8 > XE::GraphicsServiceWebGpu::BufferGetMappedRange( XE::GraphicsBufferPtr buffer, XE::uint64 offset, XE::uint64 size )
 {
-	return { (XE::uint8 *)wgpuBufferGetMappedRange( buffer->Raw, offset, size ), size };
+	return { (XE::uint8 *)wgpuBufferGetMappedRange( Cast( buffer )->Raw, offset, size ), size };
 }
 
 void XE::GraphicsServiceWebGpu::BufferUnmap( XE::GraphicsBufferPtr buffer )
 {
-	wgpuBufferUnmap( buffer->Raw );
+	wgpuBufferUnmap( Cast( buffer )->Raw );
 }
 
 XE::GraphicsComputePassEncoderPtr XE::GraphicsServiceWebGpu::CommandEncoderBeginComputePass( XE::GraphicsCommandEncoderPtr command_encoder, const XE::GraphicsComputePassDescriptor & descriptor )
 {
-	auto pass = XE::MakeShared< XE::GraphicsComputePassEncoder >();
+	auto pass = XE::MakeShared< WGPUGraphicsComputePassEncoder >();
 	{
 		XE::Array< WGPUComputePassTimestampWrite > times( XE::MemoryResource::GetFrameMemoryResource() ); times.resize( descriptor.TimestampWrites.size() );
 		for ( size_t i = 0; i < descriptor.TimestampWrites.size(); i++ )
 		{
-			times[i].querySet = descriptor.TimestampWrites[i].QuerySet->Raw;
+			times[i].querySet = Cast( descriptor.TimestampWrites[i].QuerySet )->Raw;
 			times[i].queryIndex = descriptor.TimestampWrites[i].QueryIndex;
 			times[i].location = WGPUComputePassTimestampLocation( descriptor.TimestampWrites[i].Location );
 		}
@@ -820,37 +875,37 @@ XE::GraphicsComputePassEncoderPtr XE::GraphicsServiceWebGpu::CommandEncoderBegin
 			desc.timestampWrites = times.data();
 			desc.timestampWriteCount = times.size();
 		}
-		pass->Raw = wgpuCommandEncoderBeginComputePass( command_encoder->Raw, &desc );
+		pass->Raw = wgpuCommandEncoderBeginComputePass( Cast( command_encoder )->Raw, &desc );
 	}
 	return pass;
 }
 
 XE::GraphicsRenderPassEncoderPtr XE::GraphicsServiceWebGpu::CommandEncoderBeginRenderPass( XE::GraphicsCommandEncoderPtr command_encoder, const XE::GraphicsRenderPassDescriptor & descriptor )
 {
-	auto pass = XE::MakeShared< XE::GraphicsRenderPassEncoder >();
+	auto pass = XE::MakeShared< WGPUGraphicsRenderPassEncoder >();
 	{
 		XE::Array< WGPURenderPassTimestampWrite > times( XE::MemoryResource::GetFrameMemoryResource() ); times.resize( descriptor.TimestampWrites.size() );
 		for ( size_t i = 0; i < descriptor.TimestampWrites.size(); i++ )
 		{
-			times[i].querySet = descriptor.TimestampWrites[i].QuerySet->Raw;
+			times[i].querySet = Cast( descriptor.TimestampWrites[i].QuerySet )->Raw;
 			times[i].queryIndex = descriptor.TimestampWrites[i].QueryIndex;
 			times[i].location = WGPURenderPassTimestampLocation( descriptor.TimestampWrites[i].Location );
 		}
 		XE::Array< WGPURenderPassColorAttachment > attachs( XE::MemoryResource::GetFrameMemoryResource() ); times.resize( descriptor.ColorAttachments.size() );
 		for ( size_t i = 0; i < descriptor.ColorAttachments.size(); i++ )
 		{
-			attachs[i].view = descriptor.ColorAttachments[i].View->Raw;
+			attachs[i].view = Cast( descriptor.ColorAttachments[i].View )->Raw;
 			attachs[i].loadOp = WGPULoadOp( descriptor.ColorAttachments[i].LoadOp );
 			attachs[i].storeOp = WGPUStoreOp( descriptor.ColorAttachments[i].StoreOp );
 			attachs[i].clearValue.r = descriptor.ColorAttachments[i].ClearValue.r;
 			attachs[i].clearValue.g = descriptor.ColorAttachments[i].ClearValue.g;
 			attachs[i].clearValue.b = descriptor.ColorAttachments[i].ClearValue.b;
 			attachs[i].clearValue.a = descriptor.ColorAttachments[i].ClearValue.a;
-			attachs[i].resolveTarget = descriptor.ColorAttachments[i].ResolveTarget->Raw;
+			attachs[i].resolveTarget = Cast( descriptor.ColorAttachments[i].ResolveTarget )->Raw;
 		}
 		WGPURenderPassDepthStencilAttachment depth = {};
 		{
-			depth.view = descriptor.DepthStencilAttachment.View->Raw;
+			depth.view = Cast( descriptor.DepthStencilAttachment.View )->Raw;
 			depth.depthLoadOp = WGPULoadOp( descriptor.DepthStencilAttachment.DepthLoadOp );
 			depth.depthStoreOp = WGPUStoreOp( descriptor.DepthStencilAttachment.DepthStoreOp );
 			depth.depthReadOnly = descriptor.DepthStencilAttachment.DepthReadOnly;
@@ -864,28 +919,28 @@ XE::GraphicsRenderPassEncoderPtr XE::GraphicsServiceWebGpu::CommandEncoderBeginR
 		WGPURenderPassDescriptor desc = {};
 		{
 			desc.label = descriptor.Label.c_str();
-			desc.occlusionQuerySet = descriptor.OcclusionQuerySet->Raw;
+			desc.occlusionQuerySet = Cast( descriptor.OcclusionQuerySet )->Raw;
 			desc.timestampWrites = times.data();
 			desc.timestampWriteCount = times.size();
 			desc.colorAttachments = attachs.data();
 			desc.colorAttachmentCount = attachs.size();
 			desc.depthStencilAttachment = &depth;
 		}
-		pass->Raw = wgpuCommandEncoderBeginRenderPass( command_encoder->Raw, &desc );
+		pass->Raw = wgpuCommandEncoderBeginRenderPass( Cast( command_encoder )->Raw, &desc );
 	}
 	return pass;
 }
 
 void XE::GraphicsServiceWebGpu::CommandEncoderCopyBufferToBuffer( XE::GraphicsCommandEncoderPtr command_encoder, XE::GraphicsBufferPtr src, XE::uint64 src_offset, XE::GraphicsBufferPtr dst, XE::uint64 dst_offset, XE::uint64 size )
 {
-	wgpuCommandEncoderCopyBufferToBuffer( command_encoder->Raw, src->Raw, src_offset, dst->Raw, dst_offset, size );
+	wgpuCommandEncoderCopyBufferToBuffer( Cast( command_encoder )->Raw, Cast( src )->Raw, src_offset, Cast( dst )->Raw, dst_offset, size );
 }
 
 void XE::GraphicsServiceWebGpu::CommandEncoderCopyBufferToTexture( XE::GraphicsCommandEncoderPtr command_encoder, const XE::GraphicsImageCopyBuffer & src, const XE::GraphicsImageCopyTexture & dst, const XE::Vec3f & copy_size )
 {
 	WGPUImageCopyBuffer csrc = {};
 	{
-		csrc.buffer = src.Buffer->Raw;
+		csrc.buffer = Cast( src.Buffer )->Raw;
 		csrc.layout.offset = src.Layout.Offset;
 		csrc.layout.bytesPerRow = src.Layout.BytesPerRow;
 		csrc.layout.rowsPerImage = src.Layout.RowsPerImage;
@@ -897,7 +952,7 @@ void XE::GraphicsServiceWebGpu::CommandEncoderCopyBufferToTexture( XE::GraphicsC
 		cdst.origin.x = dst.Origin.x;
 		cdst.origin.y = dst.Origin.y;
 		cdst.origin.z = dst.Origin.z;
-		cdst.texture = dst.Texture->Raw;
+		cdst.texture = Cast( dst.Texture )->Raw;
 	}
 	WGPUExtent3D ext = {};
 	{
@@ -906,7 +961,7 @@ void XE::GraphicsServiceWebGpu::CommandEncoderCopyBufferToTexture( XE::GraphicsC
 		ext.depthOrArrayLayers = copy_size.z;
 	}
 
-	wgpuCommandEncoderCopyBufferToTexture( command_encoder->Raw, &csrc, &cdst, &ext );
+	wgpuCommandEncoderCopyBufferToTexture( Cast( command_encoder )->Raw, &csrc, &cdst, &ext );
 }
 
 void XE::GraphicsServiceWebGpu::CommandEncoderCopyTextureToBuffer( XE::GraphicsCommandEncoderPtr command_encoder, const XE::GraphicsImageCopyTexture & src, const XE::GraphicsImageCopyBuffer & dst, const XE::Vec3f & copy_size )
@@ -918,11 +973,11 @@ void XE::GraphicsServiceWebGpu::CommandEncoderCopyTextureToBuffer( XE::GraphicsC
 		csrc.origin.x = src.Origin.x;
 		csrc.origin.y = src.Origin.y;
 		csrc.origin.z = src.Origin.z;
-		csrc.texture = src.Texture->Raw;
+		csrc.texture = Cast( src.Texture )->Raw;
 	}
 	WGPUImageCopyBuffer cdst = {};
 	{
-		cdst.buffer = dst.Buffer->Raw;
+		cdst.buffer = Cast( dst.Buffer )->Raw;
 		cdst.layout.offset = dst.Layout.Offset;
 		cdst.layout.bytesPerRow = dst.Layout.BytesPerRow;
 		cdst.layout.rowsPerImage = dst.Layout.RowsPerImage;
@@ -934,7 +989,7 @@ void XE::GraphicsServiceWebGpu::CommandEncoderCopyTextureToBuffer( XE::GraphicsC
 		ext.depthOrArrayLayers = copy_size.z;
 	}
 
-	wgpuCommandEncoderCopyTextureToBuffer( command_encoder->Raw, &csrc, &cdst, &ext );
+	wgpuCommandEncoderCopyTextureToBuffer( Cast( command_encoder )->Raw, &csrc, &cdst, &ext );
 }
 
 void XE::GraphicsServiceWebGpu::CommandEncoderCopyTextureToTexture( XE::GraphicsCommandEncoderPtr command_encoder, const XE::GraphicsImageCopyTexture & src, const XE::GraphicsImageCopyTexture & dst, const XE::Vec3f & copy_size )
@@ -946,7 +1001,7 @@ void XE::GraphicsServiceWebGpu::CommandEncoderCopyTextureToTexture( XE::Graphics
 		csrc.origin.x = src.Origin.x;
 		csrc.origin.y = src.Origin.y;
 		csrc.origin.z = src.Origin.z;
-		csrc.texture = src.Texture->Raw;
+		csrc.texture = Cast( src.Texture )->Raw;
 	}
 	WGPUImageCopyTexture cdst = {};
 	{
@@ -955,7 +1010,7 @@ void XE::GraphicsServiceWebGpu::CommandEncoderCopyTextureToTexture( XE::Graphics
 		cdst.origin.x = dst.Origin.x;
 		cdst.origin.y = dst.Origin.y;
 		cdst.origin.z = dst.Origin.z;
-		cdst.texture = dst.Texture->Raw;
+		cdst.texture = Cast( dst.Texture )->Raw;
 	}
 	WGPUExtent3D ext = {};
 	{
@@ -964,140 +1019,140 @@ void XE::GraphicsServiceWebGpu::CommandEncoderCopyTextureToTexture( XE::Graphics
 		ext.depthOrArrayLayers = copy_size.z;
 	}
 
-	wgpuCommandEncoderCopyTextureToTexture( command_encoder->Raw, &csrc, &cdst, &ext );
+	wgpuCommandEncoderCopyTextureToTexture( Cast( command_encoder )->Raw, &csrc, &cdst, &ext );
 }
 
 XE::GraphicsCommandBufferPtr XE::GraphicsServiceWebGpu::CommandEncoderFinish( XE::GraphicsCommandEncoderPtr command_encoder, const XE::GraphicsCommandBufferDescriptor & descriptor )
 {
-	auto buf = XE::MakeShared< XE::GraphicsCommandBuffer >();
+	auto buf = XE::MakeShared< WGPUGraphicsCommandBuffer >();
 	{
 		WGPUCommandBufferDescriptor desc = {};
 		{
 			desc.label = descriptor.Label.c_str();
 		}
-		buf->Raw = wgpuCommandEncoderFinish( command_encoder->Raw, &desc );
+		buf->Raw = wgpuCommandEncoderFinish( Cast( command_encoder )->Raw, &desc );
 	}
 	return buf;
 }
 
 void XE::GraphicsServiceWebGpu::CommandEncoderInsertDebugMarker( XE::GraphicsCommandEncoderPtr command_encoder, const XE::String & marker_label )
 {
-	wgpuCommandEncoderInsertDebugMarker( command_encoder->Raw, marker_label.c_str() );
+	wgpuCommandEncoderInsertDebugMarker( Cast( command_encoder )->Raw, marker_label.c_str() );
 }
 
 void XE::GraphicsServiceWebGpu::CommandEncoderPopDebugGroup( XE::GraphicsCommandEncoderPtr command_encoder )
 {
-	wgpuCommandEncoderPopDebugGroup( command_encoder->Raw );
+	wgpuCommandEncoderPopDebugGroup( Cast( command_encoder )->Raw );
 }
 
 void XE::GraphicsServiceWebGpu::CommandEncoderPushDebugGroup( XE::GraphicsCommandEncoderPtr command_encoder, const XE::String & group_label )
 {
-	wgpuCommandEncoderPushDebugGroup( command_encoder->Raw, group_label.c_str() );
+	wgpuCommandEncoderPushDebugGroup( Cast( command_encoder )->Raw, group_label.c_str() );
 }
 
 void XE::GraphicsServiceWebGpu::CommandEncoderResolveQuerySet( XE::GraphicsCommandEncoderPtr command_encoder, XE::GraphicsQuerySetPtr query_set, XE::uint32 first_query, XE::uint32 query_count, XE::GraphicsBufferPtr dst, XE::uint64 dst_offset )
 {
-	wgpuCommandEncoderResolveQuerySet( command_encoder->Raw, query_set->Raw, first_query, query_count, dst->Raw, dst_offset );
+	wgpuCommandEncoderResolveQuerySet( Cast( command_encoder )->Raw, Cast( query_set )->Raw, first_query, query_count, Cast( dst )->Raw, dst_offset );
 }
 
 void XE::GraphicsServiceWebGpu::CommandEncoderWriteTimestamp( XE::GraphicsCommandEncoderPtr command_encoder, XE::GraphicsQuerySetPtr query_set, XE::uint32 query_index )
 {
-	wgpuCommandEncoderWriteTimestamp( command_encoder->Raw, query_set->Raw, query_index );
+	wgpuCommandEncoderWriteTimestamp( Cast( command_encoder )->Raw, Cast( query_set )->Raw, query_index );
 }
 
 void XE::GraphicsServiceWebGpu::ComputePassEncoderBeginPipelineStatisticsQuery( XE::GraphicsComputePassEncoderPtr compute_pass_encoder, XE::GraphicsQuerySetPtr query_set, XE::uint32 query_index )
 {
-	wgpuComputePassEncoderBeginPipelineStatisticsQuery( compute_pass_encoder->Raw, query_set->Raw, query_index );
+	wgpuComputePassEncoderBeginPipelineStatisticsQuery( Cast( compute_pass_encoder )->Raw, Cast( query_set )->Raw, query_index );
 }
 
 void XE::GraphicsServiceWebGpu::ComputePassEncoderDispatch( XE::GraphicsComputePassEncoderPtr compute_pass_encoder, XE::uint32 workgroup_count_x, XE::uint32 workgroup_count_y, XE::uint32 workgroup_count_z )
 {
-	wgpuComputePassEncoderDispatch( compute_pass_encoder->Raw, workgroup_count_x, workgroup_count_y, workgroup_count_z );
+	wgpuComputePassEncoderDispatch( Cast( compute_pass_encoder )->Raw, workgroup_count_x, workgroup_count_y, workgroup_count_z );
 }
 
 void XE::GraphicsServiceWebGpu::ComputePassEncoderDispatchIndirect( XE::GraphicsComputePassEncoderPtr compute_pass_encoder, XE::GraphicsBufferPtr indirect_buffer, XE::uint64 indirect_offset )
 {
-	wgpuComputePassEncoderDispatchIndirect( compute_pass_encoder->Raw, indirect_buffer->Raw, indirect_offset );
+	wgpuComputePassEncoderDispatchIndirect( Cast( compute_pass_encoder )->Raw, Cast( indirect_buffer )->Raw, indirect_offset );
 }
 
 void XE::GraphicsServiceWebGpu::ComputePassEncoderEnd( XE::GraphicsComputePassEncoderPtr compute_pass_encoder )
 {
-	wgpuComputePassEncoderEnd( compute_pass_encoder->Raw );
+	wgpuComputePassEncoderEnd( Cast( compute_pass_encoder )->Raw );
 }
 
 void XE::GraphicsServiceWebGpu::ComputePassEncoderEndPipelineStatisticsQuery( XE::GraphicsComputePassEncoderPtr compute_pass_encoder )
 {
-	wgpuComputePassEncoderEndPipelineStatisticsQuery( compute_pass_encoder->Raw );
+	wgpuComputePassEncoderEndPipelineStatisticsQuery( Cast( compute_pass_encoder )->Raw );
 }
 
 void XE::GraphicsServiceWebGpu::ComputePassEncoderInsertDebugMarker( XE::GraphicsComputePassEncoderPtr compute_pass_encoder, const XE::String & marker_label )
 {
-	wgpuComputePassEncoderInsertDebugMarker( compute_pass_encoder->Raw, marker_label.c_str() );
+	wgpuComputePassEncoderInsertDebugMarker( Cast( compute_pass_encoder )->Raw, marker_label.c_str() );
 }
 
 void XE::GraphicsServiceWebGpu::ComputePassEncoderPopDebugGroup( XE::GraphicsComputePassEncoderPtr compute_pass_encoder )
 {
-	wgpuComputePassEncoderPopDebugGroup( compute_pass_encoder->Raw );
+	wgpuComputePassEncoderPopDebugGroup( Cast( compute_pass_encoder )->Raw );
 }
 
 void XE::GraphicsServiceWebGpu::ComputePassEncoderPushDebugGroup( XE::GraphicsComputePassEncoderPtr compute_pass_encoder, const XE::String & group_label )
 {
-	wgpuComputePassEncoderPushDebugGroup( compute_pass_encoder->Raw, group_label.c_str() );
+	wgpuComputePassEncoderPushDebugGroup( Cast( compute_pass_encoder )->Raw, group_label.c_str() );
 }
 
 void XE::GraphicsServiceWebGpu::ComputePassEncoderSetBindGroup( XE::GraphicsComputePassEncoderPtr compute_pass_encoder, XE::uint32 group_index, XE::GraphicsBindGroupPtr group, const XE::Array< XE::uint32 > & dynamic_offsets )
 {
-	wgpuComputePassEncoderSetBindGroup( compute_pass_encoder->Raw, group_index, group->Raw, dynamic_offsets.size(), dynamic_offsets.data() );
+	wgpuComputePassEncoderSetBindGroup( Cast( compute_pass_encoder )->Raw, group_index, Cast( group )->Raw, dynamic_offsets.size(), dynamic_offsets.data() );
 }
 
 void XE::GraphicsServiceWebGpu::ComputePassEncoderSetPipeline( XE::GraphicsComputePassEncoderPtr compute_pass_encoder, XE::GraphicsComputePipelinePtr pipeline )
 {
-	wgpuComputePassEncoderSetPipeline( compute_pass_encoder->Raw, pipeline->Raw );
+	wgpuComputePassEncoderSetPipeline( Cast( compute_pass_encoder )->Raw, Cast( pipeline )->Raw );
 }
 
 void XE::GraphicsServiceWebGpu::RenderPassEncoderBeginOcclusionQuery( XE::GraphicsRenderPassEncoderPtr render_pass_encoder, XE::GraphicsQuerySetPtr query_set, XE::uint32 query_index )
 {
-	wgpuRenderPassEncoderBeginOcclusionQuery( render_pass_encoder->Raw, query_index );
+	wgpuRenderPassEncoderBeginOcclusionQuery( Cast( render_pass_encoder )->Raw, query_index );
 }
 
 void XE::GraphicsServiceWebGpu::RenderPassEncoderBeginPipelineStatisticsQuery( XE::GraphicsRenderPassEncoderPtr render_pass_encoder, XE::GraphicsQuerySetPtr query_set, XE::uint32 query_index )
 {
-	wgpuRenderPassEncoderBeginPipelineStatisticsQuery( render_pass_encoder->Raw, query_set->Raw, query_index );
+	wgpuRenderPassEncoderBeginPipelineStatisticsQuery( Cast( render_pass_encoder )->Raw, Cast( query_set )->Raw, query_index );
 }
 
 void XE::GraphicsServiceWebGpu::RenderPassEncoderDraw( XE::GraphicsRenderPassEncoderPtr render_pass_encoder, XE::uint32 vertex_count, XE::uint32 instance_count, XE::uint32 first_vertex, XE::uint32 first_instance )
 {
-	wgpuRenderPassEncoderDraw( render_pass_encoder->Raw, vertex_count, instance_count, first_vertex, first_instance );
+	wgpuRenderPassEncoderDraw( Cast( render_pass_encoder )->Raw, vertex_count, instance_count, first_vertex, first_instance );
 }
 
 void XE::GraphicsServiceWebGpu::RenderPassEncoderDrawIndexed( XE::GraphicsRenderPassEncoderPtr render_pass_encoder, XE::uint32 index_count, XE::uint32 instance_count, XE::uint32 first_index, XE::int32 base_vertex, XE::uint32 first_instance )
 {
-	wgpuRenderPassEncoderDrawIndexed( render_pass_encoder->Raw, index_count, instance_count, first_index, base_vertex, first_instance );
+	wgpuRenderPassEncoderDrawIndexed( Cast( render_pass_encoder )->Raw, index_count, instance_count, first_index, base_vertex, first_instance );
 }
 
 void XE::GraphicsServiceWebGpu::RenderPassEncoderDrawIndexedIndirect( XE::GraphicsRenderPassEncoderPtr render_pass_encoder, XE::GraphicsBufferPtr indirect_buffer, XE::uint64 indirect_offset )
 {
-	wgpuRenderPassEncoderDrawIndexedIndirect( render_pass_encoder->Raw, indirect_buffer->Raw, indirect_offset );
+	wgpuRenderPassEncoderDrawIndexedIndirect( Cast( render_pass_encoder )->Raw, Cast( indirect_buffer )->Raw, indirect_offset );
 }
 
 void XE::GraphicsServiceWebGpu::RenderPassEncoderDrawIndirect( XE::GraphicsRenderPassEncoderPtr render_pass_encoder, XE::GraphicsBufferPtr indirect_buffer, XE::uint64 indirect_offset )
 {
-	wgpuRenderPassEncoderDrawIndirect( render_pass_encoder->Raw, indirect_buffer->Raw, indirect_offset );
+	wgpuRenderPassEncoderDrawIndirect( Cast( render_pass_encoder )->Raw, Cast( indirect_buffer )->Raw, indirect_offset );
 }
 
 void XE::GraphicsServiceWebGpu::RenderPassEncoderEnd( XE::GraphicsRenderPassEncoderPtr render_pass_encoder )
 {
-	wgpuRenderPassEncoderEnd( render_pass_encoder->Raw );
+	wgpuRenderPassEncoderEnd( Cast( render_pass_encoder )->Raw );
 }
 
 void XE::GraphicsServiceWebGpu::RenderPassEncoderEndOcclusionQuery( XE::GraphicsRenderPassEncoderPtr render_pass_encoder )
 {
-	wgpuRenderPassEncoderEndOcclusionQuery( render_pass_encoder->Raw );
+	wgpuRenderPassEncoderEndOcclusionQuery( Cast( render_pass_encoder )->Raw );
 }
 
 void XE::GraphicsServiceWebGpu::RenderPassEncoderEndPipelineStatisticsQuery( XE::GraphicsRenderPassEncoderPtr render_pass_encoder )
 {
-	wgpuRenderPassEncoderEndPipelineStatisticsQuery( render_pass_encoder->Raw );
+	wgpuRenderPassEncoderEndPipelineStatisticsQuery( Cast( render_pass_encoder )->Raw );
 }
 
 void XE::GraphicsServiceWebGpu::RenderPassEncoderExecuteBundles( XE::GraphicsRenderPassEncoderPtr render_pass_encoder, const XE::Array< XE::GraphicsRenderBundlePtr > & bundles )
@@ -1105,29 +1160,29 @@ void XE::GraphicsServiceWebGpu::RenderPassEncoderExecuteBundles( XE::GraphicsRen
 	XE::Array< WGPURenderBundle > bunds( XE::MemoryResource::GetFrameMemoryResource() ); bunds.resize( bundles.size() );
 	for ( size_t i = 0; i < bundles.size(); i++ )
 	{
-		bunds[i] = bundles[i]->Raw;
+		bunds[i] = Cast( bundles[i] )->Raw;
 	}
-	wgpuRenderPassEncoderExecuteBundles( render_pass_encoder->Raw, bunds.size(), bunds.data() );
+	wgpuRenderPassEncoderExecuteBundles( Cast( render_pass_encoder )->Raw, bunds.size(), bunds.data() );
 }
 
 void XE::GraphicsServiceWebGpu::RenderPassEncoderInsertDebugMarker( XE::GraphicsRenderPassEncoderPtr render_pass_encoder, const XE::String & marker_label )
 {
-	wgpuRenderPassEncoderInsertDebugMarker( render_pass_encoder->Raw, marker_label.c_str() );
+	wgpuRenderPassEncoderInsertDebugMarker( Cast( render_pass_encoder )->Raw, marker_label.c_str() );
 }
 
 void XE::GraphicsServiceWebGpu::RenderPassEncoderPopDebugGroup( XE::GraphicsRenderPassEncoderPtr render_pass_encoder )
 {
-	wgpuRenderPassEncoderPopDebugGroup( render_pass_encoder->Raw );
+	wgpuRenderPassEncoderPopDebugGroup( Cast( render_pass_encoder )->Raw );
 }
 
 void XE::GraphicsServiceWebGpu::RenderPassEncoderPushDebugGroup( XE::GraphicsRenderPassEncoderPtr render_pass_encoder, const XE::String & group_label )
 {
-	wgpuRenderPassEncoderPushDebugGroup( render_pass_encoder->Raw, group_label.c_str() );
+	wgpuRenderPassEncoderPushDebugGroup( Cast( render_pass_encoder )->Raw, group_label.c_str() );
 }
 
 void XE::GraphicsServiceWebGpu::RenderPassEncoderSetBindGroup( XE::GraphicsRenderPassEncoderPtr render_pass_encoder, XE::uint32 group_index, XE::GraphicsBindGroupPtr group, const XE::Array< XE::uint32 > & dynamic_offsets )
 {
-	wgpuRenderPassEncoderSetBindGroup( render_pass_encoder->Raw, group_index, group->Raw, dynamic_offsets.size(), dynamic_offsets.data() );
+	wgpuRenderPassEncoderSetBindGroup( Cast( render_pass_encoder )->Raw, group_index, Cast( group )->Raw, dynamic_offsets.size(), dynamic_offsets.data() );
 }
 
 void XE::GraphicsServiceWebGpu::RenderPassEncoderSetBlendConstant( XE::GraphicsRenderPassEncoderPtr render_pass_encoder, const XE::Color & color )
@@ -1137,128 +1192,128 @@ void XE::GraphicsServiceWebGpu::RenderPassEncoderSetBlendConstant( XE::GraphicsR
 	WGPUColor c;
 	c.r = f.r; c.g = f.g; c.b = f.b; c.a = f.a;
 
-	wgpuRenderPassEncoderSetBlendConstant( render_pass_encoder->Raw, &c );
+	wgpuRenderPassEncoderSetBlendConstant( Cast( render_pass_encoder )->Raw, &c );
 }
 
 void XE::GraphicsServiceWebGpu::RenderPassEncoderSetIndexBuffer( XE::GraphicsRenderPassEncoderPtr render_pass_encoder, XE::GraphicsBufferPtr buffer, XE::GraphicsIndexFormat format, XE::uint64 offset, XE::uint64 size )
 {
-	wgpuRenderPassEncoderSetIndexBuffer( render_pass_encoder->Raw, buffer->Raw, WGPUIndexFormat( format ), offset, size );
+	wgpuRenderPassEncoderSetIndexBuffer( Cast( render_pass_encoder )->Raw, Cast( buffer )->Raw, WGPUIndexFormat( format ), offset, size );
 }
 
 void XE::GraphicsServiceWebGpu::RenderPassEncoderSetPipeline( XE::GraphicsRenderPassEncoderPtr render_pass_encoder, XE::GraphicsRenderPipelinePtr pipeline )
 {
-	wgpuRenderPassEncoderSetPipeline( render_pass_encoder->Raw, pipeline->Raw );
+	wgpuRenderPassEncoderSetPipeline( Cast( render_pass_encoder )->Raw, Cast( pipeline )->Raw );
 }
 
 void XE::GraphicsServiceWebGpu::RenderPassEncoderSetScissorRect( XE::GraphicsRenderPassEncoderPtr render_pass_encoder, const XE::Recti & rect )
 {
-	wgpuRenderPassEncoderSetScissorRect( render_pass_encoder->Raw, rect.x, rect.y, rect.width, rect.height );
+	wgpuRenderPassEncoderSetScissorRect( Cast( render_pass_encoder )->Raw, rect.x, rect.y, rect.width, rect.height );
 }
 
 void XE::GraphicsServiceWebGpu::RenderPassEncoderSetStencilReference( XE::GraphicsRenderPassEncoderPtr render_pass_encoder, XE::uint32 reference )
 {
-	wgpuRenderPassEncoderSetStencilReference( render_pass_encoder->Raw, reference );
+	wgpuRenderPassEncoderSetStencilReference( Cast( render_pass_encoder )->Raw, reference );
 }
 
 void XE::GraphicsServiceWebGpu::RenderPassEncoderSetVertexBuffer( XE::GraphicsRenderPassEncoderPtr render_pass_encoder, XE::uint32 slot, XE::GraphicsBufferPtr buffer, XE::uint64 offset, XE::uint64 size )
 {
-	wgpuRenderPassEncoderSetVertexBuffer( render_pass_encoder->Raw, slot, buffer->Raw, offset, size );
+	wgpuRenderPassEncoderSetVertexBuffer( Cast( render_pass_encoder )->Raw, slot, Cast( buffer )->Raw, offset, size );
 }
 
 void XE::GraphicsServiceWebGpu::RenderPassEncoderSetViewport( XE::GraphicsRenderPassEncoderPtr render_pass_encoder, XE::float32 x, XE::float32 y, XE::float32 width, XE::float32 height, XE::float32 min_depth, XE::float32 max_depth )
 {
-	wgpuRenderPassEncoderSetViewport( render_pass_encoder->Raw, x, y, width, height, min_depth, max_depth );
+	wgpuRenderPassEncoderSetViewport( Cast( render_pass_encoder )->Raw, x, y, width, height, min_depth, max_depth );
 }
 
 void XE::GraphicsServiceWebGpu::RenderBundleEncoderDraw( XE::GraphicsRenderBundleEncoderPtr render_bundle_encoder, XE::uint32 vertex_count, XE::uint32 instance_count, XE::uint32 first_vertex, XE::uint32 first_instance )
 {
-	wgpuRenderBundleEncoderDraw( render_bundle_encoder->Raw, vertex_count, instance_count, first_vertex, first_instance );
+	wgpuRenderBundleEncoderDraw( Cast( render_bundle_encoder )->Raw, vertex_count, instance_count, first_vertex, first_instance );
 }
 
 void XE::GraphicsServiceWebGpu::RenderBundleEncoderDrawIndexed( XE::GraphicsRenderBundleEncoderPtr render_bundle_encoder, XE::uint32 index_count, XE::uint32 instance_count, XE::uint32 first_index, XE::int32 base_vertex, XE::uint32 first_instance )
 {
-	wgpuRenderBundleEncoderDrawIndexed( render_bundle_encoder->Raw, index_count, instance_count, first_index, base_vertex, first_instance );
+	wgpuRenderBundleEncoderDrawIndexed( Cast( render_bundle_encoder )->Raw, index_count, instance_count, first_index, base_vertex, first_instance );
 }
 
 void XE::GraphicsServiceWebGpu::RenderBundleEncoderDrawIndexedIndirect( XE::GraphicsRenderBundleEncoderPtr render_bundle_encoder, XE::GraphicsBufferPtr indirect_buffer, XE::uint64 indirect_offset )
 {
-	wgpuRenderBundleEncoderDrawIndexedIndirect( render_bundle_encoder->Raw, indirect_buffer->Raw, indirect_offset );
+	wgpuRenderBundleEncoderDrawIndexedIndirect( Cast( render_bundle_encoder )->Raw, Cast( indirect_buffer )->Raw, indirect_offset );
 }
 
 void XE::GraphicsServiceWebGpu::RenderBundleEncoderDrawIndirect( XE::GraphicsRenderBundleEncoderPtr render_bundle_encoder, XE::GraphicsBufferPtr indirect_buffer, XE::uint64 indirect_offset )
 {
-	wgpuRenderBundleEncoderDrawIndirect( render_bundle_encoder->Raw, indirect_buffer->Raw, indirect_offset );
+	wgpuRenderBundleEncoderDrawIndirect( Cast( render_bundle_encoder )->Raw, Cast( indirect_buffer )->Raw, indirect_offset );
 }
 
 XE::GraphicsRenderBundlePtr XE::GraphicsServiceWebGpu::RenderBundleEncoderFinish( XE::GraphicsRenderBundleEncoderPtr render_bundle_encoder, const XE::GraphicsRenderBundleDescriptor & descriptor )
 {
-	auto bundle = XE::MakeShared< XE::GraphicsRenderBundle >();
+	auto bundle = XE::MakeShared< WGPUGraphicsRenderBundle >();
 	{
 		WGPURenderBundleDescriptor desc = {};
 		{
 			desc.label = descriptor.Label.c_str();
 		}
-		bundle->Raw = wgpuRenderBundleEncoderFinish( render_bundle_encoder->Raw, &desc );
+		bundle->Raw = wgpuRenderBundleEncoderFinish( Cast( render_bundle_encoder )->Raw, &desc );
 	}
 	return bundle;
 }
 
 void XE::GraphicsServiceWebGpu::RenderBundleEncoderInsertDebugMarker( XE::GraphicsRenderBundleEncoderPtr render_bundle_encoder, const XE::String & marker_label )
 {
-	wgpuRenderBundleEncoderInsertDebugMarker( render_bundle_encoder->Raw, marker_label.c_str() );
+	wgpuRenderBundleEncoderInsertDebugMarker( Cast( render_bundle_encoder )->Raw, marker_label.c_str() );
 }
 
 void XE::GraphicsServiceWebGpu::RenderBundleEncoderPopDebugGroup( XE::GraphicsRenderBundleEncoderPtr render_bundle_encoder )
 {
-	wgpuRenderBundleEncoderPopDebugGroup( render_bundle_encoder->Raw );
+	wgpuRenderBundleEncoderPopDebugGroup( Cast( render_bundle_encoder )->Raw );
 }
 
 void XE::GraphicsServiceWebGpu::RenderBundleEncoderPushDebugGroup( XE::GraphicsRenderBundleEncoderPtr render_bundle_encoder, const XE::String & group_label )
 {
-	wgpuRenderBundleEncoderPushDebugGroup( render_bundle_encoder->Raw, group_label.c_str() );
+	wgpuRenderBundleEncoderPushDebugGroup( Cast( render_bundle_encoder )->Raw, group_label.c_str() );
 }
 
 void XE::GraphicsServiceWebGpu::RenderBundleEncoderSetBindGroup( XE::GraphicsRenderBundleEncoderPtr render_bundle_encoder, XE::uint32 group_index, XE::GraphicsBindGroupPtr group, const XE::Array< XE::uint32 > & dynamic_offsets )
 {
-	wgpuRenderBundleEncoderSetBindGroup( render_bundle_encoder->Raw, group_index, group->Raw, dynamic_offsets.size(), dynamic_offsets.data() );
+	wgpuRenderBundleEncoderSetBindGroup( Cast( render_bundle_encoder )->Raw, group_index, Cast( group )->Raw, dynamic_offsets.size(), dynamic_offsets.data() );
 }
 
 void XE::GraphicsServiceWebGpu::RenderBundleEncoderSetIndexBuffer( XE::GraphicsRenderBundleEncoderPtr render_bundle_encoder, XE::GraphicsBufferPtr buffer, XE::GraphicsIndexFormat format, XE::uint64 offset, XE::uint64 size )
 {
-	wgpuRenderBundleEncoderSetIndexBuffer( render_bundle_encoder->Raw, buffer->Raw, WGPUIndexFormat( format ), offset, size );
+	wgpuRenderBundleEncoderSetIndexBuffer( Cast( render_bundle_encoder )->Raw, Cast( buffer )->Raw, WGPUIndexFormat( format ), offset, size );
 }
 
 void XE::GraphicsServiceWebGpu::RenderBundleEncoderSetPipeline( XE::GraphicsRenderBundleEncoderPtr render_bundle_encoder, XE::GraphicsRenderPipelinePtr pipeline )
 {
-	wgpuRenderBundleEncoderSetPipeline( render_bundle_encoder->Raw, pipeline->Raw );
+	wgpuRenderBundleEncoderSetPipeline( Cast( render_bundle_encoder )->Raw, Cast( pipeline )->Raw );
 }
 
 void XE::GraphicsServiceWebGpu::RenderBundleEncoderSetVertexBuffer( XE::GraphicsRenderBundleEncoderPtr render_bundle_encoder, XE::uint32 slot, XE::GraphicsBufferPtr buffer, XE::uint64 offset, XE::uint64 size )
 {
-	wgpuRenderBundleEncoderSetVertexBuffer( render_bundle_encoder->Raw, slot, buffer->Raw, offset, size );
+	wgpuRenderBundleEncoderSetVertexBuffer( Cast( render_bundle_encoder )->Raw, slot, Cast( buffer )->Raw, offset, size );
 }
 
 XE::GraphicsBindGroupLayoutPtr XE::GraphicsServiceWebGpu::ComputePipelineGetBindGroupLayout( XE::GraphicsComputePipelinePtr compute_pipeline, XE::uint32 group_index )
 {
-	auto layout = XE::MakeShared< XE::GraphicsBindGroupLayout >();
+	auto layout = XE::MakeShared< WGPUGraphicsBindGroupLayout >();
 	{
-		layout->Raw = wgpuComputePipelineGetBindGroupLayout( compute_pipeline->Raw, group_index );
+		layout->Raw = wgpuComputePipelineGetBindGroupLayout( Cast( compute_pipeline )->Raw, group_index );
 	}
 	return layout;
 }
 
 XE::GraphicsBindGroupLayoutPtr XE::GraphicsServiceWebGpu::RenderPipelineGetBindGroupLayout( XE::GraphicsRenderPipelinePtr render_pipeline, XE::uint32 group_index )
 {
-	auto layout = XE::MakeShared< XE::GraphicsBindGroupLayout >();
+	auto layout = XE::MakeShared< WGPUGraphicsBindGroupLayout >();
 	{
-		layout->Raw = wgpuRenderPipelineGetBindGroupLayout( render_pipeline->Raw, group_index );
+		layout->Raw = wgpuRenderPipelineGetBindGroupLayout( Cast( render_pipeline )->Raw, group_index );
 	}
 	return layout;
 }
 
 void XE::GraphicsServiceWebGpu::ShaderModuleGetCompilationInfo( XE::GraphicsShaderModulePtr shader_module, XE::GraphicsService::CompilationInfoCallback callback )
 {
-	wgpuShaderModuleGetCompilationInfo( shader_module->Raw, []( WGPUCompilationInfoRequestStatus status, WGPUCompilationInfo const * compilationInfo, void * userdata )
+	wgpuShaderModuleGetCompilationInfo( Cast( shader_module )->Raw, []( WGPUCompilationInfoRequestStatus status, WGPUCompilationInfo const * compilationInfo, void * userdata )
 	{
 		XE::GraphicsService::CompilationInfoCallback * callback = (XE::GraphicsService::CompilationInfoCallback *)userdata;
 
@@ -1283,26 +1338,26 @@ void XE::GraphicsServiceWebGpu::ShaderModuleGetCompilationInfo( XE::GraphicsShad
 
 void XE::GraphicsServiceWebGpu::ShaderModuleSetLabel( XE::GraphicsShaderModulePtr shader_module, const XE::String & label )
 {
-	wgpuShaderModuleSetLabel( shader_module->Raw, label.c_str() );
+	wgpuShaderModuleSetLabel( Cast( shader_module )->Raw, label.c_str() );
 }
 
 XE::GraphicsTextureFormat XE::GraphicsServiceWebGpu::SurfaceGetPreferredFormat( XE::GraphicsSurfacePtr surface, XE::GraphicsAdapterPtr adapter )
 {
-	return XE::GraphicsTextureFormat( wgpuSurfaceGetPreferredFormat( surface->Raw, adapter->Raw ) );
+	return XE::GraphicsTextureFormat( wgpuSurfaceGetPreferredFormat( Cast( surface )->Raw, Cast( adapter )->Raw ) );
 }
 
 XE::GraphicsTextureViewPtr XE::GraphicsServiceWebGpu::SwapChainGetCurrentTextureView( XE::GraphicsSwapChainPtr swap_chain )
 {
-	auto view = XE::MakeShared< XE::GraphicsTextureView >();
+	auto view = XE::MakeShared< WGPUGraphicsTextureView >();
 	{
-		view->Raw = wgpuSwapChainGetCurrentTextureView( swap_chain->Raw );
+		view->Raw = wgpuSwapChainGetCurrentTextureView( Cast( swap_chain )->Raw );
 	}
 	return view;
 }
 
 void XE::GraphicsServiceWebGpu::SwapChainPresent( XE::GraphicsSwapChainPtr swap_chain )
 {
-	wgpuSwapChainPresent( swap_chain->Raw );
+	wgpuSwapChainPresent( Cast( swap_chain )->Raw );
 }
 
 #endif // GRAPHICS_API & GRAPHICS_WEBGPU

@@ -2,6 +2,55 @@
 
 #if GRAPHICS_API & GRAPHICS_OPENGLES
 
+namespace
+{
+	DECL_PTR( ESGraphicsSurface );
+	DECL_PTR( ESGraphicsSwapChain );
+	DECL_PTR( ESGraphicsAdapter );
+	DECL_PTR( ESGraphicsDevice );
+	DECL_PTR( ESGraphicsQueue );
+	DECL_PTR( ESGraphicsBindGroup );
+	DECL_PTR( ESGraphicsBindGroupLayout );
+	DECL_PTR( ESGraphicsBuffer );
+	DECL_PTR( ESGraphicsCommandBuffer );
+	DECL_PTR( ESGraphicsCommandEncoder );
+	DECL_PTR( ESGraphicsComputePassEncoder );
+	DECL_PTR( ESGraphicsComputePipeline );
+	DECL_PTR( ESGraphicsPipelineLayout );
+	DECL_PTR( ESGraphicsQuerySet );
+	DECL_PTR( ESGraphicsRenderBundle );
+	DECL_PTR( ESGraphicsRenderBundleEncoder );
+	DECL_PTR( ESGraphicsRenderPassEncoder );
+	DECL_PTR( ESGraphicsRenderPipeline );
+	DECL_PTR( ESGraphicsSampler );
+	DECL_PTR( ESGraphicsShaderModule );
+	DECL_PTR( ESGraphicsTexture );
+	DECL_PTR( ESGraphicsTextureView );
+
+	class ESGraphicsSurface : public XE::GraphicsSurface {};
+	class ESGraphicsSwapChain : public XE::GraphicsSwapChain {};
+	class ESGraphicsAdapter : public XE::GraphicsAdapter {};
+	class ESGraphicsDevice : public XE::GraphicsDevice {};
+	class ESGraphicsQueue : public XE::GraphicsQueue {};
+	class ESGraphicsBindGroup : public XE::GraphicsBindGroup {};
+	class ESGraphicsBindGroupLayout : public XE::GraphicsBindGroupLayout {};
+	class ESGraphicsBuffer : public XE::GraphicsBuffer {};
+	class ESGraphicsCommandBuffer : public XE::GraphicsCommandBuffer {};
+	class ESGraphicsCommandEncoder : public XE::GraphicsCommandEncoder {};
+	class ESGraphicsComputePassEncoder : public XE::GraphicsComputePassEncoder {};
+	class ESGraphicsComputePipeline : public XE::GraphicsComputePipeline {};
+	class ESGraphicsPipelineLayout : public XE::GraphicsPipelineLayout {};
+	class ESGraphicsQuerySet : public XE::GraphicsQuerySet {};
+	class ESGraphicsRenderBundle : public XE::GraphicsRenderBundle {};
+	class ESGraphicsRenderBundleEncoder : public XE::GraphicsRenderBundleEncoder {};
+	class ESGraphicsRenderPassEncoder : public XE::GraphicsRenderPassEncoder {};
+	class ESGraphicsRenderPipeline : public XE::GraphicsRenderPipeline {};
+	class ESGraphicsSampler : public XE::GraphicsSampler {};
+	class ESGraphicsShaderModule : public XE::GraphicsShaderModule {};
+	class ESGraphicsTexture : public XE::GraphicsTexture {};
+	class ESGraphicsTextureView : public XE::GraphicsTextureView {};
+}
+
 XE::GraphicsServiceOpenGLES::GraphicsServiceOpenGLES( bool debug /*= false */ )
 {
 

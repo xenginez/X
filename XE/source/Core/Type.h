@@ -74,6 +74,31 @@ static constexpr XE::uint64 GRAPHICS_MAX_SHADER_MODULE = 0;
 static constexpr XE::uint64 GRAPHICS_MAX_TEXTURE = 0;
 static constexpr XE::uint64 GRAPHICS_MAX_TEXTURE_VIEW = 0;
 
+
+class XE_API GraphicsAdapter : public XE::EnableSharedFromThis< GraphicsAdapter > { public: GraphicsAdapter() = default; virtual~GraphicsAdapter() = default; };
+class XE_API GraphicsDevice : public XE::EnableSharedFromThis< GraphicsDevice > { public: GraphicsDevice() = default; virtual~GraphicsDevice() = default; };
+class XE_API GraphicsBindGroup : public XE::EnableSharedFromThis< GraphicsBindGroup > { public: GraphicsBindGroup() = default; virtual~GraphicsBindGroup() = default; };
+class XE_API GraphicsBindGroupLayout : public XE::EnableSharedFromThis< GraphicsBindGroupLayout > { public: GraphicsBindGroupLayout() = default; virtual~GraphicsBindGroupLayout() = default; };
+class XE_API GraphicsBuffer : public XE::EnableSharedFromThis< GraphicsBuffer > { public: GraphicsBuffer() = default; virtual~GraphicsBuffer() = default; };
+class XE_API GraphicsCommandBuffer : public XE::EnableSharedFromThis< GraphicsCommandBuffer > { public: GraphicsCommandBuffer() = default; virtual~GraphicsCommandBuffer() = default; };
+class XE_API GraphicsCommandEncoder : public XE::EnableSharedFromThis< GraphicsCommandEncoder > { public: GraphicsCommandEncoder() = default; virtual~GraphicsCommandEncoder() = default; };
+class XE_API GraphicsComputePassEncoder : public XE::EnableSharedFromThis< GraphicsComputePassEncoder > { public: GraphicsComputePassEncoder() = default; virtual~GraphicsComputePassEncoder() = default; };
+class XE_API GraphicsComputePipeline : public XE::EnableSharedFromThis< GraphicsComputePipeline > { public: GraphicsComputePipeline() = default; virtual~GraphicsComputePipeline() = default; };
+class XE_API GraphicsPipelineLayout : public XE::EnableSharedFromThis< GraphicsPipelineLayout > { public: GraphicsPipelineLayout() = default; virtual~GraphicsPipelineLayout() = default; };
+class XE_API GraphicsQuerySet : public XE::EnableSharedFromThis< GraphicsQuerySet > { public: GraphicsQuerySet() = default; virtual~GraphicsQuerySet() = default; };
+class XE_API GraphicsQueue : public XE::EnableSharedFromThis< GraphicsQueue > { public: GraphicsQueue() = default; virtual~GraphicsQueue() = default; };
+class XE_API GraphicsRenderBundle : public XE::EnableSharedFromThis< GraphicsRenderBundle > { public: GraphicsRenderBundle() = default; virtual~GraphicsRenderBundle() = default; };
+class XE_API GraphicsRenderBundleEncoder : public XE::EnableSharedFromThis< GraphicsRenderBundleEncoder > { public: GraphicsRenderBundleEncoder() = default; virtual~GraphicsRenderBundleEncoder() = default; };
+class XE_API GraphicsRenderPassEncoder : public XE::EnableSharedFromThis< GraphicsRenderPassEncoder > { public: GraphicsRenderPassEncoder() = default; virtual~GraphicsRenderPassEncoder() = default; };
+class XE_API GraphicsRenderPipeline : public XE::EnableSharedFromThis< GraphicsRenderPipeline > { public: GraphicsRenderPipeline() = default; virtual~GraphicsRenderPipeline() = default; };
+class XE_API GraphicsSampler : public XE::EnableSharedFromThis< GraphicsSampler > { public: GraphicsSampler() = default; virtual~GraphicsSampler() = default; };
+class XE_API GraphicsShaderModule : public XE::EnableSharedFromThis< GraphicsShaderModule > { public: GraphicsShaderModule() = default; virtual~GraphicsShaderModule() = default; };
+class XE_API GraphicsSurface : public XE::EnableSharedFromThis< GraphicsSurface > { public: GraphicsSurface() = default; virtual~GraphicsSurface() = default; };
+class XE_API GraphicsSwapChain : public XE::EnableSharedFromThis< GraphicsSwapChain > { public: GraphicsSwapChain() = default; virtual~GraphicsSwapChain() = default; };
+class XE_API GraphicsTexture : public XE::EnableSharedFromThis< GraphicsTexture > { public: GraphicsTexture() = default; virtual~GraphicsTexture() = default; };
+class XE_API GraphicsTextureView : public XE::EnableSharedFromThis< GraphicsTextureView > { public: GraphicsTextureView() = default; virtual~GraphicsTextureView() = default; };
+
+
 enum class GraphicsAdapterType
 {
     DISCRETE_GPU = 0x00000000,

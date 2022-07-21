@@ -2,6 +2,58 @@
 
 #if GRAPHICS_API & GRAPHICS_OPENGL
 
+#define GLBIND_IMPLEMENTATION
+#include <glbind/glbind.h>
+
+namespace
+{
+	DECL_PTR( GLGraphicsSurface );
+	DECL_PTR( GLGraphicsSwapChain );
+	DECL_PTR( GLGraphicsAdapter );
+	DECL_PTR( GLGraphicsDevice );
+	DECL_PTR( GLGraphicsQueue );
+	DECL_PTR( GLGraphicsBindGroup );
+	DECL_PTR( GLGraphicsBindGroupLayout );
+	DECL_PTR( GLGraphicsBuffer );
+	DECL_PTR( GLGraphicsCommandBuffer );
+	DECL_PTR( GLGraphicsCommandEncoder );
+	DECL_PTR( GLGraphicsComputePassEncoder );
+	DECL_PTR( GLGraphicsComputePipeline );
+	DECL_PTR( GLGraphicsPipelineLayout );
+	DECL_PTR( GLGraphicsQuerySet );
+	DECL_PTR( GLGraphicsRenderBundle );
+	DECL_PTR( GLGraphicsRenderBundleEncoder );
+	DECL_PTR( GLGraphicsRenderPassEncoder );
+	DECL_PTR( GLGraphicsRenderPipeline );
+	DECL_PTR( GLGraphicsSampler );
+	DECL_PTR( GLGraphicsShaderModule );
+	DECL_PTR( GLGraphicsTexture );
+	DECL_PTR( GLGraphicsTextureView );
+
+	class GLGraphicsSurface : public XE::GraphicsSurface {};
+	class GLGraphicsSwapChain : public XE::GraphicsSwapChain {};
+	class GLGraphicsAdapter : public XE::GraphicsAdapter {};
+	class GLGraphicsDevice : public XE::GraphicsDevice {};
+	class GLGraphicsQueue : public XE::GraphicsQueue {};
+	class GLGraphicsBindGroup : public XE::GraphicsBindGroup {};
+	class GLGraphicsBindGroupLayout : public XE::GraphicsBindGroupLayout {};
+	class GLGraphicsBuffer : public XE::GraphicsBuffer {};
+	class GLGraphicsCommandBuffer : public XE::GraphicsCommandBuffer {};
+	class GLGraphicsCommandEncoder : public XE::GraphicsCommandEncoder {};
+	class GLGraphicsComputePassEncoder : public XE::GraphicsComputePassEncoder {};
+	class GLGraphicsComputePipeline : public XE::GraphicsComputePipeline {};
+	class GLGraphicsPipelineLayout : public XE::GraphicsPipelineLayout {};
+	class GLGraphicsQuerySet : public XE::GraphicsQuerySet {};
+	class GLGraphicsRenderBundle : public XE::GraphicsRenderBundle {};
+	class GLGraphicsRenderBundleEncoder : public XE::GraphicsRenderBundleEncoder {};
+	class GLGraphicsRenderPassEncoder : public XE::GraphicsRenderPassEncoder {};
+	class GLGraphicsRenderPipeline : public XE::GraphicsRenderPipeline {};
+	class GLGraphicsSampler : public XE::GraphicsSampler {};
+	class GLGraphicsShaderModule : public XE::GraphicsShaderModule {};
+	class GLGraphicsTexture : public XE::GraphicsTexture {};
+	class GLGraphicsTextureView : public XE::GraphicsTextureView {};
+}
+
 XE::GraphicsServiceOpenGL::GraphicsServiceOpenGL( bool debug /*= false */ )
 {
 
