@@ -212,6 +212,11 @@ echo "copy d3dx12 head file to depends"
 cd %RD3_PATH%
 xcopy %cd%\D3DX12\d3dx12.h %RD3_PATH%\..\depends\include\D3DX12\ /s /y
 
+:BUILD_GLBIND
+echo "copy glbind head file to depends"
+cd %RD3_PATH%
+xcopy %cd%\glbind\glbind.h %RD3_PATH%\..\depends\include\glbind\ /y
+
 :BUILD_VKBIND
 echo "copy vkbind head file to depends"
 cd %RD3_PATH%

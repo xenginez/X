@@ -56,6 +56,7 @@
     <li><a href="https://github.com/Tencent/rapidjson.git">rapidjson</a></li>
     <li><a href="https://github.com/KhronosGroup/SPIRV-Cross.git">SPIRV-Cross</a></li>
     <li><a href="https://github.com/nothings/stb.git">stb</a></li>
+    <li><a href="https://github.com/mackron/glbind.git">glbind</a></li>
     <li><a href="https://github.com/mackron/vkbind.git">vkbind</a></li>
     <li><a href="https://github.com/webgpu-native/webgpu-headers.git">webgpu-headers</a></li>
   </ul>
