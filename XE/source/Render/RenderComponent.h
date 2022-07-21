@@ -50,20 +50,11 @@ public:
 	XE::AABB GetBoundingBox() const;
 
 private:
-	bool _Dynamic = false;
+	XE::RenderData _Data;
 	XE::Disposable _Disposable;
 	XE::RenderMaterialPtr _Material;
 };
 
 END_XE_NAMESPACE
-
-template<> class XE::MakeAABB< XE::RenderComponentPtr >
-{
-public:
-	XE::AABB operator()( const XE::RenderComponentPtr & val )
-	{
-		return val->GetBoundingBox();
-	}
-};
 
 #endif//RENDERCOMPONENT_H__6844F58D_270A_4B19_AF31_04312B6B1F87

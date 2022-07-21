@@ -53,16 +53,11 @@ struct XE::RenderService::Private
 	XE::List< RenderTextureTemporaryPtr > _TexturePool;
 	XE::Map< XE::String, RenderTextureTemporaryPtr > _GlobalTexture;
 
-	XE::RenderGraphPtr _DefaultGraph;
-	XE::CameraComponentPtr _MainCamera;
-	XE::Array< XE::CameraComponentPtr > _Cameras;
-	XE::QueueHandleAllocator< XE::Handle< XE::CameraComponent > > _CameraQueue;
-	XE::OCTree< XE::LightComponentPtr > _StaticLights;
-	XE::Array< XE::LightComponentPtr > _DynamicLights;
-	XE::QueueHandleAllocator< XE::Handle< XE::LightComponent > > _DynamicLightQueue;
-	XE::OCTree< XE::RenderComponentPtr > _StaticRenders;
-	XE::Array< XE::RenderComponentPtr > _DynamicRenders;
-	XE::QueueHandleAllocator< XE::Handle< XE::RenderComponent > > _DynamicRenderQueue;
+	XE::Array< XE::CameraData * > _Cameras;
+	XE::OCTree< XE::LightData * > _StaticLights;
+	XE::Array< XE::LightData * > _DynamicLights;
+	XE::OCTree< XE::RenderData * > _StaticRenders;
+	XE::Array< XE::RenderData * > _DynamicRenders;
 };
 
 XE::RenderService::RenderService()
@@ -138,30 +133,13 @@ void XE::RenderService::Update()
 {
 	if ( auto graphics = GetFramework()->GetServiceT< XE::GraphicsService >() )
 	{
-		if ( _p->_MainCamera )
-		{
-			auto texture = XE::MakeShared< XE::RenderTexture >();
-
-			auto size = GetFramework()->GetMainWindow()->GetWindowSize();
-
-			texture->ResetTextureView( size.first, size.second, 1, XE::GraphicsTextureFormat::RGBA8SNORM, XE::GraphicsTextureDimension::D2, graphics->SwapChainGetCurrentTextureView( _p->_GraphicsSwapChain ) );
-
-			_p->_MainCamera->SetRenderTexture( texture );
-
-			XE::RenderExecutor executor;
-
-			_p->_MainCamera->Render( executor );
-
-			executor.Submit();
-		}
-
 		for ( const auto & it : _p->_Cameras )
 		{
-			if ( it->GetRenderTexture() != nullptr )
+			if ( it != nullptr )
 			{
 				XE::RenderExecutor executor;
 
-				it->Render( executor );
+				it->RenderCallback( executor );
 
 				executor.Submit();
 			}
@@ -182,19 +160,13 @@ void XE::RenderService::Clearup()
 	_p->_FrameIndex = 0;
 	TEMPORARY_INDEX = 0;
 
-	_p->_MainCamera = nullptr;
-	_p->_DefaultGraph = nullptr;
-
 	_p->_Cameras.clear();
-	_p->_CameraQueue.Reset();
 
 	_p->_StaticLights.Clear();
 	_p->_DynamicLights.clear();
-	_p->_DynamicLightQueue.Reset();
 
 	_p->_StaticRenders.Clear();
 	_p->_DynamicRenders.clear();
-	_p->_DynamicRenderQueue.Reset();
 
 	_p->_GraphicsQueue = nullptr;
 	_p->_GraphicsDevice = nullptr;
@@ -202,24 +174,15 @@ void XE::RenderService::Clearup()
 	_p->_GraphicsSwapChain = nullptr;
 }
 
-const XE::CameraComponentPtr & XE::RenderService::GetMainCamera() const
+XE::RenderTexturePtr XE::RenderService::GetCurrentMainTexture() const
 {
-	return _p->_MainCamera;
-}
+	auto texture = XE::MakeShared< XE::RenderTexture >();
 
-void XE::RenderService::SetMainCamera( const XE::CameraComponentPtr & val )
-{
-	_p->_MainCamera = val;
-}
+	auto size = GetFramework()->GetMainWindow()->GetWindowSize();
 
-const XE::RenderGraphPtr & XE::RenderService::GetDefaultRenderGraph() const
-{
-	return _p->_DefaultGraph;
-}
+	texture->ResetTextureView( size.first, size.second, 1, XE::GraphicsTextureFormat::RGBA8SNORM, XE::GraphicsTextureDimension::D2, GetFramework()->GetServiceT< XE::GraphicsService >()->SwapChainGetCurrentTextureView( _p->_GraphicsSwapChain ) );
 
-void XE::RenderService::SetDefaultRenderGraph( const XE::RenderGraphPtr & val )
-{
-	_p->_DefaultGraph = val;
+	return texture;
 }
 
 XE::RenderResourcePtr XE::RenderService::CreateResource( const XE::RenderGraphPtr & val )
@@ -304,17 +267,28 @@ XE::RenderTexturePtr XE::RenderService::GetRenderTextureFromPool( XE::int32 widt
 	return nullptr;
 }
 
-XE::Disposable XE::RenderService::RegisterLight( const XE::LightComponentPtr & val )
+XE::Disposable XE::RenderService::RegisterLight( XE::LightData * val )
 {
-	if ( val->GetDynamic() )
+	if ( val->IsDynamic )
 	{
-		auto handle = _p->_DynamicLightQueue.Alloc();
+		auto it = std::find( _p->_DynamicLights.begin(), _p->_DynamicLights.end(), nullptr );
+		if (it != _p->_DynamicLights.end() )
+		{
+			*it = val;
+		}
+		else
+		{
+			_p->_DynamicLights.push_back( val );
+		}
 
-		if ( _p->_DynamicLights.size() <= handle.GetValue() ) _p->_DynamicLights.resize( handle.GetValue() + 1 );
-
-		_p->_DynamicLights[handle.GetValue()] = val;
-
-		return { [this, handle]() { _p->_DynamicLights[handle.GetValue()] = nullptr; _p->_DynamicLightQueue.Free( handle ); } };
+		return { [this, val]()
+		{
+			auto it = std::find( _p->_DynamicLights.begin(), _p->_DynamicLights.end(), val );
+			if ( it != _p->_DynamicLights.end() )
+			{
+				*it = nullptr;
+			}
+		} };
 	}
 	else
 	{
@@ -324,17 +298,28 @@ XE::Disposable XE::RenderService::RegisterLight( const XE::LightComponentPtr & v
 	}
 }
 
-XE::Disposable XE::RenderService::RegisterRender( const XE::RenderComponentPtr & val )
+XE::Disposable XE::RenderService::RegisterRender( XE::RenderData * val )
 {
-	if ( val->GetDynamic() )
+	if ( val->IsDynamic )
 	{
-		auto handle = _p->_DynamicRenderQueue.Alloc();
+		auto it = std::find( _p->_DynamicRenders.begin(), _p->_DynamicRenders.end(), nullptr );
+		if ( it != _p->_DynamicRenders.end() )
+		{
+			*it = val;
+		}
+		else
+		{
+			_p->_DynamicRenders.push_back( val );
+		}
 
-		if ( _p->_DynamicRenders.size() <= handle.GetValue() ) _p->_DynamicRenders.resize( handle.GetValue() + 1 );
-
-		_p->_DynamicRenders[handle.GetValue()] = val;
-
-		return { [this, handle]() { _p->_DynamicRenders[handle.GetValue()] = nullptr; _p->_DynamicRenderQueue.Free( handle ); } };
+		return { [this, val]()
+		{
+			auto it = std::find( _p->_DynamicRenders.begin(), _p->_DynamicRenders.end(), val );
+			if ( it != _p->_DynamicRenders.end() )
+			{
+				*it = nullptr;
+			}
+		} };
 	}
 	else
 	{
@@ -344,18 +329,26 @@ XE::Disposable XE::RenderService::RegisterRender( const XE::RenderComponentPtr &
 	}
 }
 
-XE::Disposable XE::RenderService::RegisterCamera( const XE::CameraComponentPtr & val )
+XE::Disposable XE::RenderService::RegisterCamera( XE::CameraData * val )
 {
-	auto handle = _p->_CameraQueue.Alloc();
-
-	if ( _p->_Cameras.size() <= handle.GetValue() ) _p->_Cameras.resize( handle.GetValue() + 1 );
-
-	_p->_Cameras[handle.GetValue()] = val;
-
-	if ( val->GetRenderGraph() == nullptr )
+	auto it = std::find( _p->_Cameras.begin(), _p->_Cameras.end(), nullptr );
+	if ( it != _p->_Cameras.end() )
 	{
-		val->SetRenderGraph( _p->_DefaultGraph );
+		*it = val;
+	}
+	else
+	{
+		it = _p->_Cameras.insert( _p->_Cameras.end(), val );
 	}
 
-	return { [this, handle]() { _p->_Cameras[handle.GetValue()] = nullptr; _p->_CameraQueue.Free( handle ); } };
+	std::sort( _p->_Cameras.begin(), _p->_Cameras.end(), []( const auto & left, const auto & right ) { return left->Depth < right->Depth; } );
+
+	return { [this, val]()
+	{
+		auto it = std::find( _p->_Cameras.begin(), _p->_Cameras.end(), val );
+		if ( it != _p->_Cameras.end() )
+		{
+			*it = nullptr;
+		}
+	} };
 }

@@ -18,6 +18,7 @@ class XE_API Mesh
 public:
 	XE::Array< XE::Vec3f > vertices;
 	XE::Array< XE::uint32 > triangles;
+	XE::Array< XE::Pair< XE::uint32, XE::uint32 > > sub_mesh;
 };
 DECL_XE_CLASS( Mesh );
 

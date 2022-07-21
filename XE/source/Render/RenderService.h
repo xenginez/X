@@ -42,13 +42,7 @@ public:
 	void Clearup() override;
 
 public:
-	const XE::CameraComponentPtr & GetMainCamera() const;
-
-	void SetMainCamera( const XE::CameraComponentPtr & val );
-
-	const XE::RenderGraphPtr & GetDefaultRenderGraph() const;
-
-	void SetDefaultRenderGraph( const XE::RenderGraphPtr & val );
+	XE::RenderTexturePtr GetCurrentMainTexture() const;
 
 public:
 	XE::RenderResourcePtr CreateResource( const XE::RenderGraphPtr & val );
@@ -56,17 +50,16 @@ public:
 public:
 	XE::RenderTexturePtr GetRenderTextureFromPool( XE::int32 width, XE::int32 height, XE::GraphicsTextureFormat format );
 
-public:
 	XE::RenderTexturePtr GetRenderTextureFromGlobal( const XE::String & name );
 
 	XE::RenderTexturePtr CreateRenderTextureFromGlobal( const XE::String & name, XE::int32 width, XE::int32 height, XE::GraphicsTextureFormat format );
 
 private:
-	XE::Disposable RegisterLight( const XE::LightComponentPtr & val );
+	XE::Disposable RegisterLight( XE::LightData * val );
 
-	XE::Disposable RegisterRender( const XE::RenderComponentPtr & val );
+	XE::Disposable RegisterRender( XE::RenderData * val );
 
-	XE::Disposable RegisterCamera( const XE::CameraComponentPtr & val );
+	XE::Disposable RegisterCamera( XE::CameraData * val );
 
 private:
 	Private * _p;

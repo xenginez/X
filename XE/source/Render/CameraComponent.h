@@ -36,6 +36,10 @@ protected:
 	void OnClearup() override;
 
 public:
+	XE::CameraType GetType() const;
+
+	void SetType( XE::CameraType val );
+
 	XE::float32 GetFOV() const;
 
 	void SetFOV( XE::float32 val );
@@ -48,9 +52,9 @@ public:
 
 	void SetFar( XE::float32 val );
 
-	XE::CameraType GetCameraType() const;
+	XE::uint32 GetDepth() const;
 
-	void SetCameraType( XE::CameraType val );
+	void SetDepth( XE::uint32 val );
 
 	const XE::Rectf & GetViewport() const;
 
@@ -71,14 +75,8 @@ public:
 	XE::Mat4x4f GetProjection() const;
 
 private:
+	XE::CameraData _Data;
 	XE::Disposable _Disposable;
-
-	XE::float32 _FOV = 60.0f;
-	XE::float32 _Near = 0.1f;
-	XE::float32 _Far = 1000.0f;
-	XE::CameraType _Type = XE::CameraType::ORTHOGRAPHIC;
-	XE::Rectf _Viewport = { 0, 0, 1, 1 };
-
 	XE::RenderGraphPtr _RenderGraph;
 	XE::RenderTexturePtr _RenderTexture;
 	XE::RenderResourcePtr _RenderResource;

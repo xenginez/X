@@ -9,11 +9,13 @@
 #include "RenderService.h"
 
 BEG_META( XE::CameraComponent )
-type->Property( "Type", &XE::CameraComponent::_Type );
-type->Property( "FOV", &XE::CameraComponent::_FOV );
-type->Property( "Near", &XE::CameraComponent::_Near );
-type->Property( "Far", &XE::CameraComponent::_Far );
-type->Property( "Viewport", &XE::CameraComponent::_Viewport );
+type->Property( "Type", &XE::CameraComponent::GetType, &XE::CameraComponent::SetType );
+type->Property( "FOV", &XE::CameraComponent::GetFOV, &XE::CameraComponent::SetFOV );
+type->Property( "Near", &XE::CameraComponent::GetNear, &XE::CameraComponent::SetNear );
+type->Property( "Far", &XE::CameraComponent::GetFar, &XE::CameraComponent::SetFar );
+type->Property( "Depth", &XE::CameraComponent::GetDepth, &XE::CameraComponent::SetDepth );
+type->Property( "Viewport", &XE::CameraComponent::GetViewport, &XE::CameraComponent::SetViewport );
+
 type->Property( "RenderGraph", &XE::CameraComponent::_RenderGraph );
 type->Property( "RenderTexture", &XE::CameraComponent::_RenderTexture );
 END_META()
@@ -40,7 +42,7 @@ void XE::CameraComponent::OnStartup()
 {
 	if ( auto service = GetService< XE::RenderService >() )
 	{
-		_Disposable = service->RegisterCamera( XE_THIS( XE::CameraComponent ) );
+		_Disposable = service->RegisterCamera( &_Data );
 
 		if ( _RenderGraph )
 		{
@@ -54,54 +56,64 @@ void XE::CameraComponent::OnClearup()
 	_Disposable.Dispose();
 }
 
+XE::CameraType XE::CameraComponent::GetType() const
+{
+	return _Data.Type;
+}
+
+void XE::CameraComponent::SetType( XE::CameraType val )
+{
+	_Data.Type = val;
+}
+
 XE::float32 XE::CameraComponent::GetFOV() const
 {
-	return _FOV;
+	return _Data.FOV;
 }
 
 void XE::CameraComponent::SetFOV( XE::float32 val )
 {
-	_FOV = val;
+	_Data.FOV = val;
 }
 
 XE::float32 XE::CameraComponent::GetNear() const
 {
-	return _Near;
+	return _Data.Near;
 }
 
 void XE::CameraComponent::SetNear( XE::float32 val )
 {
-	_Near = val;
+	_Data.Near = val;
 }
 
 XE::float32 XE::CameraComponent::GetFar() const
 {
-	return _Far;
+	return _Data.Far;
 }
 
 void XE::CameraComponent::SetFar( XE::float32 val )
 {
-	_Far = val;
+	_Data.Far = val;
 }
 
-XE::CameraType XE::CameraComponent::GetCameraType() const
+XE::uint32 XE::CameraComponent::GetDepth() const
 {
-	return _Type;
+	return _Data.Depth;
 }
 
-void XE::CameraComponent::SetCameraType( XE::CameraType val )
+void XE::CameraComponent::SetDepth( XE::uint32 val )
 {
-	_Type = val;
+	_Data.Depth = val;
 }
 
 const XE::Rectf & XE::CameraComponent::GetViewport() const
 {
-	return _Viewport;
+	return _Data.Viewport;
 }
 
 void XE::CameraComponent::SetViewport( const XE::Rectf & val )
 {
-	_Viewport = val;
+	_Data.Viewport = val;
 }
 
 const XE::RenderGraphPtr & XE::CameraComponent::GetRenderGraph() const
@@ -134,19 +146,19 @@ XE::Mat4x4f XE::CameraComponent::GetProjection() const
 	XE::float32 w = 1, h = 1;
 	if ( _RenderTexture )
 	{
-		w = _RenderTexture->GetWidth() * _Viewport.width;
-		h = _RenderTexture->GetHeight() * _Viewport.height;
+		w = _RenderTexture->GetWidth() * _Data.Viewport.width;
+		h = _RenderTexture->GetHeight() * _Data.Viewport.height;
 	}
 	auto aspect = w / h;
 
-	if ( _Type == XE::CameraType::PERSPECTIVE )
+	if ( _Data.Type == XE::CameraType::PERSPECTIVE )
 	{
-		return XE::Mathf::ProjectionPerspective( _FOV, aspect, _Near, _Far );
+		return XE::Mathf::ProjectionPerspective( _Data.FOV, aspect, _Data.Near, _Data.Far );
 	}
 	else
 	{
-		auto width = _FOV * 10 * aspect;
-		auto height = _FOV * 10;
-		return XE::Mathf::ProjectionOrthographic( -( width / 2 ), width / 2, height / 2, -( height / 2 ), _Near, _Far );
+		auto width = _Data.FOV * 10 * aspect;
+		auto height = _Data.FOV * 10;
+		return XE::Mathf::ProjectionOrthographic( -( width / 2 ), width / 2, height / 2, -( height / 2 ), _Data.Near, _Data.Far );
 	}
 }

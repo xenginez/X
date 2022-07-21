@@ -1,5 +1,6 @@
 #include "RenderComponent.h"
 
+#include "RenderService.h"
 #include "RenderMaterial.h"
 
 BEG_META( XE::RenderComponent )
@@ -17,7 +18,7 @@ XE::RenderComponent::~RenderComponent()
 
 void XE::RenderComponent::OnStartup()
 {
-
+	_Disposable = GetService< XE::RenderService >()->RegisterRender( &_Data );
 }
 
 void XE::RenderComponent::OnClearup()
@@ -32,12 +33,12 @@ void XE::RenderComponent::Render( const XE::GraphicsCommandEncoderPtr & encoder 
 
 bool XE::RenderComponent::GetDynamic() const
 {
-	return _Dynamic;
+	return _Data.IsDynamic;
 }
 
 void XE::RenderComponent::SetDynamic( bool val )
 {
-	_Dynamic = val;
+	_Data.IsDynamic = val;
 }
 
 const XE::RenderMaterialPtr & XE::RenderComponent::GetMaterial() const

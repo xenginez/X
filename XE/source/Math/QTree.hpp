@@ -13,8 +13,7 @@
 
 BEG_XE_NAMESPACE
 
-template< typename _Ty, typename _By = MakeRect< _Ty > >
-class QTree : public NonCopyable
+template< typename _Ty, typename _By = MakeRect< _Ty > > class QTree : public NonCopyable
 {
 public:
 	static constexpr XE::uint32 MaxDepthCount = 8;
