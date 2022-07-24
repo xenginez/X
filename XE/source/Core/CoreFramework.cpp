@@ -53,8 +53,10 @@ struct XE::CoreFramework::Private
 	
 	std::atomic< bool > _Exit = false;
 	std::mutex _ExitMutex;
-	XE::Map < XE::String, XE::String > Values;
+
+	std::array< XE::String, 64 > _Masks;
 	XE::Array < XE::ServicePtr > _Services;
+	XE::Map < XE::String, XE::String > Values;
 
 	static XE::CoreFrameworkPtr _CurrentFramework;
 
@@ -198,6 +200,35 @@ std::filesystem::path XE::CoreFramework::GetUserDataPath() const
 std::filesystem::path XE::CoreFramework::GetApplicationPath() const
 {
 	return std::filesystem::absolute( std::filesystem::current_path() );
+}
+
+XE::uint64 XE::CoreFramework::FindMask( const XE::String & val ) const
+{
+	for ( size_t i = 0; i < _p->_Masks.size(); i++ )
+	{
+		if ( val == _p->_Masks[i] )
+		{
+			return XE::uint64( 1 ) << i;
+		}
+	}
+
+	return 0;
+}
+
+XE::Array< XE::String > XE::CoreFramework::FindMask( XE::uint64 val ) const
+{
+	XE::Array< XE::String > result;
+
+	for ( size_t i = 0; i < _p->_Masks.size(); i++ )
+	{
+		XE::uint64 mask = 1 << i;
+		if ( mask & val != 0 )
+		{
+			result.push_back( _p->_Masks[i] );
+		}
+	}
+
+	return result;
 }
 
 XE::WindowPtr XE::CoreFramework::GetMainWindow() const

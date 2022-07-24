@@ -9,6 +9,7 @@
 #ifndef CAMERACOMPONENT_H__5F675737_2B16_4C7B_BD8F_5B84B24DD1F9
 #define CAMERACOMPONENT_H__5F675737_2B16_4C7B_BD8F_5B84B24DD1F9
 
+#include "Math/Frustum.h"
 #include "Scene/GameObject.h"
 
 #include "Type.h"
@@ -36,6 +37,10 @@ protected:
 	void OnClearup() override;
 
 public:
+	XE::uint64 GetMask() const;
+
+	void SetMask( XE::uint64 val );
+
 	XE::CameraType GetType() const;
 
 	void SetType( XE::CameraType val );
@@ -70,6 +75,8 @@ public:
 	void SetRenderTexture( const XE::RenderTexturePtr & val );
 
 public:
+	XE::Frustum GetFrustum() const;
+
 	XE::Mat4x4f GetView() const;
 
 	XE::Mat4x4f GetProjection() const;

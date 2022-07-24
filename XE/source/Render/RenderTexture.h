@@ -32,22 +32,21 @@ public:
 
 	XE::int32 GetHeight() const;
 
-	XE::int32 GetDepth() const;
-
 	XE::GraphicsTextureFormat GetFormat() const;
 
-	XE::GraphicsTextureDimension GetDimension() const;
+	XE::GraphicsTextureViewPtr GetTextureView() const;
+
+public:
+	static XE::RenderTexturePtr Create( XE::int32 width, XE::int32 height, XE::int32 depth, XE::GraphicsTextureFormat format );
 
 private:
-	void ResetTextureView( XE::int32 width, XE::int32 height, XE::int32 depth, XE::GraphicsTextureFormat format, XE::GraphicsTextureDimension dimension, const XE::GraphicsTextureViewPtr & view );
+	void ResetTextureView( XE::int32 width, XE::int32 height, XE::int32 depth, XE::GraphicsTextureFormat format, const XE::GraphicsTextureViewPtr & view );
 
 private:
-	XE::int32 _Width;
-	XE::int32 _Height;
-	XE::int32 _Depth;
-	XE::GraphicsTextureFormat _Format;
-	XE::GraphicsTextureDimension _Dimension;
-	XE::GraphicsTextureViewPtr _TextureView;
+	XE::int32 _Width = 0;
+	XE::int32 _Height = 0;
+	XE::GraphicsTextureFormat _Format = XE::GraphicsTextureFormat::RGBA8SNORM;
+	XE::GraphicsTextureViewPtr _TextureView = nullptr;
 };
 
 OBJECT_POOL_ALLOCATOR( XE::RenderTexture );

@@ -24,11 +24,12 @@ class CameraComponent;
 class RenderComponent;
 class SpriteComponent;
 class SkinnedComponent;
-class SkyLightComponent;
 class SpotLightComponent;
 class PointLightComponent;
 class StaticMeshComponent;
+class AmbientBoxLightComponent;
 class DirectionalLightComponent;
+class AmbientSphereLightComponent;
 
 DECL_PTR( RenderPass );
 DECL_PTR( RenderGraph );
@@ -36,11 +37,10 @@ DECL_PTR( RenderResource );
 
 DECL_PTR( RenderMesh );
 DECL_PTR( RenderShader );
-DECL_PTR( RenderBuffer );
 DECL_PTR( RenderTexture );
 DECL_PTR( RenderMaterial );
-DECL_PTR( RenderGBuffer );
-DECL_PTR( RenderVirtualTexture );
+// DECL_PTR( RenderGBuffer );
+// DECL_PTR( RenderVirtualTexture );
 
 DECL_PTR( RenderService );
 DECL_PTR( LightComponent );

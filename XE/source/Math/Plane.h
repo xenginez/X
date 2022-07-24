@@ -16,8 +16,21 @@ BEG_XE_NAMESPACE
 class XE_API alignas( 16 ) Plane
 {
 public:
-	Vec3f normal;
-	XE::float32 distance;
+	union
+	{
+		struct
+		{
+			Vec3f normal;
+			XE::float32 distance;
+		};
+		struct
+		{
+			XE::float32 a;
+			XE::float32 b;
+			XE::float32 c;
+			XE::float32 d;
+		};
+	};
 
 public:
 	Plane();

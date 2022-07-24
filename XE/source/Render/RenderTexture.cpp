@@ -1,7 +1,8 @@
 #include "RenderTexture.h"
 
 #include "Core/CoreFramework.h"
-#include "Core/GraphicsService.h"
+
+#include "RenderService.h"
 
 BEG_META( XE::RenderTexture )
 END_META()
@@ -26,27 +27,36 @@ XE::int32 XE::RenderTexture::GetHeight() const
 	return _Height;
 }
 
-XE::int32 XE::RenderTexture::GetDepth() const
-{
-	return _Depth;
-}
-
 XE::GraphicsTextureFormat XE::RenderTexture::GetFormat() const
 {
 	return _Format;
 }
 
-XE::GraphicsTextureDimension XE::RenderTexture::GetDimension() const
+XE::GraphicsTextureViewPtr XE::RenderTexture::GetTextureView() const
 {
-	return _Dimension;
+	return _TextureView;
 }
 
-void XE::RenderTexture::ResetTextureView( XE::int32 width, XE::int32 height, XE::int32 depth, XE::GraphicsTextureFormat format, XE::GraphicsTextureDimension dimension, const XE::GraphicsTextureViewPtr & view )
+XE::RenderTexturePtr XE::RenderTexture::Create( XE::int32 width, XE::int32 height, XE::int32 depth, XE::GraphicsTextureFormat format )
+{
+	XE::RenderTexturePtr texture = XE::MakeShared< XE::RenderTexture >();
+
+	texture->_Width = width;
+	texture->_Height = height;
+	texture->_Format = format;
+
+	if ( auto service = XE::CoreFramework::GetCurrentFramework()->GetServiceT< XE::RenderService >() )
+	{
+		service->GetRenderTextureFromPool( width, height, format );
+	}
+
+	return texture;
+}
+
+void XE::RenderTexture::ResetTextureView( XE::int32 width, XE::int32 height, XE::int32 depth, XE::GraphicsTextureFormat format, const XE::GraphicsTextureViewPtr & view )
 {
 	_Width = width;
 	_Height = height;
-	_Depth = depth;
 	_Format = format;
-	_Dimension = dimension;
 	_TextureView = view;
 }

@@ -41,6 +41,16 @@ void XE::RenderComponent::SetDynamic( bool val )
 	_Data.IsDynamic = val;
 }
 
+XE::uint64 XE::RenderComponent::GetMask() const
+{
+	return _Data.Mask;
+}
+
+void XE::RenderComponent::SetMask( XE::uint64 val )
+{
+	_Data.Mask = val;
+}
+
 const XE::RenderMaterialPtr & XE::RenderComponent::GetMaterial() const
 {
 	return _Material;

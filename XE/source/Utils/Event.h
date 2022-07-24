@@ -34,11 +34,10 @@ public:
 	XE::EventHandle handle;
 };
 
-END_XE_NAMESPACE
-
+DECL_GROUP( XE_API, 1, Event );
 OBJECT_POOL_ALLOCATOR( XE::Event );
 
-DECL_GROUP( XE_API, 1, Event );
+END_XE_NAMESPACE
 
 #define DECL_EVENT( NAME, DESC, ... ) \
 DLL_VAR_WEAK extern const XE::Handle< XE::Event > EVENT_##NAME = XE::HandleCast< XE::Event >( XE::Order::RegisterOrder< XE::EventGroup >( #NAME, DESC, TypeID< __VA_ARGS__ >::Get() ) )

@@ -9,7 +9,7 @@
 #ifndef __FRUSTUM_H__A9A7B11B_8DB7_4F63_BD17_1B7487E1141A
 #define __FRUSTUM_H__A9A7B11B_8DB7_4F63_BD17_1B7487E1141A
 
-#include "Type.h"
+#include "Mat.h"
 #include "Plane.h"
 
 BEG_XE_NAMESPACE
@@ -34,7 +34,11 @@ public:
 public:
 	Frustum();
 
-	Frustum( const Frustum& val );
+	Frustum( const Frustum & val );
+
+	Frustum( const XE::Mat4x4f & view_proj );
+
+	Frustum( const Plane & top, const Plane & bottom, const Plane & left, const Plane & right, const Plane & near, const Plane & far );
 
 	~Frustum();
 

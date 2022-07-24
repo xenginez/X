@@ -42,6 +42,10 @@ public:
 
 	void SetDynamic( bool val );
 
+	XE::uint64 GetMask() const;
+
+	void SetMask( XE::uint64 val );
+
 	const XE::RenderMaterialPtr & GetMaterial() const;
 
 	void SetMaterial( const XE::RenderMaterialPtr & val );

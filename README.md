@@ -5,7 +5,7 @@
 	<p>cross-platform 2D and 3D game engine</p>
 	<a href="https://www.1012.games">Website</a>
 	<span> ⬡ </span>
-	<!--a href="https://www.1012.games">PluginStore</a>
+	<!--a href="https://www.1012.games">Store</a>
 	<span> ⬡ </span-->
 	<a href="https://github.com/xenginez/X/wiki/Guide">Guide</a>
 	<span> ⬡ </span>
@@ -16,27 +16,39 @@
 	<div align=center><img src="https://img.shields.io/badge/license-MIT-blue"></div>
 </h4>
 
+
+#
+## Platform Support
+![Windows](https://img.shields.io/badge/Windows-blue?logo=windows)
+![Linux](https://img.shields.io/badge/Linux-blue?logo=linux)
+![MacOS](https://img.shields.io/badge/MacOS-blue?logo=macos)
+![Android](https://img.shields.io/badge/Android-blue?logo=android)
+![iOS](https://img.shields.io/badge/iOS-blue?logo=ios)
+![HTML5](https://img.shields.io/badge/HTML5-blue?logo=html5)
+![Xbox](https://img.shields.io/badge/XBox-blue?logo=xbox)
+![Nintendo](https://img.shields.io/badge/Nintendo-blue?logo=nintendoswitch)
+![PlayStation](https://img.shields.io/badge/PlayStation-blue?logo=playstation)
+
 #
 ## Program Language Support
-| ![](https://img.shields.io/badge/Language-Compile-blue) | ![CPP](https://img.shields.io/badge/CPP-5B5B5B) | ![WASM](https://img.shields.io/badge/WASM-5B5B5B) | ![Rust](https://img.shields.io/badge/Rust-5B5B5B) | ![CSharp](https://img.shields.io/badge/CSharp-5B5B5B) | ![Lua](https://img.shields.io/badge/Lua-5B5B5B) | ![Python](https://img.shields.io/badge/Python-5B5B5B) | ![JavaScript](https://img.shields.io/badge/JavaScript-5B5B5B) | ![TypeScript](https://img.shields.io/badge/TypeScript-5B5B5B)
+| ![](https://img.shields.io/badge/Compile-Language-blue) | ![CPP](https://img.shields.io/badge/CPP-blue) | ![WASM](https://img.shields.io/badge/WASM-blue) | ![Rust](https://img.shields.io/badge/Rust-blue) | ![CSharp](https://img.shields.io/badge/CSharp-blue) | ![Lua](https://img.shields.io/badge/Lua-blue) | ![Python](https://img.shields.io/badge/Python-blue) | ![JavaScript](https://img.shields.io/badge/JavaScript-blue) | ![TypeScript](https://img.shields.io/badge/TypeScript-blue)
 | ----------------- | :---------: | :---------: | :---------: | :---------: | :---------: | :---------: | :---------: | :---------: |
-| ![JIT](https://img.shields.io/badge/JIT-blue) | ◯ | ◯ | X | X | X | X | X | X |
-| ![AOT](https://img.shields.io/badge/AOT-blue) | ✔ | ◯ | X | X | X | X | X | X |
-| ![Interpreter](https://img.shields.io/badge/Interpreter-blue) | ◯ | ◯ | X | X | X | X | X | X |
+| ![JIT](https://img.shields.io/badge/JIT-5B5B5B) | ◯ | ◯ | X | X | X | X | X | X |
+| ![AOT](https://img.shields.io/badge/AOT-5B5B5B) | ✔ | ◯ | X | X | X | X | X | X |
+| ![Interpreter](https://img.shields.io/badge/Interpreter-5B5B5B) | ◯ | ◯ | X | X | X | X | X | X |
 
 #
 ## Graphics API Support
 
-| ![](https://img.shields.io/badge/Graphics-platform-blue) | ![Windows](https://img.shields.io/badge/Windows-blue) | ![Linux](https://img.shields.io/badge/Linux-blue) | ![MacOS](https://img.shields.io/badge/MacOS-blue) | ![Android](https://img.shields.io/badge/Android-blue) | ![iOS](https://img.shields.io/badge/iOS-blue) | ![HTML5](https://img.shields.io/badge/HTML5-blue) | ![Xbox](https://img.shields.io/badge/XBox-blue) | ![Nintendo](https://img.shields.io/badge/Nintendo-blue) | ![PlayStation](https://img.shields.io/badge/PlayStation-blue) |
+| ![](https://img.shields.io/badge/Graphics-Platform-blue) | ![Windows](https://img.shields.io/badge/Windows-blue) | ![Linux](https://img.shields.io/badge/Linux-blue) | ![MacOS](https://img.shields.io/badge/MacOS-blue) | ![Android](https://img.shields.io/badge/Android-blue) | ![iOS](https://img.shields.io/badge/iOS-blue) | ![HTML5](https://img.shields.io/badge/HTML5-blue) | ![Xbox](https://img.shields.io/badge/XBox-blue) | ![Nintendo](https://img.shields.io/badge/Nintendo-blue) | ![PlayStation](https://img.shields.io/badge/PlayStation-blue) |
 | ----------------- | :---------: | :---------: | :---------: | :---------: | :---------: | :---------: | :---------: | :---------: | :---------: |
-| ![D3D11](https://img.shields.io/badge/D3D11-5B5B5B) | X | X | X | X | X | X | X | X | X |
+| ![D3D11](https://img.shields.io/badge/D3D11-5B5B5B) | ◯ | X | X | X | X | X | X | X | X |
 | ![D3D12](https://img.shields.io/badge/D3D12-5B5B5B) | ✔ | X | X | X | X | X | X | X | X |
 | ![metal](https://img.shields.io/badge/Metal-5B5B5B)  | X | X | ◯ | X | ◯ | X | X | X | X |
-| ![Vulkan](https://img.shields.io/badge/Vulkan-5B5B5B) | X | ◯ | X | ◯ | X | X | X | X | X |
+| ![Vulkan](https://img.shields.io/badge/Vulkan-5B5B5B) | ◯ | ◯ | ◯ | ◯ | X | X | X | X | X |
 | ![WebGPU](https://img.shields.io/badge/WebGPU-5B5B5B) | X | X | X | X | X | ✔ | X | X | X |
-| ![WebGL](https://img.shields.io/badge/WebGL-5B5B5B) | X | X | X | X | X | X | X | X | X |
-| ![OpenGL](https://img.shields.io/badge/OpenGL-5B5B5B) | X | X | X | X | X | X | X | X | X |
-| ![OpenGLES](https://img.shields.io/badge/OpenGLES-5B5B5B) | X | X | X | X | X | X | X | X | X |
+| ![OpenGL](https://img.shields.io/badge/OpenGL-5B5B5B) | ◯ | ◯ | ◯ | X | X | X | X | X | X |
+| ![OpenGLES](https://img.shields.io/badge/OpenGLES-5B5B5B) | X | X | X | ◯ | ◯ | X | X | X | X |
 
 #
 

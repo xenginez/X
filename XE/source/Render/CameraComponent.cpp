@@ -9,6 +9,7 @@
 #include "RenderService.h"
 
 BEG_META( XE::CameraComponent )
+type->Property( "Mask", &XE::CameraComponent::GetMask, &XE::CameraComponent::SetMask );
 type->Property( "Type", &XE::CameraComponent::GetType, &XE::CameraComponent::SetType );
 type->Property( "FOV", &XE::CameraComponent::GetFOV, &XE::CameraComponent::SetFOV );
 type->Property( "Near", &XE::CameraComponent::GetNear, &XE::CameraComponent::SetNear );
@@ -54,6 +55,16 @@ void XE::CameraComponent::OnStartup()
 void XE::CameraComponent::OnClearup()
 {
 	_Disposable.Dispose();
+}
+
+XE::uint64 XE::CameraComponent::GetMask() const
+{
+	return _Data.Mask;
+}
+
+void XE::CameraComponent::SetMask( XE::uint64 val )
+{
+	_Data.Mask = val;
 }
 
 XE::CameraType XE::CameraComponent::GetType() const
@@ -134,6 +145,11 @@ const XE::RenderTexturePtr & XE::CameraComponent::GetRenderTexture() const
 void XE::CameraComponent::SetRenderTexture( const XE::RenderTexturePtr & val )
 {
 	_RenderTexture = val;
+}
+
+XE::Frustum XE::CameraComponent::GetFrustum() const
+{
+	return { GetView() * GetProjection() };
 }
 
 XE::Mat4x4f XE::CameraComponent::GetView() const

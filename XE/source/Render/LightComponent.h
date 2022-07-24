@@ -37,11 +37,25 @@ public:
 
 	void SetDynamic( bool val );
 
+	XE::uint64 GetMask() const;
+
+	void SetMask( XE::uint64 val );
+
+	XE::float32 GetIntensity() const;
+
+	void SetIntensity( XE::float32 val );
+
+	const XE::Color & GetColor() const;
+
+	void SetColor( const XE::Color & val );
+
 public:
 	XE::AABB GetBoundingBox() const;
 
-private:
+protected:
 	XE::LightData _Data;
+
+private:
 	XE::Disposable _Disposable;
 };
 

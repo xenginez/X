@@ -180,7 +180,7 @@ XE::RenderTexturePtr XE::RenderService::GetCurrentMainTexture() const
 
 	auto size = GetFramework()->GetMainWindow()->GetWindowSize();
 
-	texture->ResetTextureView( size.first, size.second, 1, XE::GraphicsTextureFormat::RGBA8SNORM, XE::GraphicsTextureDimension::D2, GetFramework()->GetServiceT< XE::GraphicsService >()->SwapChainGetCurrentTextureView( _p->_GraphicsSwapChain ) );
+	texture->ResetTextureView( size.first, size.second, 1, XE::GraphicsTextureFormat::RGBA8SNORM, GetFramework()->GetServiceT< XE::GraphicsService >()->SwapChainGetCurrentTextureView( _p->_GraphicsSwapChain ) );
 
 	return texture;
 }
@@ -247,7 +247,7 @@ XE::RenderTexturePtr XE::RenderService::GetRenderTextureFromPool( XE::int32 widt
 			auto alloc = XE::AllocatorProxy< XE::RenderTexture >::GetAllocator();
 			auto tex = alloc.allocate( 1 ); alloc.construct( tex );
 
-			tex->ResetTextureView( width, height, 1, format, XE::GraphicsTextureDimension::D2, view );
+			tex->ResetTextureView( width, height, 1, format, view );
 
 			return XE::RenderTexturePtr( tex, [this, temporary]( XE::RenderTexture * val )
 			{

@@ -65,6 +65,10 @@ public:
 
 	virtual std::filesystem::path GetApplicationPath() const;
 
+	virtual XE::uint64 FindMask( const XE::String & val ) const;
+
+	virtual XE::Array< XE::String > FindMask( XE::uint64 val ) const;
+
 public:
 	virtual XE::WindowPtr GetMainWindow() const;
 
