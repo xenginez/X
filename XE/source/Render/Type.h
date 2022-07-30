@@ -12,6 +12,7 @@
 #include "Declare.h"
 #include "Math/Rect.h"
 #include "Math/AABB.h"
+#include "Math/Color.h"
 #include "Math/Graph.hpp"
 #include "Utils/Flags.hpp"
 #include "Utils/Handle.hpp"

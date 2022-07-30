@@ -221,8 +221,8 @@ XE::Array< XE::String > XE::CoreFramework::FindMask( XE::uint64 val ) const
 
 	for ( size_t i = 0; i < _p->_Masks.size(); i++ )
 	{
-		XE::uint64 mask = 1 << i;
-		if ( mask & val != 0 )
+		XE::uint64 mask = XE::uint64( 1 ) << i;
+		if ( ( mask & val ) != 0 )
 		{
 			result.push_back( _p->_Masks[i] );
 		}

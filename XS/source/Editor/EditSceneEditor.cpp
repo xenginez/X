@@ -90,7 +90,7 @@ bool XS::EditSceneEditor::eventFilter( QObject * watched, QEvent * event )
 	{
 
 
-		ui->display->repaint();
+		//ui->display->repaint();
 	}
 
 	return XS::DockWidget::eventFilter( watched, event );

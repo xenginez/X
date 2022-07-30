@@ -1,31 +1,25 @@
 /*!
- * \file	NodeItem.h
+ * \file	NodeView.h
  *
  * \author	ZhengYuanQing
- * \date	2022/07/28
+ * \date	2022/07/27
  * \email	zhengyuanqing.95@gmail.com
  *
  */
-#ifndef NODEITEM_H__196BE37A_728B_4E71_A6EE_3596AB05D2EA
-#define NODEITEM_H__196BE37A_728B_4E71_A6EE_3596AB05D2EA
+#ifndef NODEVIEW_H__0A61A4A1_A166_4BD3_99B0_378458A20FC5
+#define NODEVIEW_H__0A61A4A1_A166_4BD3_99B0_378458A20FC5
 
 #include <QGraphicsItem>
+#include <QGraphicsView>
 
-#include "Core/Global.h"
+#include "Global.h"
 
 BEG_XS_NAMESPACE
 
-class NodeItem;
-class NodeView;
-class NodeScene;
-class NodeConnect;
-
 class XS_API NodeItem : public QGraphicsItem
 {
-	Q_OBJECT
-
 public:
-	NodeItem( XS::NodeScene * scene, const XE::Variant & data = {} );
+	NodeItem();
 
 	~NodeItem() override;
 
@@ -49,12 +43,41 @@ protected:
 	void mouseDoubleClickEvent( QGraphicsSceneMouseEvent * event ) override;
 
 	void contextMenuEvent( QGraphicsSceneContextMenuEvent * event ) override;
+};
+
+class XS_API NodeWidget : public QGraphicsView
+{
+	Q_OBJECT
 
 private:
-	XE::Variant _Data;
-	XS::NodeScene * _Scene = nullptr;
+	struct Private;
+
+public:
+	NodeWidget( QWidget * parent = nullptr );
+
+	~NodeWidget() override;
+
+protected:
+	void contextMenuEvent( QContextMenuEvent * event ) override;
+
+	void wheelEvent( QWheelEvent * event ) override;
+
+	void keyPressEvent( QKeyEvent * event ) override;
+
+	void keyReleaseEvent( QKeyEvent * event ) override;
+
+	void mousePressEvent( QMouseEvent * event ) override;
+
+	void mouseMoveEvent( QMouseEvent * event ) override;
+
+	void drawBackground( QPainter * painter, const QRectF & rect ) override;
+
+	void showEvent( QShowEvent * event ) override;
+
+private:
+	Private * _p;
 };
 
 END_XS_NAMESPACE
 
-#endif//NODEITEM_H__196BE37A_728B_4E71_A6EE_3596AB05D2EA
+#endif//NODEVIEW_H__0A61A4A1_A166_4BD3_99B0_378458A20FC5

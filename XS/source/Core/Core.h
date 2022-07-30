@@ -14,6 +14,7 @@
 #include "Registry.h"
 #include "Inspector.h"
 #include "DockWidget.h"
+#include "NodeWidget.h"
 #include "MainWindow.h"
 #include "ObjectProxy.h"
 #include "WindowProxy.h"

@@ -30,18 +30,21 @@ void XS::RenderWidget::showEvent( QShowEvent * event )
 {
 	XS::Widget::showEvent( event );
 
+	if ( auto graphics = GetFramework()->GetServiceT< XE::GraphicsService >() )
+	{
 #if PLATFORM_OS & ( OS_WINDOWS | OS_XBOX )
-	XE::WindowPtr window = XE::MakeShared< XE::Window >( XE::HandleCast< XE::Window >( static_cast<XE::uint64>( winId() ) ), ( HINSTANCE )::GetModuleHandle( NULL ) );
+		XE::WindowPtr window = XE::MakeShared< XE::Window >( XE::HandleCast< XE::Window >( static_cast<XE::uint64>( winId() ) ), ( HINSTANCE )::GetModuleHandle( NULL ) );
 #else
-	XE::WindowPtr window = nullptr; // TODO: 
+		XE::WindowPtr window = nullptr; // TODO: 
 #endif
 
-	XE::GraphicsSurfaceDescriptor desc = {};
-	{
-		desc.Label = objectName().toUtf8().constData();
-		desc.Window = window;
+		XE::GraphicsSurfaceDescriptor desc = {};
+		{
+			desc.Label = objectName().toUtf8().constData();
+			desc.Window = window;
+		}
+		_Surface = graphics->CreateSurface( desc );
 	}
-	_Surface = GetFramework()->GetServiceT< XE::GraphicsService >()->CreateSurface( desc );
 }
 
 void XS::RenderWidget::closeEvent( QCloseEvent * event )
