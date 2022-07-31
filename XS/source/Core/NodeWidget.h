@@ -49,9 +49,6 @@ class XS_API NodeWidget : public QGraphicsView
 {
 	Q_OBJECT
 
-private:
-	struct Private;
-
 public:
 	NodeWidget( QWidget * parent = nullptr );
 
@@ -60,11 +57,11 @@ public:
 protected:
 	void contextMenuEvent( QContextMenuEvent * event ) override;
 
-	void wheelEvent( QWheelEvent * event ) override;
-
 	void keyPressEvent( QKeyEvent * event ) override;
 
 	void keyReleaseEvent( QKeyEvent * event ) override;
+
+	void wheelEvent( QWheelEvent * event ) override;
 
 	void mousePressEvent( QMouseEvent * event ) override;
 
@@ -76,10 +73,10 @@ protected:
 
 	void drawBackground( QPainter * painter, const QRectF & rect ) override;
 
-	void showEvent( QShowEvent * event ) override;
-
 private:
-	Private * _p;
+	int _SceneFlag = 0;
+	QPoint _LastPos = {};
+	QGraphicsItem * _Group = nullptr;
 };
 
 END_XS_NAMESPACE

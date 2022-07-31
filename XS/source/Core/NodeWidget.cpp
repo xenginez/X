@@ -6,14 +6,32 @@
 
 namespace
 {
+	static constexpr qreal NODE_Z = 2;
+	static constexpr qreal GROUP_Z = 0;
+	static constexpr qreal CONNECT_Z = 1;
+	static constexpr XE::uint32 NONE_FLAG = 0;
+	static constexpr XE::uint32 MOVE_FLAG = 1;
+	static constexpr XE::uint32 GROUP_FLAG = 2;
 	static constexpr XE::float32 GRID_STEP = 64;
 	static constexpr XE::float32 MIN_SCALE = 0.2f;
 	static constexpr XE::float32 MAX_SCALE = 5.0f;
 
+	class NodeGroup : public QGraphicsItemGroup
+	{
+	public:
+		NodeGroup()
+		{
+			setZValue( GROUP_Z );
+		}
+	};
+
 	class NodeConnect : public QGraphicsItem
 	{
 	public:
-		NodeConnect();
+		NodeConnect()
+		{
+			setZValue( CONNECT_Z );
+		}
 
 		~NodeConnect() override;
 
@@ -42,7 +60,15 @@ namespace
 
 XS::NodeItem::NodeItem()
 {
+	setFlag( QGraphicsItem::ItemIsMovable );
+	setFlag( QGraphicsItem::ItemIsFocusable );
+	setFlag( QGraphicsItem::ItemIsSelectable );
+	setFlag( QGraphicsItem::ItemSendsScenePositionChanges );
+	setFlag( QGraphicsItem::ItemDoesntPropagateOpacityToChildren );
 
+	setAcceptHoverEvents( true );
+
+	setZValue( NODE_Z );
 }
 
 XS::NodeItem::~NodeItem()
@@ -100,16 +126,8 @@ void XS::NodeItem::contextMenuEvent( QGraphicsSceneContextMenuEvent * event )
 	QGraphicsItem::contextMenuEvent( event );
 }
 
-struct XS::NodeWidget::Private
-{
-	QPoint _LastPos = {};
-	bool _SceneMove = false;
-	QVector< XS::NodeItem * > _Items;
-	QVector< NodeConnect * > _Connects;
-};
-
 XS::NodeWidget::NodeWidget( QWidget * parent /*= nullptr */ )
-	: QGraphicsView( new QGraphicsScene( parent ), parent ), _p( new Private )
+	: QGraphicsView( new QGraphicsScene( parent ), parent )
 {
 	setMouseTracking( true );
 	setCursor( Qt::PointingHandCursor );
@@ -119,50 +137,19 @@ XS::NodeWidget::NodeWidget( QWidget * parent /*= nullptr */ )
 	setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	setTransformationAnchor( QGraphicsView::AnchorUnderMouse );
+	setContextMenuPolicy( Qt::ContextMenuPolicy::CustomContextMenu );
 	setViewportUpdateMode( QGraphicsView::BoundingRectViewportUpdate );
-
 	setSceneRect( INT_MIN / 2, INT_MIN / 2, INT_MAX, INT_MAX );
 }
 
 XS::NodeWidget::~NodeWidget()
 {
-	delete _p;
+
 }
 
 void XS::NodeWidget::contextMenuEvent( QContextMenuEvent * event )
 {
 	QGraphicsView::contextMenuEvent( event );
-}
-
-void XS::NodeWidget::wheelEvent( QWheelEvent * event )
-{
-	auto dt = event->angleDelta();
-
-	if ( dt.y() == 0 )
-	{
-		event->ignore();
-		return;
-	}
-
-	XE::float32 step = 1.2f;
-	XE::float32 factor = 1.0f;
-	
-	if ( dt.y() > 0.0f )
-	{
-		if ( transform().m11() > MAX_SCALE )
-			return;
-
-		factor = std::pow( step, 1.0f );
-	}
-	else
-	{
-		if ( transform().m11() < MIN_SCALE )
-			return;
-
-		factor = std::pow( step, -1.0f );
-	}
-
-	scale( factor, factor );
 }
 
 void XS::NodeWidget::keyPressEvent( QKeyEvent * event )
@@ -175,16 +162,65 @@ void XS::NodeWidget::keyReleaseEvent( QKeyEvent * event )
 	QGraphicsView::keyReleaseEvent( event );
 }
 
+void XS::NodeWidget::wheelEvent( QWheelEvent * event )
+{
+	if ( _SceneFlag == NONE_FLAG && itemAt( event->pos() ) == nullptr )
+	{
+		auto dt = event->angleDelta();
+
+		if ( dt.y() == 0 )
+		{
+			event->ignore();
+			return;
+		}
+
+		XE::float32 step = 1.2f;
+		XE::float32 factor = 1.0f;
+
+		if ( dt.y() > 0.0f )
+		{
+			if ( transform().m11() > MAX_SCALE )
+				return;
+
+			factor = std::pow( step, 1.0f );
+		}
+		else
+		{
+			if ( transform().m11() < MIN_SCALE )
+				return;
+
+			factor = std::pow( step, -1.0f );
+		}
+
+		scale( factor, factor );
+	}
+}
+
 void XS::NodeWidget::mousePressEvent( QMouseEvent * event )
 {
 	QGraphicsView::mousePressEvent( event );
 
 	if ( itemAt( event->pos() ) == nullptr && event->buttons() == Qt::LeftButton )
 	{
-		_p->_SceneMove = true;
-		_p->_LastPos = event->pos();
+		if ( ( event->modifiers() & Qt::ShiftModifier ) != 0 )
+		{
+			_SceneFlag = GROUP_FLAG;
 
-		setCursor( Qt::OpenHandCursor );
+			_LastPos = event->pos();
+
+			auto pos = mapToScene( event->pos() );
+			QPen pen( qApp->palette().color( QPalette::Text ), 1.0 );
+			QBrush brush( qApp->palette().color( QPalette::PlaceholderText ), Qt::Dense1Pattern );
+			_Group = scene()->addRect( pos.x(), pos.y(), 0, 0, pen, brush );
+			_Group->setZValue( NODE_Z + 1 );
+		}
+		else
+		{
+			_SceneFlag = MOVE_FLAG;
+
+			_LastPos = event->pos();
+			setCursor( Qt::OpenHandCursor );
+		}
 	}
 }
 
@@ -192,17 +228,38 @@ void XS::NodeWidget::mouseMoveEvent( QMouseEvent * event )
 {
 	QGraphicsView::mouseMoveEvent( event );
 
-	if ( _p->_SceneMove )
+	switch ( _SceneFlag )
+	{
+	case MOVE_FLAG:
 	{
 		setTransformationAnchor( QGraphicsView::AnchorViewCenter );
 		{
-			auto dt = ( mapToScene( event->pos() ) - mapToScene( _p->_LastPos ) ) * transform().m11();
+			auto dt = ( mapToScene( event->pos() ) - mapToScene( _LastPos ) ) * transform().m11();
 
 			centerOn( mapToScene( QPoint( viewport()->rect().width() / 2 - dt.x(), viewport()->rect().height() / 2 - dt.y() ) ) );
 
-			_p->_LastPos = event->pos();
+			_LastPos = event->pos();
 		}
 		setTransformationAnchor( QGraphicsView::AnchorUnderMouse );
+	}
+	break;
+	case GROUP_FLAG:
+	{
+		auto item = static_cast<QGraphicsRectItem *>( _Group );
+
+		auto arc = mapToScene( _LastPos );
+		auto pos = mapToScene( event->pos() );
+
+		qreal left = std::min( pos.x(), arc.x() );
+		qreal right = std::max( pos.x(), arc.x() );
+		qreal top = std::min( pos.y(), arc.y() );
+		qreal bottom = std::max( pos.y(), arc.y() );
+
+		item->setRect( left, top, std::abs( right - left ), std::abs( bottom - top ) );
+	}
+	break;
+	default:
+		break;
 	}
 }
 
@@ -210,11 +267,40 @@ void XS::NodeWidget::mouseReleaseEvent( QMouseEvent * event )
 {
 	QGraphicsView::mouseReleaseEvent( event );
 
-	if ( _p->_SceneMove )
+	switch ( _SceneFlag )
 	{
-		_p->_SceneMove = false;
+	case MOVE_FLAG:
+	{
 		setCursor( Qt::PointingHandCursor );
 	}
+	break;
+	case GROUP_FLAG:
+	{
+		auto rect = static_cast<QGraphicsRectItem *>( _Group )->rect();
+
+		auto items = scene()->items( rect.x(), rect.y(), rect.width(), rect.height(), Qt::ContainsItemBoundingRect, Qt::AscendingOrder );
+		if ( !items.empty() )
+		{
+			NodeGroup * group = new NodeGroup();
+			for ( auto i : items )
+			{
+				if ( std::abs( i->zValue() - NODE_Z ) < std::numeric_limits< qreal >::epsilon() )
+				{
+					group->addToGroup( i );
+				}
+			}
+			scene()->addItem( group );
+		}
+
+		scene()->removeItem( _Group );
+		_Group = nullptr;
+	}
+	break;
+	default:
+		break;
+	}
+
+	_SceneFlag = NONE_FLAG;
 }
 
 void XS::NodeWidget::mouseDoubleClickEvent( QMouseEvent * event )
@@ -267,9 +353,4 @@ void XS::NodeWidget::drawBackground( QPainter * painter, const QRectF & rect )
 		drawGrid( GRID_STEP * 10 );
 	}
 	painter->restore();
-}
-
-void XS::NodeWidget::showEvent( QShowEvent * event )
-{
-	QGraphicsView::showEvent( event );
 }
