@@ -38,7 +38,7 @@ protected:
 
 	void hoverLeaveEvent( QGraphicsSceneHoverEvent * event ) override;
 
-	void hoverMoveEvent( QGraphicsSceneHoverEvent * ) override;
+	void hoverMoveEvent( QGraphicsSceneHoverEvent * event ) override;
 
 	void mouseDoubleClickEvent( QGraphicsSceneMouseEvent * event ) override;
 
@@ -69,6 +69,10 @@ protected:
 	void mousePressEvent( QMouseEvent * event ) override;
 
 	void mouseMoveEvent( QMouseEvent * event ) override;
+
+	void mouseReleaseEvent( QMouseEvent * event ) override;
+
+	void mouseDoubleClickEvent( QMouseEvent * event ) override;
 
 	void drawBackground( QPainter * painter, const QRectF & rect ) override;
 

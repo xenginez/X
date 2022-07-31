@@ -50,8 +50,60 @@ XS::NodeItem::~NodeItem()
 
 }
 
+void XS::NodeItem::paint( QPainter * painter, QStyleOptionGraphicsItem const * option, QWidget * widget /*= 0 */ )
+{
+
+}
+
+QVariant XS::NodeItem::itemChange( GraphicsItemChange change, const QVariant & value )
+{
+	return QGraphicsItem::itemChange( change, value );
+}
+
+void XS::NodeItem::mousePressEvent( QGraphicsSceneMouseEvent * event )
+{
+	QGraphicsItem::mousePressEvent( event );
+}
+
+void XS::NodeItem::mouseMoveEvent( QGraphicsSceneMouseEvent * event )
+{
+	QGraphicsItem::mouseMoveEvent( event );
+}
+
+void XS::NodeItem::mouseReleaseEvent( QGraphicsSceneMouseEvent * event )
+{
+	QGraphicsItem::mouseReleaseEvent( event );
+}
+
+void XS::NodeItem::hoverEnterEvent( QGraphicsSceneHoverEvent * event )
+{
+	QGraphicsItem::hoverEnterEvent( event );
+}
+
+void XS::NodeItem::hoverLeaveEvent( QGraphicsSceneHoverEvent * event )
+{
+	QGraphicsItem::hoverLeaveEvent( event );
+}
+
+void XS::NodeItem::hoverMoveEvent( QGraphicsSceneHoverEvent * event )
+{
+	QGraphicsItem::hoverMoveEvent( event );
+}
+
+void XS::NodeItem::mouseDoubleClickEvent( QGraphicsSceneMouseEvent * event )
+{
+	QGraphicsItem::mouseDoubleClickEvent( event );
+}
+
+void XS::NodeItem::contextMenuEvent( QGraphicsSceneContextMenuEvent * event )
+{
+	QGraphicsItem::contextMenuEvent( event );
+}
+
 struct XS::NodeWidget::Private
 {
+	QPoint _LastPos = {};
+	bool _SceneMove = false;
 	QVector< XS::NodeItem * > _Items;
 	QVector< NodeConnect * > _Connects;
 };
@@ -61,8 +113,8 @@ XS::NodeWidget::NodeWidget( QWidget * parent /*= nullptr */ )
 {
 	setMouseTracking( true );
 	setCursor( Qt::PointingHandCursor );
+	setDragMode( QGraphicsView::NoDrag );
 	setRenderHint( QPainter::Antialiasing );
-	setCacheMode( QGraphicsView::CacheBackground );
 	setResizeAnchor( QGraphicsView::AnchorUnderMouse );
 	setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
@@ -70,8 +122,6 @@ XS::NodeWidget::NodeWidget( QWidget * parent /*= nullptr */ )
 	setViewportUpdateMode( QGraphicsView::BoundingRectViewportUpdate );
 
 	setSceneRect( INT_MIN / 2, INT_MIN / 2, INT_MAX, INT_MAX );
-
-	centerOn( 0, 0 );
 }
 
 XS::NodeWidget::~NodeWidget()
@@ -128,11 +178,59 @@ void XS::NodeWidget::keyReleaseEvent( QKeyEvent * event )
 void XS::NodeWidget::mousePressEvent( QMouseEvent * event )
 {
 	QGraphicsView::mousePressEvent( event );
+
+	if ( itemAt( event->pos() ) == nullptr && event->buttons() == Qt::LeftButton )
+	{
+		_p->_SceneMove = true;
+		_p->_LastPos = event->pos();
+
+		setCursor( Qt::OpenHandCursor );
+	}
 }
 
 void XS::NodeWidget::mouseMoveEvent( QMouseEvent * event )
 {
 	QGraphicsView::mouseMoveEvent( event );
+
+	if ( _p->_SceneMove )
+	{
+		setTransformationAnchor( QGraphicsView::AnchorViewCenter );
+		{
+			auto dt = ( mapToScene( event->pos() ) - mapToScene( _p->_LastPos ) ) * transform().m11();
+
+			centerOn( mapToScene( QPoint( viewport()->rect().width() / 2 - dt.x(), viewport()->rect().height() / 2 - dt.y() ) ) );
+
+			_p->_LastPos = event->pos();
+		}
+		setTransformationAnchor( QGraphicsView::AnchorUnderMouse );
+	}
+}
+
+void XS::NodeWidget::mouseReleaseEvent( QMouseEvent * event )
+{
+	QGraphicsView::mouseReleaseEvent( event );
+
+	if ( _p->_SceneMove )
+	{
+		_p->_SceneMove = false;
+		setCursor( Qt::PointingHandCursor );
+	}
+}
+
+void XS::NodeWidget::mouseDoubleClickEvent( QMouseEvent * event )
+{
+	QGraphicsView::mouseDoubleClickEvent( event );
+
+	if ( itemAt( event->pos() ) == nullptr )
+	{
+		scale( 1.0f / transform().m11(), 1.0f / transform().m22() );
+
+		setTransformationAnchor( QGraphicsView::AnchorViewCenter );
+		{
+			centerOn( 0, 0 );
+		}
+		setTransformationAnchor( QGraphicsView::AnchorUnderMouse );
+	}
 }
 
 void XS::NodeWidget::drawBackground( QPainter * painter, const QRectF & rect )
