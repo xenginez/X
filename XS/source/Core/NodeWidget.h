@@ -9,57 +9,80 @@
 #ifndef NODEVIEW_H__0A61A4A1_A166_4BD3_99B0_378458A20FC5
 #define NODEVIEW_H__0A61A4A1_A166_4BD3_99B0_378458A20FC5
 
-#include <QGraphicsItem>
+#include <QMap>
 #include <QGraphicsView>
+#include <QGraphicsProxyWidget>
 
 #include "Global.h"
 
 BEG_XS_NAMESPACE
 
-class XS_API NodeItem : public QGraphicsItem
+class NodeWidget;
+
+class XS_API NodeItem : public QGraphicsProxyWidget
 {
+	Q_OBJECT
+
+	friend class XS::NodeWidget;
+
 public:
-	NodeItem();
+	enum class PortType
+	{
+		IN,
+		OUT,
+	};
+
+public:
+	NodeItem( XS::NodeItem * parent = nullptr );
 
 	~NodeItem() override;
 
+public:
+	const QString & name() const;
+
+	void setName( const QString & val );
+
+	XS::NodeWidget * nodeWidget() const;
+
+public:
+	virtual void setupUi( QWidget * widget );
+
+	virtual QPointF portPos( PortType type, int index );
+
 protected:
-	void paint( QPainter * painter, QStyleOptionGraphicsItem const * option, QWidget * widget = 0 ) override;
+	void paint( QPainter * painter, QStyleOptionGraphicsItem const * option, QWidget * widget /* = 0 */ ) override;
 
-	QVariant itemChange( GraphicsItemChange change, const QVariant & value ) override;
+	bool eventFilter( QObject * object, QEvent * event ) override;
 
-	void mousePressEvent( QGraphicsSceneMouseEvent * event ) override;
-
-	void mouseMoveEvent( QGraphicsSceneMouseEvent * event ) override;
-
-	void mouseReleaseEvent( QGraphicsSceneMouseEvent * event ) override;
-
-	void hoverEnterEvent( QGraphicsSceneHoverEvent * event ) override;
-
-	void hoverLeaveEvent( QGraphicsSceneHoverEvent * event ) override;
-
-	void hoverMoveEvent( QGraphicsSceneHoverEvent * event ) override;
-
-	void mouseDoubleClickEvent( QGraphicsSceneMouseEvent * event ) override;
-
-	void contextMenuEvent( QGraphicsSceneContextMenuEvent * event ) override;
+private:
+	QString _Name;
+	XS::NodeWidget * _NodeWidget = nullptr;
 };
 
 class XS_API NodeWidget : public QGraphicsView
 {
 	Q_OBJECT
 
+	friend class NodeItem;
+
 public:
 	NodeWidget( QWidget * parent = nullptr );
 
 	~NodeWidget() override;
 
+signals:
+	void selectionChanged();
+
+public:
+	XS::NodeItem * addItem( XS::NodeItem * item );
+
+	QGraphicsItem * addConnect( XS::NodeItem * in_item, int in_port, XS::NodeItem * out_item, int out_port );
+
+public:
+	void drawConnect( const QPointF & start, const QPointF & end );
+
 protected:
 	void contextMenuEvent( QContextMenuEvent * event ) override;
-
-	void keyPressEvent( QKeyEvent * event ) override;
-
-	void keyReleaseEvent( QKeyEvent * event ) override;
 
 	void wheelEvent( QWheelEvent * event ) override;
 
@@ -77,6 +100,7 @@ private:
 	int _SceneFlag = 0;
 	QPoint _LastPos = {};
 	QGraphicsItem * _Group = nullptr;
+	QGraphicsPathItem * _Connect = nullptr;
 };
 
 END_XS_NAMESPACE
