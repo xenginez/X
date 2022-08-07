@@ -49,6 +49,8 @@ public:
 
 	virtual QPointF portPos( PortType type, int index );
 
+	virtual QString portName( PortType type, int index );
+
 protected:
 	void paint( QPainter * painter, QStyleOptionGraphicsItem const * option, QWidget * widget /* = 0 */ ) override;
 
@@ -66,6 +68,14 @@ class XS_API NodeWidget : public QGraphicsView
 	friend class NodeItem;
 
 public:
+	enum class ConnectType
+	{
+		LINE,
+		BROKEN,
+		BEZIER,
+	};
+
+public:
 	NodeWidget( QWidget * parent = nullptr );
 
 	~NodeWidget() override;
@@ -74,9 +84,11 @@ signals:
 	void selectionChanged();
 
 public:
+	QList< XS::NodeItem * > selectedItems() const;
+
 	XS::NodeItem * addItem( XS::NodeItem * item );
 
-	QGraphicsItem * addConnect( XS::NodeItem * in_item, int in_port, XS::NodeItem * out_item, int out_port );
+	QGraphicsItem * addConnect( ConnectType type, XS::NodeItem * in_item, int in_port, XS::NodeItem * out_item, int out_port );
 
 public:
 	void drawConnect( const QPointF & start, const QPointF & end );
@@ -99,7 +111,7 @@ protected:
 private:
 	int _SceneFlag = 0;
 	QPoint _LastPos = {};
-	QGraphicsItem * _Group = nullptr;
+	QGraphicsRectItem * _Group = nullptr;
 	QGraphicsPathItem * _Connect = nullptr;
 };
 

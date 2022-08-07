@@ -5,6 +5,7 @@
 #include <QWheelEvent>
 #include <QApplication>
 #include <QStyleOption>
+#include <QColorDialog>
 #include <QGraphicsSceneMouseEvent>
 
 namespace
@@ -24,42 +25,212 @@ namespace
 	static constexpr const char * ENTER_FLAG_NAME = "_EnterFlagName";
 	static constexpr const char * PORT_CONNECT_NAME = "_PortConnectName";
 
-	struct PortConnect
+	struct Ports
 	{
 		QVector< NodeConnect * > InPorts;
 		QVector< NodeConnect * > OutPorts;
 	};
 
-	class NodeConnect : public QGraphicsItem
+	class NodeGroup : public QGraphicsItemGroup
 	{
-		static constexpr std::array<Qt::GlobalColor, 6> COLORS =
+	public:
+		NodeGroup( QGraphicsItem * parent = nullptr )
+			: QGraphicsItemGroup( parent )
 		{
-			Qt::GlobalColor::red,
-			Qt::GlobalColor::green,
-			Qt::GlobalColor::blue,
-			Qt::GlobalColor::cyan,
-			Qt::GlobalColor::magenta,
-			Qt::GlobalColor::yellow,
-		};
+			setFlag( QGraphicsItem::ItemIsMovable );
+			setFlag( QGraphicsItem::ItemIsFocusable );
+			setFlag( QGraphicsItem::ItemIsSelectable );
+
+			setZValue( GROUP_Z );
+		}
 
 	public:
-		NodeConnect( XS::NodeItem * in_item, int in_port, XS::NodeItem * out_item, int out_port )
+		QRectF titleRect() const
+		{
+			auto rect = QGraphicsItemGroup::boundingRect();
+
+			return QRectF( rect.left(), rect.top() - 20, rect.width(), 20 );
+		}
+
+		QRectF groupRect() const
+		{
+			return QGraphicsItemGroup::boundingRect();
+		}
+
+		QRectF textRect() const
+		{
+			auto rect = titleRect();
+
+			rect.setLeft( rect.left() + 5 );
+			rect.setRight( rect.right() - 20 );
+
+			return rect;
+		}
+
+		QRectF colorButtonRect() const
+		{
+			auto rect = titleRect();
+
+			rect.setLeft( rect.right() - 20 );
+			rect.setTop( rect.top() + 2 );
+			rect.setRight( rect.right() - 5 );
+			rect.setBottom( rect.bottom() - 2 );
+
+			return rect;
+		}
+
+	protected:
+		void paint( QPainter * painter, const QStyleOptionGraphicsItem * option, QWidget * widget /* = nullptr */ ) override
+		{
+			painter->setRenderHint( QPainter::Antialiasing );
+
+			auto title_rect = titleRect();
+			painter->save();
+			{
+				int corner_size = 10;
+				int arc_r = corner_size / 2;
+
+				QPainterPath path;
+
+				path.moveTo( title_rect.left() + arc_r, title_rect.top() );
+				path.arcTo( title_rect.left(), title_rect.top(), corner_size, corner_size, 90.0f, 90.0f );
+				path.lineTo( title_rect.left(), title_rect.bottom() );
+				path.lineTo( title_rect.right(), title_rect.bottom() );
+				path.lineTo( title_rect.right(), title_rect.top() + arc_r );
+				path.arcTo( title_rect.right() - corner_size, title_rect.top(), corner_size, corner_size, 0.0f, 90.0f );
+
+				QLinearGradient linear( QPointF( 0, 0 ), QPointF( 200, 200 ) );
+				linear.setColorAt( 0, _Color );
+				linear.setColorAt( 1, Qt::black );
+				painter->fillPath( path, QBrush( linear ) );
+			}
+			painter->restore();
+
+			auto text_rect = textRect();
+			painter->save();
+			{
+				painter->setPen( QPen( qApp->palette().color( QPalette::WindowText ) ) );
+
+				QFontMetrics fontMetrics( qApp->font() );
+				int fontSize = fontMetrics.width( _Name );
+				if ( fontSize > title_rect.width() - 25 )
+				{
+					painter->drawText( text_rect.topLeft(), fontMetrics.elidedText( _Name, Qt::ElideRight, title_rect.width() - 25 ) );
+				}
+				else
+				{
+					painter->drawText( text_rect.topLeft(), _Name );
+				}
+			}
+			painter->restore();
+
+			QRect pix_rect = {};
+			painter->save();
+			{
+				pix_rect.setLeft( title_rect.right() - 20 );
+				pix_rect.setTop( title_rect.top() + 2 );
+				pix_rect.setRight( title_rect.right() - 5 );
+				pix_rect.setBottom( title_rect.bottom() - 2 );
+
+				painter->drawPixmap( pix_rect, QPixmap( "SkinIcons:/images/common/icon_colors.png" ) );
+			}
+			painter->restore();
+
+			auto group_rect = groupRect();
+			painter->save();
+			{
+				QColor color = _Color;
+				color.setAlphaF( 0.7f );
+				painter->setBrush( QBrush( color ) );
+				painter->drawRect( groupRect() );
+			}
+			painter->restore();
+		}
+
+		void mousePressEvent( QGraphicsSceneMouseEvent * event ) override
+		{
+			QGraphicsItemGroup::mousePressEvent( event );
+
+			if ( colorButtonRect().contains( mapToScene( event->pos() ) ) )
+			{
+				QColorDialog color;
+
+				color.setCurrentColor( _Color );
+
+				if ( color.exec() == QDialog::Accepted )
+				{
+					_Color = color.currentColor();
+				}
+			}
+			else if ( textRect().contains( mapToScene( event->pos() ) ) && event->buttons() == Qt::LeftButton )
+			{
+				_Move = true;
+				_LastPos = event->pos();
+			}
+		}
+
+		void mouseMoveEvent( QGraphicsSceneMouseEvent * event ) override
+		{
+			QGraphicsItemGroup::mouseMoveEvent( event );
+
+			if ( _Move )
+			{
+				auto dt = mapToScene( event->pos() ) - mapToScene( _LastPos );
+
+				moveBy( dt.x(), dt.y() );
+
+				_LastPos = event->pos();
+			}
+		}
+
+		void mouseReleaseEvent( QGraphicsSceneMouseEvent * event ) override
+		{
+			QGraphicsItemGroup::mouseReleaseEvent( event );
+
+			if ( _Move )
+			{
+				_Move = false;
+			}
+		}
+
+		void mouseDoubleClickEvent( QGraphicsSceneMouseEvent * event ) override
+		{
+			QGraphicsItemGroup::mouseDoubleClickEvent( event );
+
+			if ( textRect().contains( mapToScene( event->pos() ) ) )
+			{
+				// TODO: name edit
+			}
+		}
+
+	public:
+		QColor _Color = Qt::green;
+		QString _Name = "Node Group";
+		bool _Move = false;
+		QPointF _LastPos;
+	};
+
+	class NodeConnect : public QGraphicsItem
+	{
+		static constexpr int LINE_WIDTH = 10;
+		static constexpr int SELECT_LINE_WIDTH = 20;
+
+	public:
+		NodeConnect( XS::NodeWidget::ConnectType type, XS::NodeItem * in_item, int in_port, XS::NodeItem * out_item, int out_port )
 			: InItem( in_item ), InPort( in_port ), OutItem( out_item ), OutPort( out_port )
 		{
 			setFlag( QGraphicsItem::ItemIsSelectable );
 
 			setZValue( CONNECT_Z );
 
-			setToolTip( in_item->name() + " > " + out_item->name() );
-
-			PortConnect * in_ports = (PortConnect *)InItem->property( PORT_CONNECT_NAME ).value< std::uintptr_t >();
+			Ports * in_ports = (Ports *)InItem->property( PORT_CONNECT_NAME ).value< std::uintptr_t >();
 			if ( in_ports->OutPorts.size() <= InPort )
 			{
 				in_ports->OutPorts.resize( InPort + 1 );
 			}
 			in_ports->OutPorts[InPort] = this;
 
-			PortConnect * out_ports = (PortConnect *)OutItem->property( PORT_CONNECT_NAME ).value< std::uintptr_t >();
+			Ports * out_ports = (Ports *)OutItem->property( PORT_CONNECT_NAME ).value< std::uintptr_t >();
 			if ( out_ports->InPorts.size() <= OutPort )
 			{
 				out_ports->InPorts.resize( OutPort + 1 );
@@ -71,12 +242,12 @@ namespace
 		{
 			if ( InItem != nullptr )
 			{
-				PortConnect * in_ports = (PortConnect *)InItem->property( PORT_CONNECT_NAME ).value<void *>();
+				Ports * in_ports = (Ports *)InItem->property( PORT_CONNECT_NAME ).value<void *>();
 				in_ports->OutPorts[InPort] = nullptr;
 			}
 			if ( OutItem != nullptr )
 			{
-				PortConnect * out_ports = (PortConnect *)OutItem->property( PORT_CONNECT_NAME ).value<void *>();
+				Ports * out_ports = (Ports *)OutItem->property( PORT_CONNECT_NAME ).value<void *>();
 				out_ports->InPorts[OutPort] = nullptr;
 			}
 		}
@@ -90,11 +261,24 @@ namespace
 			p1 = InItem->portPos( XS::NodeItem::PortType::OUT, InPort );
 			p4 = OutItem->portPos( XS::NodeItem::PortType::IN, OutPort );
 
-			p2.setX( ( p1.x() + p4.x() ) / 2 ); p2.setY( p1.y() );
-			p3.setX( ( p1.x() + p4.x() ) / 2 ); p3.setY( p4.y() );
-
-			p.moveTo( p1 );
-			p.cubicTo( p2, p3, p4 );
+			switch ( Type )
+			{
+			case XS::NodeWidget::ConnectType::LINE:
+				p.moveTo( p1 ); p.lineTo( p4 );
+				break;
+			case XS::NodeWidget::ConnectType::BROKEN:
+				p2.setX( p1.x() ); p2.setY( ( p1.y() + p4.y() ) / 2 );
+				p3.setX( p4.x() ); p3.setY( ( p1.y() + p4.y() ) / 2 );
+				p.moveTo( p1 ); p.lineTo( p2 ); p.lineTo( p3 ); p.lineTo( p4 );
+				break;
+			case XS::NodeWidget::ConnectType::BEZIER:
+				p2.setX( ( p1.x() + p4.x() ) / 2 ); p2.setY( p1.y() );
+				p3.setX( ( p1.x() + p4.x() ) / 2 ); p3.setY( p4.y() );
+				p.moveTo( p1 ); p.cubicTo( p2, p3, p4 );
+				break;
+			default:
+				break;
+			}
 
 			return p;
 		}
@@ -107,7 +291,7 @@ namespace
 		bool contains( const QPointF & point ) const override
 		{
 			QPainterPathStroker stroker;
-			stroker.setWidth( 15 );
+			stroker.setWidth( SELECT_LINE_WIDTH );
 			return stroker.createStroke( shape() ).contains( point );
 		}
 
@@ -117,16 +301,39 @@ namespace
 			{
 				if ( isSelected() )
 				{
-					painter->setPen( QPen( qApp->palette().color( QPalette::Highlight ), 5.0f ) );
+					painter->setPen( QPen( qApp->palette().color( QPalette::Highlight ), SELECT_LINE_WIDTH ) );
 
 					painter->drawPath( shape() );
 				}
 
-				painter->setPen( QPen( COLORS[InPort % COLORS.size()], 2.0f ) );
+				painter->setPen( QPen( qApp->palette().color( QPalette::Foreground ), LINE_WIDTH ) );
 
 				painter->drawPath( shape() );
 			}
 			painter->restore();
+
+			QMetaObject::invokeMethod( nullptr, [this]()
+			{
+				setToolTip( QString( "%1.%2 > %3.%4" )
+							.arg( InItem->name() )
+							.arg( InItem->portName( XS::NodeItem::PortType::OUT, InPort ) )
+							.arg( OutItem->name() )
+							.arg( OutItem->portName( XS::NodeItem::PortType::IN, OutPort ) ) );
+			}, Qt::QueuedConnection);
+		}
+
+		QVariant itemChange( GraphicsItemChange change, const QVariant & value ) override
+		{
+			switch ( change )
+			{
+			case QGraphicsItem::ItemSelectedHasChanged:
+				QMetaObject::invokeMethod( nullptr, [this, value]() { setZValue( value.toBool() ? DRAW_CONNECT_Z : CONNECT_Z ); }, Qt::QueuedConnection );
+				break;
+			default:
+				break;
+			}
+
+			return  QGraphicsItem::itemChange( change, value );
 		}
 
 	public:
@@ -134,7 +341,7 @@ namespace
 		int OutPort = 0;
 		XS::NodeItem * InItem = nullptr;
 		XS::NodeItem * OutItem = nullptr;
-		XS::NodeWidget * NodeWidget = nullptr;
+		XS::NodeWidget::ConnectType Type = XS::NodeWidget::ConnectType::BEZIER;
 	};
 }
 
@@ -159,9 +366,7 @@ XS::NodeItem::NodeItem( XS::NodeItem * parent /*= nullptr */ )
 
 	setWidget( widget );
 
-	setToolTip( _Name );
-
-	auto ports = new PortConnect;
+	auto ports = new Ports;
 
 	setProperty( PORT_CONNECT_NAME, (std::uintptr_t)ports );
 }
@@ -169,7 +374,7 @@ XS::NodeItem::NodeItem( XS::NodeItem * parent /*= nullptr */ )
 XS::NodeItem::~NodeItem()
 {
 	auto scene = _NodeWidget->scene();
-	PortConnect * ports = (PortConnect *)property( PORT_CONNECT_NAME ).value<std::uintptr_t>();
+	Ports * ports = (Ports *)property( PORT_CONNECT_NAME ).value<std::uintptr_t>();
 
 	for ( auto i : ports->InPorts )
 	{
@@ -200,8 +405,6 @@ const QString & XS::NodeItem::name() const
 void XS::NodeItem::setName( const QString & val )
 {
 	_Name = val;
-
-	setToolTip( _Name );
 }
 
 XS::NodeWidget * XS::NodeItem::nodeWidget() const
@@ -217,6 +420,11 @@ void XS::NodeItem::setupUi( QWidget * widget )
 QPointF XS::NodeItem::portPos( PortType type, int index )
 {
 	return mapToScene( this->rect().center() );
+}
+
+QString XS::NodeItem::portName( PortType type, int index )
+{
+	return QString( "port %1" ).arg( index );
 }
 
 void XS::NodeItem::paint( QPainter * painter, QStyleOptionGraphicsItem const * option, QWidget * widget /* = 0 */ )
@@ -323,6 +531,24 @@ XS::NodeWidget::~NodeWidget()
 
 }
 
+QList< XS::NodeItem * > XS::NodeWidget::selectedItems() const
+{
+	QList< XS::NodeItem * > result;
+
+	auto items = scene()->selectedItems();
+
+	for ( auto it : items )
+	{
+		auto node = dynamic_cast<XS::NodeItem *>( it );
+		if ( node != nullptr )
+		{
+			result.push_back( node );
+		}
+	}
+
+	return result;
+}
+
 XS::NodeItem * XS::NodeWidget::addItem( XS::NodeItem * item )
 {
 	item->_NodeWidget = this;
@@ -332,7 +558,7 @@ XS::NodeItem * XS::NodeWidget::addItem( XS::NodeItem * item )
 	return item;
 }
 
-QGraphicsItem * XS::NodeWidget::addConnect( XS::NodeItem * in_item, int in_port, XS::NodeItem * out_item, int out_port )
+QGraphicsItem * XS::NodeWidget::addConnect( ConnectType type, XS::NodeItem * in_item, int in_port, XS::NodeItem * out_item, int out_port )
 {
 	if ( _Connect != nullptr )
 	{
@@ -341,9 +567,7 @@ QGraphicsItem * XS::NodeWidget::addConnect( XS::NodeItem * in_item, int in_port,
 		_Connect = nullptr;
 	}
 
-	auto con = new NodeConnect( in_item, in_port, out_item, out_port );
-
-	con->NodeWidget = this;
+	auto con = new NodeConnect( type, in_item, in_port, out_item, out_port );
 
 	scene()->addItem( con );
 
@@ -462,8 +686,6 @@ void XS::NodeWidget::mouseMoveEvent( QMouseEvent * event )
 		break;
 		case GROUP_FLAG:
 		{
-			auto item = static_cast<QGraphicsRectItem *>( _Group );
-
 			auto arc = mapToScene( _LastPos );
 			auto pos = mapToScene( event->pos() );
 
@@ -472,7 +694,7 @@ void XS::NodeWidget::mouseMoveEvent( QMouseEvent * event )
 			qreal top = std::min( pos.y(), arc.y() );
 			qreal bottom = std::max( pos.y(), arc.y() );
 
-			item->setRect( left, top, std::abs( right - left ), std::abs( bottom - top ) );
+			_Group->setRect( left, top, std::abs( right - left ), std::abs( bottom - top ) );
 		}
 		break;
 		default:
@@ -494,17 +716,17 @@ void XS::NodeWidget::mouseReleaseEvent( QMouseEvent * event )
 	break;
 	case GROUP_FLAG:
 	{
-		auto rect = static_cast<QGraphicsRectItem *>( _Group )->rect();
+		auto rect = _Group->rect();
 
 		auto items = scene()->items( rect.x(), rect.y(), rect.width(), rect.height(), Qt::ContainsItemBoundingRect, Qt::AscendingOrder );
 		if ( !items.empty() )
 		{
-			QGraphicsItemGroup * group = new QGraphicsItemGroup();
-			group->setZValue( GROUP_Z );
+			NodeGroup * group = new NodeGroup();
 
 			for ( auto i : items )
 			{
-				if ( std::abs( i->zValue() - NODE_Z ) < std::numeric_limits< qreal >::epsilon() )
+				auto node = dynamic_cast<XS::NodeItem *>( i );
+				if ( node != nullptr )
 				{
 					group->addToGroup( i );
 				}

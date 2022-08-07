@@ -51,7 +51,6 @@ void XStudio::EditorWindow::showEvent( QShowEvent * e )
 		auto world = XS::Registry::ConstructT<XS::DockWidget>( "XS::WorldEditor", this ); world->show();
 		auto edit = XS::Registry::ConstructT<XS::DockWidget>( "XS::EditSceneEditor", this ); edit->show();
 		auto game = XS::Registry::ConstructT<XS::DockWidget>( "XS::GameSceneEditor", this ); game->show();
-		auto node = XS::Registry::ConstructT<XS::DockWidget>( "XS::TestNodeEditor", this ); node->show();
 		auto log = XS::Registry::ConstructT<XS::DockWidget>( "XS::LoggerEditor", this ); log->show();
 
 		addDockWidget( Qt::LeftDockWidgetArea, edit );
@@ -63,9 +62,7 @@ void XStudio::EditorWindow::showEvent( QShowEvent * e )
 		QMainWindow::resizeDocks( { edit, asset }, { int( height() * 0.7f ), int( height() * 0.3f ) }, Qt::Vertical );
 
 		addDockWidget( Qt::LeftDockWidgetArea, game );
-		addDockWidget( Qt::LeftDockWidgetArea, node );
 		QMainWindow::tabifyDockWidget( edit, game );
-		QMainWindow::tabifyDockWidget( game, node );
 		QMainWindow::setTabPosition( Qt::LeftDockWidgetArea, QTabWidget::South );
 
 		addDockWidget( Qt::LeftDockWidgetArea, log );
