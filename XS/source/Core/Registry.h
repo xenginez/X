@@ -18,7 +18,7 @@ BEG_XS_NAMESPACE
 class XS_API Registry
 {
 public:
-	static void Register( const QString & name, const std::function< QWidget * ( QWidget * ) > & construct );
+	static void Register( const QMetaObject * meta, const std::function< QWidget * ( QWidget * ) > & construct );
 
 	static QWidget * Construct( const QString & name, QWidget * parent );
 
@@ -26,6 +26,8 @@ public:
 	{
 		return reinterpret_cast<T *>( Construct( name, parent ) );
 	}
+
+	static QList< QString > GetDerivedClass( const QMetaObject * super );
 
 private:
 	Registry();
@@ -35,7 +37,7 @@ private:
 	static Registry * _p();
 
 private:
-	std::map< QString, std::function< QWidget * ( QWidget * ) > > _Constructs;
+	std::map< QString, std::tuple< const QMetaObject *, std::function< QWidget * ( QWidget * ) > > > _Constructs;
 };
 
 END_XS_NAMESPACE
@@ -48,7 +50,7 @@ namespace XE \
 	{ \
 		MetaTypeCollector() \
 		{ \
-			XS::Registry::Register( #TYPE, []( QWidget * parent ) { return new TYPE( parent ); } ); \
+			XS::Registry::Register( &TYPE::staticMetaObject, []( QWidget * parent ) { return new TYPE( parent ); } ); \
 		} \
 		static void Use() \
 		{ \

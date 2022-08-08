@@ -1,8 +1,8 @@
 #include "Registry.h"
 
-void XS::Registry::Register( const QString & name, const std::function< QWidget * ( QWidget * ) > & construct )
+void XS::Registry::Register( const QMetaObject * meta, const std::function< QWidget * ( QWidget * ) > & construct )
 {
-	_p()->_Constructs.insert( { name, construct } );
+	_p()->_Constructs.insert( { meta->className(), { meta, construct } } );
 }
 
 QWidget * XS::Registry::Construct( const QString & name, QWidget * parent )
@@ -11,10 +11,25 @@ QWidget * XS::Registry::Construct( const QString & name, QWidget * parent )
 
 	if( it != _p()->_Constructs.end() )
 	{
-		return it->second( parent );
+		return std::get<1>( it->second )( parent );
 	}
 
 	return nullptr;
+}
+
+QList< QString > XS::Registry::GetDerivedClass( const QMetaObject * super )
+{
+	QList< QString > names;
+
+	for ( auto it : _p()->_Constructs )
+	{
+		if ( std::get<0>( it.second )->inherits( super ) )
+		{
+			names.push_back( it.first );
+		}
+	}
+
+	return names;
 }
 
 XS::Registry::Registry()

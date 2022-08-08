@@ -40,6 +40,7 @@ namespace
 			setFlag( QGraphicsItem::ItemIsMovable );
 			setFlag( QGraphicsItem::ItemIsFocusable );
 			setFlag( QGraphicsItem::ItemIsSelectable );
+			setFlag( QGraphicsItem::ItemSendsScenePositionChanges );
 
 			setZValue( GROUP_Z );
 		}
@@ -47,14 +48,16 @@ namespace
 	public:
 		QRectF titleRect() const
 		{
-			auto rect = QGraphicsItemGroup::boundingRect();
+			auto rect = boundingRect();
 
-			return QRectF( rect.left(), rect.top() - 20, rect.width(), 20 );
+			return QRectF( rect.left(), rect.top(), rect.width(), 20 );
 		}
 
 		QRectF groupRect() const
 		{
-			return QGraphicsItemGroup::boundingRect();
+			auto rect = boundingRect();
+
+			return QRectF( rect.left(), rect.top() + 20, rect.width(), rect.height() - 20 );
 		}
 
 		QRectF textRect() const
@@ -62,7 +65,9 @@ namespace
 			auto rect = titleRect();
 
 			rect.setLeft( rect.left() + 5 );
-			rect.setRight( rect.right() - 20 );
+			rect.setRight( rect.right() - 25 );
+			rect.setTop( rect.top() + 2 );
+			rect.setBottom( rect.bottom() - 2 );
 
 			return rect;
 		}
@@ -80,6 +85,11 @@ namespace
 		}
 
 	protected:
+		QRectF boundingRect() const override
+		{
+			return childrenBoundingRect().marginsAdded( QMargins( 5, 25, 5, 5 ) );
+		}
+
 		void paint( QPainter * painter, const QStyleOptionGraphicsItem * option, QWidget * widget /* = nullptr */ ) override
 		{
 			painter->setRenderHint( QPainter::Antialiasing );
@@ -98,28 +108,44 @@ namespace
 				path.lineTo( title_rect.right(), title_rect.bottom() );
 				path.lineTo( title_rect.right(), title_rect.top() + arc_r );
 				path.arcTo( title_rect.right() - corner_size, title_rect.top(), corner_size, corner_size, 0.0f, 90.0f );
+				path.lineTo( title_rect.left() + arc_r, title_rect.top() );
 
 				QLinearGradient linear( QPointF( 0, 0 ), QPointF( 200, 200 ) );
 				linear.setColorAt( 0, _Color );
 				linear.setColorAt( 1, Qt::black );
+
 				painter->fillPath( path, QBrush( linear ) );
+
+				painter->drawPath( path );
 			}
 			painter->restore();
 
 			auto text_rect = textRect();
 			painter->save();
 			{
-				painter->setPen( QPen( qApp->palette().color( QPalette::WindowText ) ) );
+				QFont font = qApp->font();
+				{
+					font.setBold( true );
+				}
+				painter->setFont( font );
 
-				QFontMetrics fontMetrics( qApp->font() );
+				QColor color = _Color;
+				{
+					color.setRed( 255 - color.red() );
+					color.setGreen( 255 - color.green() );
+					color.setBlue( 255 - color.blue() );
+				}
+				painter->setPen( QPen( color ) );
+
+				QFontMetrics fontMetrics( font );
 				int fontSize = fontMetrics.width( _Name );
 				if ( fontSize > title_rect.width() - 25 )
 				{
-					painter->drawText( text_rect.topLeft(), fontMetrics.elidedText( _Name, Qt::ElideRight, title_rect.width() - 25 ) );
+					painter->drawText( text_rect, fontMetrics.elidedText( _Name, Qt::ElideRight, title_rect.width() - 25 ) );
 				}
 				else
 				{
-					painter->drawText( text_rect.topLeft(), _Name );
+					painter->drawText( text_rect, _Name );
 				}
 			}
 			painter->restore();
@@ -147,11 +173,9 @@ namespace
 			painter->restore();
 		}
 
-		void mousePressEvent( QGraphicsSceneMouseEvent * event ) override
+		void mouseReleaseEvent( QGraphicsSceneMouseEvent * event ) override
 		{
-			QGraphicsItemGroup::mousePressEvent( event );
-
-			if ( colorButtonRect().contains( mapToScene( event->pos() ) ) )
+			if ( mapRectToScene( colorButtonRect() ).contains( mapToScene( event->pos() ) ) )
 			{
 				QColorDialog color;
 
@@ -162,34 +186,9 @@ namespace
 					_Color = color.currentColor();
 				}
 			}
-			else if ( textRect().contains( mapToScene( event->pos() ) ) && event->buttons() == Qt::LeftButton )
+			else
 			{
-				_Move = true;
-				_LastPos = event->pos();
-			}
-		}
-
-		void mouseMoveEvent( QGraphicsSceneMouseEvent * event ) override
-		{
-			QGraphicsItemGroup::mouseMoveEvent( event );
-
-			if ( _Move )
-			{
-				auto dt = mapToScene( event->pos() ) - mapToScene( _LastPos );
-
-				moveBy( dt.x(), dt.y() );
-
-				_LastPos = event->pos();
-			}
-		}
-
-		void mouseReleaseEvent( QGraphicsSceneMouseEvent * event ) override
-		{
-			QGraphicsItemGroup::mouseReleaseEvent( event );
-
-			if ( _Move )
-			{
-				_Move = false;
+				QGraphicsItemGroup::mouseReleaseEvent( event );
 			}
 		}
 
@@ -206,8 +205,6 @@ namespace
 	public:
 		QColor _Color = Qt::green;
 		QString _Name = "Node Group";
-		bool _Move = false;
-		QPointF _LastPos;
 	};
 
 	class NodeConnect : public QGraphicsItem
@@ -648,10 +645,14 @@ void XS::NodeWidget::mousePressEvent( QMouseEvent * event )
 			_LastPos = event->pos();
 
 			auto pos = mapToScene( event->pos() );
-			QPen pen( palette().color( QPalette::Text ), 1.0 );
-			QBrush brush( palette().color( QPalette::PlaceholderText ), Qt::Dense1Pattern );
+			auto color = palette().color( QPalette::Foreground );
+
+			QPen pen( color, 1.0 );
+			color.setAlphaF( 0.3f );
+			QBrush brush( color );
+
 			_Group = scene()->addRect( pos.x(), pos.y(), 0, 0, pen, brush );
-			_Group->setZValue( NODE_Z + 1 );
+			_Group->setZValue( DRAW_CONNECT_Z );
 		}
 		else
 		{
@@ -795,4 +796,20 @@ void XS::NodeWidget::drawBackground( QPainter * painter, const QRectF & rect )
 		drawGrid( GRID_STEP * 10 );
 	}
 	painter->restore();
+}
+
+void XS::NodeWidget::showEvent( QShowEvent * event )
+{
+	QGraphicsView::showEvent( event );
+
+	auto n1 = new XS::NodeItem();
+	auto n2 = new XS::NodeItem();
+	auto n3 = new XS::NodeItem();
+	auto n4 = new XS::NodeItem();
+
+	n2->moveBy( 200, 0 );
+	n3->moveBy( 0, 200 );
+	n4->moveBy( 200, 200 );
+
+	addItem( n1 ); addItem( n2 ); addItem( n3 ); addItem( n4 );
 }

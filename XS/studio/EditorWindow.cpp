@@ -16,16 +16,50 @@ XStudio::EditorWindow::EditorWindow( const QString & project, QWidget * parent /
 	SetWindowTitle( project );
 
 	QMenu * e_file = new QMenu( tr( "&File" ) );
-	QAction * a_file = new QAction( "&11111" ); a_file->setShortcut( QKeySequence( "ALT + F" ) );
-	e_file->addAction( a_file );
-	QMenu * e_edit = new QMenu( tr( "&Edit" ) ); e_edit->addAction( new QAction( "11111" ) );
-	QMenu * e_view = new QMenu( tr( "&View" ) ); e_view->addAction( new QAction( "11111" ) );
-	QMenu * e_plug = new QMenu( tr( "&Plugin" ) ); e_plug->addAction( new QAction( "11111" ) );
-	QMenu * e_help = new QMenu( tr( "&Help" ) ); e_help->addAction( new QAction( "11111" ) );
+	{
+		e_file->addAction( new QAction( "&11111" ) );
+	}
+	QMenu * e_edit = new QMenu( tr( "&Edit" ) );
+	{
+		e_edit->addAction( new QAction( "11111" ) );
+	}
+	QMenu * e_wind = new QMenu( tr( "&Window" ) );
+	{
+		auto names = XS::Registry::GetDerivedClass( &XS::DockWidget::staticMetaObject );
+		
+		for ( auto name : names )
+		{
+			QAction * action = new QAction( name );
+
+			connect( action, &QAction::triggered, [this, name]()
+			{
+				auto childs = this->children();
+				auto it = std::find_if( childs.begin(), childs.end(), [&]( QObject * obj ) { return obj->metaObject()->className() == name; } );
+				if ( it == childs.end() )
+				{
+					XS::Registry::ConstructT< XS::DockWidget >( name, this )->show();
+				}
+				else
+				{
+					static_cast<XS::DockWidget *>( *it )->raise();
+				}
+			} );
+
+			e_wind->addAction( action );
+		}
+	}
+	QMenu * e_plug = new QMenu( tr( "&Plugin" ) );
+	{
+		e_plug->addAction( new QAction( "11111" ) );
+	}
+	QMenu * e_help = new QMenu( tr( "&Help" ) );
+	{
+		e_help->addAction( new QAction( "11111" ) );
+	}
 
 	menuBar()->addMenu( e_file );
 	menuBar()->addMenu( e_edit );
-	menuBar()->addMenu( e_view );
+	menuBar()->addMenu( e_wind );
 	menuBar()->addMenu( e_plug );
 	menuBar()->addMenu( e_help );
 
