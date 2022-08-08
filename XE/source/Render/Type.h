@@ -22,13 +22,6 @@ BEG_XE_NAMESPACE
 
 DECL_HANDLE( RenderResource );
 
-enum class CameraType : XE::uint32
-{
-	PERSPECTIVE,
-	ORTHOGRAPHIC,
-};
-DECL_XE_ENUM( CameraType );
-
 enum class LightType : XE::uint32
 {
 	SPOT,
@@ -38,6 +31,26 @@ enum class LightType : XE::uint32
 	AMBIENT_SPHERE,
 };
 DECL_XE_ENUM( LightType );
+
+enum class CameraType : XE::uint32
+{
+	PERSPECTIVE,
+	ORTHOGRAPHIC,
+};
+DECL_XE_ENUM( CameraType );
+
+enum class RenderQueueType
+{
+	BACKGROUND,
+	GEOMETRY,
+	ALPHA_TEST,
+	GEOMETRY_LAST,
+	TRANSPARENT,
+	POST_PROCESS,
+	USER_INTERFACE,
+};
+DECL_XE_ENUM( RenderQueueType );
+
 
 struct XE_API LightData
 {

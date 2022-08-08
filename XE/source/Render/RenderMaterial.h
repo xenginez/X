@@ -24,6 +24,10 @@ public:
 
 public:
 
+private:
+	bool _TowSided = false;
+	XE::RenderShaderPtr _Shader;
+	XE::RenderQueueType _RenderQueueType = RenderQueueType::GEOMETRY;
 };
 
 END_XE_NAMESPACE

@@ -797,19 +797,3 @@ void XS::NodeWidget::drawBackground( QPainter * painter, const QRectF & rect )
 	}
 	painter->restore();
 }
-
-void XS::NodeWidget::showEvent( QShowEvent * event )
-{
-	QGraphicsView::showEvent( event );
-
-	auto n1 = new XS::NodeItem();
-	auto n2 = new XS::NodeItem();
-	auto n3 = new XS::NodeItem();
-	auto n4 = new XS::NodeItem();
-
-	n2->moveBy( 200, 0 );
-	n3->moveBy( 0, 200 );
-	n4->moveBy( 200, 200 );
-
-	addItem( n1 ); addItem( n2 ); addItem( n3 ); addItem( n4 );
-}

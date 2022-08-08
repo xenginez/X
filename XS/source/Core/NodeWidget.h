@@ -108,8 +108,6 @@ protected:
 
 	void drawBackground( QPainter * painter, const QRectF & rect ) override;
 
-	void showEvent( QShowEvent * event ) override;
-
 private:
 	int _SceneFlag = 0;
 	QPoint _LastPos = {};
