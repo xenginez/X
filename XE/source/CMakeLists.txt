@@ -33,7 +33,7 @@ install(TARGETS XE
         ARCHIVE DESTINATION lib
         )
 
-set(PUBLIC_HEADER_DIRS Audio Base Core GUI Inputs Math Memory Network Reflect Render Scene Utils WASM)
+set(PUBLIC_HEADER_DIRS AST Audio Base Core GUI Inputs Math Memory Network Reflect Render Scene Utils WASM)
 foreach(PUBLIC_HEADER_DIR ${PUBLIC_HEADER_DIRS})
 	FILE(GLOB_RECURSE PUBLIC_HEADER_FILES ${PUBLIC_HEADER_DIR}/*.h ${PUBLIC_HEADER_DIR}/*.hpp ${PUBLIC_HEADER_DIR}/*.inc)
 	install(FILES ${PUBLIC_HEADER_FILES} DESTINATION include/XE/${PUBLIC_HEADER_DIR}/)

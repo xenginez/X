@@ -24,6 +24,11 @@ public:
 
 public:
 
+
+private:
+	XE::GraphicsShaderModulePtr _ShaderModule;
+	XE::Map< XE::GraphicsShaderStage, XE::String > _EntryPoints;
+	XE::Array< std::tuple< XE::String, XE::Variant > > _Parameters;
 };
 
 END_XE_NAMESPACE
