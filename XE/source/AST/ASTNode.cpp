@@ -1,243 +1,161 @@
 #include "ASTNode.h"
 
-#include "ASTCodegen.h"
+#include "ASTVisitor.h"
 
 IMPLEMENT_META( XE::ASTNode );
 IMPLEMENT_META( XE::StatASTNode );
-IMPLEMENT_META( XE::ExprASTNode );
+IMPLEMENT_META( XE::ExprStatNode );
 BEG_META( XE::TypeASTNode )
 END_META()
-BEG_META( XE::EnumASTNode )
+BEG_META( XE::IfStatNode )
 END_META()
-BEG_META( XE::StructASTNode )
+BEG_META( XE::BreakStatNode )
 END_META()
-BEG_META( XE::FunctionASTNode )
+BEG_META( XE::WhileStatNode )
 END_META()
-BEG_META( IfStatNode )
+BEG_META( XE::SwitchStatNode )
 END_META()
-BEG_META( BlockStatNode )
+BEG_META( XE::ReturnStatNode )
 END_META()
-BEG_META( BreakStatNode )
+BEG_META( XE::ContinueStatNode )
 END_META()
-BEG_META( WhileStatNode )
+BEG_META( XE::ValueExprNode )
 END_META()
-BEG_META( SwitchStatNode )
+BEG_META( XE::UnaryExprNode )
 END_META()
-BEG_META( ReturnStatNode )
+BEG_META( XE::BinaryExprNode )
 END_META()
-BEG_META( ContinueStatNode )
+BEG_META( XE::SizeofExprNode )
 END_META()
-BEG_META( ValueExprNode )
+BEG_META( XE::TypeofExprNode )
 END_META()
-BEG_META( UnaryExprNode )
+BEG_META( XE::InvokeExprNode )
 END_META()
-BEG_META( BinaryExprNode )
-END_META()
-BEG_META( SizeofExprNode )
-END_META()
-BEG_META( TypeofExprNode )
-END_META()
-BEG_META( InvokeExprNode )
-END_META()
-BEG_META( VariableExprNode )
+BEG_META( XE::VariableExprNode )
 END_META()
 
+#define VISIT( TYPE ) void TYPE::Visit( XE::ASTVisitor * val ) const { val->Visit( this ); }
+VISIT( XE::ASTNode );
+VISIT( XE::StatASTNode );
+VISIT( XE::ExprStatNode );
+VISIT( XE::TypeASTNode )
+VISIT( XE::IfStatNode )
+VISIT( XE::BreakStatNode )
+VISIT( XE::WhileStatNode )
+VISIT( XE::SwitchStatNode )
+VISIT( XE::ReturnStatNode )
+VISIT( XE::ContinueStatNode )
+VISIT( XE::ValueExprNode )
+VISIT( XE::UnaryExprNode )
+VISIT( XE::BinaryExprNode )
+VISIT( XE::SizeofExprNode )
+VISIT( XE::TypeofExprNode )
+VISIT( XE::InvokeExprNode )
+VISIT( XE::VariableExprNode )
 
-void XE::ASTNode::Visit( const XE::ASTCodegenPtr & val ) const
-{
-	val->Visit( this );
-}
-
-const XE::MetaClassCPtr & XE::TypeASTNode::GetType() const
+const XE::String & XE::TypeASTNode::GetType() const
 {
 	return _Type;
 }
 
-void XE::TypeASTNode::SetType( const XE::MetaClassCPtr & val )
+void XE::TypeASTNode::SetType( const XE::String & val )
 {
 	_Type = val;
 }
 
-void XE::TypeASTNode::Visit( const XE::ASTCodegenPtr & val ) const
+const XE::StatASTNodePtr & XE::IfStatNode::GetCondition() const
 {
-	val->Visit( this );
+	return _Condition;
 }
 
-bool XE::EnumASTNode::GetFlag() const
+void XE::IfStatNode::SetCondition( const XE::StatASTNodePtr & val )
 {
-	return _Flag;
+	_Condition = val;
 }
 
-void XE::EnumASTNode::SetFlag( bool val )
+const XE::StatASTNodePtr & XE::IfStatNode::GetTrue() const
 {
-	_Flag = val;
+	return _True;
 }
 
-const XE::String & XE::EnumASTNode::GetName() const
+void XE::IfStatNode::SetTrue( const XE::StatASTNodePtr & val )
 {
-	return _Name;
+	_True = val;
 }
 
-void XE::EnumASTNode::SetName( const XE::String & val )
+const XE::StatASTNodePtr & XE::IfStatNode::GetFalse() const
 {
-	_Name = val;
+	return _False;
 }
 
-const XE::Array< XE::String > & XE::EnumASTNode::GetElements() const
+void XE::IfStatNode::SetFalse( const XE::StatASTNodePtr & val )
 {
-	return _Elements;
+	_False = val;
 }
 
-void XE::EnumASTNode::SetElements( const XE::Array< XE::String > & val )
+const XE::StatASTNodePtr & XE::WhileStatNode::GetCondition() const
 {
-	_Elements = val;
+	return _Condition;
 }
 
-bool XE::EnumASTNode::AddElement( const XE::String & val )
+void XE::WhileStatNode::SetCondition( const XE::StatASTNodePtr & val )
 {
-	if ( _Flag && _Elements.size() == 64 )
-	{
-		return false;
-	}
-
-	_Elements.push_back( val );
-
-	return true;
+	_Condition = val;
 }
 
-void XE::EnumASTNode::Visit( const XE::ASTCodegenPtr & val ) const
-{
-	val->Visit( this );
-}
-
-const XE::String & XE::StructASTNode::GetName() const
-{
-	return _Name;
-}
-
-void XE::StructASTNode::SetName( const XE::String & val )
-{
-	_Name = val;
-}
-
-const XE::Array< XE::Pair< XE::String, XE::Variant > > & XE::StructASTNode::GetElements() const
-{
-	return _Elements;
-}
-
-void XE::StructASTNode::SetElements( const XE::Array< XE::Pair< XE::String, XE::Variant > > & val )
-{
-	_Elements = val;
-}
-
-void XE::StructASTNode::AddElement( const XE::String & name, const XE::Variant & val )
-{
-	_Elements.push_back( { name, val } );
-}
-
-void XE::StructASTNode::Visit( const XE::ASTCodegenPtr & val ) const
-{
-	val->Visit( this );
-}
-
-const XE::String & XE::FunctionASTNode::GetName() const
-{
-	return _Name;
-}
-
-void XE::FunctionASTNode::SetName( const XE::String & val )
-{
-	_Name = val;
-}
-
-const XE::StatASTNodePtr & XE::FunctionASTNode::GetStatement() const
+const XE::StatASTNodePtr & XE::WhileStatNode::GetStatement() const
 {
 	return _Statement;
 }
 
-void XE::FunctionASTNode::SetStatement( const XE::StatASTNodePtr & val )
+void XE::WhileStatNode::SetStatement( const XE::StatASTNodePtr & val )
 {
 	_Statement = val;
 }
 
-const XE::Array< XE::TypeASTNodePtr > & XE::FunctionASTNode::GetResults() const
+const XE::ExprStatNodePtr & XE::SwitchStatNode::GetExpress() const
 {
-	return _Results;
+	return _Express;
 }
 
-void XE::FunctionASTNode::SetResults( const XE::Array< XE::TypeASTNodePtr > & val )
+void XE::SwitchStatNode::SetExpress( const XE::ExprStatNodePtr & val )
 {
-	_Results = val;
+	_Express = val;
 }
 
-const XE::Array< XE::Pair< XE::String, XE::TypeASTNodePtr > > & XE::FunctionASTNode::GetParameter() const
+const XE::StatASTNodePtr & XE::SwitchStatNode::GetDefault() const
 {
-	return _Parameters;
+	return _Default;
 }
 
-void XE::FunctionASTNode::SetParameters( const XE::Array< XE::Pair< XE::String, XE::TypeASTNodePtr > > & val )
+void XE::SwitchStatNode::SetDefault( const XE::StatASTNodePtr & val )
 {
-	_Parameters = val;
+	_Default = val;
 }
 
-void XE::FunctionASTNode::AddResult( const XE::TypeASTNodePtr & val )
+const XE::Array< XE::StatASTNodePtr > & XE::SwitchStatNode::GetCases() const
 {
-	_Results.push_back( val );
+	return _Cases;
 }
 
-void XE::FunctionASTNode::AddParameter( const XE::String & name, const XE::TypeASTNodePtr & type )
+void XE::SwitchStatNode::SetCases( const XE::Array< XE::StatASTNodePtr > & val )
 {
-	_Parameters.push_back( { name, type } );
+	_Cases = val;
 }
 
-void XE::FunctionASTNode::Visit( const XE::ASTCodegenPtr & val ) const
+void XE::SwitchStatNode::AddCase( const XE::StatASTNodePtr & val )
 {
-	val->Visit( this );
+	_Cases.push_back( val );
 }
 
-void XE::StatASTNode::Visit( const XE::ASTCodegenPtr & val ) const
+const XE::StatASTNodePtr & XE::ReturnStatNode::GetResult() const
 {
-	val->Visit( this );
+	return _Result;
 }
 
-void XE::IfStatNode::Visit( const XE::ASTCodegenPtr & val ) const
+void XE::ReturnStatNode::SetResult( const XE::StatASTNodePtr & val )
 {
-	val->Visit( this );
-}
-
-void XE::BlockStatNode::Visit( const XE::ASTCodegenPtr & val ) const
-{
-	val->Visit( this );
-}
-
-void XE::BreakStatNode::Visit( const XE::ASTCodegenPtr & val ) const
-{
-	val->Visit( this );
-}
-
-void XE::WhileStatNode::Visit( const XE::ASTCodegenPtr & val ) const
-{
-	val->Visit( this );
-}
-
-void XE::SwitchStatNode::Visit( const XE::ASTCodegenPtr & val ) const
-{
-	val->Visit( this );
-}
-
-void XE::ReturnStatNode::Visit( const XE::ASTCodegenPtr & val ) const
-{
-	val->Visit( this );
-}
-
-void XE::ContinueStatNode::Visit( const XE::ASTCodegenPtr & val ) const
-{
-	val->Visit( this );
-}
-
-void XE::ExprASTNode::Visit( const XE::ASTCodegenPtr & val ) const
-{
-	val->Visit( this );
+	_Result = val;
 }
 
 const XE::Variant & XE::ValueExprNode::GetValue() const
@@ -250,37 +168,107 @@ void XE::ValueExprNode::SetValue( const XE::Variant & val )
 	_Value = val;
 }
 
-void XE::ValueExprNode::Visit( const XE::ASTCodegenPtr & val ) const
+XE::UnaryExprType XE::UnaryExprNode::GetType() const
 {
-	val->Visit( this );
+	return _Type;
 }
 
-void XE::UnaryExprNode::Visit( const XE::ASTCodegenPtr & val ) const
+void XE::UnaryExprNode::SetType( XE::UnaryExprType val )
 {
-	val->Visit( this );
+	_Type = val;
 }
 
-void XE::BinaryExprNode::Visit( const XE::ASTCodegenPtr & val ) const
+const XE::ExprStatNodePtr & XE::UnaryExprNode::GetExpress() const
 {
-	val->Visit( this );
+	return _Express;
 }
 
-void XE::SizeofExprNode::Visit( const XE::ASTCodegenPtr & val ) const
+void XE::UnaryExprNode::SetExpress( const XE::ExprStatNodePtr & val )
 {
-	val->Visit( this );
+	_Express = val;
 }
 
-void XE::TypeofExprNode::Visit( const XE::ASTCodegenPtr & val ) const
+XE::BinaryExprType XE::BinaryExprNode::GetType() const
 {
-	val->Visit( this );
+	return _Type;
 }
 
-void XE::InvokeExprNode::Visit( const XE::ASTCodegenPtr & val ) const
+void XE::BinaryExprNode::SetType( XE::BinaryExprType val )
 {
-	val->Visit( this );
+	_Type = val;
 }
 
-void XE::VariableExprNode::Visit( const XE::ASTCodegenPtr & val ) const
+const XE::ExprStatNodePtr & XE::BinaryExprNode::GetLeftExpress() const
 {
-	val->Visit( this );
+	return _LeftExpress;
+}
+
+void XE::BinaryExprNode::SetLeftExpress( const XE::ExprStatNodePtr & val )
+{
+	_LeftExpress = val;
+}
+
+const XE::ExprStatNodePtr & XE::BinaryExprNode::GetRightExpress() const
+{
+	return _RightExpress;
+}
+
+void XE::BinaryExprNode::SetRightExpress( const XE::ExprStatNodePtr & val )
+{
+	_RightExpress = val;
+}
+
+const XE::TypeASTNodePtr & XE::SizeofExprNode::GetType() const
+{
+	return _Type;
+}
+
+void XE::SizeofExprNode::SetType( const XE::TypeASTNodePtr & val )
+{
+	_Type = val;
+}
+
+const XE::TypeASTNodePtr & XE::TypeofExprNode::GetType() const
+{
+	return _Type;
+}
+
+void XE::TypeofExprNode::SetType( const XE::TypeASTNodePtr & val )
+{
+	_Type = val;
+}
+
+const XE::String & XE::InvokeExprNode::GetName() const
+{
+	return _Name;
+}
+
+void XE::InvokeExprNode::SetName( const XE::String & val )
+{
+	_Name = val;
+}
+
+const XE::Array< XE::ExprStatNodePtr > & XE::InvokeExprNode::GetArguments() const
+{
+	return _Arguments;
+}
+
+void XE::InvokeExprNode::SetArguments( const XE::Array< XE::ExprStatNodePtr > & val )
+{
+	_Arguments = val;
+}
+
+void XE::InvokeExprNode::AddArguments( const XE::ExprStatNodePtr & val )
+{
+	_Arguments.push_back( val );
+}
+
+const XE::String & XE::VariableExprNode::GetName() const
+{
+	return _Name;
+}
+
+void XE::VariableExprNode::SetName( const XE::String & val )
+{
+	_Name = val;
 }

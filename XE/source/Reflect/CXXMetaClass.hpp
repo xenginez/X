@@ -31,7 +31,7 @@ public:
 	}
 
 public:
-	void Destructor( void * ptr ) const override
+	void Destruct( void * ptr ) const override
 	{
 		if constexpr( !std::is_abstract_v< ClassType > )
 		{
@@ -42,30 +42,11 @@ public:
 		}
 	}
 
-	Variant Construct( void * ptr = nullptr ) const override
+	Variant Construct( void * ptr ) const override
 	{
 		if constexpr( !std::is_abstract_v< ClassType > && std::is_constructible_v< ClassType > )
 		{
-			return ptr != nullptr ? new ( ptr ) ClassType() : new ClassType();
-		}
-
-		throw MetaException( shared_from_this(), "is abstract type!" );
-	}
-
-	Variant ConstructPtr( XE::SharedPtr< void > ptr = nullptr ) const override
-	{
-		if constexpr( !std::is_abstract_v< ClassType > && std::is_constructible_v< ClassType > )
-		{
-			if( ptr != nullptr )
-			{
-				new ( ptr.get() ) ClassType();
-			}
-			else
-			{
-				ptr = XE::MakeShared< ClassType >();
-			}
-
-			return SP_CAST< ClassType >( ptr );
+			return new ( ptr ) ClassType();
 		}
 
 		throw MetaException( shared_from_this(), "is abstract type!" );
@@ -195,19 +176,14 @@ public:
 	}
 
 public:
-	void Destructor( void * ptr ) const override
+	void Destruct( void * ptr ) const override
 	{
 
 	}
 
 	Variant Construct( void * ptr = nullptr ) const override
 	{
-		return ptr != nullptr ? new ( ptr ) ClassType() : new ClassType();
-	}
-
-	Variant ConstructPtr( XE::SharedPtr< void > ptr = nullptr ) const override
-	{
-		return ptr != nullptr ? SP_CAST< ClassType >( ptr ) : XE::MakeShared< ClassType >();
+		return new ( ptr ) ClassType();
 	}
 
 	void Clone( const XE::Variant & from, XE::Variant & to ) const override

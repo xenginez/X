@@ -447,11 +447,15 @@ XE::Variant XE::XmlIArchive::Deserialize( const XE::String & name /*= "" */ )
 				}
 				else if( flag == is_shared_ptr )
 				{
-					result = cls->ConstructPtr();
+					void * p = XE::MemoryResource::Alloc( cls->GetSize() );
+					cls->Construct( p );
+					XE::SharedPtr< void > sp( p, [c = cls.get()]( void * p ) { c->Destruct( p ); XE::MemoryResource::Free( p ); } );
+					result = XE::Variant( sp, cls.get() );
 				}
 				else
 				{
-					result = cls->Construct();
+					void * p = XE::MemoryResource::Alloc( cls->GetSize() );
+					result = cls->Construct( p );
 				}
 			}
 
@@ -752,11 +756,15 @@ XE::Variant XE::JsonIArchive::Deserialize( const XE::String & name /*= ""*/ )
 					}
 					else if( flag == is_shared_ptr )
 					{
-						result = cls->ConstructPtr();
+						void * p = XE::MemoryResource::Alloc( cls->GetSize() );
+						cls->Construct( p );
+						XE::SharedPtr< void > sp( p, [c = cls.get()]( void * p ) { c->Destruct( p ); XE::MemoryResource::Free( p ); } );
+						result = XE::Variant( sp, cls.get() );
 					}
 					else
 					{
-						result = cls->Construct();
+						void * p = XE::MemoryResource::Alloc( cls->GetSize() );
+						result = cls->Construct( p );
 					}
 				}
 
@@ -1011,11 +1019,15 @@ XE::Variant XE::BinaryIArchive::Deserialize( const XE::String & name /*= ""*/ )
 				}
 				else if( flag == is_shared_ptr )
 				{
-					result = cls->ConstructPtr();
+					void * p = XE::MemoryResource::Alloc( cls->GetSize() );
+					cls->Construct( p );
+					XE::SharedPtr< void > sp( p, [c = cls.get()]( void * p ) { c->Destruct( p ); XE::MemoryResource::Free( p ); } );
+					result = XE::Variant( sp, cls.get() );
 				}
 				else
 				{
-					result = cls->Construct();
+					void * p = XE::MemoryResource::Alloc( cls->GetSize() );
+					result = cls->Construct( p );
 				}
 
 				if( flag != is_null )

@@ -67,11 +67,9 @@ public:
 	XE::MetaMethodCPtr FindMethod( const XE::String & Name, const XE::ParameterType & Types ) const;
 
 public:
-	virtual void Destructor( void * ptr ) const = 0;
+	virtual void Destruct( void * ptr ) const = 0;
 
-	virtual XE::Variant Construct( void * ptr = nullptr ) const = 0;
-
-	virtual XE::Variant ConstructPtr( XE::SharedPtr< void > ptr = nullptr ) const = 0;
+	virtual XE::Variant Construct( void * ptr ) const = 0;
 
 	virtual void Clone( const XE::Variant & from, XE::Variant & to ) const = 0;
 

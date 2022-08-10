@@ -527,7 +527,7 @@ void XE::World::RemoveComponent( const XE::EntityHandle & handle, const XE::Meta
 			}
 			else
 			{
-				component->Destructor( CalcComponentPtr( ( *old_index.Data )->Data, old_offset, old_index.Index, ( *old_index.Data )->Bits.Count(), size ) );
+				component->Destruct( CalcComponentPtr( ( *old_index.Data )->Data, old_offset, old_index.Index, ( *old_index.Data )->Bits.Count(), size ) );
 			}
 			old_offset += size;
 		}
