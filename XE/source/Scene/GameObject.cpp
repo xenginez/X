@@ -136,14 +136,11 @@ XE::GameObjectComponentPtr XE::GameObject::AddComponent( const XE::MetaClassCPtr
 		}
 	}
 
-	if ( XE::GameObjectComponentPtr comp = val->ConstructPtr().Value< XE::GameObjectComponentPtr >() )
-	{
-		_Components.push_back( comp );
+	XE::GameObjectComponentPtr comp( (XE::GameObjectComponent *)val->Construct( XE::MemoryResource::Alloc( val->GetSize() ) ).ToPointer(), [meta = val.get()]( void * p ) { meta->Destruct( p ); XE::MemoryResource::Free( p ); } );
 
-		return comp;
-	}
+	_Components.push_back( comp );
 
-	return nullptr;
+	return comp;
 }
 
 XE::GameObjectComponentPtr XE::GameObject::GetComponent( const XE::MetaClassCPtr & val )

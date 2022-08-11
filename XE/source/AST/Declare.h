@@ -28,7 +28,6 @@ DECL_PTR( ASTMetaFunction );
 DECL_PTR( ASTMetaVariable );
 
 DECL_PTR( ASTNode );
-DECL_PTR( TypeASTNode );
 DECL_PTR( StatASTNode );
 DECL_PTR( IfStatNode );
 DECL_PTR( BreakStatNode );
@@ -40,8 +39,6 @@ DECL_PTR( ExprStatNode );
 DECL_PTR( ValueExprNode );
 DECL_PTR( UnaryExprNode );
 DECL_PTR( BinaryExprNode );
-DECL_PTR( SizeofExprNode );
-DECL_PTR( TypeofExprNode );
 DECL_PTR( InvokeExprNode );
 DECL_PTR( VariableExprNode );
 

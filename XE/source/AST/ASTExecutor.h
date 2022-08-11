@@ -23,6 +23,9 @@ private:
 
 	~ASTExecutor();
 
+private:
+	static XE::ASTExecutor * GetInstance();
+
 public:
 	static XE::Variant Invoke( const XE::SharedPtr< XE::ASTMethod > & method, XE::InvokeStack * args );
 
@@ -30,8 +33,6 @@ public:
 
 public:
 	void Visit( const XE::ASTNode * val ) override;
-
-	void Visit( const XE::TypeASTNode * val ) override;
 
 	void Visit( const XE::IfStatNode * val ) override;
 
@@ -51,16 +52,26 @@ public:
 
 	void Visit( const XE::BinaryExprNode * val ) override;
 
-	void Visit( const XE::SizeofExprNode * val ) override;
-
-	void Visit( const XE::TypeofExprNode * val ) override;
-
 	void Visit( const XE::InvokeExprNode * val ) override;
 
 	void Visit( const XE::VariableExprNode * val ) override;
 
 private:
-	static XE::ASTExecutor * GetInstance();
+	void Exec();
+
+private:
+	void Push( const XE::Variant & val );
+
+	XE::Variant Pop();
+
+	XE::Variant & Top();
+
+	XE::Variant & Get( XE::uint64 val );
+
+private:
+	XE::uint64 Index() const;
+
+	void Reset( XE::uint64 val );
 
 private:
 	Private * _p;

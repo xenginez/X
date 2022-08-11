@@ -33,7 +33,7 @@ void XE::ASTMetaClass::Destruct( void * ptr ) const
 
 	args.Push( XE::Variant( ptr, this ) );
 
-	XE::ASTExecutor::Invoke( _Class->Construct, &args );
+	XE::ASTExecutor::Invoke( _Class->Destruct, &args );
 }
 
 XE::Variant XE::ASTMetaClass::Construct( void * ptr ) const
@@ -42,7 +42,7 @@ XE::Variant XE::ASTMetaClass::Construct( void * ptr ) const
 
 	args.Push( XE::Variant( ptr, this ) );
 
-	XE::ASTExecutor::Invoke( _Class->Destruct, &args );
+	return XE::ASTExecutor::Invoke( _Class->Construct, &args );
 }
 
 void XE::ASTMetaClass::Clone( const XE::Variant & from, XE::Variant & to ) const

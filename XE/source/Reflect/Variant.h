@@ -59,7 +59,11 @@ public:
 
 	Variant( const void * ptr, const XE::MetaType * meta );
 
+	Variant( const void * ptr, const XE::MetaTypeCPtr & meta );
+
 	Variant( const XE::SharedPtr< void > & ptr, const XE::MetaType * meta );
+
+	Variant( const XE::SharedPtr< void > & ptr, const XE::MetaTypeCPtr & meta );
 
 	template< typename T > Variant( const T & val )
 		:_Data( XE::VariantCreate< typename XE::TypeTraits< T >::remove_const_volatile_reference_t >::Create( val ) )
@@ -115,6 +119,13 @@ public:
 	}
 
 public:
+	XE::Variant operator!() const;
+
+	XE::Variant operator~() const;
+
+	XE::Variant operator-() const;
+
+public:
 	bool operator < ( const XE::Variant & val ) const;
 
 	bool operator >( const XE::Variant & val ) const;
@@ -126,6 +137,31 @@ public:
 	bool operator ==( const XE::Variant & val ) const;
 
 	bool operator !=( const XE::Variant & val ) const;
+
+	bool operator && ( const XE::Variant & val ) const;
+
+	bool operator || ( const XE::Variant & val ) const;
+
+public:
+	XE::Variant operator+( const XE::Variant & val ) const;
+
+	XE::Variant operator-( const XE::Variant & val ) const;
+
+	XE::Variant operator*( const XE::Variant & val ) const;
+
+	XE::Variant operator/( const XE::Variant & val ) const;
+
+	XE::Variant operator%( const XE::Variant & val ) const;
+
+	XE::Variant operator|( const XE::Variant & val ) const;
+
+	XE::Variant operator^( const XE::Variant & val ) const;
+
+	XE::Variant operator&( const XE::Variant & val ) const;
+
+	XE::Variant operator<<( const XE::Variant & val ) const;
+
+	XE::Variant operator>>( const XE::Variant & val ) const;
 
 public:
 	bool IsNull() const;
@@ -166,6 +202,8 @@ public:
 	XE::float32 ToFloat32() const;
 
 	XE::float64 ToFloat64() const;
+
+	XE::String ToString() const;
 
 	void * ToPointer() const;
 

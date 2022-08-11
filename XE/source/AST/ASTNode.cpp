@@ -5,8 +5,6 @@
 IMPLEMENT_META( XE::ASTNode );
 IMPLEMENT_META( XE::StatASTNode );
 IMPLEMENT_META( XE::ExprStatNode );
-BEG_META( XE::TypeASTNode )
-END_META()
 BEG_META( XE::IfStatNode )
 END_META()
 BEG_META( XE::BreakStatNode )
@@ -25,10 +23,6 @@ BEG_META( XE::UnaryExprNode )
 END_META()
 BEG_META( XE::BinaryExprNode )
 END_META()
-BEG_META( XE::SizeofExprNode )
-END_META()
-BEG_META( XE::TypeofExprNode )
-END_META()
 BEG_META( XE::InvokeExprNode )
 END_META()
 BEG_META( XE::VariableExprNode )
@@ -38,7 +32,6 @@ END_META()
 VISIT( XE::ASTNode );
 VISIT( XE::StatASTNode );
 VISIT( XE::ExprStatNode );
-VISIT( XE::TypeASTNode )
 VISIT( XE::IfStatNode )
 VISIT( XE::BreakStatNode )
 VISIT( XE::WhileStatNode )
@@ -48,20 +41,9 @@ VISIT( XE::ContinueStatNode )
 VISIT( XE::ValueExprNode )
 VISIT( XE::UnaryExprNode )
 VISIT( XE::BinaryExprNode )
-VISIT( XE::SizeofExprNode )
-VISIT( XE::TypeofExprNode )
 VISIT( XE::InvokeExprNode )
 VISIT( XE::VariableExprNode )
 
-const XE::String & XE::TypeASTNode::GetType() const
-{
-	return _Type;
-}
-
-void XE::TypeASTNode::SetType( const XE::String & val )
-{
-	_Type = val;
-}
 
 const XE::StatASTNodePtr & XE::IfStatNode::GetCondition() const
 {
@@ -133,19 +115,19 @@ void XE::SwitchStatNode::SetDefault( const XE::StatASTNodePtr & val )
 	_Default = val;
 }
 
-const XE::Array< XE::StatASTNodePtr > & XE::SwitchStatNode::GetCases() const
+const XE::Array< XE::Pair< XE::Variant, XE::StatASTNodePtr > > & XE::SwitchStatNode::GetCases() const
 {
 	return _Cases;
 }
 
-void XE::SwitchStatNode::SetCases( const XE::Array< XE::StatASTNodePtr > & val )
+void XE::SwitchStatNode::SetCases( const XE::Array< XE::Pair< XE::Variant, XE::StatASTNodePtr > > & val )
 {
 	_Cases = val;
 }
 
-void XE::SwitchStatNode::AddCase( const XE::StatASTNodePtr & val )
+void XE::SwitchStatNode::AddCase( const XE::Variant & val, const XE::StatASTNodePtr & stat )
 {
-	_Cases.push_back( val );
+	_Cases.push_back( { val, stat } );
 }
 
 const XE::StatASTNodePtr & XE::ReturnStatNode::GetResult() const
@@ -158,12 +140,12 @@ void XE::ReturnStatNode::SetResult( const XE::StatASTNodePtr & val )
 	_Result = val;
 }
 
-const XE::Variant & XE::ValueExprNode::GetValue() const
+const XE::String & XE::ValueExprNode::GetValue() const
 {
 	return _Value;
 }
 
-void XE::ValueExprNode::SetValue( const XE::Variant & val )
+void XE::ValueExprNode::SetValue( const XE::String & val )
 {
 	_Value = val;
 }
@@ -216,26 +198,6 @@ const XE::ExprStatNodePtr & XE::BinaryExprNode::GetRightExpress() const
 void XE::BinaryExprNode::SetRightExpress( const XE::ExprStatNodePtr & val )
 {
 	_RightExpress = val;
-}
-
-const XE::TypeASTNodePtr & XE::SizeofExprNode::GetType() const
-{
-	return _Type;
-}
-
-void XE::SizeofExprNode::SetType( const XE::TypeASTNodePtr & val )
-{
-	_Type = val;
-}
-
-const XE::TypeASTNodePtr & XE::TypeofExprNode::GetType() const
-{
-	return _Type;
-}
-
-void XE::TypeofExprNode::SetType( const XE::TypeASTNodePtr & val )
-{
-	_Type = val;
 }
 
 const XE::String & XE::InvokeExprNode::GetName() const

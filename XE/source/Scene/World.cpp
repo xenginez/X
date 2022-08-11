@@ -345,7 +345,7 @@ void XE::World::RemoveEntity( const XE::EntityHandle & val )
 					if ( auto cls = SP_CAST< const XE::MetaClass >( type ) )
 					{
 						auto index = index_it->second;
-						cls->Destructor( CalcComponentPtr( ( *index.Data )->Data, offset, index.Index, ( *index.Data )->Bits.Count(), cls->GetSize() ) );
+						cls->Destruct( CalcComponentPtr( ( *index.Data )->Data, offset, index.Index, ( *index.Data )->Bits.Count(), cls->GetSize() ) );
 						offset += cls->GetSize();
 					}
 				}

@@ -41,19 +41,7 @@ enum class BinaryExprType
 	LT_EQUAL,       // x<=y
 	GT_EQUAL,       // x>=y
 	NOT_EQUAL,      // x!=y
-	ASSIGN,         // x=y
-	ADD_ASSIGN,     // x+=y
-	SUB_ASSIGN,     // x-=y
-	MUL_ASSIGN,     // x*=y
-	DIV_ASSIGN,     // x/=y
-	MOD_ASSIGN,     // x%=y
-	B_OR_ASSIGN,    // x|=y
-	B_AND_ASSIGN,   // x&=y
-	B_XOR_ASSIGN,   // x^=y
-	L_SHIFT_ASSIGN, // x<<=y
-	R_SHIFT_ASSIGN, // x>>=y
-	ELEMENT,        // x.y
-	INDEX_ELEMENT,  // x[y]
+	INDEX,          // x[y]
 };
 DECL_XE_ENUM( BinaryExprType );
 
@@ -86,7 +74,7 @@ struct XE_API ASTMethod : public XE::EnableSharedFromThis < XE::ASTMethod >
 	XE::String Result;
 	XE::Array< XE::ASTNodePtr > StatementBody;
 	XE::Array< XE::Pair< XE::String, XE::String > > Parameters;
-	XE::Array< XE::Pair< XE::String, XE::String > > LocalVariables;
+	XE::Array< XE::Pair< XE::String, XE::Variant > > LocalVariables;
 };
 DECL_XE_CLASS( ASTMethod );
 
@@ -106,7 +94,7 @@ struct XE_API ASTFunction : public XE::EnableSharedFromThis < XE::ASTFunction >
 	XE::String Result;
 	XE::Array< XE::ASTNodePtr > StatementBody;
 	XE::Array< XE::Pair< XE::String, XE::String > > Parameters;
-	XE::Array< XE::Pair< XE::String, XE::String > > LocalVariables;
+	XE::Array< XE::Pair< XE::String, XE::Variant > > LocalVariables;
 };
 DECL_XE_CLASS( ASTFunction );
 

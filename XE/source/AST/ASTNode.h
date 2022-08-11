@@ -52,27 +52,6 @@ public:
 	void Visit( XE::ASTVisitor * val ) const override;
 };
 
-class XE_API TypeASTNode : public XE::ASTNode
-{
-	OBJECT( TypeASTNode, XE::ASTNode )
-
-public:
-	TypeASTNode() = default;
-
-	~TypeASTNode() override = default;
-
-public:
-	const XE::String & GetType() const;
-
-	void SetType( const XE::String & val );
-
-public:
-	void Visit( XE::ASTVisitor * val ) const override;
-
-private:
-	XE::String _Type;
-};
-
 class XE_API IfStatNode : public XE::StatASTNode
 {
 	OBJECT( IfStatNode, XE::StatASTNode )
@@ -161,12 +140,12 @@ public:
 
 	void SetDefault( const XE::StatASTNodePtr & val );
 
-	const XE::Array< XE::StatASTNodePtr > & GetCases() const;
+	const XE::Array< XE::Pair< XE::Variant, XE::StatASTNodePtr > > & GetCases() const;
 
-	void SetCases( const XE::Array< XE::StatASTNodePtr > & val );
+	void SetCases( const XE::Array< XE::Pair< XE::Variant, XE::StatASTNodePtr > > & val );
 
 public:
-	void AddCase( const XE::StatASTNodePtr & val );
+	void AddCase( const XE::Variant & val, const XE::StatASTNodePtr & stat );
 
 public:
 	void Visit( XE::ASTVisitor * val ) const override;
@@ -174,7 +153,7 @@ public:
 private:
 	XE::ExprStatNodePtr _Express;
 	XE::StatASTNodePtr _Default;
-	XE::Array< XE::StatASTNodePtr > _Cases;
+	XE::Array< XE::Pair< XE::Variant, XE::StatASTNodePtr > > _Cases;
 };
 
 class XE_API ReturnStatNode : public XE::StatASTNode
@@ -221,15 +200,15 @@ public:
 	~ValueExprNode() override = default;
 
 public:
-	const XE::Variant & GetValue() const;
+	const XE::String & GetValue() const;
 
-	void SetValue( const XE::Variant & val );
+	void SetValue( const XE::String & val );
 
 public:
 	void Visit( XE::ASTVisitor * val ) const override;
 
 private:
-	XE::Variant _Value;
+	XE::String _Value;
 };
 
 class XE_API UnaryExprNode : public XE::ExprStatNode
@@ -287,48 +266,6 @@ private:
 	XE::BinaryExprType _Type;
 	XE::ExprStatNodePtr _LeftExpress;
 	XE::ExprStatNodePtr _RightExpress;
-};
-
-class XE_API SizeofExprNode : public XE::ExprStatNode
-{
-	OBJECT( SizeofExprNode, XE::ExprStatNode )
-
-public:
-	SizeofExprNode() = default;
-
-	~SizeofExprNode() override = default;
-
-public:
-	const XE::TypeASTNodePtr & GetType() const;
-
-	void SetType( const XE::TypeASTNodePtr & val );
-
-public:
-	void Visit( XE::ASTVisitor * val ) const override;
-
-private:
-	XE::TypeASTNodePtr _Type;
-};
-
-class XE_API TypeofExprNode : public XE::ExprStatNode
-{
-	OBJECT( TypeofExprNode, XE::ExprStatNode )
-
-public:
-	TypeofExprNode() = default;
-
-	~TypeofExprNode() override = default;
-
-public:
-	const XE::TypeASTNodePtr & GetType() const;
-
-	void SetType( const XE::TypeASTNodePtr & val );
-
-public:
-	void Visit( XE::ASTVisitor * val ) const override;
-
-private:
-	XE::TypeASTNodePtr _Type;
 };
 
 class XE_API InvokeExprNode : public XE::ExprStatNode

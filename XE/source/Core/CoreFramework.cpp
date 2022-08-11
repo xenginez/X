@@ -126,16 +126,17 @@ bool XE::CoreFramework::RegisterService( const XE::MetaClassPtr & val )
 {
 	if( GetService( val ) == nullptr )
 	{
-		if( XE::ServicePtr service = val->ConstructPtr().Value< XE::ServicePtr >() )
-		{
-			service->SetFramework( this );
-			service->Prepare();
-			service->Startup();
+		void * p = XE::MemoryResource::Alloc( val->GetSize() );
+		val->Construct( p );
+		XE::ServicePtr service( reinterpret_cast<XE::Service *>( p ), [meta = val.get()]( void * p ) { meta->Destruct( p ); XE::MemoryResource::Free( p ); } );
 
-			_p->_Services.push_back( service );
+		service->SetFramework( this );
+		service->Prepare();
+		service->Startup();
 
-			return true;
-		}
+		_p->_Services.push_back( service );
+
+		return true;
 	}
 
 	return false;
@@ -342,10 +343,9 @@ void XE::CoreFramework::LoadServices()
 	{
 		if( auto meta = Reflection::FindClass( service ) )
 		{
-			if( auto ser = meta->ConstructPtr().Value< XE::ServicePtr >() )
-			{
-				_p->_Services.push_back( ser );
-			}
+			void * p = XE::MemoryResource::Alloc( meta->GetSize() );
+			meta->Construct( p );
+			_p->_Services.push_back( XE::ServicePtr( reinterpret_cast<XE::Service *>( p ), [meta = meta.get()]( void * p ) { meta->Destruct( p ); XE::MemoryResource::Free( p ); } ) );
 		}
 	}
 

@@ -18,8 +18,6 @@ class XE_API ASTVisitor : public XE::NonCopyable
 public:
 	virtual void Visit( const XE::ASTNode * val ) = 0;
 
-	virtual void Visit( const XE::TypeASTNode * val ) = 0;
-
 	virtual void Visit( const XE::IfStatNode * val ) = 0;
 
 	virtual void Visit( const XE::BreakStatNode * val ) = 0;
@@ -37,10 +35,6 @@ public:
 	virtual void Visit( const XE::UnaryExprNode * val ) = 0;
 
 	virtual void Visit( const XE::BinaryExprNode * val ) = 0;
-
-	virtual void Visit( const XE::SizeofExprNode * val ) = 0;
-
-	virtual void Visit( const XE::TypeofExprNode * val ) = 0;
 
 	virtual void Visit( const XE::InvokeExprNode * val ) = 0;
 
