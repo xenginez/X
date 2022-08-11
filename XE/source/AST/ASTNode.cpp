@@ -6,44 +6,64 @@ IMPLEMENT_META( XE::ASTNode );
 IMPLEMENT_META( XE::StatASTNode );
 IMPLEMENT_META( XE::ExprStatNode );
 BEG_META( XE::IfStatNode )
+type->Property( "Condition", &XE::IfStatNode::_Condition );
+type->Property( "True", &XE::IfStatNode::_True );
+type->Property( "False", &XE::IfStatNode::_False );
 END_META()
-BEG_META( XE::BreakStatNode )
-END_META()
+IMPLEMENT_META( XE::BreakStatNode );
 BEG_META( XE::WhileStatNode )
+type->Property( "Condition", &XE::WhileStatNode::_Condition );
+type->Property( "Statement", &XE::WhileStatNode::_Statement );
 END_META()
 BEG_META( XE::SwitchStatNode )
+type->Property( "Express", &XE::SwitchStatNode::_Express );
+type->Property( "Cases", &XE::SwitchStatNode::_Cases );
+type->Property( "Default", &XE::SwitchStatNode::_Default );
 END_META()
 BEG_META( XE::ReturnStatNode )
+type->Property( "Result", &XE::ReturnStatNode::_Result );
 END_META()
-BEG_META( XE::ContinueStatNode )
-END_META()
+IMPLEMENT_META( XE::ContinueStatNode );
 BEG_META( XE::ValueExprNode )
+type->Property( "Value", &XE::ValueExprNode::_Value );
 END_META()
 BEG_META( XE::UnaryExprNode )
+type->Property( "Type", &XE::UnaryExprNode::_Type );
+type->Property( "Express", &XE::UnaryExprNode::_Express );
 END_META()
 BEG_META( XE::BinaryExprNode )
+type->Property( "Type", &XE::BinaryExprNode::_Type );
+type->Property( "Left", &XE::BinaryExprNode::_LeftExpress );
+type->Property( "Right", &XE::BinaryExprNode::_RightExpress );
 END_META()
 BEG_META( XE::InvokeExprNode )
+type->Property( "Name", &XE::InvokeExprNode::_Name );
+type->Property( "Arguments", &XE::InvokeExprNode::_Arguments );
 END_META()
 BEG_META( XE::VariableExprNode )
+type->Property( "Name", &XE::VariableExprNode::_Name );
 END_META()
+
+//////////////////////////////////////////////////////////////////////////
 
 #define VISIT( TYPE ) void TYPE::Visit( XE::ASTVisitor * val ) const { val->Visit( this ); }
 VISIT( XE::ASTNode );
 VISIT( XE::StatASTNode );
 VISIT( XE::ExprStatNode );
-VISIT( XE::IfStatNode )
-VISIT( XE::BreakStatNode )
-VISIT( XE::WhileStatNode )
-VISIT( XE::SwitchStatNode )
-VISIT( XE::ReturnStatNode )
-VISIT( XE::ContinueStatNode )
-VISIT( XE::ValueExprNode )
-VISIT( XE::UnaryExprNode )
-VISIT( XE::BinaryExprNode )
-VISIT( XE::InvokeExprNode )
-VISIT( XE::VariableExprNode )
+VISIT( XE::IfStatNode );
+VISIT( XE::BreakStatNode );
+VISIT( XE::WhileStatNode );
+VISIT( XE::SwitchStatNode );
+VISIT( XE::ReturnStatNode );
+VISIT( XE::ContinueStatNode );
+VISIT( XE::ValueExprNode );
+VISIT( XE::UnaryExprNode );
+VISIT( XE::BinaryExprNode );
+VISIT( XE::InvokeExprNode );
+VISIT( XE::VariableExprNode );
+#undef VISIT
 
+//////////////////////////////////////////////////////////////////////////
 
 const XE::StatASTNodePtr & XE::IfStatNode::GetCondition() const
 {
@@ -140,12 +160,12 @@ void XE::ReturnStatNode::SetResult( const XE::StatASTNodePtr & val )
 	_Result = val;
 }
 
-const XE::String & XE::ValueExprNode::GetValue() const
+const XE::Variant & XE::ValueExprNode::GetValue() const
 {
 	return _Value;
 }
 
-void XE::ValueExprNode::SetValue( const XE::String & val )
+void XE::ValueExprNode::SetValue( const XE::Variant & val )
 {
 	_Value = val;
 }

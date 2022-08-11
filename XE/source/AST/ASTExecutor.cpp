@@ -262,7 +262,7 @@ void XE::ASTExecutor::Visit( const XE::ContinueStatNode * val )
 
 void XE::ASTExecutor::Visit( const XE::ValueExprNode * val )
 {
-	Push( Get( _p->_FrameStack.back()->Variables[val->GetValue()] ) );
+	Push( val->GetValue() );
 }
 
 void XE::ASTExecutor::Visit( const XE::UnaryExprNode * val )

@@ -200,15 +200,15 @@ public:
 	~ValueExprNode() override = default;
 
 public:
-	const XE::String & GetValue() const;
+	const XE::Variant & GetValue() const;
 
-	void SetValue( const XE::String & val );
+	void SetValue( const XE::Variant & val );
 
 public:
 	void Visit( XE::ASTVisitor * val ) const override;
 
 private:
-	XE::String _Value;
+	XE::Variant _Value;
 };
 
 class XE_API UnaryExprNode : public XE::ExprStatNode
