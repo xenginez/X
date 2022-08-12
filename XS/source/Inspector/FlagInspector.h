@@ -11,11 +11,11 @@
 
 #include <QComboBox>
 
-#include "Core/Core.h"
+#include "Inspector.h"
 
 BEG_XS_NAMESPACE
 
-class XS_API FlagInspector : public Inspector
+class XS_API FlagInspector : public XS::Inspector
 {
 	Q_OBJECT
 

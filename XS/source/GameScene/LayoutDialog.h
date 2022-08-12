@@ -11,9 +11,10 @@
 
 #include <random>
 #include <QSize>
+#include <QLabel>
 #include <QVector>
 
-#include "Core/Core.h"
+#include "Global.h"
 
 UI_DECL( LayoutDialog );
 

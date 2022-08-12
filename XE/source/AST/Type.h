@@ -89,6 +89,7 @@ DECL_XE_CLASS( ASTClass );
 struct XE_API ASTModule : public XE::EnableSharedFromThis < XE::ASTModule >
 {
 	XE::String Name;
+	XE::String Owner;
 	XE::Array< XE::SharedPtr< XE::ASTEnum > > Enums;
 	XE::Array< XE::SharedPtr< XE::ASTClass > > Clsses;
 	XE::Array< XE::SharedPtr< XE::ASTFunction > > Functions;

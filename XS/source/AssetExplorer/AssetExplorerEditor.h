@@ -11,7 +11,7 @@
 
 #include <QSqlDatabase>
 
-#include "Core/Core.h"
+#include "EditorWindow.h"
 
 UI_DECL( AssetExplorerEditor );
 
@@ -19,7 +19,7 @@ BEG_XS_NAMESPACE
 
 class AssetsItemModel;
 
-class XS_API AssetExplorerEditor : public XS::DockWidget
+class XS_API AssetExplorerEditor : public XS::EditorWindow
 {
 	Q_OBJECT
 

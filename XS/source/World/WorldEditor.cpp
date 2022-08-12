@@ -7,7 +7,7 @@
 REG_WIDGET( XS::WorldEditor );
 
 XS::WorldEditor::WorldEditor( QWidget * parent /*= nullptr */ )
-	:DockWidget( parent ), ui( new Ui::WorldEditor )
+	: XS::EditorWindow( parent ), ui( new Ui::WorldEditor )
 {
 	setupUi( ui );
 
@@ -15,23 +15,24 @@ XS::WorldEditor::WorldEditor( QWidget * parent /*= nullptr */ )
 
 	setTitleBar( new QWidget( this ) );
 
-	ui->logic_icon->setPixmap( QPixmap( "SkinIcons:/images/objects/icon_objects_logic.png" ) );
-	ui->logic_add->setIcon( QIcon( "SkinIcons:/images/objects/icon_objects_add.png" ) );
-	ui->logic_type->setIcon( QIcon( "SkinIcons:/images/objects/icon_objects_type.png" ) );
-	ui->logic_expand->setIcon( QIcon( "SkinIcons:/images/objects/icon_objects_expand.png" ) );
-	ui->logic_collapse->setIcon( QIcon( "SkinIcons:/images/objects/icon_objects_collapse.png" ) );
-	ui->logic_search->addAction( QIcon( "SkinIcons:/images/objects/icon_objects_search.png" ), QLineEdit::ActionPosition::LeadingPosition );
+	ui->logic_icon->setPixmap( QPixmap( "SkinIcons:/images/world/icon_world_logic.png" ) );
+	ui->logic_sys->setIcon( QIcon( "SkinIcons:/images/world/icon_world_system.png" ) );
+	ui->logic_add->setIcon( QIcon( "SkinIcons:/images/world/icon_world_add.png" ) );
+	ui->logic_type->setIcon( QIcon( "SkinIcons:/images/world/icon_world_type.png" ) );
+	ui->logic_expand->setIcon( QIcon( "SkinIcons:/images/world/icon_world_expand.png" ) );
+	ui->logic_collapse->setIcon( QIcon( "SkinIcons:/images/world/icon_world_collapse.png" ) );
+	ui->logic_search->addAction( QIcon( "SkinIcons:/images/world/icon_world_search.png" ), QLineEdit::ActionPosition::LeadingPosition );
 
-	ui->render_icon->setPixmap( QPixmap( "SkinIcons:/images/objects/icon_objects_render.png" ) );
-	ui->render_add->setIcon( QIcon( "SkinIcons:/images/objects/icon_objects_add.png" ) );
-	ui->render_type->setIcon( QIcon( "SkinIcons:/images/objects/icon_objects_type.png" ) );
-	ui->render_expand->setIcon( QIcon( "SkinIcons:/images/objects/icon_objects_expand.png" ) );
-	ui->render_collapse->setIcon( QIcon( "SkinIcons:/images/objects/icon_objects_collapse.png" ) );
-	ui->render_search->addAction( QIcon( "SkinIcons:/images/objects/icon_objects_search.png" ), QLineEdit::ActionPosition::LeadingPosition );
+	ui->render_icon->setPixmap( QPixmap( "SkinIcons:/images/world/icon_world_render.png" ) );
+	ui->render_add->setIcon( QIcon( "SkinIcons:/images/world/icon_world_add.png" ) );
+	ui->render_type->setIcon( QIcon( "SkinIcons:/images/world/icon_world_type.png" ) );
+	ui->render_expand->setIcon( QIcon( "SkinIcons:/images/world/icon_world_expand.png" ) );
+	ui->render_collapse->setIcon( QIcon( "SkinIcons:/images/world/icon_world_collapse.png" ) );
+	ui->render_search->addAction( QIcon( "SkinIcons:/images/world/icon_world_search.png" ), QLineEdit::ActionPosition::LeadingPosition );
 
-	ui->inspector_icon->setPixmap( QPixmap( "SkinIcons:/images/objects/icon_objects_inspector.png" ) );
-	ui->inspector_expand->setIcon( QIcon( "SkinIcons:/images/objects/icon_objects_expand.png" ) );
-	ui->inspector_collapse->setIcon( QIcon( "SkinIcons:/images/objects/icon_objects_collapse.png" ) );
+	ui->inspector_icon->setPixmap( QPixmap( "SkinIcons:/images/world/icon_world_inspector.png" ) );
+	ui->inspector_expand->setIcon( QIcon( "SkinIcons:/images/world/icon_world_expand.png" ) );
+	ui->inspector_collapse->setIcon( QIcon( "SkinIcons:/images/world/icon_world_collapse.png" ) );
 
 	connect( ui->logic_sys, &QToolButton::clicked, this, &WorldEditor::OnLogicSystemClicked );
 	connect( ui->logic_tree, &QTreeWidget::itemClicked, this, &WorldEditor::OnLogicTreeWidgetItemClicked );

@@ -11,13 +11,13 @@
 
 #include <QStandardItemModel>
 
-#include "Core/Core.h"
+#include "EditorWindow.h"
 
 UI_DECL( LoggerEditor );
 
 BEG_XS_NAMESPACE
 
-class XS_API LoggerEditor : public XS::DockWidget
+class XS_API LoggerEditor : public XS::EditorWindow
 {
 	Q_OBJECT
 

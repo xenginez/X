@@ -7,7 +7,7 @@
 REG_WIDGET( XS::EditSceneEditor );
 
 XS::EditSceneEditor::EditSceneEditor( QWidget * parent /*= nullptr */ )
-	:DockWidget( parent ), ui( new Ui::EditSceneEditor )
+	: XS::EditorWindow( parent ), ui( new Ui::EditSceneEditor )
 {
 	setupUi( ui );
 

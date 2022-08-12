@@ -11,11 +11,11 @@
 
 #include <QLineEdit>
 
-#include "Core/Core.h"
+#include "Inspector.h"
 
 BEG_XS_NAMESPACE
 
-class XS_API StringInspector : public Inspector
+class XS_API StringInspector : public XS::Inspector
 {
 	Q_OBJECT
 

@@ -418,7 +418,7 @@ private:
 };
 
 XS::AssetExplorerEditor::AssetExplorerEditor( QWidget * parent /*= nullptr */ )
-	:DockWidget( parent ), ui( new Ui::AssetExplorerEditor )
+	:EditorWindow( parent ), ui( new Ui::AssetExplorerEditor )
 {
 	setupUi( ui );
 

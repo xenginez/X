@@ -20,7 +20,7 @@ XE::ASTMetaClass::ASTMetaClass( const XE::SharedPtr< XE::ASTClass > & val )
 					 false,
 					 XE::Reflection::FindClass( val->Super ),
 					 nullptr,
-					 val->Module.empty() ? nullptr : XE::Reflection::FindModule( val->Module ), {} ),
+					 XE::Reflection::FindModule( val->Module ), {} ),
 	_Class( val )
 {
 

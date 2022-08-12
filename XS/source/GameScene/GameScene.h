@@ -9,7 +9,9 @@
 #ifndef GAMESCENE_H__28F1025F_BA22_4F52_AA5C_A9112428279E
 #define GAMESCENE_H__28F1025F_BA22_4F52_AA5C_A9112428279E
 
-#include "Core/Core.h"
+#include <QFrame>
+
+#include "Global.h"
 
 UI_DECL( GameScene );
 

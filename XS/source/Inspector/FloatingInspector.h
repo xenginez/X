@@ -11,11 +11,11 @@
 
 #include <QDoubleSpinBox>
 
-#include "Core/Core.h"
+#include "Inspector.h"
 
 BEG_XS_NAMESPACE
 
-class XS_API FloatingInspector : public Inspector
+class XS_API FloatingInspector : public XS::Inspector
 {
 	Q_OBJECT
 

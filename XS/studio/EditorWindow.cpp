@@ -25,7 +25,7 @@ XStudio::EditorWindow::EditorWindow( const QString & project, QWidget * parent /
 	}
 	QMenu * e_wind = new QMenu( tr( "&Window" ) );
 	{
-		auto names = XS::Registry::GetDerivedClass( &XS::DockWidget::staticMetaObject );
+		auto names = XS::Registry::GetDerivedClass( &XS::EditorWindow::staticMetaObject );
 		
 		for ( auto name : names )
 		{

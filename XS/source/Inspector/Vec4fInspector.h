@@ -12,7 +12,7 @@
 #include <QLabel>
 #include <QDoubleSpinBox>
 
-#include "Core/Core.h"
+#include "Inspector.h"
 
 BEG_XS_NAMESPACE
 

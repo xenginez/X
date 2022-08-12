@@ -9,6 +9,8 @@
 #include <QItemDelegate>
 #include <QDesktopServices>
 
+#include "MainWindow.h"
+
 namespace
 {
 	class ListViewItemDelegate : public QItemDelegate
@@ -35,7 +37,7 @@ Q_DECLARE_METATYPE( XE::LoggerLevel );
 REG_WIDGET( XS::LoggerEditor );
 
 XS::LoggerEditor::LoggerEditor( QWidget * parent /*= nullptr */ )
-	:XS::DockWidget( parent ), ui( new Ui::LoggerEditor )
+	:XS::EditorWindow( parent ), ui( new Ui::LoggerEditor )
 {
 	setupUi( ui );
 

@@ -9,13 +9,13 @@
 #ifndef RENDERGRAPHEDITOR_H__ABDD9F06_A753_4C14_8FF2_8BC1C2C64143
 #define RENDERGRAPHEDITOR_H__ABDD9F06_A753_4C14_8FF2_8BC1C2C64143
 
-#include "Core/Core.h"
+#include "EditorWindow.h"
 
 UI_DECL( ASTEditor );
 
 BEG_XS_NAMESPACE
 
-class ASTEditor : public XS::DockWidget
+class ASTEditor : public XS::EditorWindow
 {
 	Q_OBJECT
 

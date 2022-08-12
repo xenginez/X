@@ -9,13 +9,13 @@
 #ifndef EDITSCENEEDITOR_H__2C2FB7BC_1E8B_4ADF_9296_1F4802B4CADB
 #define EDITSCENEEDITOR_H__2C2FB7BC_1E8B_4ADF_9296_1F4802B4CADB
 
-#include "Core/Core.h"
+#include "EditorWindow.h"
 
 UI_DECL( EditSceneEditor );
 
 BEG_XS_NAMESPACE
 
-class XS_API EditSceneEditor : public XS::DockWidget
+class XS_API EditSceneEditor : public XS::EditorWindow
 {
 	Q_OBJECT
 
