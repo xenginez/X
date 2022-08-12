@@ -15,6 +15,7 @@ BEG_XE_NAMESPACE
 
 struct ASTEnum;
 struct ASTClass;
+struct ASTModule;
 struct ASTMethod;
 struct ASTProperty;
 struct ASTFunction;

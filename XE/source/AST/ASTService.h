@@ -36,6 +36,11 @@ public:
 	void Clearup() override;
 
 public:
+	void SetVariable( const XE::String & name, const XE::Variant & val );
+
+	XE::Variant GetVariable( const XE::String & name );
+
+public:
 	void AddMacro( const XE::String & val );
 
 	bool HasMacro( const XE::String & val ) const;

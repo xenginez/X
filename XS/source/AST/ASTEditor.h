@@ -11,23 +11,23 @@
 
 #include "Core/Core.h"
 
-UI_DECL( RenderGraphEditor );
+UI_DECL( ASTEditor );
 
 BEG_XS_NAMESPACE
 
-class RenderGraphEditor : public XS::DockWidget
+class ASTEditor : public XS::DockWidget
 {
 	Q_OBJECT
 
 public:
-	RenderGraphEditor( QWidget * parent = nullptr );
+	ASTEditor( QWidget * parent = nullptr );
 
-	~RenderGraphEditor() override;
+	~ASTEditor() override;
 
 public:
 
 private:
-	Ui::RenderGraphEditor * ui;
+	Ui::ASTEditor * ui;
 };
 
 END_XS_NAMESPACE

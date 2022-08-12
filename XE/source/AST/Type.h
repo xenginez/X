@@ -68,6 +68,7 @@ enum class ExecutorGotoType
 struct XE_API ASTEnum : public XE::EnableSharedFromThis< XE::ASTEnum >
 {
 	XE::String Name;
+	XE::String Module;
 	bool Flag = false;
 	XE::Array< XE::String > Elements;
 };
@@ -84,6 +85,16 @@ struct XE_API ASTClass : public XE::EnableSharedFromThis < XE::ASTClass >
 	XE::Array< XE::SharedPtr< XE::ASTProperty > > Propertys;
 };
 DECL_XE_CLASS( ASTClass );
+
+struct XE_API ASTModule : public XE::EnableSharedFromThis < XE::ASTModule >
+{
+	XE::String Name;
+	XE::Array< XE::SharedPtr< XE::ASTEnum > > Enums;
+	XE::Array< XE::SharedPtr< XE::ASTClass > > Clsses;
+	XE::Array< XE::SharedPtr< XE::ASTFunction > > Functions;
+	XE::Array< XE::SharedPtr< XE::ASTVariable > > Variables;
+};
+DECL_XE_CLASS( ASTModule );
 
 struct XE_API ASTMethod : public XE::EnableSharedFromThis < XE::ASTMethod >
 {
@@ -102,7 +113,8 @@ struct XE_API ASTProperty : public XE::EnableSharedFromThis < XE::ASTProperty >
 	XE::String Name;
 	XE::String Owner;
 	XE::String Module;
-	XE::String ValueType;
+	XE::String Type;
+	XE::uint64 Offset;
 };
 DECL_XE_CLASS( ASTProperty );
 
@@ -121,7 +133,7 @@ struct XE_API ASTVariable : public XE::EnableSharedFromThis < XE::ASTVariable >
 {
 	XE::String Name;
 	XE::String Module;
-	XE::String ValueType;
+	XE::String Type;
 };
 DECL_XE_CLASS( ASTVariable );
 

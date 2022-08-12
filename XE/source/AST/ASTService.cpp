@@ -1,9 +1,11 @@
 #include "ASTService.h"
 
+IMPLEMENT_META( XE::ASTService )
 
 struct XE::ASTService::Private
 {
 	XE::Set< XE::String > _Macros;
+	XE::Map< XE::String, XE::Variant > _Globals;
 	XE::Map< XE::MetaClassCPtr, XE::Delegate< void( XE::ASTVisitor * ) > > _CustomNodeExecutes;
 	XE::Map< XE::MetaClassCPtr, XE::Delegate< void( XE::ASTVisitor * ) > > _CustomNodeCompiles;
 };
@@ -37,6 +39,18 @@ void XE::ASTService::Update()
 void XE::ASTService::Clearup()
 {
 
+}
+
+void XE::ASTService::SetVariable( const XE::String & name, const XE::Variant & val )
+{
+	_p->_Globals[name] = val;
+}
+
+XE::Variant XE::ASTService::GetVariable( const XE::String & name )
+{
+	auto it = _p->_Globals.find( name );
+
+	return it != _p->_Globals.end() ? it->second : XE::Variant();
 }
 
 void XE::ASTService::AddMacro( const XE::String & val )

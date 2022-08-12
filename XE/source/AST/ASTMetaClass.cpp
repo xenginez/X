@@ -6,7 +6,11 @@ namespace
 {
 	XE::uint64 ClassSize( const XE::SharedPtr< XE::ASTClass > & val )
 	{
-		return 0;
+		auto sz = XE::Reflection::FindClass( val->Super )->GetSize();
+
+		sz += sizeof( XE::Variant ) * val->Propertys.size();
+
+		return sz;
 	}
 }
 
@@ -15,7 +19,7 @@ XE::ASTMetaClass::ASTMetaClass( const XE::SharedPtr< XE::ASTClass > & val )
 					 ClassSize( val ),
 					 false,
 					 XE::Reflection::FindClass( val->Super ),
-					 val->Super.empty() ? nullptr : XE::Reflection::FindClass( val->Super ),
+					 nullptr,
 					 val->Module.empty() ? nullptr : XE::Reflection::FindModule( val->Module ), {} ),
 	_Class( val )
 {

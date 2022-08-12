@@ -1004,7 +1004,7 @@ XE::Variant XE::BinaryIArchive::Deserialize( const XE::String & name /*= ""*/ )
 			{
 				XE::uint64 val = 0;
 				read( _p->_Stream, val );
-				return { XE::VariantData( XE::VariantEnumData( val, SP_CAST< const XE::MetaEnum >( type ) ) ) };
+				return { XE::VariantData( XE::VariantEnumData( val, type.get() ) ) };
 			}
 			else if( auto cls = SP_CAST< const XE::MetaClass >( type ) )
 			{

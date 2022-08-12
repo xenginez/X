@@ -33,8 +33,8 @@ struct XE_API VariantEnumData
 
 	VariantEnumData & operator = ( const VariantEnumData & ) = default;
 
-	VariantEnumData( XE::uint64 val, const XE::MetaTypeCPtr & type )
-		:Value( val ), Type( type.get() )
+	VariantEnumData( XE::uint64 val, const XE::MetaType * type )
+		:Value( val ), Type( type )
 	{
 
 	}

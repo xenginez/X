@@ -48,7 +48,7 @@ void XS::FlagInspector::Refresh()
 		{
 			if ( auto meta = SP_CAST< const XE::MetaEnum >( GetObjectProxy()->GetType() ) )
 			{
-				XE::VariantEnumData data( GetObjectProxy()->GetValue().ToUInt64(), meta );
+				XE::VariantEnumData data( GetObjectProxy()->GetValue().ToUInt64(), meta.get() );
 
 				// NONE
 				if ( index == 0 )

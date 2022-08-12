@@ -13,7 +13,7 @@
 
 BEG_XE_NAMESPACE
 
-class XE_API ASTMetaEnum : public XE::ASTEnum
+class XE_API ASTMetaEnum : public XE::MetaEnum
 {
 public:
 	ASTMetaEnum( const XE::SharedPtr< XE::ASTEnum > & val );

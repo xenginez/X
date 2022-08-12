@@ -37,7 +37,7 @@ void XS::EnumInspector::Refresh()
 		{
 			if ( _QComboBox->itemData( val ).toULongLong() != GetObjectProxy()->GetValue().ToUInt64() )
 			{
-				auto data = XE::VariantEnumData( _QComboBox->itemData( val ).toULongLong(), GetObjectProxy()->GetType() );
+				auto data = XE::VariantEnumData( _QComboBox->itemData( val ).toULongLong(), GetObjectProxy()->GetType().get() );
 
 				PushUndoCommand( GetObjectProxy()->GetName().c_str(),
 					[this, proxy = GetObjectProxy(), value = data]()
