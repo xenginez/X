@@ -248,7 +248,7 @@
 /// ASSERT
 
 #ifndef XE_DEBUG
-#	define XE_ASSERT(x) { (void)0; }
+#	define XE_ASSERT(x) { if(!(x)){ (void)0; } }
 #else
 #	if PLATFORM_OS & OS_WINDOWS
 #		define XE_ASSERT(x) { if(!(x)) __debugbreak(); }

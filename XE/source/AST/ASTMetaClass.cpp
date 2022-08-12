@@ -29,20 +29,24 @@ XE::ASTMetaClass::~ASTMetaClass()
 
 void XE::ASTMetaClass::Destruct( void * ptr ) const
 {
+	XE::ASTExecutor exec;
+
 	XE::InvokeStack args;
 
 	args.Push( XE::Variant( ptr, this ) );
 
-	XE::ASTExecutor::Invoke( _Class->Destruct, &args );
+	exec.Invoke( _Class->Destruct, &args );
 }
 
 XE::Variant XE::ASTMetaClass::Construct( void * ptr ) const
 {
+	XE::ASTExecutor exec;
+
 	XE::InvokeStack args;
 
 	args.Push( XE::Variant( ptr, this ) );
 
-	return XE::ASTExecutor::Invoke( _Class->Construct, &args );
+	return exec.Invoke( _Class->Construct, &args );
 }
 
 void XE::ASTMetaClass::Clone( const XE::Variant & from, XE::Variant & to ) const

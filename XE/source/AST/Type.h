@@ -10,6 +10,7 @@
 #define TYPE_H__133957F1_3C08_4A8E_BD52_68923E0CF528
 
 #include "Declare.h"
+#include "Utils/Flags.hpp"
 
 BEG_XE_NAMESPACE
 
@@ -45,6 +46,24 @@ enum class BinaryExprType
 };
 DECL_XE_ENUM( BinaryExprType );
 
+enum class MacroGotoType
+{
+	NONE = 0,
+	THEN = 1 << 0,
+	ELSE = 1 << 1,
+	END = 1 << 2,
+	THEN_END = THEN | END,
+	ELSE_END = ELSE | END,
+};
+DECL_FLAGS( MacroGotoType );
+
+enum class ExecutorGotoType
+{
+	NONE,
+	BREAK,
+	RETURN,
+	CONTINUE,
+};
 
 struct XE_API ASTEnum : public XE::EnableSharedFromThis< XE::ASTEnum >
 {
@@ -105,6 +124,17 @@ struct XE_API ASTVariable : public XE::EnableSharedFromThis < XE::ASTVariable >
 	XE::String ValueType;
 };
 DECL_XE_CLASS( ASTVariable );
+
+struct XE_API ASTFrame
+{
+	XE::uint64 SP = 0;
+	XE::uint64 FP = 0;
+	XE::Stack< XE::MacroGotoTypeFlags > MacroGo;
+	XE::ExecutorGotoType ExecGo = XE::ExecutorGotoType::NONE;
+	XE::Stack< const XE::WhileStatNode * > Loop;
+	XE::Map< XE::String, XE::uint64 > Variables;
+	std::variant< XE::ASTMethod *, XE::ASTFunction * > AST;
+};
 
 END_XE_NAMESPACE
 

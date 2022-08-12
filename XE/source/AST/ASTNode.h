@@ -26,6 +26,74 @@ public:
 	virtual void Visit( XE::ASTVisitor * val ) const;
 };
 
+class XE_API MacroIfASTNode : public XE::ASTNode
+{
+	OBJECT( MacroIfASTNode, XE::ASTNode )
+
+public:
+	MacroIfASTNode() = default;
+
+	~MacroIfASTNode() override = default;
+
+public:
+	const XE::String & GetName() const;
+
+	void SetName( const XE::String & val );
+
+public:
+	void Visit( XE::ASTVisitor * val ) const override;
+
+private:
+	XE::String _Name;
+};
+
+class XE_API MacroElseASTNode : public XE::ASTNode
+{
+	OBJECT( MacroElseASTNode, XE::ASTNode )
+
+public:
+	MacroElseASTNode() = default;
+
+	~MacroElseASTNode() override = default;
+
+public:
+	void Visit( XE::ASTVisitor * val ) const override;
+};
+
+class XE_API MacroElifASTNode : public XE::ASTNode
+{
+	OBJECT( MacroElifASTNode, XE::ASTNode )
+
+public:
+	MacroElifASTNode() = default;
+
+	~MacroElifASTNode() override = default;
+
+public:
+	const XE::String & GetName() const;
+
+	void SetName( const XE::String & val );
+
+public:
+	void Visit( XE::ASTVisitor * val ) const override;
+
+private:
+	XE::String _Name;
+};
+
+class XE_API MacroEndASTNode : public XE::ASTNode
+{
+	OBJECT( MacroEndASTNode, XE::ASTNode )
+
+public:
+	MacroEndASTNode() = default;
+
+	~MacroEndASTNode() override = default;
+
+public:
+	void Visit( XE::ASTVisitor * val ) const override;
+};
+
 class XE_API StatASTNode : public XE::ASTNode
 {
 	OBJECT( StatASTNode, XE::ASTNode )

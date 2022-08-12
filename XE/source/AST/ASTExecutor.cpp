@@ -1,182 +1,73 @@
 #include "ASTExecutor.h"
 
+#include "Core/CoreFramework.h"
+
 #include "ASTNode.h"
-
-namespace
-{
-	enum class GotoType
-	{
-		NONE,
-		BREAK,
-		RETURN,
-		CONTINUE,
-	};
-
-	struct Frame
-	{
-		XE::uint64 SP = 0;
-		XE::uint64 FP = 0;
-		GotoType Go = GotoType::NONE;
-		XE::Stack< const XE::WhileStatNode * > Loop;
-		XE::Map< XE::String, XE::uint64 > Variables;
-		std::variant< XE::ASTMethod *, XE::ASTFunction * > AST;
-	};
-}
-
-struct XE::ASTExecutor::Private
-{
-	XE::Array< XE::Variant > _Stack;
-	XE::Array< Frame * > _FrameStack;
-};
-
-XE::ASTExecutor * XE::ASTExecutor::GetInstance()
-{
-	thread_local XE::ASTExecutor exec;
-	return &exec;
-}
+#include "ASTService.h"
 
 XE::ASTExecutor::ASTExecutor()
-	:_p( XE::New< Private >() )
 {
 
 }
 
 XE::ASTExecutor::~ASTExecutor()
 {
-	XE::Delete( _p );
-}
 
-XE::Variant XE::ASTExecutor::Invoke( const XE::SharedPtr< XE::ASTMethod > & method, XE::InvokeStack * args )
-{
-	Frame frame;
-	{
-		frame.FP = 0;
-		frame.SP = GetInstance()->_p->_Stack.size();
-		frame.AST = method.get();
-	}
-
-	GetInstance()->_p->_FrameStack.push_back( &frame );
-	{
-		while ( !args->Empty() )
-		{
-			GetInstance()->Push( args->Pop< XE::Variant >() );
-		}
-
-		for ( const auto & it : method->LocalVariables )
-		{
-			frame.Variables.insert( { it.first, GetInstance()->_p->_Stack.size() } );
-
-			GetInstance()->Push( it.second );
-		}
-
-		GetInstance()->Exec();
-	}
-	GetInstance()->_p->_FrameStack.pop_back();
-
-	return method->Result.empty() ? XE::Variant() : GetInstance()->Pop();
-}
-
-XE::Variant XE::ASTExecutor::Invoke( const XE::SharedPtr< XE::ASTFunction > & function, XE::InvokeStack * args )
-{
-	Frame frame;
-	{
-		frame.FP = 0;
-		frame.SP = GetInstance()->_p->_Stack.size();
-		frame.AST = function.get();
-	}
-
-	GetInstance()->_p->_FrameStack.push_back( &frame );
-	{
-		while ( !args->Empty() )
-		{
-			GetInstance()->Push( args->Pop< XE::Variant >() );
-		}
-
-		for ( const auto & it : function->LocalVariables )
-		{
-			frame.Variables.insert( { it.first, GetInstance()->_p->_Stack.size() } );
-			GetInstance()->Push( it.second );
-		}
-
-		GetInstance()->Exec();
-	}
-	GetInstance()->_p->_FrameStack.pop_back();
-
-	return function->Result.empty() ? XE::Variant() : GetInstance()->Pop();
-}
-
-void XE::ASTExecutor::Exec()
-{
-	std::visit( XE::Overloaded
-				{
-					[this]( XE::ASTMethod * func )
-					{
-						while ( _p->_FrameStack.back()->FP < func->StatementBody.size() )
-						{
-							func->StatementBody[_p->_FrameStack.back()->FP++]->Visit( this );
-
-							if ( _p->_FrameStack.back()->Go == GotoType::RETURN )
-							{
-								_p->_FrameStack.back()->Go = GotoType::NONE;
-								return;
-							}
-						}
-					},
-					[this]( XE::ASTFunction * func )
-					{
-						while ( _p->_FrameStack.back()->FP < func->StatementBody.size() )
-						{
-							func->StatementBody[_p->_FrameStack.back()->FP++]->Visit( this );
-
-							if ( _p->_FrameStack.back()->Go == GotoType::RETURN )
-							{
-								_p->_FrameStack.back()->Go = GotoType::NONE;
-								return;
-							}
-						}
-					},
-				}, _p->_FrameStack.back()->AST );
-}
-
-void XE::ASTExecutor::Push( const XE::Variant & val )
-{
-	_p->_Stack.push_back( val );
-}
-
-XE::Variant XE::ASTExecutor::Pop()
-{
-	XE::Variant val = _p->_Stack.back();
-	_p->_Stack.pop_back();
-	return val;
-}
-
-XE::Variant & XE::ASTExecutor::Top()
-{
-	return _p->_Stack.back();
-}
-
-XE::Variant & XE::ASTExecutor::Get( XE::uint64 val )
-{
-	return _p->_Stack[val];
-}
-
-XE::uint64 XE::ASTExecutor::Index() const
-{
-	return _p->_Stack.size();
-}
-
-void XE::ASTExecutor::Reset( XE::uint64 val )
-{
-	_p->_Stack.resize( val );
 }
 
 void XE::ASTExecutor::Visit( const XE::ASTNode * val )
 {
-	XE_ASSERT( false );
+	XE_ASSERT( XE::CoreFramework::GetCurrentFramework()->GetServiceT< XE::ASTService >()->ExecuteCustomNode( val->GetMetaClass(), this ) );
+}
+
+void XE::ASTExecutor::Visit( const XE::MacroIfASTNode * val )
+{
+	if ( MacroSkip() ) return;
+
+	if ( std::find( _Macros.begin(), _Macros.end(), val->GetName() ) != _Macros.end() ||
+		 XE::CoreFramework::GetCurrentFramework()->GetServiceT< XE::ASTService >()->HasMacro( val->GetName() ) )
+	{
+		_FrameStack.back()->MacroGo.push( XE::MacroGotoType::THEN );
+	}
+	else
+	{
+		_FrameStack.back()->MacroGo.push( XE::MacroGotoType::ELSE );
+	}
+}
+
+void XE::ASTExecutor::Visit( const XE::MacroElseASTNode * val )
+{
+	if ( _FrameStack.back()->MacroGo.top() == XE::MacroGotoType::THEN_END ) return;
+
+	_FrameStack.back()->MacroGo.top() &= XE::MacroGotoType::END;
+}
+
+void XE::ASTExecutor::Visit( const XE::MacroElifASTNode * val )
+{
+	if ( _FrameStack.back()->MacroGo.top() == XE::MacroGotoType::THEN_END ) return;
+
+	if ( std::find( _Macros.begin(), _Macros.end(), val->GetName() ) != _Macros.end() ||
+		 XE::CoreFramework::GetCurrentFramework()->GetServiceT< XE::ASTService >()->HasMacro( val->GetName() ) )
+	{
+		_FrameStack.back()->MacroGo.top() = XE::MacroGotoType::THEN;
+	}
+	else
+	{
+		_FrameStack.back()->MacroGo.top() = XE::MacroGotoType::ELSE;
+	}
+}
+
+void XE::ASTExecutor::Visit( const XE::MacroEndASTNode * val )
+{
+	if ( _FrameStack.back()->MacroGo.top() == XE::MacroGotoType::ELSE ) return;
+
+	_FrameStack.back()->MacroGo.pop();
 }
 
 void XE::ASTExecutor::Visit( const XE::IfStatNode * val )
 {
+	if ( MacroSkip() ) return;
+
 	if ( val->GetCondition()->Visit( this ), Pop().ToBool() )
 	{
 		val->GetTrue()->Visit( this );
@@ -189,12 +80,16 @@ void XE::ASTExecutor::Visit( const XE::IfStatNode * val )
 
 void XE::ASTExecutor::Visit( const XE::BreakStatNode * val )
 {
-	_p->_FrameStack.back()->Go = GotoType::BREAK;
+	if ( MacroSkip() ) return;
+
+	_FrameStack.back()->ExecGo = ExecutorGotoType::BREAK;
 }
 
 void XE::ASTExecutor::Visit( const XE::WhileStatNode * val )
 {
-	_p->_FrameStack.back()->Loop.push( val );
+	if ( MacroSkip() ) return;
+
+	_FrameStack.back()->Loop.push( val );
 	{
 		while ( true )
 		{
@@ -211,27 +106,29 @@ void XE::ASTExecutor::Visit( const XE::WhileStatNode * val )
 
 			Reset( i );
 
-			if ( _p->_FrameStack.back()->Go == GotoType::BREAK )
+			if ( _FrameStack.back()->ExecGo == ExecutorGotoType::BREAK )
 			{
-				_p->_FrameStack.back()->Go = GotoType::NONE;
+				_FrameStack.back()->ExecGo = ExecutorGotoType::NONE;
 				break;
 			}
-			else if ( _p->_FrameStack.back()->Go == GotoType::RETURN )
+			else if ( _FrameStack.back()->ExecGo == ExecutorGotoType::RETURN )
 			{
 				break;
 			}
-			else if ( _p->_FrameStack.back()->Go != GotoType::CONTINUE )
+			else if ( _FrameStack.back()->ExecGo != ExecutorGotoType::CONTINUE )
 			{
-				_p->_FrameStack.back()->Go = GotoType::NONE;
+				_FrameStack.back()->ExecGo = ExecutorGotoType::NONE;
 				continue;
 			}
 		}
 	}
-	_p->_FrameStack.back()->Loop.pop();
+	_FrameStack.back()->Loop.pop();
 }
 
 void XE::ASTExecutor::Visit( const XE::SwitchStatNode * val )
 {
+	if ( MacroSkip() ) return;
+
 	val->GetExpress()->Visit( this );
 
 	auto value = Pop();
@@ -251,22 +148,30 @@ void XE::ASTExecutor::Visit( const XE::SwitchStatNode * val )
 
 void XE::ASTExecutor::Visit( const XE::ReturnStatNode * val )
 {
+	if ( MacroSkip() ) return;
+
 	val->GetResult()->Visit( this );
-	_p->_FrameStack.back()->Go = GotoType::RETURN;
+	_FrameStack.back()->ExecGo = ExecutorGotoType::RETURN;
 }
 
 void XE::ASTExecutor::Visit( const XE::ContinueStatNode * val )
 {
-	_p->_FrameStack.back()->Go = GotoType::CONTINUE;
+	if ( MacroSkip() ) return;
+
+	_FrameStack.back()->ExecGo = ExecutorGotoType::CONTINUE;
 }
 
 void XE::ASTExecutor::Visit( const XE::ValueExprNode * val )
 {
+	if ( MacroSkip() ) return;
+
 	Push( val->GetValue() );
 }
 
 void XE::ASTExecutor::Visit( const XE::UnaryExprNode * val )
 {
+	if ( MacroSkip() ) return;
+
 	val->GetExpress()->Visit( this );
 
 	switch ( val->GetType() )
@@ -285,6 +190,8 @@ void XE::ASTExecutor::Visit( const XE::UnaryExprNode * val )
 
 void XE::ASTExecutor::Visit( const XE::BinaryExprNode * val )
 {
+	if ( MacroSkip() ) return;
+
 	val->GetLeftExpress()->Visit( this );
 	auto left = Pop();
 
@@ -355,6 +262,8 @@ void XE::ASTExecutor::Visit( const XE::BinaryExprNode * val )
 
 void XE::ASTExecutor::Visit( const XE::InvokeExprNode * val )
 {
+	if ( MacroSkip() ) return;
+
 	XE::InvokeStack args;
 
 	auto meta = XE::Reflection::FindMeta( val->GetName() );
@@ -381,5 +290,151 @@ void XE::ASTExecutor::Visit( const XE::InvokeExprNode * val )
 
 void XE::ASTExecutor::Visit( const XE::VariableExprNode * val )
 {
+	if ( MacroSkip() ) return;
+
 	Push( XE::Reflection::FindVariable( val->GetName() )->Get() );
+}
+
+void XE::ASTExecutor::AddMacro( const XE::String & val )
+{
+	_Macros.push_back( val );
+}
+
+XE::Variant XE::ASTExecutor::Invoke( const XE::SharedPtr< XE::ASTMethod > & method, XE::InvokeStack * args )
+{
+	XE::ASTFrame frame;
+	{
+		frame.FP = 0;
+		frame.SP = _ValStack.size();
+		frame.AST = method.get();
+	}
+
+	_FrameStack.push_back( &frame );
+	{
+		while ( !args->Empty() )
+		{
+			Push( args->Pop< XE::Variant >() );
+		}
+
+		for ( const auto & it : method->LocalVariables )
+		{
+			frame.Variables.insert( { it.first, _ValStack.size() } );
+
+			Push( it.second );
+		}
+
+		Exec();
+	}
+	_FrameStack.pop_back();
+
+	return method->Result.empty() ? XE::Variant() : Pop();
+}
+
+XE::Variant XE::ASTExecutor::Invoke( const XE::SharedPtr< XE::ASTFunction > & function, XE::InvokeStack * args )
+{
+	XE::ASTFrame frame;
+	{
+		frame.FP = 0;
+		frame.SP = _ValStack.size();
+		frame.AST = function.get();
+	}
+
+	_FrameStack.push_back( &frame );
+	{
+		while ( !args->Empty() )
+		{
+			Push( args->Pop< XE::Variant >() );
+		}
+
+		for ( const auto & it : function->LocalVariables )
+		{
+			frame.Variables.insert( { it.first, _ValStack.size() } );
+			Push( it.second );
+		}
+
+		Exec();
+	}
+	_FrameStack.pop_back();
+
+	return function->Result.empty() ? XE::Variant() : Pop();
+}
+
+void XE::ASTExecutor::Push( const XE::Variant & val )
+{
+	_ValStack.push_back( val );
+}
+
+XE::Variant XE::ASTExecutor::Pop()
+{
+	XE::Variant val = _ValStack.back();
+	_ValStack.pop_back();
+	return val;
+}
+
+XE::Variant & XE::ASTExecutor::Top()
+{
+	return _ValStack.back();
+}
+
+XE::Variant & XE::ASTExecutor::Get( XE::uint64 val )
+{
+	return _ValStack[val];
+}
+
+XE::uint64 XE::ASTExecutor::Index() const
+{
+	return _ValStack.size();
+}
+
+void XE::ASTExecutor::Reset( XE::uint64 val )
+{
+	_ValStack.resize( val );
+}
+
+bool XE::ASTExecutor::MacroSkip() const
+{
+	if ( !_FrameStack.back()->MacroGo.empty() )
+	{
+		return _FrameStack.back()->MacroGo.top() == XE::MacroGotoType::ELSE || _FrameStack.back()->MacroGo.top() == XE::MacroGotoType::THEN_END;
+	}
+
+	return false;
+}
+
+XE::ASTFrame * XE::ASTExecutor::GetFrame() const
+{
+	return _FrameStack.back();
+}
+
+void XE::ASTExecutor::Exec()
+{
+	std::visit( XE::Overloaded
+				{
+					[this]( XE::ASTMethod * func )
+					{
+						while ( _FrameStack.back()->FP < func->StatementBody.size() )
+						{
+							func->StatementBody[_FrameStack.back()->FP++]->Visit( this );
+
+							if ( _FrameStack.back()->ExecGo == ExecutorGotoType::RETURN )
+							{
+								_FrameStack.back()->ExecGo = ExecutorGotoType::NONE;
+								return;
+							}
+						}
+					},
+					[this]( XE::ASTFunction * func )
+					{
+						while ( _FrameStack.back()->FP < func->StatementBody.size() )
+						{
+							func->StatementBody[_FrameStack.back()->FP++]->Visit( this );
+
+							if ( _FrameStack.back()->ExecGo == ExecutorGotoType::RETURN )
+							{
+								_FrameStack.back()->ExecGo = ExecutorGotoType::NONE;
+								return;
+							}
+						}
+					},
+				}, _FrameStack.back()->AST );
 }

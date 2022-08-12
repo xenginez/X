@@ -3,6 +3,14 @@
 #include "ASTVisitor.h"
 
 IMPLEMENT_META( XE::ASTNode );
+BEG_META( XE::MacroIfASTNode )
+type->Property( "Name", &XE::MacroIfASTNode::_Name );
+END_META()
+IMPLEMENT_META( XE::MacroElseASTNode );
+BEG_META( XE::MacroElifASTNode )
+type->Property( "Name", &XE::MacroElifASTNode::_Name );
+END_META()
+IMPLEMENT_META( XE::MacroEndASTNode );
 IMPLEMENT_META( XE::StatASTNode );
 IMPLEMENT_META( XE::ExprStatNode );
 BEG_META( XE::IfStatNode )
@@ -48,6 +56,10 @@ END_META()
 
 #define VISIT( TYPE ) void TYPE::Visit( XE::ASTVisitor * val ) const { val->Visit( this ); }
 VISIT( XE::ASTNode );
+VISIT( XE::MacroIfASTNode );
+VISIT( XE::MacroElseASTNode );
+VISIT( XE::MacroElifASTNode );
+VISIT( XE::MacroEndASTNode );
 VISIT( XE::StatASTNode );
 VISIT( XE::ExprStatNode );
 VISIT( XE::IfStatNode );
@@ -64,6 +76,26 @@ VISIT( XE::VariableExprNode );
 #undef VISIT
 
 //////////////////////////////////////////////////////////////////////////
+
+const XE::String & XE::MacroIfASTNode::GetName() const
+{
+	return _Name;
+}
+
+void XE::MacroIfASTNode::SetName( const XE::String & val )
+{
+	_Name = val;
+}
+
+const XE::String & XE::MacroElifASTNode::GetName() const
+{
+	return _Name;
+}
+
+void XE::MacroElifASTNode::SetName( const XE::String & val )
+{
+	_Name = val;
+}
 
 const XE::StatASTNodePtr & XE::IfStatNode::GetCondition() const
 {

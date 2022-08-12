@@ -28,6 +28,10 @@ DECL_PTR( ASTMetaFunction );
 DECL_PTR( ASTMetaVariable );
 
 DECL_PTR( ASTNode );
+DECL_PTR( MacroIfASTNode );
+DECL_PTR( MacroElseASTNode );
+DECL_PTR( MacroElifASTNode );
+DECL_PTR( MacroEndASTNode );
 DECL_PTR( StatASTNode );
 DECL_PTR( IfStatNode );
 DECL_PTR( BreakStatNode );
