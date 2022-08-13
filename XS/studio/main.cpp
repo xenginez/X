@@ -24,7 +24,8 @@ int main( int argc, char * argv[] )
 	XStudio::MainWindow window( project );
 
 	framework.Exec( XE::MakeShared< XS::WindowProxy >( &window ), project );
-	window.show();
+
+	window.showMaximized();
 
 	int result = a.exec();
 

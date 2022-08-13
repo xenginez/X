@@ -28,34 +28,9 @@ XS::CoreFramework * XS::CoreFramework::GetCurrentFramework()
 	return Private::_Framework;
 }
 
-bool XS::CoreFramework::RegisterService( const XE::MetaClassPtr & val )
+XS::AssetDatabasePtr XS::CoreFramework::GetAssetDatabase() const
 {
-	return Super::RegisterService( val );
-}
-
-void XS::CoreFramework::UnregisterService( const XE::MetaClassPtr & val )
-{
-	Super::UnregisterService( val );
-}
-
-void XS::CoreFramework::Exit()
-{
-	Super::Exit();
-}
-
-void XS::CoreFramework::WaitExit()
-{
-	Super::WaitExit();
-}
-
-bool XS::CoreFramework::IsExit() const
-{
-	return Super::IsExit();
-}
-
-XE::Language XS::CoreFramework::GetSystemLanguage() const
-{
-	return Super::GetSystemLanguage();
+	return _p->_AssetDatabase;
 }
 
 std::filesystem::path XS::CoreFramework::GetModulePath() const
@@ -88,24 +63,23 @@ std::filesystem::path XS::CoreFramework::GetApplicationPath() const
 	return Super::GetApplicationPath();
 }
 
-XE::WindowPtr XS::CoreFramework::GetMainWindow() const
-{
-	return nullptr;
-}
-
 void XS::CoreFramework::Save()
 {
+	Super::Save();
+
 
 }
 
 void XS::CoreFramework::Reload()
 {
+	Super::Reload();
+
 
 }
 
 int XS::CoreFramework::Exec( XE::WindowPtr window )
 {
-	return 0;
+	return Super::Exec( window );
 }
 
 void XS::CoreFramework::Exec( XE::WindowPtr window, const XE::String & project_path )
@@ -117,35 +91,66 @@ void XS::CoreFramework::Exec( XE::WindowPtr window, const XE::String & project_p
 
 void XS::CoreFramework::Prepare()
 {
+	Super::Prepare();
 
+	QUrl url( GetString( ASSET_DATABASE ).c_str() );
+
+	_p->_AssetDatabase = XE::MakeShared< XS::AssetDatabase >();
+
+	if ( !_p->_AssetDatabase->Open( url ) )
+	{
+		XE_ERROR( "asset database open failure: %{1}", GetString( ASSET_DATABASE ) );
+		_p->_AssetDatabase = nullptr;
+	}
 }
 
 void XS::CoreFramework::Startup()
 {
-
+	Super::Startup();
 }
 
 void XS::CoreFramework::Update()
 {
-
+	Super::Update();
 }
 
 void XS::CoreFramework::Clearup()
 {
+	Super::Clearup();
+}
 
+void XS::CoreFramework::LoadModules()
+{
+	Super::LoadModules();
+}
+
+void XS::CoreFramework::LoadServices()
+{
+	Super::LoadServices();
 }
 
 XE::String XS::CoreFramework::GetValue( const XE::String & key )
 {
+	if ( key.find( "System" ) == 0 )
+	{
+		return Super::GetValue( key );
+	}
+	else
+	{
+
+	}
+
 	return "";
 }
 
 void XS::CoreFramework::SetValue( const XE::String & key, const XE::String & val )
 {
+	if ( key.find( "System" ) == 0 )
+	{
+		Super::SetValue( key, val );
+	}
+	else
+	{
 
-}
-
-XS::AssetDatabase * XS::CoreFramework::GetAssetDatabase() const
-{
-	return _p->_AssetDatabase.get();
+	}
 }

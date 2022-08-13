@@ -10,6 +10,7 @@
 #define ASSETDATABASE_H__EA0B3B68_2ADC_4A3C_A01D_250E90E2006A
 
 #include <QUrl>
+#include <QDir>
 #include <QUuid>
 #include <QJsonDocument>
 
@@ -31,17 +32,26 @@ public:
 	bool Open( const QUrl & url );
 
 public:
-	bool Insert( const QUuid & uuid, const QJsonDocument & json );
+	bool Insert( const QUuid & uuid, const QDir & path, const QJsonDocument & json );
 
 	bool Remove( const QUuid & uuid );
 
+	bool Update( const QUuid & uuid, const QDir & path );
+
 	bool Update( const QUuid & uuid, const QJsonDocument & json );
 
-	QJsonDocument Query( const QUuid & uuid );
+	QPair<QDir, QJsonDocument > Query( const QUuid & uuid );
+
+	QUuid Query( const QDir & path );
+
+	QDir QueryPath( const QUuid & uuid );
+
+	QJsonDocument QueryData( const QUuid & uuid );
 
 private:
 	Private * _p;
 };
+DECL_PTR( AssetDatabase );
 
 END_XS_NAMESPACE
 

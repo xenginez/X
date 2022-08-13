@@ -49,7 +49,7 @@ private slots:
 
 private:
 	Ui::AssetExplorerEditor * ui;
-	XS::AssetsItemModel * _Model;
+	XS::AssetsItemModel * _Model = nullptr;
 };
 
 END_XS_NAMESPACE

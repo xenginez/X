@@ -35,9 +35,7 @@ XStudio::MainWindow::MainWindow( const QString & project, QWidget * parent /*= n
 			{
 				QIcon icon = XS::QMetaStaticCall< QIcon >( meta, "icon()" );
 
-				QAction * action = new QAction( icon, name );
-
-				connect( action, &QAction::triggered, [this, meta]()
+				e_wind->addAction( icon, name, [this, meta]()
 				{
 					auto childs = this->children();
 					auto it = std::find_if( childs.begin(), childs.end(), [&]( QObject * obj ) { return obj->metaObject() == meta; } );
@@ -50,8 +48,6 @@ XStudio::MainWindow::MainWindow( const QString & project, QWidget * parent /*= n
 						static_cast<XS::DockWidget *>( *it )->raise();
 					}
 				} );
-
-				e_wind->addAction( action );
 			}
 		}
 	}
@@ -82,37 +78,43 @@ void XStudio::MainWindow::showEvent( QShowEvent * e )
 {
 	XS::MainWindow::showEvent( e );
 
-	if ( QFileInfo::exists( "./layout.ini" ) )
+	QMetaObject::invokeMethod( this, [this]()
 	{
-		Load();
-	}
-	else
-	{
-		auto asset = XS::Registry::ConstructT<XS::DockWidget>( "XS::AssetExplorerEditor", this ); asset->show();
-		auto world = XS::Registry::ConstructT<XS::DockWidget>( "XS::WorldEditor", this ); world->show();
-		auto edit = XS::Registry::ConstructT<XS::DockWidget>( "XS::EditSceneEditor", this ); edit->show();
-		auto game = XS::Registry::ConstructT<XS::DockWidget>( "XS::GameSceneEditor", this ); game->show();
-		auto log = XS::Registry::ConstructT<XS::DockWidget>( "XS::LoggerEditor", this ); log->show();
+		if ( QFileInfo::exists( "./layout.ini" ) )
+		{
+			Load();
+		}
+		else
+		{
+			auto asset = XS::Registry::ConstructT<XS::DockWidget>( "XS::AssetExplorerEditor", this ); asset->show();
+			auto world = XS::Registry::ConstructT<XS::DockWidget>( "XS::WorldEditor", this ); world->show();
+			auto edit = XS::Registry::ConstructT<XS::DockWidget>( "XS::EditSceneEditor", this ); edit->show();
+			auto game = XS::Registry::ConstructT<XS::DockWidget>( "XS::GameSceneEditor", this ); game->show();
+			auto log = XS::Registry::ConstructT<XS::DockWidget>( "XS::LoggerEditor", this ); log->show();
 
-		addDockWidget( Qt::LeftDockWidgetArea, edit );
-		addDockWidget( Qt::RightDockWidgetArea, world );
-		QMainWindow::resizeDocks( { edit, world }, { int( width() * 0.7f ), int( width() * 0.3f ) }, Qt::Horizontal );
+			QMetaObject::invokeMethod( this, [=]()
+			{
+				addDockWidget( Qt::LeftDockWidgetArea, edit );
+				addDockWidget( Qt::RightDockWidgetArea, world );
+				QMainWindow::resizeDocks( { edit, world }, { int( width() * 0.7f ), int( width() * 0.3f ) }, Qt::Horizontal );
 
-		addDockWidget( Qt::LeftDockWidgetArea, asset );
-		QMainWindow::splitDockWidget( edit, asset, Qt::Vertical );
-		QMainWindow::resizeDocks( { edit, asset }, { int( height() * 0.7f ), int( height() * 0.3f ) }, Qt::Vertical );
+				addDockWidget( Qt::LeftDockWidgetArea, asset );
+				QMainWindow::splitDockWidget( edit, asset, Qt::Vertical );
+				QMainWindow::resizeDocks( { edit, asset }, { int( height() * 0.7f ), int( height() * 0.3f ) }, Qt::Vertical );
 
-		addDockWidget( Qt::LeftDockWidgetArea, game );
-		QMainWindow::tabifyDockWidget( edit, game );
-		QMainWindow::setTabPosition( Qt::LeftDockWidgetArea, QTabWidget::South );
+				addDockWidget( Qt::LeftDockWidgetArea, game );
+				QMainWindow::tabifyDockWidget( edit, game );
+				QMainWindow::setTabPosition( Qt::LeftDockWidgetArea, QTabWidget::South );
 
-		addDockWidget( Qt::LeftDockWidgetArea, log );
-		QMainWindow::tabifyDockWidget( asset, log );
-		QMainWindow::setTabPosition( Qt::LeftDockWidgetArea, QTabWidget::South );
+				addDockWidget( Qt::LeftDockWidgetArea, log );
+				QMainWindow::tabifyDockWidget( asset, log );
+				QMainWindow::setTabPosition( Qt::LeftDockWidgetArea, QTabWidget::South );
 
-		edit->raise();
-		asset->raise();
-	}
+				edit->raise();
+				asset->raise();
+			}, Qt::QueuedConnection );
+		}
+	}, Qt::QueuedConnection );
 }
 
 void XStudio::MainWindow::closeEvent( QCloseEvent * e )

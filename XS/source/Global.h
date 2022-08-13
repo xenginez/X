@@ -29,5 +29,6 @@
 #define UI_DECL( TYPE ) namespace Ui { class TYPE; }
 
 static constexpr const char * ASSET_DB_NAME = "AssetDB";
+static constexpr const char * ASSET_DATABASE = "Editor/AssetDatabase";
 
 #endif//GLOBAL_H__3384BD3C_6A3A_46A7_829C_38D1EB4DD8FE

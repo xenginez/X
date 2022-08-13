@@ -48,7 +48,9 @@ DECL_PTR( InvokeExprNode );
 DECL_PTR( VariableExprNode );
 
 DECL_PTR( ASTVisitor );
+DECL_PTR( SyntaxTree );
 DECL_PTR( ASTExecutor );
+DECL_PTR( ASTCompiler );
 
 END_XE_NAMESPACE
 

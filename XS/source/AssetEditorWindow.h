@@ -39,8 +39,10 @@ public:
 
 	Q_INVOKABLE static void assetRemove( const QUuid & uuid );
 
+	Q_INVOKABLE static void assetRename( const QUuid & uuid, const QDir & old_dir, const QDir & new_dir );
+
 public:
-	static XS::AssetDatabase * assetDatabase();
+	static XS::AssetDatabasePtr assetDatabase();
 
 public:
 	virtual void assetOpen( const QUuid & uuid ) = 0;

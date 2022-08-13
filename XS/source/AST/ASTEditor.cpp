@@ -2,30 +2,11 @@
 
 #include "ui_ASTEditor.h"
 
-#include <QMenu>
-#include <QCursor>
+#include <QFile>
+
+#include "ASTTabWidget.h"
 
 REG_WIDGET( XS::ASTEditor );
-
-namespace
-{
-	class TreeViewModel : public QAbstractItemModel
-	{
-	public:
-		TreeViewModel( QObject * parent = nullptr );
-
-		~TreeViewModel();
-
-	public:
-		QModelIndex index( int row, int column, const QModelIndex & parent = QModelIndex() ) const override;
-		QModelIndex parent( const QModelIndex & index ) const override;
-		int rowCount( const QModelIndex & parent = QModelIndex() ) const override;
-		int columnCount( const QModelIndex & parent = QModelIndex() ) const override;
-		QVariant data( const QModelIndex & index, int role ) const override;
-		Qt::ItemFlags flags( const QModelIndex & index ) const override;
-		bool removeRows( int row, int count, const QModelIndex & parent = QModelIndex() ) override;
-	};
-}
 
 XS::ASTEditor::ASTEditor( QWidget * parent /*= nullptr */ )
 	: XS::AssetEditorWindow( parent ), ui( new Ui::ASTEditor )
@@ -33,17 +14,6 @@ XS::ASTEditor::ASTEditor( QWidget * parent /*= nullptr */ )
 	setupUi( ui );
 	setWindowIcon( icon() );
 	setTitleBar( ui->title_bar );
-
-	ui->add->setIcon( QIcon( "SkinIcons:/images/ast/icon_ast_add.png" ) );
-	ui->tool->setIcon( QIcon( "SkinIcons:/images/ast/icon_ast_tool.png" ) );
-	ui->search->addAction( QIcon( "SkinIcons:/images/ast/icon_ast_search.png" ), QLineEdit::ActionPosition::LeadingPosition );
-
-	ui->splitter->setStretchFactor( 0, 2 );
-	ui->splitter->setStretchFactor( 1, 8 );
-	ui->splitter->setStretchFactor( 2, 2 );
-
-	connect( ui->add, &QToolButton::clicked, this, &XS::ASTEditor::OnAddToolButtonClicked );
-	connect( ui->tool, &QToolButton::clicked, this, &XS::ASTEditor::OnToolToolButtonClicked );
 }
 
 XS::ASTEditor::~ASTEditor()
@@ -68,22 +38,70 @@ QString XS::ASTEditor::extensionName()
 
 QUuid XS::ASTEditor::assetCreate( const QDir & path )
 {
-	return {};
+	XE::SyntaxTreePtr tree = XE::MakeShared< XE::SyntaxTree >();
+
+	std::stringstream json;
+	XE::JsonOArchive archive( json );
+	archive << tree;
+
+	QFile file( path.path() );
+	if ( file.open( QIODevice::ReadWrite ) )
+	{
+		std::string data = json.str();
+		file.write( data.c_str(), data.size() );
+	}
+
+	QUuid uuid = QUuid::createUuid();
+
+
+
+	return uuid;
 }
 
 QIcon XS::ASTEditor::assetIcon( const QUuid & uuid )
 {
-	return {};
+	return  QIcon( "SkinIcons:/images/icons/icon_asset_ast.svg" );
 }
 
 void XS::ASTEditor::assetRemove( const QUuid & uuid )
 {
+	auto pair = assetDatabase()->Query( uuid );
+	if ( !pair.first.isEmpty() )
+	{
+		// TODO: other files
 
+		if ( QFile::remove( pair.first.path() ) )
+		{
+			assetDatabase()->Remove( uuid );
+		}
+	}
+}
+
+void XS::ASTEditor::assetRename( const QUuid & uuid, const QDir & old_dir, const QDir & new_dir )
+{
+	if ( QFile::rename( old_dir.path(), new_dir.path() ) )
+	{
+		assetDatabase()->Update( uuid, new_dir );
+	}
 }
 
 void XS::ASTEditor::assetOpen( const QUuid & uuid )
 {
+	for ( int i = 0; i < ui->tabWidget->count(); ++i )
+	{
+		if ( ui->tabWidget->widget( i )->property( "UUID" ).toUuid() == uuid )
+		{
+			ui->tabWidget->setCurrentIndex( i );
+			return;
+		}
+	}
 
+	auto pair = assetDatabase()->Query( uuid );
+	XS::ASTTabWidget * node = new XS::ASTTabWidget( this );
+	{
+		node->setProperty( "UUID", uuid );
+	}
+	ui->tabWidget->addTab( node, pair.first.path() );
 }
 
 void XS::ASTEditor::SaveLayout( QSettings & settings )
@@ -92,7 +110,13 @@ void XS::ASTEditor::SaveLayout( QSettings & settings )
 
 	settings.beginGroup( objectName() );
 	{
-		settings.setValue( "splitter", ui->splitter->saveState() );
+		settings.beginWriteArray( "tabs", ui->tabWidget->count() );
+		for ( size_t i = 0; i < ui->tabWidget->count(); i++ )
+		{
+			settings.setArrayIndex( i );
+			settings.setValue( "uuid", ui->tabWidget->widget( i )->property( "UUID" ) );
+		}
+		settings.endArray();
 	}
 	settings.endGroup();
 }
@@ -103,25 +127,13 @@ void XS::ASTEditor::LoadLayout( QSettings & settings )
 
 	settings.beginGroup( objectName() );
 	{
-		ui->splitter->restoreState( settings.value( "splitter" ).toByteArray() );
+		auto sz = settings.beginReadArray( "tabs" );
+		for ( size_t i = 0; i < sz; i++ )
+		{
+			settings.setArrayIndex( i );
+			assetOpen( settings.value( "uuid" ).toUuid() );
+		}
+		settings.endArray();
 	}
 	settings.endGroup();
-}
-
-void XS::ASTEditor::OnAddToolButtonClicked( bool clicked )
-{
-	QMenu menu( this );
-
-	menu.addAction( QIcon( "SkinIcons:/images/ast/icon_ast_module.png" ), "Module", [this]() {} );
-	menu.addAction( QIcon( "SkinIcons:/images/ast/icon_ast_enum.png" ), "Enum", [this]() {} );
-	menu.addAction( QIcon( "SkinIcons:/images/ast/icon_ast_class.png" ), "Class", [this]() {} );
-	menu.addAction( QIcon( "SkinIcons:/images/ast/icon_ast_function.png" ), "Function", [this]() {} );
-	menu.addAction( QIcon( "SkinIcons:/images/ast/icon_ast_variable.png" ), "Variable", [this]() {} );
-
-	menu.exec( QCursor::pos() );
-}
-
-void XS::ASTEditor::OnToolToolButtonClicked( bool clicked )
-{
-
 }

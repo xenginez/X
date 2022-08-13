@@ -38,6 +38,8 @@ public:
 
 	Q_INVOKABLE static void assetRemove( const QUuid & uuid );
 
+	Q_INVOKABLE static void assetRename( const QUuid & uuid, const QDir & old_dir, const QDir & new_dir );
+
 public:
 	void assetOpen( const QUuid & uuid ) override;
 
@@ -45,12 +47,6 @@ public:
 	void SaveLayout( QSettings & settings ) override;
 
 	void LoadLayout( QSettings & settings ) override;
-
-private slots:
-	void OnAddToolButtonClicked( bool clicked );
-
-	void OnToolToolButtonClicked( bool clicked );
-
 
 private:
 	Ui::ASTEditor * ui;

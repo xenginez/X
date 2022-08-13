@@ -29,20 +29,9 @@ public:
 	static XS::CoreFramework * GetCurrentFramework();
 
 public:
-	bool RegisterService( const XE::MetaClassPtr & val ) override;
-
-	void UnregisterService( const XE::MetaClassPtr & val ) override;
+	XS::AssetDatabasePtr GetAssetDatabase() const;
 
 public:
-	void Exit() override;
-
-	void WaitExit() override;
-
-	bool IsExit() const override;
-
-public:
-	XE::Language GetSystemLanguage() const override;
-
 	std::filesystem::path GetModulePath() const override;
 
 	std::filesystem::path GetAssetsPath() const override;
@@ -54,11 +43,6 @@ public:
 	std::filesystem::path GetUserDataPath() const override;
 
 	std::filesystem::path GetApplicationPath() const override;
-
-public:
-	XE::WindowPtr GetMainWindow() const override;
-
-	XS::AssetDatabase * GetAssetDatabase() const;
 
 public:
 	void Save() override;
@@ -78,6 +62,11 @@ protected:
 	void Update() override;
 
 	void Clearup() override;
+
+protected:
+	void LoadModules() override;
+
+	void LoadServices() override;
 
 protected:
 	XE::String GetValue( const XE::String & key ) override;

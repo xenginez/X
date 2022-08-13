@@ -43,7 +43,12 @@ void XS::AssetEditorWindow::assetRemove( const QUuid & uuid )
 
 }
 
-XS::AssetDatabase * XS::AssetEditorWindow::assetDatabase()
+XS::AssetDatabasePtr XS::AssetEditorWindow::assetDatabase()
 {
 	return XS::CoreFramework::GetCurrentFramework()->GetAssetDatabase();
+}
+
+void XS::AssetEditorWindow::assetRename( const QUuid & uuid, const QDir & old_dir, const QDir & new_dir )
+{
+
 }

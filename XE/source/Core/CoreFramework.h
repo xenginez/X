@@ -90,9 +90,9 @@ protected:
 	virtual void Clearup();
 
 protected:
-	void LoadModules();
+	virtual void LoadModules();
 
-	void LoadServices();
+	virtual void LoadServices();
 
 protected:
 	void Save( const std::filesystem::path & path, const Map < XE::String, XE::String > & values ) const;

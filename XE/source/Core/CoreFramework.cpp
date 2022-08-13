@@ -311,7 +311,7 @@ void XE::CoreFramework::LoadModules()
 			auto module = ( *iter ).path() / ( *iter ).path().stem();
 			if( Library::Open( module.string() ) == LibraryHandle::Invalid )
 			{
-				XE_ERROR( "load module ${1} failed!", module.string().c_str() );
+				XE_ERROR( "load module %{1} failed!", module.string().c_str() );
 			}
 		}
 	}

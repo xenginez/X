@@ -10,10 +10,18 @@
 #include <QFileSystemModel>
 #include <QFileIconProvider>
 
-#define ITEM_ICON_SCALE 100
+#include "CoreFramework.h"
+#include "QMetaStaticCall.h"
+#include "AssetEditorWindow.h"
+
+#define database() (XS::CoreFramework::GetCurrentFramework()->GetAssetDatabase())
 #define ITEM_HIGHT_EXT 20
+#define ITEM_ICON_SCALE 100
+#define FILEINFO_ROLE ( Qt::UserRole + 1)
+#define UUID_ROLE (Qt::UserRole + 2)
 
 REG_WIDGET( XS::AssetExplorerEditor );
+
 
 class XS::AssetsItemModel : public QAbstractItemModel
 {
@@ -431,16 +439,16 @@ XS::AssetExplorerEditor::AssetExplorerEditor( QWidget * parent /*= nullptr */ )
 	ui->icon->setPixmap( QPixmap( "SkinIcons:/images/assets/icon_assets_folder.png" ) );
 	ui->search->addAction( QIcon( "SkinIcons:/images/assets/icon_assets_search.png" ), QLineEdit::ActionPosition::LeadingPosition );
 
-	auto project_path = QDir::toNativeSeparators( QString::fromStdString( XS::CoreFramework::GetCurrentFramework()->GetProjectPath().string() ) );
-	auto watchdb_file = QDir::toNativeSeparators( QString::fromStdString( ( XS::CoreFramework::GetCurrentFramework()->GetProjectPath() / "FileWatcher.db" ).string() ) );
+	ui->splitter->setSizes( { 3000, 7000 } );
 
-	_Model = new XS::AssetsItemModel( project_path, this );
+	_Model = new XS::AssetsItemModel( QDir::toNativeSeparators( QString::fromStdString( XS::CoreFramework::GetCurrentFramework()->GetProjectPath().string() ) ), this );
 	ui->tree->setModel( _Model );
 	ui->tree->setRootIndex( _Model->rootIndex() );
 
 	connect( ui->tree, &QTreeView::clicked, this, &AssetExplorerEditor::OnTreeViewClicked );
 	connect( ui->scale, &QSlider::valueChanged, this, &AssetExplorerEditor::OnScaleValueChanged );
 	connect( ui->tree, &QTreeView::customContextMenuRequested, this, &AssetExplorerEditor::OnTreeViewCustomContextMenuRequested );
+	connect( ui->list, &QListWidget::customContextMenuRequested, this, &AssetExplorerEditor::OnTreeViewCustomContextMenuRequested );
 }
 
 XS::AssetExplorerEditor::~AssetExplorerEditor()
@@ -522,7 +530,8 @@ void XS::AssetExplorerEditor::OnTreeViewClicked( const QModelIndex & index )
 	for ( const auto & it : list )
 	{
 		QListWidgetItem * item = new QListWidgetItem( QIcon( "SkinIcons:/images/assets/icon_assets_file.svg" ), it.baseName(), ui->list );
-		item->setData( Qt::UserRole + 1, QVariant::fromValue( it ) );
+		item->setData( FILEINFO_ROLE, QVariant::fromValue( it ) );
+		item->setData( UUID_ROLE, database()->Query( QDir( it.filePath() ) ) );
 		item->setToolTip( QString( tr( "Name:\t%0\nType:\t%1\nPath:\t%2\nTime:\t%3\n" ) ).arg( it.baseName() ).arg( it.suffix() ).arg( it.filePath() ).arg( it.lastModified().toString( Qt::LocaleDate ) ) );
 		ui->list->addItem( item );
 	}
@@ -536,21 +545,47 @@ void XS::AssetExplorerEditor::OnTreeViewCustomContextMenuRequested( const QPoint
 	{
 		return;
 	}
+
 	QMenu menu;
 	{
-		QAction * follow = nullptr;
 		if ( _Model->isFollowChild( index ) )
 		{
-			follow = new QAction( tr( "Unfollow" ), &menu );
-			connect( follow, &QAction::triggered, [this, index]() { _Model->removeRow( index.row(), index.parent() ); } );
+			menu.addAction( tr( "Unfollow" ), [this, index]() { _Model->removeRow( index.row(), index.parent() ); } );
 		}
 		else
 		{
-			follow = new QAction( tr( "Follow" ), &menu );
-			connect( follow, &QAction::triggered, [this, index]() { _Model->addFollow( index ); } );
+			menu.addAction( tr( "Follow" ), [this, index]() { _Model->addFollow( index ); } );
 		}
 
-		menu.addAction( follow );
+		auto create = menu.addMenu( tr( "Create" ) );
+		{
+			auto metas = XS::Registry::GetDerivedClass( &XS::AssetEditorWindow::staticMetaObject );
+			for ( auto meta : metas )
+			{
+				QString name = XS::QMetaStaticCall< QString >( meta, "name()" );
+				if ( !name.isEmpty() )
+				{
+					QIcon icon = XS::QMetaStaticCall< QIcon >( meta, "icon()" );
+
+					create->addAction(icon, name, [this, meta]()
+					{
+						QString path = _Model->filePath( ui->tree->currentIndex() );
+						QString name = XS::QMetaStaticCall< QString >( meta, "name()" );
+						QString extn = XS::QMetaStaticCall< QString >( meta, "extensionName()" );
+
+						QDir dir( QString( "%1/New %2%3%4" ).arg( path ).arg( name ).arg( "" ).arg( extn ) );
+						for ( int i = 2; std::filesystem::exists( dir.path().toStdString() ); ++i )
+						{
+							dir = QDir( QString( "%1/New %2 %3%4" ).arg( path ).arg( name ).arg( i ).arg( extn ) );
+						}
+
+						XS::QMetaStaticCall< QUuid >( meta, "assetCreate(const QDir &)", dir );
+
+						OnTreeViewClicked( ui->tree->currentIndex() );
+					} );
+				}
+			}
+		}
 	}
 	menu.exec( QCursor::pos() );
 }

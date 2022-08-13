@@ -38,6 +38,9 @@ XS::WorldEditor::WorldEditor( QWidget * parent /*= nullptr */ )
 
 	connect( ui->inspector_expand, &QToolButton::clicked, [this]() { if ( _Inspector != nullptr ) _Inspector->Expand(); } );
 	connect( ui->inspector_collapse, &QToolButton::clicked, [this]() { if ( _Inspector != nullptr ) _Inspector->Collapse(); } );
+
+	ui->splitter->setSizes( { 10000, 10000 } );
+	ui->splitter_2->setSizes( { 10000, 10000 } );
 }
 
 XS::WorldEditor::~WorldEditor()
