@@ -7,12 +7,10 @@
 REG_WIDGET( XS::WorldEditor );
 
 XS::WorldEditor::WorldEditor( QWidget * parent /*= nullptr */ )
-	: XS::EditorWindow( parent ), ui( new Ui::WorldEditor )
+	: XS::ToolEditorWindow( parent ), ui( new Ui::WorldEditor )
 {
 	setupUi( ui );
-
-	setWindowIcon( QIcon( "SkinIcons:/images/icons/icon_objects.png" ) );
-
+	setWindowIcon( icon() );
 	setTitleBar( new QWidget( this ) );
 
 	ui->logic_icon->setPixmap( QPixmap( "SkinIcons:/images/world/icon_world_logic.png" ) );
@@ -47,14 +45,22 @@ XS::WorldEditor::~WorldEditor()
 	delete ui;
 }
 
+QIcon XS::WorldEditor::icon()
+{
+	return QIcon( "SkinIcons:/images/icons/icon_world.png" );
+}
+
+QString XS::WorldEditor::name()
+{
+	return tr( "World" );
+}
+
 void XS::WorldEditor::SaveLayout( QSettings & settings )
 {
-	DockWidget::SaveLayout( settings );
+	XS::ToolEditorWindow::SaveLayout( settings );
 	
 	settings.beginGroup( objectName() );
 	{
-		settings.setValue( "splitter_horizontal_geometry", ui->splitter->saveGeometry() );
-		settings.setValue( "splitter_vertical_geometry", ui->splitter_2->saveGeometry() );
 		settings.setValue( "splitter_horizontal_state", ui->splitter->saveState() );
 		settings.setValue( "splitter_vertical_state", ui->splitter_2->saveState() );
 	}
@@ -63,12 +69,10 @@ void XS::WorldEditor::SaveLayout( QSettings & settings )
 
 void XS::WorldEditor::LoadLayout( QSettings & settings )
 {
-	DockWidget::LoadLayout( settings );
+	XS::ToolEditorWindow::LoadLayout( settings );
 	
 	settings.beginGroup( objectName() );
 	{
-		ui->splitter->restoreGeometry( settings.value( "splitter_horizontal_geometry" ).toByteArray() );
-		ui->splitter_2->restoreGeometry( settings.value( "splitter_vertical_geometry" ).toByteArray() );
 		ui->splitter->restoreState( settings.value( "splitter_horizontal_state" ).toByteArray() );
 		ui->splitter_2->restoreState( settings.value( "splitter_vertical_state" ).toByteArray() );
 	}

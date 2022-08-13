@@ -17,19 +17,19 @@ QWidget * XS::Registry::Construct( const QString & name, QWidget * parent )
 	return nullptr;
 }
 
-QList< QString > XS::Registry::GetDerivedClass( const QMetaObject * super )
+QList< const QMetaObject * > XS::Registry::GetDerivedClass( const QMetaObject * super )
 {
-	QList< QString > names;
+	QList< const QMetaObject * > metas;
 
 	for ( auto it : _p()->_Constructs )
 	{
 		if ( std::get<0>( it.second )->inherits( super ) )
 		{
-			names.push_back( it.first );
+			metas.push_back( std::get<0>( it.second ) );
 		}
 	}
 
-	return names;
+	return metas;
 }
 
 XS::Registry::Registry()

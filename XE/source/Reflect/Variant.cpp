@@ -305,7 +305,7 @@ XE::Variant XE::Variant::operator~() const
 {
 	return std::visit( XE::Overloaded{
 						[this]( const std::monostate & val ) -> XE::Variant { throw * this; },
-						[this]( const bool & val ) -> XE::Variant { return ~val; },
+						[this]( const bool & val ) -> XE::Variant { throw * this; },
 						[this]( const XE::int8 & val ) -> XE::Variant { return ~val; },
 						[this]( const XE::int16 & val ) -> XE::Variant { return ~val; },
 						[this]( const XE::int32 & val ) -> XE::Variant { return ~val; },
@@ -327,15 +327,15 @@ XE::Variant XE::Variant::operator-() const
 {
 	return std::visit( XE::Overloaded{
 						[this]( const std::monostate & val ) -> XE::Variant { throw * this; },
-						[this]( const bool & val ) -> XE::Variant { return -val; },
+						[this]( const bool & val ) -> XE::Variant { throw * this; },
 						[this]( const XE::int8 & val ) -> XE::Variant { return -val; },
 						[this]( const XE::int16 & val ) -> XE::Variant { return -val; },
 						[this]( const XE::int32 & val ) -> XE::Variant { return -val; },
 						[this]( const XE::int64 & val ) -> XE::Variant { return -val; },
-						[this]( const XE::uint8 & val ) -> XE::Variant { return -val; },
-						[this]( const XE::uint16 & val ) -> XE::Variant { return -val; },
-						[this]( const XE::uint32 & val ) -> XE::Variant { return -val; },
-						[this]( const XE::uint64 & val ) -> XE::Variant { return -val; },
+						[this]( const XE::uint8 & val ) -> XE::Variant { return -(XE::int8)val; },
+						[this]( const XE::uint16 & val ) -> XE::Variant { return -(XE::int16)val; },
+						[this]( const XE::uint32 & val ) -> XE::Variant { return -(XE::int32)val; },
+						[this]( const XE::uint64 & val ) -> XE::Variant { return -(XE::int64)val; },
 						[this]( const XE::float32 & val ) -> XE::Variant { return -val; },
 						[this]( const XE::float64 & val ) -> XE::Variant { return -val; },
 						[this]( const VariantEnumData & val ) -> XE::Variant { throw * this; },

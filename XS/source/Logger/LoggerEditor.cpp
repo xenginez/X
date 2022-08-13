@@ -37,12 +37,10 @@ Q_DECLARE_METATYPE( XE::LoggerLevel );
 REG_WIDGET( XS::LoggerEditor );
 
 XS::LoggerEditor::LoggerEditor( QWidget * parent /*= nullptr */ )
-	:XS::EditorWindow( parent ), ui( new Ui::LoggerEditor )
+	:XS::ToolEditorWindow( parent ), ui( new Ui::LoggerEditor )
 {
 	setupUi( ui );
-
-	setWindowIcon( QIcon( "SkinIcons:/images/icons/icon_logger.png" ) );
-
+	setWindowIcon( icon() );
 	setTitleBar( ui->title_bar );
 
 	ui->clear->setIcon( QIcon( "SkinIcons:/images/logger/icon_logger_clear.png" ) );
@@ -75,6 +73,16 @@ XS::LoggerEditor::LoggerEditor( QWidget * parent /*= nullptr */ )
 XS::LoggerEditor::~LoggerEditor()
 {
 	delete ui;
+}
+
+QIcon XS::LoggerEditor::icon()
+{
+	return QIcon( "SkinIcons:/images/icons/icon_logger.png" );
+}
+
+QString XS::LoggerEditor::name()
+{
+	return tr( "Logger" );
 }
 
 void XS::LoggerEditor::SaveLayout( QSettings & settings )

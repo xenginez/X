@@ -9,7 +9,7 @@
 #ifndef GAMESCENEEDITOR_H__391B86FC_35F4_4404_B14D_AB5418BE3285
 #define GAMESCENEEDITOR_H__391B86FC_35F4_4404_B14D_AB5418BE3285
 
-#include "EditorWindow.h"
+#include "ToolEditorWindow.h"
 
 #include "GameScene.h"
 
@@ -17,7 +17,7 @@ UI_DECL( GameSceneEditor );
 
 BEG_XS_NAMESPACE
 
-class XS_API GameSceneEditor : public XS::EditorWindow
+class XS_API GameSceneEditor : public XS::ToolEditorWindow
 {
 	Q_OBJECT
 
@@ -25,6 +25,11 @@ public:
 	GameSceneEditor( QWidget * parent = nullptr );
 
 	~GameSceneEditor();
+
+public:
+	Q_INVOKABLE static QIcon icon();
+
+	Q_INVOKABLE static QString name();
 
 public:
 	void SaveLayout( QSettings & settings ) override;

@@ -7,12 +7,10 @@
 REG_WIDGET( XS::EditSceneEditor );
 
 XS::EditSceneEditor::EditSceneEditor( QWidget * parent /*= nullptr */ )
-	: XS::EditorWindow( parent ), ui( new Ui::EditSceneEditor )
+	: XS::ToolEditorWindow( parent ), ui( new Ui::EditSceneEditor )
 {
 	setupUi( ui );
-
-	setWindowIcon( QIcon( "SkinIcons:/images/icons/icon_edit.png" ) );
-
+	setWindowIcon( icon() );
 	setTitleBar( ui->title_bar );
 
 	ui->tools->setIcon( QIcon( "SkinIcons:/images/editscene/icon_editscene_tools.png" ) );
@@ -32,6 +30,16 @@ XS::EditSceneEditor::EditSceneEditor( QWidget * parent /*= nullptr */ )
 XS::EditSceneEditor::~EditSceneEditor()
 {
 	delete ui;
+}
+
+QIcon XS::EditSceneEditor::icon()
+{
+	return QIcon( "SkinIcons:/images/icons/icon_edit.png" );
+}
+
+QString XS::EditSceneEditor::name()
+{
+	return tr( "Edit" );
 }
 
 void XS::EditSceneEditor::SaveLayout( QSettings & settings )
@@ -93,5 +101,5 @@ bool XS::EditSceneEditor::eventFilter( QObject * watched, QEvent * event )
 		//ui->display->repaint();
 	}
 
-	return XS::DockWidget::eventFilter( watched, event );
+	return XS::ToolEditorWindow::eventFilter( watched, event );
 }

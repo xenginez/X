@@ -11,13 +11,13 @@
 
 #include <QStandardItemModel>
 
-#include "EditorWindow.h"
+#include "ToolEditorWindow.h"
 
 UI_DECL( LoggerEditor );
 
 BEG_XS_NAMESPACE
 
-class XS_API LoggerEditor : public XS::EditorWindow
+class XS_API LoggerEditor : public XS::ToolEditorWindow
 {
 	Q_OBJECT
 
@@ -25,6 +25,11 @@ public:
 	LoggerEditor( QWidget * parent = nullptr );
 
 	~LoggerEditor();
+
+public:
+	Q_INVOKABLE static QIcon icon();
+
+	Q_INVOKABLE static QString name();
 
 public:
 	void SaveLayout( QSettings & settings ) override;

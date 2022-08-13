@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>EditScene</string>
+   <string>Edit</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <property name="spacing">

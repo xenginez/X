@@ -1,14 +1,15 @@
-#include "EditorWindow.h"
+#include "MainWindow.h"
 
 #include <QMenu>
 #include <QAction>
 #include <QMenuBar>
 #include <QFileInfo>
+#include <QMetaMethod>
 #include <QDataStream>
 #include <QApplication>
 #include <QDesktopWidget>
 
-XStudio::EditorWindow::EditorWindow( const QString & project, QWidget * parent /*= nullptr */ )
+XStudio::MainWindow::MainWindow( const QString & project, QWidget * parent /*= nullptr */ )
 	:XS::MainWindow( parent )
 {
 	setObjectName( "XStudio" );
@@ -25,27 +26,33 @@ XStudio::EditorWindow::EditorWindow( const QString & project, QWidget * parent /
 	}
 	QMenu * e_wind = new QMenu( tr( "&Window" ) );
 	{
-		auto names = XS::Registry::GetDerivedClass( &XS::EditorWindow::staticMetaObject );
+		auto metas = XS::Registry::GetDerivedClass( &XS::ToolEditorWindow::staticMetaObject );
 		
-		for ( auto name : names )
+		for ( auto meta : metas )
 		{
-			QAction * action = new QAction( name );
-
-			connect( action, &QAction::triggered, [this, name]()
+			QString name = XS::QMetaStaticCall< QString >( meta, "name()" );
+			if ( !name.isEmpty() )
 			{
-				auto childs = this->children();
-				auto it = std::find_if( childs.begin(), childs.end(), [&]( QObject * obj ) { return obj->metaObject()->className() == name; } );
-				if ( it == childs.end() )
-				{
-					XS::Registry::ConstructT< XS::DockWidget >( name, this )->show();
-				}
-				else
-				{
-					static_cast<XS::DockWidget *>( *it )->raise();
-				}
-			} );
+				QIcon icon = XS::QMetaStaticCall< QIcon >( meta, "icon()" );
 
-			e_wind->addAction( action );
+				QAction * action = new QAction( icon, name );
+
+				connect( action, &QAction::triggered, [this, meta]()
+				{
+					auto childs = this->children();
+					auto it = std::find_if( childs.begin(), childs.end(), [&]( QObject * obj ) { return obj->metaObject() == meta; } );
+					if ( it == childs.end() )
+					{
+						XS::Registry::ConstructT< XS::DockWidget >( meta->className(), this )->show();
+					}
+					else
+					{
+						static_cast<XS::DockWidget *>( *it )->raise();
+					}
+				} );
+
+				e_wind->addAction( action );
+			}
 		}
 	}
 	QMenu * e_plug = new QMenu( tr( "&Plugin" ) );
@@ -66,12 +73,12 @@ XStudio::EditorWindow::EditorWindow( const QString & project, QWidget * parent /
 	RemoveCentralwidget();
 }
 
-XStudio::EditorWindow::~EditorWindow()
+XStudio::MainWindow::~MainWindow()
 {
 
 }
 
-void XStudio::EditorWindow::showEvent( QShowEvent * e )
+void XStudio::MainWindow::showEvent( QShowEvent * e )
 {
 	XS::MainWindow::showEvent( e );
 
@@ -108,7 +115,7 @@ void XStudio::EditorWindow::showEvent( QShowEvent * e )
 	}
 }
 
-void XStudio::EditorWindow::closeEvent( QCloseEvent * e )
+void XStudio::MainWindow::closeEvent( QCloseEvent * e )
 {
 	Save();
 

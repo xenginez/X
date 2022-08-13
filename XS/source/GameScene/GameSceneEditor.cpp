@@ -9,12 +9,10 @@
 REG_WIDGET( XS::GameSceneEditor );
 
 XS::GameSceneEditor::GameSceneEditor( QWidget * parent /*= nullptr */ )
-	: XS::EditorWindow( parent ), ui( new Ui::GameSceneEditor )
+	: XS::ToolEditorWindow( parent ), ui( new Ui::GameSceneEditor )
 {
 	setupUi( ui );
-
-	setWindowIcon( QIcon( "SkinIcons:/images/icons/icon_game.png" ) );
-
+	setWindowIcon( icon() );
 	setTitleBar( ui->title_bar );
 
 	ui->layout->setIcon( QIcon( "SkinIcons:/images/gamescene/icon_gamescene_layout.png" ) );
@@ -26,9 +24,19 @@ XS::GameSceneEditor::~GameSceneEditor()
 	delete ui;
 }
 
+QIcon XS::GameSceneEditor::icon()
+{
+	return  QIcon( "SkinIcons:/images/icons/icon_game.png" );
+}
+
+QString XS::GameSceneEditor::name()
+{
+	return tr( "Game" );
+}
+
 void XS::GameSceneEditor::SaveLayout( QSettings & settings )
 {
-	XS::DockWidget::SaveLayout( settings );
+	XS::ToolEditorWindow::SaveLayout( settings );
 
 	settings.beginGroup( objectName() );
 	{
@@ -46,7 +54,7 @@ void XS::GameSceneEditor::SaveLayout( QSettings & settings )
 
 void XS::GameSceneEditor::LoadLayout( QSettings & settings )
 {
-	XS::DockWidget::LoadLayout( settings );
+	XS::ToolEditorWindow::LoadLayout( settings );
 
 	settings.beginGroup( objectName() );
 	{

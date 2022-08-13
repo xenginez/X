@@ -10,6 +10,7 @@
 #define COREFRAMEWORK_H__941035B0_93C2_49A9_BEB1_FC3442BCA3F4
 
 #include "Global.h"
+#include "AssetDatabase.h"
 
 BEG_XS_NAMESPACE
 
@@ -56,6 +57,8 @@ public:
 
 public:
 	XE::WindowPtr GetMainWindow() const override;
+
+	XS::AssetDatabase * GetAssetDatabase() const;
 
 public:
 	void Save() override;

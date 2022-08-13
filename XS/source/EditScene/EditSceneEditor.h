@@ -9,13 +9,13 @@
 #ifndef EDITSCENEEDITOR_H__2C2FB7BC_1E8B_4ADF_9296_1F4802B4CADB
 #define EDITSCENEEDITOR_H__2C2FB7BC_1E8B_4ADF_9296_1F4802B4CADB
 
-#include "EditorWindow.h"
+#include "ToolEditorWindow.h"
 
 UI_DECL( EditSceneEditor );
 
 BEG_XS_NAMESPACE
 
-class XS_API EditSceneEditor : public XS::EditorWindow
+class XS_API EditSceneEditor : public XS::ToolEditorWindow
 {
 	Q_OBJECT
 
@@ -23,6 +23,11 @@ public:
 	EditSceneEditor( QWidget * parent = nullptr );
 
 	~EditSceneEditor();
+
+public:
+	Q_INVOKABLE static QIcon icon();
+
+	Q_INVOKABLE static QString name();
 
 public:
 	void SaveLayout( QSettings & settings ) override;

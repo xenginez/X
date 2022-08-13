@@ -1,7 +1,7 @@
 #include <QApplication>
 #include <QDesktopWidget>
 
-#include "EditorWindow.h"
+#include "MainWindow.h"
 
 int main( int argc, char * argv[] )
 {
@@ -21,7 +21,7 @@ int main( int argc, char * argv[] )
 	a.setStyle( new XS::Skin( QApplication::applicationDirPath() + "/resource/qss/darkstyle.qss" ) );
 
 	XS::CoreFramework framework;
-	XStudio::EditorWindow window( project );
+	XStudio::MainWindow window( project );
 
 	framework.Exec( XE::MakeShared< XS::WindowProxy >( &window ), project );
 	window.show();

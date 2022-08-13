@@ -6,6 +6,7 @@ struct XS::CoreFramework::Private
 {
 	std::filesystem::path _ProjectPath;
 	static XS::CoreFramework * _Framework;
+	XE::SharedPtr< XS::AssetDatabase > _AssetDatabase;
 };
 XS::CoreFramework * XS::CoreFramework::Private::_Framework = nullptr;
 
@@ -142,4 +143,9 @@ XE::String XS::CoreFramework::GetValue( const XE::String & key )
 void XS::CoreFramework::SetValue( const XE::String & key, const XE::String & val )
 {
 
+}
+
+XS::AssetDatabase * XS::CoreFramework::GetAssetDatabase() const
+{
+	return _p->_AssetDatabase.get();
 }

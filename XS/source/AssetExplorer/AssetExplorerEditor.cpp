@@ -418,12 +418,10 @@ private:
 };
 
 XS::AssetExplorerEditor::AssetExplorerEditor( QWidget * parent /*= nullptr */ )
-	:EditorWindow( parent ), ui( new Ui::AssetExplorerEditor )
+	:ToolEditorWindow( parent ), ui( new Ui::AssetExplorerEditor )
 {
 	setupUi( ui );
-
-	setWindowIcon( QIcon( "SkinIcons:/images/icons/icon_assets.png" ) );
-
+	setWindowIcon( icon() );
 	setTitleBar( ui->title_bar );
 
 	ui->add->setIcon( QIcon( "SkinIcons:/images/assets/icon_assets_add.png" ) );
@@ -436,13 +434,9 @@ XS::AssetExplorerEditor::AssetExplorerEditor( QWidget * parent /*= nullptr */ )
 	auto project_path = QDir::toNativeSeparators( QString::fromStdString( XS::CoreFramework::GetCurrentFramework()->GetProjectPath().string() ) );
 	auto watchdb_file = QDir::toNativeSeparators( QString::fromStdString( ( XS::CoreFramework::GetCurrentFramework()->GetProjectPath() / "FileWatcher.db" ).string() ) );
 
-	_Module = new XS::AssetsItemModel( project_path, this );
-	ui->tree->setModel( _Module );
-	ui->tree->setRootIndex( _Module->rootIndex() );
-
-// 	_LocalDB = QSqlDatabase::addDatabase( "QSQLITE" );
-// 	_LocalDB.setHostName( watchdb_file );
-// 	_LocalDB.open();
+	_Model = new XS::AssetsItemModel( project_path, this );
+	ui->tree->setModel( _Model );
+	ui->tree->setRootIndex( _Model->rootIndex() );
 
 	connect( ui->tree, &QTreeView::clicked, this, &AssetExplorerEditor::OnTreeViewClicked );
 	connect( ui->scale, &QSlider::valueChanged, this, &AssetExplorerEditor::OnScaleValueChanged );
@@ -451,17 +445,22 @@ XS::AssetExplorerEditor::AssetExplorerEditor( QWidget * parent /*= nullptr */ )
 
 XS::AssetExplorerEditor::~AssetExplorerEditor()
 {
-	if ( _LocalDB.isOpen() )
-	{
-		_LocalDB.close();
-	}
-
 	delete ui;
+}
+
+QIcon XS::AssetExplorerEditor::icon()
+{
+	return QIcon( "SkinIcons:/images/icons/icon_assets.png" );
+}
+
+QString XS::AssetExplorerEditor::name()
+{
+	return tr( "Assets" );
 }
 
 void XS::AssetExplorerEditor::SaveLayout( QSettings & settings )
 {
-	DockWidget::SaveLayout( settings );
+	XS::ToolEditorWindow::SaveLayout( settings );
 
 	settings.beginGroup( objectName() );
 	{
@@ -474,7 +473,7 @@ void XS::AssetExplorerEditor::SaveLayout( QSettings & settings )
 
 void XS::AssetExplorerEditor::LoadLayout( QSettings & settings )
 {
-	DockWidget::LoadLayout( settings );
+	XS::ToolEditorWindow::LoadLayout( settings );
 
 	settings.beginGroup( objectName() );
 	{
@@ -515,7 +514,7 @@ void XS::AssetExplorerEditor::OnScaleValueChanged( int value )
 
 void XS::AssetExplorerEditor::OnTreeViewClicked( const QModelIndex & index )
 {
-	QFileInfo info( _Module->filePath( index ) );
+	QFileInfo info( _Model->filePath( index ) );
 
 	ui->list->clear();
 
@@ -533,22 +532,22 @@ void XS::AssetExplorerEditor::OnTreeViewCustomContextMenuRequested( const QPoint
 {
 	QModelIndex index = ui->tree->indexAt( ui->tree->viewport()->mapFromGlobal( QCursor::pos() ) );
 	
-	if ( _Module->isSpacing( index ) || _Module->isFollow( index ) || _Module->isPackage( index ) )
+	if ( _Model->isSpacing( index ) || _Model->isFollow( index ) || _Model->isPackage( index ) )
 	{
 		return;
 	}
 	QMenu menu;
 	{
 		QAction * follow = nullptr;
-		if ( _Module->isFollowChild( index ) )
+		if ( _Model->isFollowChild( index ) )
 		{
 			follow = new QAction( tr( "Unfollow" ), &menu );
-			connect( follow, &QAction::triggered, [this, index]() { _Module->removeRow( index.row(), index.parent() ); } );
+			connect( follow, &QAction::triggered, [this, index]() { _Model->removeRow( index.row(), index.parent() ); } );
 		}
 		else
 		{
 			follow = new QAction( tr( "Follow" ), &menu );
-			connect( follow, &QAction::triggered, [this, index]() { _Module->addFollow( index ); } );
+			connect( follow, &QAction::triggered, [this, index]() { _Model->addFollow( index ); } );
 		}
 
 		menu.addAction( follow );

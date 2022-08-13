@@ -19,7 +19,9 @@
 #include "ObjectProxy.h"
 #include "WindowProxy.h"
 #include "RenderWidget.h"
-#include "EditorWindow.h"
 #include "CoreFramework.h"
+#include "ToolEditorWindow.h"
+
+#include "QMetaStaticCall.h"
 
 #endif//XS_H__841996AE_C7A0_4FAA_BE5C_0DA1CD20AB42

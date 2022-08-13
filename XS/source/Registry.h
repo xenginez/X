@@ -27,7 +27,7 @@ public:
 		return reinterpret_cast<T *>( Construct( name, parent ) );
 	}
 
-	static QList< QString > GetDerivedClass( const QMetaObject * super );
+	static QList< const QMetaObject * > GetDerivedClass( const QMetaObject * super );
 
 private:
 	Registry();
