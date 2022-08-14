@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>ASTEditorWindow</class>
- <widget class="QWidget" name="ASTEditorWindow">
+ <class>ASTEditor</class>
+ <widget class="QWidget" name="ASTEditor">
   <property name="geometry">
    <rect>
     <x>0</x>

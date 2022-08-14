@@ -289,24 +289,21 @@ void XS::MainWindow::SaveLayout()
 	settings.beginGroup( objectName() );
 	{
 		QStringList types;
-		QStringList names;
 		QList<XS::DockWidget *> docks = QWidget::findChildren<XS::DockWidget *>();
 
 		for ( XS::DockWidget * it : docks )
 		{
 			types.push_back( it->metaObject()->className() );
-			names.push_back( it->objectName() );
 		}
 
 		settings.setValue( "docks", types );
-		settings.setValue( "names", names );
 		settings.setValue( "state", saveState() );
 		settings.setValue( "geometry", saveGeometry() );
+		settings.setValue( "maximized", QMainWindow::isMaximized() );
 
 		for ( XS::DockWidget * it : docks )
 		{
 			it->SaveLayout( settings );
-			settings.setValue( it->objectName() + "/size", it->size() );
 		}
 	}
 	settings.endGroup();
@@ -319,59 +316,29 @@ void XS::MainWindow::LoadLayout()
 
 	settings.beginGroup( objectName() );
 	{
-		XS::DockWidget * docks[255];
-
-		auto types = settings.value( "docks" ).toStringList();
-		auto names = settings.value( "names" ).toStringList();
-
-		for ( int i = 0; i < types.count(); i++ )
+		if ( settings.value( "maximized" ).toBool() )
 		{
-			XS::DockWidget * dock = XS::Registry::ConstructT<XS::DockWidget>( types[i], this );
-			dock->setObjectName( names[i] );
-			dock->LoadLayout( settings );
-			dock->show();
-
-			docks[i] = dock;
-		}
-
-		restoreGeometry( settings.value( "geometry" ).toByteArray() );
-		restoreState( settings.value( "state" ).toByteArray() );
-
-		QApplication::processEvents();
-
-		for ( int i = 0; i < types.count(); i++ )
-		{
-			QSize size = settings.value( docks[i]->objectName() + "/size" ).toSize();
-			docks[i]->setMinimumSize( size );
-			docks[i]->setMaximumSize( size );
-		}
-
-		QApplication::processEvents();
-
-		for ( int i = 0; i < types.count(); i++ )
-		{
-			docks[i]->setMinimumSize( QSize( 0, 0 ) );
-			docks[i]->setMaximumSize( QSize( 65536, 65536 ) );
-		}
-
-		QApplication::processEvents();
-
-		if ( QMainWindow::isMaximized() )
-		{
-			if ( ui->menuBar->RestoreButtonVisable() )
-			{
-				ui->menuBar->showRestoreButton();
-			}
-			ui->menuBar->hideMaximizeButton();
+			showMaximized();
 		}
 		else
 		{
-			if ( ui->menuBar->MaximizeButtonVisable() )
-			{
-				ui->menuBar->showMaximizeButton();
-			}
-			ui->menuBar->hideRestoreButton();
+			show();
 		}
+
+		QApplication::processEvents();
+
+		auto types = settings.value( "docks" ).toStringList();
+		for ( int i = 0; i < types.count(); i++ )
+		{
+			XS::DockWidget * dock = XS::Registry::ConstructT<XS::DockWidget>( types[i], this );
+			dock->LoadLayout( settings );
+			dock->show();
+		}
+
+		QApplication::processEvents();
+
+		restoreGeometry( settings.value( "geometry" ).toByteArray() );
+		restoreState( settings.value( "state" ).toByteArray() );
 	}
 	settings.endGroup();
 

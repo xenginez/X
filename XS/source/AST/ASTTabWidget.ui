@@ -148,17 +148,11 @@
       <property name="currentIndex">
        <number>1</number>
       </property>
-      <property name="documentMode">
-       <bool>false</bool>
-      </property>
       <property name="tabsClosable">
        <bool>true</bool>
       </property>
       <property name="movable">
        <bool>true</bool>
-      </property>
-      <property name="tabBarAutoHide">
-       <bool>false</bool>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
