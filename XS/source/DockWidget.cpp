@@ -151,7 +151,7 @@ void XS::DockWidget::OnFloatClicked( bool checked )
 
 void XS::DockWidget::OnCloseClicked( bool checked )
 {
-	close();
+	deleteLater();
 }
 
 void XS::DockWidget::SaveLayout( QSettings & settings )

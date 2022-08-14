@@ -7,9 +7,11 @@
 #include <QFileInfo>
 #include <QSqlError>
 #include <QSqlQuery>
+#include <QDesktopServices>
 #include <QFileSystemModel>
 #include <QFileIconProvider>
 
+#include "MainWindow.h"
 #include "CoreFramework.h"
 #include "QMetaStaticCall.h"
 
@@ -56,12 +58,12 @@ public:
 		}
 		AssetsItem * find( const QString & path )
 		{
-			if ( QFileInfo( path ) == info.filePath() )
+			if ( QFileInfo( path ) == info )
 			{
 				return this;
 			}
 
-			if ( info.filePath().contains( path ) ) // path.contains( info.filePath() ) )
+			if ( info.filePath().contains( path ) )
 			{
 				for ( auto it : children )
 				{
@@ -82,14 +84,11 @@ public:
 	};
 
 public:
-	static constexpr std::array<const char *, 7> TopLevelPaths =
+	static constexpr std::array<const char *, 4> TopLevelPaths =
 	{
 		XS::FOLLOW_DIRECTORY,
-		" ",
 		XE::ASSETS_DIRECTORY,
 		XS::EDITORS_DIRECTORY,
-		XE::CONFIGS_DIRECTORY,
-		" ",
 		XS::PACKAGES_DIRECTORY,
 	};
 
@@ -271,9 +270,7 @@ public:
 	}
 	bool isSpacing( const QModelIndex & index ) const
 	{
-		AssetsItem * item = ( index.isValid() ) ? reinterpret_cast<AssetsItem *>( index.internalPointer() ) : _RootItem;
-
-		return item->parent == _RootItem && item->info.fileName() == " ";
+		return false;
 	}
 	bool isPackage( const QModelIndex & index ) const
 	{
@@ -309,7 +306,7 @@ public:
 		}
 		else if ( isFollow( index ) )
 		{
-			return QIcon( "SkinIcons:/images/assets/icon_assets_follows.png" );
+			return QIcon( "SkinIcons:/images/assets/icon_assets_favorites.png" );
 		}
 		else if ( isDir( index ) )
 		{
@@ -453,7 +450,6 @@ XS::AssetExplorerEditor::AssetExplorerEditor( QWidget * parent /*= nullptr */ )
 	_Model = new XS::AssetsItemModel( project_path, this );
 	ui->tree->setModel( _Model );
 	ui->tree->setRootIndex( _Model->rootIndex() );
-//	ui->tree->setCurrentIndex( _Model->index( QDir::toNativeSeparators( project_path + "/" + XE::ASSETS_DIRECTORY ) ) );
 
 	QList< const QMetaObject * > list = XS::Registry::GetDerivedClass( &XS::AssetEditor::staticMetaObject );
 	for ( const auto & it : list )
@@ -466,7 +462,11 @@ XS::AssetExplorerEditor::AssetExplorerEditor( QWidget * parent /*= nullptr */ )
 	connect( ui->list, &QListWidget::itemChanged, this, &AssetExplorerEditor::OnListWidgetItemChanged );
 	connect( ui->list, &QListWidget::itemDoubleClicked, this, &AssetExplorerEditor::OnListWidgetItemDoubleClicked );
 	connect( ui->tree, &QTreeView::customContextMenuRequested, this, &AssetExplorerEditor::OnTreeViewCustomContextMenuRequested );
-	connect( ui->list, &QListWidget::customContextMenuRequested, this, &AssetExplorerEditor::OnTreeViewCustomContextMenuRequested );
+	connect( ui->list, &QListWidget::customContextMenuRequested, this, &AssetExplorerEditor::OnListWidgetCustomContextMenuRequested );
+
+	auto index = _Model->index( 2, 0, _Model->rootIndex() );
+	ui->tree->setCurrentIndex( index );
+	emit ui->tree->clicked( index );
 }
 
 XS::AssetExplorerEditor::~AssetExplorerEditor()
@@ -645,5 +645,123 @@ void XS::AssetExplorerEditor::OnListWidgetItemChanged( QListWidgetItem * item )
 
 void XS::AssetExplorerEditor::OnListWidgetItemDoubleClicked( QListWidgetItem * item )
 {
-	qDebug() << "OnListWidgetItemDoubleClicked";
+	auto uuid = item->data( UUID_ROLE ).toUuid();
+	auto path = item->data( PATH_ROLE ).value< QFileInfo >();
+
+	QList< XS::AssetEditor * > editors;
+	for ( auto it : _Editors )
+	{
+		if ( it->extensionName() == path.suffix() )
+		{
+			editors.push_back( it );
+		}
+	}
+
+	switch ( editors.size() )
+	{
+	case 0:
+	{
+		QDesktopServices::openUrl( QUrl::fromLocalFile( path.absoluteFilePath() ) );
+	}
+	break;
+	case 1:
+	{
+		OpenEditor( editors[0]->assetEditor(), uuid );
+	}
+	break;
+	default:
+	{
+		QMenu menu( this );
+
+		for ( auto it : editors )
+		{
+			menu.addAction( it->icon(), it->name(), [this, it, uuid]()
+			{
+				OpenEditor( it->assetEditor(), uuid );
+			} );
+		}
+
+		menu.exec( QCursor::pos() );
+	}
+	break;
+	}
+}
+
+void XS::AssetExplorerEditor::OnListWidgetCustomContextMenuRequested( const QPoint & pos )
+{
+	QMenu menu;
+	{
+		auto create = menu.addMenu( tr( "Create" ) );
+		{
+			for ( auto editor : _Editors )
+			{
+				create->addAction( editor->icon(), editor->name(), [this, editor]()
+				{
+					QString name = editor->name();
+					QString path = _Model->filePath( ui->tree->currentIndex() );
+
+					QFileInfo dir( QString( "%1/New %2%3.%4" ).arg( path ).arg( name ).arg( "" ).arg( editor->extensionName() ) );
+					for ( int i = 2; dir.exists(); ++i )
+					{
+						dir = QString( "%1/New %2 %3.%4" ).arg( path ).arg( name ).arg( i ).arg( editor->extensionName() );
+					}
+
+					auto uuid = editor->assetCreate( dir );
+
+					OnTreeViewClicked( ui->tree->currentIndex() );
+
+					for ( int i = 0; i < ui->list->count(); i++ )
+					{
+						auto item = ui->list->item( i );
+						if ( item->data( UUID_ROLE ).toUuid() == uuid )
+						{
+							ui->list->setCurrentItem( item );
+
+							ui->list->editItem( item );
+						}
+					}
+				} );
+			}
+		}
+
+		auto items = ui->list->selectedItems();
+		if ( !items.isEmpty() )
+		{
+			menu.addAction( tr( "Remove" ), [this, items]()
+			{
+				for ( const auto & item : items )
+				{
+					auto uuid = item->data( UUID_ROLE ).toUuid();
+					auto editor = (XS::AssetEditor *)item->data( EDITOR_ROLE ).toULongLong();
+					
+					editor->assetRemove( uuid );
+
+					OnTreeViewClicked( ui->tree->currentIndex() );
+				}
+			} );
+		}
+	}
+	menu.exec( QCursor::pos() );
+}
+
+void XS::AssetExplorerEditor::OpenEditor( const QMetaObject * meta, const QUuid & uuid )
+{
+	XS::AssetEditorWindow * editor = nullptr;
+
+	auto childs = GetParent< XS::MainWindow >()->children();
+	auto it = std::find_if( childs.begin(), childs.end(), [&]( const auto & val ) { return val->metaObject() == meta; } );
+
+	if ( it != childs.end() )
+	{
+		editor = qobject_cast<XS::AssetEditorWindow *>( *it );
+	}
+	else
+	{
+		editor = XS::Registry::ConstructT< XS::AssetEditorWindow >( meta->className(), GetParent< XS::MainWindow >() );
+		editor->showMaximized();
+	}
+
+	editor->assetOpen( uuid );
+
+	editor->raise();
 }

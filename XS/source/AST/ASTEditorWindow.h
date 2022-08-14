@@ -44,8 +44,7 @@ public:
 
 	void assetRename( const QUuid & uuid, const QFileInfo & old_dir, const QFileInfo & new_dir ) override;
 
-public:
-	void assetOpen( const QUuid & uuid ) override;
+	const QMetaObject * assetEditor() override;;
 
 	void assetBuild( const QUuid & uuid ) override;
 };
@@ -68,6 +67,9 @@ public:
 	void SaveLayout( QSettings & settings ) override;
 
 	void LoadLayout( QSettings & settings ) override;
+
+private slots:
+	void OnTabCloseRequested( int index );
 
 private:
 	XS::ASTEditor * _Editor;

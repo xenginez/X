@@ -41,7 +41,7 @@ XStudio::MainWindow::MainWindow( const QString & project, QWidget * parent /*= n
 					auto it = std::find_if( childs.begin(), childs.end(), [&]( QObject * obj ) { return obj->metaObject() == meta; } );
 					if ( it == childs.end() )
 					{
-						XS::Registry::ConstructT< XS::DockWidget >( meta->className(), this )->show();
+						XS::Registry::ConstructT< XS::DockWidget >( meta->className(), this )->showMaximized();
 					}
 					else
 					{
@@ -86,11 +86,11 @@ void XStudio::MainWindow::showEvent( QShowEvent * e )
 		}
 		else
 		{
-			auto asset = XS::Registry::ConstructT<XS::DockWidget>( "XS::AssetExplorerEditor", this ); asset->show();
-			auto world = XS::Registry::ConstructT<XS::DockWidget>( "XS::WorldEditor", this ); world->show();
-			auto edit = XS::Registry::ConstructT<XS::DockWidget>( "XS::EditSceneEditor", this ); edit->show();
-			auto game = XS::Registry::ConstructT<XS::DockWidget>( "XS::GameSceneEditor", this ); game->show();
-			auto log = XS::Registry::ConstructT<XS::DockWidget>( "XS::LoggerEditor", this ); log->show();
+			auto asset = XS::Registry::ConstructT<XS::DockWidget>( "XS::AssetExplorerEditor", this ); asset->showMaximized();
+			auto world = XS::Registry::ConstructT<XS::DockWidget>( "XS::WorldEditor", this ); world->showMaximized();
+			auto edit = XS::Registry::ConstructT<XS::DockWidget>( "XS::EditSceneEditor", this ); edit->showMaximized();
+			auto game = XS::Registry::ConstructT<XS::DockWidget>( "XS::GameSceneEditor", this ); game->showMaximized();
+			auto log = XS::Registry::ConstructT<XS::DockWidget>( "XS::LoggerEditor", this ); log->showMaximized();
 
 			QMetaObject::invokeMethod( this, [=]()
 			{

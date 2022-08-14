@@ -38,7 +38,7 @@ public:
 
 	virtual void assetRename( const QUuid & uuid, const QFileInfo & old_path, const QFileInfo & new_path ) = 0;
 
-	virtual void assetOpen( const QUuid & uuid ) = 0;
+	virtual const QMetaObject * assetEditor() = 0;
 
 	virtual void assetBuild( const QUuid & uuid ) = 0;
 

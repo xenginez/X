@@ -284,6 +284,8 @@ void XS::MainWindow::SaveLayout()
 {
 	QSettings settings( QApplication::applicationDirPath() + "/layout.ini", QSettings::IniFormat );
 
+	settings.clear();
+
 	settings.beginGroup( objectName() );
 	{
 		QStringList types;

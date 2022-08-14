@@ -56,6 +56,11 @@ private slots:
 
 	void OnListWidgetItemDoubleClicked( QListWidgetItem * item );
 
+	void OnListWidgetCustomContextMenuRequested( const QPoint & pos );
+
+private:
+	void OpenEditor( const QMetaObject * meta, const QUuid & uuid );
+
 private:
 	Ui::AssetExplorerEditor * ui;
 	XS::AssetsItemModel * _Model = nullptr;

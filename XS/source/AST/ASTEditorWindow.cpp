@@ -4,8 +4,6 @@
 
 #include <QFile>
 
-#include "MainWindow.h"
-#include "WindowProxy.h"
 #include "ASTTabWidget.h"
 
 REG_ASSET( XS::ASTEditor );
@@ -14,11 +12,6 @@ namespace
 {
 	static constexpr const char * UUID_NAME = "AST_UUID";
 	static constexpr const char * PATH_NAME = "AST_PATH";
-
-	struct ASTAssetDesc
-	{
-
-	};
 }
 
 XS::ASTEditor::ASTEditor( QObject * parent /*= nullptr */ )
@@ -80,10 +73,8 @@ QIcon XS::ASTEditor::assetIcon( const QUuid & uuid )
 void XS::ASTEditor::assetRemove( const QUuid & uuid )
 {
 	auto pair = assetDatabase()->Query( uuid );
-	if ( !pair.first.exists() )
+	if ( pair.first.exists() )
 	{
-		// TODO: other files
-
 		if ( QFile::remove( pair.first.absoluteFilePath() ) )
 		{
 			assetDatabase()->Remove( uuid );
@@ -99,28 +90,9 @@ void XS::ASTEditor::assetRename( const QUuid & uuid, const QFileInfo & old_dir, 
 	}
 }
 
-void XS::ASTEditor::assetOpen( const QUuid & uuid )
+const QMetaObject * XS::ASTEditor::assetEditor()
 {
-	XS::ASTEditorWindow * window = nullptr;
-
-	auto widgets = QApplication::allWidgets();
-	for ( auto it : widgets )
-	{
-		if ( it->metaObject() == &XS::ASTEditorWindow::staticMetaObject )
-		{
-			window = qobject_cast<XS::ASTEditorWindow *>( it );
-			break;
-		}
-	}
-
-	if ( window == nullptr )
-	{
-		window = new XS::ASTEditorWindow( QApplication::activeWindow() );
-		window->_Editor = this;
-		window->show();
-	}
-
-	window->assetOpen( uuid );
+	return &XS::ASTEditorWindow::staticMetaObject;
 }
 
 void XS::ASTEditor::assetBuild( const QUuid & uuid )
@@ -135,6 +107,8 @@ XS::ASTEditorWindow::ASTEditorWindow( QWidget * parent /*= nullptr */ )
 	setupUi( ui );
 	setWindowIcon( QIcon( "SkinIcons:/images/icons/icon_ast.png" ) );
 	setTitleBar( ui->title_bar );
+
+	connect( ui->tabWidget, &QTabWidget::tabCloseRequested, this, &XS::ASTEditorWindow::OnTabCloseRequested );
 }
 
 XS::ASTEditorWindow::~ASTEditorWindow()
@@ -157,12 +131,14 @@ void XS::ASTEditorWindow::assetOpen( const QUuid & uuid )
 
 	if ( path.exists() )
 	{
+		QDir dir( XS::CoreFramework::GetCurrentFramework()->GetProjectPath().string().c_str() );
+
 		XS::ASTTabWidget * node = new XS::ASTTabWidget( this );
 		{
 			node->setProperty( UUID_NAME, uuid );
 			node->setProperty( PATH_NAME, QVariant::fromValue( path ) );
 		}
-		ui->tabWidget->addTab( node, path.path() );
+		ui->tabWidget->setCurrentIndex( ui->tabWidget->addTab( node, dir.relativeFilePath( path.absoluteFilePath() ) ) );
 	}
 }
 
@@ -198,4 +174,9 @@ void XS::ASTEditorWindow::LoadLayout( QSettings & settings )
 		settings.endArray();
 	}
 	settings.endGroup();
+}
+
+void XS::ASTEditorWindow::OnTabCloseRequested( int index )
+{
+	ui->tabWidget->removeTab( index );
 }
