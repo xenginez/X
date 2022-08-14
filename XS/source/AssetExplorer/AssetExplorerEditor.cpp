@@ -12,16 +12,13 @@
 
 #include "CoreFramework.h"
 #include "QMetaStaticCall.h"
-#include "AssetEditorWindow.h"
 
 #define database() (XS::CoreFramework::GetCurrentFramework()->GetAssetDatabase())
-#define ITEM_HIGHT_EXT 20
-#define ITEM_ICON_SCALE 100
-#define FILEINFO_ROLE ( Qt::UserRole + 1)
+#define PATH_ROLE (Qt::UserRole + 1)
 #define UUID_ROLE (Qt::UserRole + 2)
+#define EDITOR_ROLE (Qt::UserRole + 3)
 
 REG_WIDGET( XS::AssetExplorerEditor );
-
 
 class XS::AssetsItemModel : public QAbstractItemModel
 {
@@ -59,12 +56,12 @@ public:
 		}
 		AssetsItem * find( const QString & path )
 		{
-			if ( path == info.filePath() )
+			if ( QFileInfo( path ) == info.filePath() )
 			{
 				return this;
 			}
 
-			if ( path.contains( info.filePath() ) )
+			if ( info.filePath().contains( path ) ) // path.contains( info.filePath() ) )
 			{
 				for ( auto it : children )
 				{
@@ -87,13 +84,13 @@ public:
 public:
 	static constexpr std::array<const char *, 7> TopLevelPaths =
 	{
-		"Follow",
+		XS::FOLLOW_DIRECTORY,
 		" ",
-		"Assets",
-		"Editor",
-		"UserDatas",
+		XE::ASSETS_DIRECTORY,
+		XS::EDITORS_DIRECTORY,
+		XE::CONFIGS_DIRECTORY,
 		" ",
-		"Package",
+		XS::PACKAGES_DIRECTORY,
 	};
 
 public:
@@ -345,6 +342,17 @@ public:
 
 		return item->info.filePath();
 	}
+	QFileInfo fileInfo( const QModelIndex & index ) const
+	{
+		AssetsItem * item = ( index.isValid() ) ? reinterpret_cast<AssetsItem *>( index.internalPointer() ) : _RootItem;
+
+		if ( isSpacing( index ) )
+		{
+			return {};
+		}
+
+		return item->info;
+	}
 
 public:
 	QModelIndex rootIndex() const
@@ -441,12 +449,22 @@ XS::AssetExplorerEditor::AssetExplorerEditor( QWidget * parent /*= nullptr */ )
 
 	ui->splitter->setSizes( { 3000, 7000 } );
 
-	_Model = new XS::AssetsItemModel( QDir::toNativeSeparators( QString::fromStdString( XS::CoreFramework::GetCurrentFramework()->GetProjectPath().string() ) ), this );
+	auto project_path = QDir::toNativeSeparators( QString::fromStdString( XS::CoreFramework::GetCurrentFramework()->GetProjectPath().string() ) );
+	_Model = new XS::AssetsItemModel( project_path, this );
 	ui->tree->setModel( _Model );
 	ui->tree->setRootIndex( _Model->rootIndex() );
+//	ui->tree->setCurrentIndex( _Model->index( QDir::toNativeSeparators( project_path + "/" + XE::ASSETS_DIRECTORY ) ) );
+
+	QList< const QMetaObject * > list = XS::Registry::GetDerivedClass( &XS::AssetEditor::staticMetaObject );
+	for ( const auto & it : list )
+	{
+		_Editors.push_back( XS::Registry::ConstructT< XS::AssetEditor >( it->className(), this ) );
+	}
 
 	connect( ui->tree, &QTreeView::clicked, this, &AssetExplorerEditor::OnTreeViewClicked );
 	connect( ui->scale, &QSlider::valueChanged, this, &AssetExplorerEditor::OnScaleValueChanged );
+	connect( ui->list, &QListWidget::itemChanged, this, &AssetExplorerEditor::OnListWidgetItemChanged );
+	connect( ui->list, &QListWidget::itemDoubleClicked, this, &AssetExplorerEditor::OnListWidgetItemDoubleClicked );
 	connect( ui->tree, &QTreeView::customContextMenuRequested, this, &AssetExplorerEditor::OnTreeViewCustomContextMenuRequested );
 	connect( ui->list, &QListWidget::customContextMenuRequested, this, &AssetExplorerEditor::OnTreeViewCustomContextMenuRequested );
 }
@@ -512,11 +530,11 @@ void XS::AssetExplorerEditor::OnScaleValueChanged( int value )
 	}
 	else
 	{
-		int scale = ( ui->scale->value() / (float)ui->scale->maximum() ) * ITEM_ICON_SCALE;
+		float scale = (float)ui->scale->value() / (float)ui->scale->maximum();
 
-		ui->list->setIconSize( QSize( scale, scale ) );
+		ui->list->setIconSize( QSize( 50 + 50 * scale, 50 + 50 * scale ) );
 		ui->list->setViewMode( QListView::IconMode );
-		ui->list->setGridSize( QSize( scale, scale + ITEM_HIGHT_EXT ) );
+		ui->list->setGridSize( QSize( 50 + 50 * scale, ( 50 + 50 * scale ) + ( 20 + 20 * scale ) ) );
 	}
 }
 
@@ -524,15 +542,35 @@ void XS::AssetExplorerEditor::OnTreeViewClicked( const QModelIndex & index )
 {
 	QFileInfo info( _Model->filePath( index ) );
 
-	ui->list->clear();
+	ui->path->setText( QDir( _Model->filePath( _Model->rootIndex() ) ).relativeFilePath( info.absoluteFilePath() ) );
 
+	ui->list->clear();
 	auto list = QDir( info.filePath() ).entryInfoList( QDir::Files | QDir::NoDotAndDotDot );
-	for ( const auto & it : list )
+	for ( const auto & file : list )
 	{
-		QListWidgetItem * item = new QListWidgetItem( QIcon( "SkinIcons:/images/assets/icon_assets_file.svg" ), it.baseName(), ui->list );
-		item->setData( FILEINFO_ROLE, QVariant::fromValue( it ) );
-		item->setData( UUID_ROLE, database()->Query( QDir( it.filePath() ) ) );
-		item->setToolTip( QString( tr( "Name:\t%0\nType:\t%1\nPath:\t%2\nTime:\t%3\n" ) ).arg( it.baseName() ).arg( it.suffix() ).arg( it.filePath() ).arg( it.lastModified().toString( Qt::LocaleDate ) ) );
+		QUuid uuid = database()->Query( file );
+
+		auto it = std::find_if( _Editors.begin(), _Editors.end(), [&]( XS::AssetEditor * val ) { return val->extensionName() == file.suffix(); } );
+		QIcon icon = it != _Editors.end() ? ( *it )->assetIcon( uuid ) : QIcon( "SkinIcons:/images/assets/icon_assets_file.svg" );
+
+		QListWidgetItem * item = new QListWidgetItem( icon, file.baseName(), ui->list );
+		{
+			item->setData( UUID_ROLE, uuid );
+			item->setData( PATH_ROLE, QVariant::fromValue( file ) );
+			item->setData( EDITOR_ROLE, (XE::uint64)*it );
+			item->setFlags( item->flags() | Qt::ItemIsEditable );
+			item->setToolTip( QString( tr(
+R"(Name: %1
+Type: %2
+Uuid: %3
+Path: %4
+Time: %5 )" ) )
+							  .arg( file.baseName() )
+							  .arg( file.suffix() )
+							  .arg( uuid.toString() )
+							  .arg( file.filePath() )
+							  .arg( file.lastModified().toString( Qt::LocaleDate ) ) );
+		}
 		ui->list->addItem( item );
 	}
 }
@@ -559,33 +597,53 @@ void XS::AssetExplorerEditor::OnTreeViewCustomContextMenuRequested( const QPoint
 
 		auto create = menu.addMenu( tr( "Create" ) );
 		{
-			auto metas = XS::Registry::GetDerivedClass( &XS::AssetEditorWindow::staticMetaObject );
-			for ( auto meta : metas )
+			for ( auto editor : _Editors )
 			{
-				QString name = XS::QMetaStaticCall< QString >( meta, "name()" );
-				if ( !name.isEmpty() )
+				create->addAction( editor->icon(), editor->name(), [this, editor]()
 				{
-					QIcon icon = XS::QMetaStaticCall< QIcon >( meta, "icon()" );
+					QString name = editor->name();
+					QString path = _Model->filePath( ui->tree->currentIndex() );
 
-					create->addAction(icon, name, [this, meta]()
+					QFileInfo dir( QString( "%1/New %2%3.%4" ).arg( path ).arg( name ).arg( "" ).arg( editor->extensionName()));
+					for ( int i = 2; dir.exists(); ++i )
 					{
-						QString path = _Model->filePath( ui->tree->currentIndex() );
-						QString name = XS::QMetaStaticCall< QString >( meta, "name()" );
-						QString extn = XS::QMetaStaticCall< QString >( meta, "extensionName()" );
+						dir = QString( "%1/New %2 %3.%4" ).arg( path ).arg( name ).arg( i ).arg( editor->extensionName() );
+					}
 
-						QDir dir( QString( "%1/New %2%3%4" ).arg( path ).arg( name ).arg( "" ).arg( extn ) );
-						for ( int i = 2; std::filesystem::exists( dir.path().toStdString() ); ++i )
+					auto uuid = editor->assetCreate( dir );
+
+					OnTreeViewClicked( ui->tree->currentIndex() );
+
+					for ( int i = 0; i < ui->list->count(); i++ )
+					{
+						auto item = ui->list->item( i );
+						if ( item->data( UUID_ROLE ).toUuid() == uuid )
 						{
-							dir = QDir( QString( "%1/New %2 %3%4" ).arg( path ).arg( name ).arg( i ).arg( extn ) );
+							ui->list->setCurrentItem( item );
+
+							ui->list->editItem( item );
 						}
-
-						XS::QMetaStaticCall< QUuid >( meta, "assetCreate(const QDir &)", dir );
-
-						OnTreeViewClicked( ui->tree->currentIndex() );
-					} );
-				}
+					}
+				} );
 			}
 		}
 	}
 	menu.exec( QCursor::pos() );
+}
+
+void XS::AssetExplorerEditor::OnListWidgetItemChanged( QListWidgetItem * item )
+{
+	auto uuid = item->data( UUID_ROLE ).toUuid();
+	auto path = item->data( PATH_ROLE ).value< QFileInfo >();
+	auto editor = (XS::AssetEditor *)item->data( EDITOR_ROLE ).value<XE::uint64>();
+
+	if ( editor != nullptr && path.baseName() != item->text() )
+	{
+		editor->assetRename( uuid, path, QFileInfo( path.dir().absoluteFilePath( item->text() + "." + editor->extensionName() ) ) );
+	}
+}
+
+void XS::AssetExplorerEditor::OnListWidgetItemDoubleClicked( QListWidgetItem * item )
+{
+	qDebug() << "OnListWidgetItemDoubleClicked";
 }

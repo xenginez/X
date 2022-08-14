@@ -30,7 +30,7 @@ static constexpr char CACHEDATA_FILE_NAME[] = "Cache.cache";
 static constexpr char ASSETS_DIRECTORY[] = "Assets";
 static constexpr char CACHES_DIRECTORY[] = "Caches";
 static constexpr char MODULES_DIRECTORY[] = "Modules";
-static constexpr char USERDATAS_DIRECTORY[] = "UserDatas";
+static constexpr char CONFIGS_DIRECTORY[] = "Configs";
 
 static constexpr char CONFIG_GRAPHICS_VSYNC[] = "Graphics/VSync";
 static constexpr char CONFIG_GRAPHICS_DEBUG[] = "Graphics/Debug";

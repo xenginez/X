@@ -61,7 +61,7 @@ public:
 
 	virtual std::filesystem::path GetCachesPath() const;
 
-	virtual std::filesystem::path GetUserDataPath() const;
+	virtual std::filesystem::path GetConfigsPath() const;
 
 	virtual std::filesystem::path GetApplicationPath() const;
 

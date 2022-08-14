@@ -193,9 +193,9 @@ std::filesystem::path XE::CoreFramework::GetCachesPath() const
 	return GetApplicationPath().parent_path() / CACHES_DIRECTORY;
 }
 
-std::filesystem::path XE::CoreFramework::GetUserDataPath() const
+std::filesystem::path XE::CoreFramework::GetConfigsPath() const
 {
-	return GetApplicationPath().parent_path() / USERDATAS_DIRECTORY;
+	return GetApplicationPath().parent_path() / CONFIGS_DIRECTORY;
 }
 
 std::filesystem::path XE::CoreFramework::GetApplicationPath() const
@@ -282,6 +282,8 @@ void XE::CoreFramework::Update()
 
 void XE::CoreFramework::Clearup()
 {
+	Save();
+
 	for( auto i : _p->_ClearupServices )
 	{
 		if( i != std::numeric_limits< XE::uint64 >::max() )
@@ -401,7 +403,7 @@ void XE::CoreFramework::LoadServices()
 
 void XE::CoreFramework::Save()
 {
-	auto path = GetUserDataPath() / CONFIG_FILE_NAME;
+	auto path = GetConfigsPath() / CONFIG_FILE_NAME;
 
 	Save( path, _p->Values );
 }
@@ -443,7 +445,7 @@ void XE::CoreFramework::Reload()
 {
 	_p->Values.clear();
 
-	auto path = GetUserDataPath() / CONFIG_FILE_NAME;
+	auto path = GetConfigsPath() / CONFIG_FILE_NAME;
 
 	Reload( path, _p->Values );
 }
@@ -657,6 +659,10 @@ XE::Array< XE::String > XE::CoreFramework::GetStringArray( const String & key, c
 
 	rapidjson::Document doc;
 	doc.Parse( GetValue( key ).c_str() );
+	if ( doc.IsNull() )
+	{
+		return def;
+	}
 
 	auto strs = doc.GetArray();
 

@@ -10,6 +10,9 @@
 #define ASSETSEDITOR_H__5E9D7DFE_346F_4735_AFAE_DE82F5673EC8
 
 #include "ToolEditorWindow.h"
+#include "AssetEditorWindow.h"
+
+class QListWidgetItem;
 
 UI_DECL( AssetExplorerEditor );
 
@@ -43,13 +46,20 @@ private slots:
 
 	void OnScaleValueChanged( int value );
 
+private slots:
 	void OnTreeViewClicked( const QModelIndex & index );
 
 	void OnTreeViewCustomContextMenuRequested( const QPoint & pos );
 
+private slots:
+	void OnListWidgetItemChanged( QListWidgetItem * item );
+
+	void OnListWidgetItemDoubleClicked( QListWidgetItem * item );
+
 private:
 	Ui::AssetExplorerEditor * ui;
 	XS::AssetsItemModel * _Model = nullptr;
+	QList< XS::AssetEditor * > _Editors;
 };
 
 END_XS_NAMESPACE

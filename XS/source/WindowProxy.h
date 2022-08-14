@@ -53,6 +53,9 @@ public:
 public:
 	void MessageLoop() override;
 
+public:
+	XS::MainWindow * GetMainWindow() const;
+
 private:
 	XS::MainWindow * _Window = nullptr;
 };

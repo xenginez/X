@@ -32,19 +32,19 @@ public:
 	bool Open( const QUrl & url );
 
 public:
-	bool Insert( const QUuid & uuid, const QDir & path, const QJsonDocument & json );
+	bool Insert( const QUuid & uuid, const QFileInfo & path, const QJsonDocument & json );
 
 	bool Remove( const QUuid & uuid );
 
-	bool Update( const QUuid & uuid, const QDir & path );
+	bool Update( const QUuid & uuid, const QFileInfo & path );
 
 	bool Update( const QUuid & uuid, const QJsonDocument & json );
 
-	QPair<QDir, QJsonDocument > Query( const QUuid & uuid );
+	QPair<QFileInfo, QJsonDocument > Query( const QUuid & uuid );
 
-	QUuid Query( const QDir & path );
+	QUuid Query( const QFileInfo & path );
 
-	QDir QueryPath( const QUuid & uuid );
+	QFileInfo QueryPath( const QUuid & uuid );
 
 	QJsonDocument QueryData( const QUuid & uuid );
 

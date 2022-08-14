@@ -40,7 +40,7 @@ public:
 
 	std::filesystem::path GetProjectPath() const;
 
-	std::filesystem::path GetUserDataPath() const override;
+	std::filesystem::path GetConfigsPath() const override;
 
 	std::filesystem::path GetApplicationPath() const override;
 

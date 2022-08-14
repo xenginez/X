@@ -88,3 +88,8 @@ void XS::WindowProxy::MessageLoop()
 {
 	// TODO: 
 }
+
+XS::MainWindow * XS::WindowProxy::GetMainWindow() const
+{
+	return _Window;
+}

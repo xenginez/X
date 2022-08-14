@@ -18,11 +18,11 @@ BEG_XS_NAMESPACE
 class XS_API Registry
 {
 public:
-	static void Register( const QMetaObject * meta, const std::function< QWidget * ( QWidget * ) > & construct );
+	static void Register( const QMetaObject * meta, const std::function< QObject * ( QObject * ) > & construct );
 
-	static QWidget * Construct( const QString & name, QWidget * parent );
+	static QObject * Construct( const QString & name, QObject * parent );
 
-	template< typename T > static T * ConstructT( const QString & name, QWidget * parent )
+	template< typename T > static T * ConstructT( const QString & name, QObject * parent )
 	{
 		return reinterpret_cast<T *>( Construct( name, parent ) );
 	}
@@ -37,11 +37,28 @@ private:
 	static Registry * _p();
 
 private:
-	std::map< QString, std::tuple< const QMetaObject *, std::function< QWidget * ( QWidget * ) > > > _Constructs;
+	QMap< const QMetaObject *, QList< const QMetaObject * > > _Deriveds;
+	QMap< QString, std::function< QObject * ( QObject * ) > > _Constructs;
 };
 
 END_XS_NAMESPACE
 
+
+#define REG_OBJECT( TYPE ) \
+namespace XE \
+{ \
+	template<> struct MetaTypeCollector< TYPE > \
+	{ \
+		MetaTypeCollector() \
+		{ \
+			XS::Registry::Register( &TYPE::staticMetaObject, []( QObject * parent ) { return new TYPE( parent ); } ); \
+		} \
+		static void Use() \
+		{ \
+			XE::ActiveSingleton< XE::MetaTypeCollector< TYPE > >::Register(); \
+		} \
+	}; \
+};
 
 #define REG_WIDGET( TYPE ) \
 namespace XE \
@@ -50,7 +67,7 @@ namespace XE \
 	{ \
 		MetaTypeCollector() \
 		{ \
-			XS::Registry::Register( &TYPE::staticMetaObject, []( QWidget * parent ) { return new TYPE( parent ); } ); \
+			XS::Registry::Register( &TYPE::staticMetaObject, []( QObject * parent ) { return new TYPE( qobject_cast< QWidget * >( parent ) ); } ); \
 		} \
 		static void Use() \
 		{ \

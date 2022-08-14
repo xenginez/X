@@ -21,6 +21,7 @@
 #include "RenderWidget.h"
 #include "CoreFramework.h"
 #include "ToolEditorWindow.h"
+#include "AssetEditorWindow.h"
 
 #include "QMetaStaticCall.h"
 

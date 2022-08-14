@@ -88,7 +88,7 @@ const XE::String & XE::LocalizationService::LocalizedString( const XE::String & 
 
 void XE::LocalizationService::LoadLocalized()
 {
-	std::string path = ( GetFramework()->GetUserDataPath() / LANGUAGE_FILE_NAME ).string();
+	std::string path = ( GetFramework()->GetConfigsPath() / LANGUAGE_FILE_NAME ).string();
 	
 	csv2::Reader< csv2::delimiter< ',' >, csv2::quote_character< '"' >, csv2::first_row_is_header< true >, csv2::trim_policy::trim_whitespace > csv;
 

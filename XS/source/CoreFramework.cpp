@@ -6,6 +6,7 @@ struct XS::CoreFramework::Private
 {
 	std::filesystem::path _ProjectPath;
 	static XS::CoreFramework * _Framework;
+	XE::Map< XE::String, XE::String > _Values;
 	XE::SharedPtr< XS::AssetDatabase > _AssetDatabase;
 };
 XS::CoreFramework * XS::CoreFramework::Private::_Framework = nullptr;
@@ -53,9 +54,9 @@ std::filesystem::path XS::CoreFramework::GetProjectPath() const
 	return _p->_ProjectPath;
 }
 
-std::filesystem::path XS::CoreFramework::GetUserDataPath() const
+std::filesystem::path XS::CoreFramework::GetConfigsPath() const
 {
-	return _p->_ProjectPath / XE::USERDATAS_DIRECTORY;
+	return _p->_ProjectPath / XE::CONFIGS_DIRECTORY;
 }
 
 std::filesystem::path XS::CoreFramework::GetApplicationPath() const
@@ -67,14 +68,14 @@ void XS::CoreFramework::Save()
 {
 	Super::Save();
 
-
+	XE::CoreFramework::Save( GetProjectPath() / PROJECT_FILE_NAME, _p->_Values );
 }
 
 void XS::CoreFramework::Reload()
 {
 	Super::Reload();
 
-
+	XE::CoreFramework::Reload( GetProjectPath() / PROJECT_FILE_NAME, _p->_Values );
 }
 
 int XS::CoreFramework::Exec( XE::WindowPtr window )
@@ -93,13 +94,13 @@ void XS::CoreFramework::Prepare()
 {
 	Super::Prepare();
 
-	QUrl url( GetString( ASSET_DATABASE ).c_str() );
+	QUrl url( GetString( ASSET_DATABASE_URL ).c_str() );
 
 	_p->_AssetDatabase = XE::MakeShared< XS::AssetDatabase >();
 
 	if ( !_p->_AssetDatabase->Open( url ) )
 	{
-		XE_ERROR( "asset database open failure: %{1}", GetString( ASSET_DATABASE ) );
+		XE_ERROR( "asset database open failure: %{1}", GetString( ASSET_DATABASE_URL ) );
 		_p->_AssetDatabase = nullptr;
 	}
 }
@@ -137,7 +138,15 @@ XE::String XS::CoreFramework::GetValue( const XE::String & key )
 	}
 	else
 	{
-
+		auto it = _p->_Values.find( key );
+		if ( it != _p->_Values.end() )
+		{
+			return it->second;
+		}
+		else
+		{
+			_p->_Values.insert( { key, "" } );
+		}
 	}
 
 	return "";
@@ -151,6 +160,6 @@ void XS::CoreFramework::SetValue( const XE::String & key, const XE::String & val
 	}
 	else
 	{
-
+		_p->_Values[key] = val;
 	}
 }

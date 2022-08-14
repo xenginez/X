@@ -1,13 +1,20 @@
 #include "AssetDatabase.h"
 
+#include <QCache>
 #include <QSqlQuery>
+#include <QSqlError>
 #include <QSqlDatabase>
 
 #include "CoreFramework.h"
 
 struct XS::AssetDatabase::Private
 {
+	Private()
+		: _Cache( 1000 )
+	{}
+
 	QSqlDatabase _Database;
+	QCache< QUuid, QPair<QFileInfo, QJsonDocument > > _Cache;
 };
 
 XS::AssetDatabase::AssetDatabase()
@@ -23,11 +30,11 @@ XS::AssetDatabase::~AssetDatabase()
 
 bool XS::AssetDatabase::Open( const QUrl & url )
 {
-	_p->_Database = QSqlDatabase::addDatabase( url.scheme() );
+	_p->_Database = QSqlDatabase::addDatabase( url.scheme().toUpper() );
 	{
 		if ( !url.host().isEmpty() ) _p->_Database.setHostName( url.host() );
 		if ( url.port() != -1 ) _p->_Database.setPort( url.port() );
-		if ( !url.path().isEmpty() ) _p->_Database.setDatabaseName( url.path() );
+		if ( !url.path().isEmpty() ) _p->_Database.setDatabaseName( QString::fromStdString( ( XS::CoreFramework::GetCurrentFramework()->GetProjectPath() / ( "." + url.path().toStdString() ) ).string() ) );
 		if ( !url.userName().isEmpty() ) _p->_Database.setUserName( url.userName() );
 		if ( !url.password().isEmpty() ) _p->_Database.setPassword( url.password() );
 	}
@@ -35,9 +42,11 @@ bool XS::AssetDatabase::Open( const QUrl & url )
 	if ( _p->_Database.open() )
 	{
 		QSqlQuery query( _p->_Database );
+		
+		QString cmd = QString( "CREATE TABLE IF NOT EXISTS %1 ( uuid CHAR(50) PRIMARY KEY NOT NULL UNIQUE, path VARCHAR(255) NOT NULL, data VARCHAR(5000) NOT NULL );" )
+			.arg( XS::CoreFramework::GetCurrentFramework()->GetProjectPath().stem().c_str() );
 
-		bool result = query.exec( QString( "CREATE TABLE IF NOT EXISTS %1 ( uuid CHAR(128) PRIMARY KEY NOT NULL, path VARCHAR(255) NOT NULL, data VARCHAR(60000) ) NOT NULL;" )
-								  .arg( XS::CoreFramework::GetCurrentFramework()->GetProjectPath().stem().c_str() ) );
+		bool result = query.exec( cmd );
 
 		if ( result == false ) _p->_Database.close();
 
@@ -47,17 +56,28 @@ bool XS::AssetDatabase::Open( const QUrl & url )
 	return false;
 }
 
-bool XS::AssetDatabase::Insert( const QUuid & uuid, const QDir & path, const QJsonDocument & json )
+bool XS::AssetDatabase::Insert( const QUuid & uuid, const QFileInfo & path, const QJsonDocument & json )
 {
 	if ( _p->_Database.isOpen() )
 	{
 		QSqlQuery query( _p->_Database );
 
-		return query.exec( QString( "INSERT INTO %1 VALUES ( %2, %3, %4 );" )
-						   .arg( XS::CoreFramework::GetCurrentFramework()->GetProjectPath().stem().string().c_str() )
-						   .arg( uuid.toString( QUuid::Id128 ) )
-						   .arg( path.path() )
-						   .arg( QString( json.toJson( QJsonDocument::Compact ) ) ) );
+		QDir dir( XS::CoreFramework::GetCurrentFramework()->GetProjectPath().string().c_str() );
+
+		QString cmd = QString( R"(INSERT INTO %1 VALUES ( '%2', '%3', '%4' );)" )
+			.arg( XS::CoreFramework::GetCurrentFramework()->GetProjectPath().stem().string().c_str() )
+			.arg( uuid.toString() )
+			.arg( dir.relativeFilePath( path.absoluteFilePath() ) )
+			.arg( QString( json.toJson( QJsonDocument::Compact ) ) );
+
+		if ( query.exec( cmd ) )
+		{
+			_p->_Cache.insert( uuid, new QPair<QFileInfo, QJsonDocument>( path, json ) );
+
+			return true;
+		}
+
+		qDebug() << query.lastError().databaseText();
 	}
 
 	return false;
@@ -69,24 +89,47 @@ bool XS::AssetDatabase::Remove( const QUuid & uuid )
 	{
 		QSqlQuery query( _p->_Database );
 
-		return query.exec( QString( "DELETE FROM %1 WHERE uuid = %2;" )
-						   .arg( XS::CoreFramework::GetCurrentFramework()->GetProjectPath().stem().string().c_str() )
-						   .arg( uuid.toString( QUuid::Id128 ) ) );
+		QString cmd = QString( R"(DELETE FROM %1 WHERE uuid = '%2';)" )
+			.arg( XS::CoreFramework::GetCurrentFramework()->GetProjectPath().stem().string().c_str() )
+			.arg( uuid.toString() );
+
+		if ( query.exec( cmd ) )
+		{
+			if ( _p->_Cache.contains( uuid ) )
+			{
+				_p->_Cache.remove( uuid );
+			}
+
+			return true;
+		}
+
+		qDebug() << query.lastError().databaseText();
 	}
 
 	return false;
 }
 
-bool XS::AssetDatabase::Update( const QUuid & uuid, const QDir & path )
+bool XS::AssetDatabase::Update( const QUuid & uuid, const QFileInfo & path )
 {
 	if ( _p->_Database.isOpen() )
 	{
 		QSqlQuery query( _p->_Database );
 
-		return query.exec( QString( "UPDATE %1 SET path = %2 WHERE uuid = %3;" )
-						   .arg( XS::CoreFramework::GetCurrentFramework()->GetProjectPath().stem().string().c_str() )
-						   .arg( path.path() )
-						   .arg( uuid.toString( QUuid::Id128 ) ) );
+		QDir dir( XS::CoreFramework::GetCurrentFramework()->GetProjectPath().string().c_str() );
+
+		QString cmd = QString( R"(UPDATE %1 SET path = '%2' WHERE uuid = '%3';)" )
+			.arg( XS::CoreFramework::GetCurrentFramework()->GetProjectPath().stem().string().c_str() )
+			.arg( dir.relativeFilePath( path.absoluteFilePath() ) )
+			.arg( uuid.toString() );
+
+		if ( query.exec( cmd ) )
+		{
+			_p->_Cache.object( uuid )->first = path;
+
+			return true;
+		}
+
+		qDebug() << query.lastError().databaseText();
 	}
 
 	return false;
@@ -98,99 +141,97 @@ bool XS::AssetDatabase::Update( const QUuid & uuid, const QJsonDocument & json )
 	{
 		QSqlQuery query( _p->_Database );
 
-		return query.exec( QString( "UPDATE %1 SET data = %2 WHERE uuid = %3;" )
-						   .arg( XS::CoreFramework::GetCurrentFramework()->GetProjectPath().stem().string().c_str() )
-						   .arg( QString( json.toJson( QJsonDocument::Compact ) ) )
-						   .arg( uuid.toString( QUuid::Id128 ) ) );
+		QString cmd = QString( R"(UPDATE %1 SET data = '%2' WHERE uuid = '%3';)" )
+			.arg( XS::CoreFramework::GetCurrentFramework()->GetProjectPath().stem().string().c_str() )
+			.arg( QString( json.toJson( QJsonDocument::Compact ) ) )
+			.arg( uuid.toString() );
+
+		if ( query.exec( cmd ) )
+		{
+			_p->_Cache.object( uuid )->second = json;
+
+			return true;
+		}
+
+		qDebug() << query.lastError().databaseText();
 	}
 
 	return false;
 }
 
-QPair<QDir, QJsonDocument > XS::AssetDatabase::Query( const QUuid & uuid )
+QPair<QFileInfo, QJsonDocument > XS::AssetDatabase::Query( const QUuid & uuid )
 {
-	QPair< QDir, QJsonDocument > result;
+	QPair< QFileInfo, QJsonDocument > result;
 
 	if ( _p->_Database.isOpen() )
 	{
+		if ( _p->_Cache.contains( uuid ) )
+		{
+			return *_p->_Cache.object( uuid );
+		}
+
 		QSqlQuery query( _p->_Database );
 
-		if ( query.exec( QString( "SELECT path, data FROM %1 WHERE uuid = %2;" )
-						 .arg( XS::CoreFramework::GetCurrentFramework()->GetProjectPath().stem().string().c_str() )
-						 .arg( uuid.toString( QUuid::Id128 ) ) ) )
+		QDir dir( XS::CoreFramework::GetCurrentFramework()->GetProjectPath().string().c_str() );
+
+		QString cmd = QString( R"(SELECT path, data FROM %1 WHERE uuid = '%2';)" )
+			.arg( XS::CoreFramework::GetCurrentFramework()->GetProjectPath().stem().string().c_str() )
+			.arg( uuid.toString() );
+
+		if ( query.exec( cmd ) )
 		{
 			if ( query.next() )
 			{
-				result.first = query.value( "path" ).toString();
-				result.second = QJsonDocument::fromJson( query.value( "data" ).toByteArray() );
+				result.first = dir.absoluteFilePath( query.value( 0 ).toString() );
+				result.second = QJsonDocument::fromJson( query.value( 1 ).toByteArray() );
+
+				_p->_Cache.insert( uuid, new QPair<QFileInfo, QJsonDocument >( result ) );
 			}
+		}
+		else
+		{
+			qDebug() << query.lastError().databaseText();
 		}
 	}
 
 	return result;
 }
 
-QUuid XS::AssetDatabase::Query( const QDir & path )
+QUuid XS::AssetDatabase::Query( const QFileInfo & path )
 {
 	if ( _p->_Database.isOpen() )
 	{
 		QSqlQuery query( _p->_Database );
 
-		if ( query.exec( QString( "SELECT uuid FROM %1 WHERE path = %2;" )
-						 .arg( XS::CoreFramework::GetCurrentFramework()->GetProjectPath().stem().string().c_str() )
-						 .arg( path.path() ) ) )
+		QDir dir( XS::CoreFramework::GetCurrentFramework()->GetProjectPath().string().c_str() );
+
+		QString cmd = QString( R"(SELECT uuid FROM %1 WHERE path = '%2';)" )
+			.arg( XS::CoreFramework::GetCurrentFramework()->GetProjectPath().stem().string().c_str() )
+			.arg( dir.relativeFilePath( path.absoluteFilePath() ) );
+
+		if ( query.exec( cmd ) )
 		{
 			if ( query.next() )
 			{
-				return QUuid::fromString( query.value( "uuid" ).toString() );
+				QString s = query.value( 0 ).toString();
+				return QUuid::fromString( query.value( 0 ).toString() );
 			}
+		}
+		else
+		{
+			qDebug() << query.lastError().databaseText();
 		}
 	}
 
 	return {};
 }
 
-QDir XS::AssetDatabase::QueryPath( const QUuid & uuid )
+QFileInfo XS::AssetDatabase::QueryPath( const QUuid & uuid )
 {
-	if ( _p->_Database.isOpen() )
-	{
-		QSqlQuery query( _p->_Database );
-
-		if ( query.exec( QString( "SELECT path FROM %1 WHERE uuid = %2;" )
-						 .arg( XS::CoreFramework::GetCurrentFramework()->GetProjectPath().stem().string().c_str() )
-						 .arg( uuid.toString( QUuid::Id128 ) ) ) )
-		{
-			if ( query.next() )
-			{
-				return query.value( "path" ).toString();
-			}
-		}
-	}
-
-	return {};
+	return Query( uuid ).first;
 }
 
 QJsonDocument XS::AssetDatabase::QueryData( const QUuid & uuid )
 {
-	if ( _p->_Database.isOpen() )
-	{
-		QSqlQuery query( _p->_Database );
-
-		if ( query.exec( QString( "SELECT data FROM %1 WHERE uuid = %2;" )
-						 .arg( XS::CoreFramework::GetCurrentFramework()->GetProjectPath().stem().string().c_str() )
-						 .arg( uuid.toString( QUuid::Id128 ) ) ) )
-		{
-			if ( query.next() )
-			{
-				QJsonParseError error;
-				QJsonDocument json = QJsonDocument::fromJson( query.value( "data" ).toByteArray(), &error );
-				if ( error.error == QJsonParseError::NoError )
-				{
-					return json;
-				}
-			}
-		}
-	}
-
-	return {};
+	return Query( uuid ).second;
 }

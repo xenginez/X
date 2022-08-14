@@ -11,11 +11,13 @@
 
 #include <XE/XE.h>
 
+#include <QDir>
 #include <QIcon>
 #include <QDebug>
 #include <QWidget>
 #include <QDialog>
 #include <QMetaType>
+#include <QApplication>
 
 #ifdef XS_EXPORT
 #define XS_API Q_DECL_EXPORT
@@ -28,7 +30,13 @@
 
 #define UI_DECL( TYPE ) namespace Ui { class TYPE; }
 
-static constexpr const char * ASSET_DB_NAME = "AssetDB";
-static constexpr const char * ASSET_DATABASE = "Editor/AssetDatabase";
+BEG_XS_NAMESPACE
+;
+static constexpr const char * FOLLOW_DIRECTORY = "Follow";
+static constexpr const char * EDITORS_DIRECTORY = "Editors";
+static constexpr const char * PACKAGES_DIRECTORY = "Packages";
+static constexpr const char * PROJECT_FILE_NAME = "Project.json";
+static constexpr const char * ASSET_DATABASE_URL = "Project/AssetDatabaseUrl";
 
+END_XS_NAMESPACE
 #endif//GLOBAL_H__3384BD3C_6A3A_46A7_829C_38D1EB4DD8FE
