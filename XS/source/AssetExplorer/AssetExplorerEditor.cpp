@@ -464,9 +464,9 @@ XS::AssetExplorerEditor::AssetExplorerEditor( QWidget * parent /*= nullptr */ )
 	connect( ui->tree, &QTreeView::customContextMenuRequested, this, &AssetExplorerEditor::OnTreeViewCustomContextMenuRequested );
 	connect( ui->list, &QListWidget::customContextMenuRequested, this, &AssetExplorerEditor::OnListWidgetCustomContextMenuRequested );
 
-	auto index = _Model->index( 2, 0, _Model->rootIndex() );
+	auto index = _Model->index( 1, 0, _Model->rootIndex() );
 	ui->tree->setCurrentIndex( index );
-	emit ui->tree->clicked( index );
+	OnTreeViewClicked( index );
 }
 
 XS::AssetExplorerEditor::~AssetExplorerEditor()
@@ -758,7 +758,8 @@ void XS::AssetExplorerEditor::OpenEditor( const QMetaObject * meta, const QUuid 
 	else
 	{
 		editor = XS::Registry::ConstructT< XS::AssetEditorWindow >( meta->className(), GetParent< XS::MainWindow >() );
-		editor->showMaximized();
+		editor->setGeometry( GetParent< XS::MainWindow >()->geometry() );
+		editor->show();
 	}
 
 	editor->assetOpen( uuid );

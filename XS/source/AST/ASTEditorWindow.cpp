@@ -152,6 +152,9 @@ void XS::ASTEditorWindow::SaveLayout( QSettings & settings )
 		for ( size_t i = 0; i < ui->tabWidget->count(); i++ )
 		{
 			settings.setArrayIndex( i );
+
+			qobject_cast<XS::Widget *>( ui->tabWidget->widget( i ) )->SaveLayout( settings );
+
 			settings.setValue( "uuid", ui->tabWidget->widget( i )->property( UUID_NAME ) );
 		}
 		settings.endArray();
@@ -169,7 +172,10 @@ void XS::ASTEditorWindow::LoadLayout( QSettings & settings )
 		for ( size_t i = 0; i < sz; i++ )
 		{
 			settings.setArrayIndex( i );
+
 			assetOpen( settings.value( "uuid" ).toUuid() );
+
+			qobject_cast<XS::Widget *>( ui->tabWidget->widget( i ) )->SaveLayout( settings );
 		}
 		settings.endArray();
 	}

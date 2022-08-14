@@ -24,3 +24,13 @@ XS::CoreFramework * XS::Widget::GetFramework()
 {
 	return XS::CoreFramework::GetCurrentFramework();
 }
+
+void XS::Widget::SaveLayout( QSettings & settings )
+{
+	settings.setValue( "geometry", saveGeometry() );
+}
+
+void XS::Widget::LoadLayout( QSettings & settings )
+{
+	restoreGeometry( settings.value( "geometry" ).toByteArray() );
+}

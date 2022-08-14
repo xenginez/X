@@ -8,6 +8,9 @@
 
 namespace
 {
+	static constexpr const char * UUID_NAME = "AST_UUID";
+	static constexpr const char * PATH_NAME = "AST_PATH";
+
 	class TreeViewModel : public QAbstractItemModel
 	{
 	public:
@@ -27,7 +30,7 @@ namespace
 }
 
 XS::ASTTabWidget::ASTTabWidget( QWidget * parent /*= nullptr */ )
-	: QWidget( parent ), ui( new Ui::ASTTabWidget )
+	: XS::Widget( parent ), ui( new Ui::ASTTabWidget )
 {
 	ui->setupUi( this );
 
@@ -44,6 +47,22 @@ XS::ASTTabWidget::ASTTabWidget( QWidget * parent /*= nullptr */ )
 XS::ASTTabWidget::~ASTTabWidget()
 {
 
+}
+
+void XS::ASTTabWidget::SaveLayout( QSettings & settings )
+{
+	XS::Widget::SaveLayout( settings );
+
+	settings.setValue( "splitter_state", ui->splitter->saveState() );
+	settings.setValue( "splitter_geometry", ui->splitter->saveGeometry() );
+}
+
+void XS::ASTTabWidget::LoadLayout( QSettings & settings )
+{
+	XS::Widget::LoadLayout( settings );
+
+	ui->splitter->restoreState( settings.value( "splitter_state" ).toByteArray() );
+	ui->splitter->restoreGeometry( settings.value( "splitter_geometry" ).toByteArray() );
 }
 
 void XS::ASTTabWidget::OnAddToolButtonClicked( bool clicked )

@@ -63,6 +63,11 @@ public:
 public:
 	QShortcut * AddShortcuts( const QString & name, const QKeySequence & key );
 
+public:
+	virtual void SaveLayout( QSettings & settings );
+
+	virtual void LoadLayout( QSettings & settings );
+
 };
 
 END_XS_NAMESPACE
