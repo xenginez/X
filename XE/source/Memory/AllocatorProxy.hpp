@@ -58,7 +58,7 @@ template< typename Ty, typename ... Types > XE::UniquePtr< Ty > MakeUnique( Type
 	return { XE::New< Ty >( std::forward< Types >( args )... ), XE::Deleter< Ty >() };
 }
 
-template<typename Ty, typename ... Types > XE::GCPtr< Ty > MakeGC( _Types &&... args )
+template<typename Ty, typename ... Types > XE::GCPtr< Ty > MakeGC( Types &&... args )
 {
 	return new ( XE::MemoryResource::GetGCMemoryResource()->allocate( sizeof( Ty ) ) ) Ty( std::forward< Types >( args )... );
 }

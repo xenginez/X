@@ -537,6 +537,10 @@ void XE::JsonOArchive::Serialize( const XE::Variant & val )
 			_p->_Stack.back()->AddMember( "type", type, _p->_Document.GetAllocator() );
 			_p->_Stack.back()->AddMember( "value", value, _p->_Document.GetAllocator() );
 		}
+		else if ( val.GetType() == ClassID< bool >::Get() )
+		{
+			_p->_Stack.back()->SetBool( val.ToBool() );
+		}
 		else if( val.IsFundamental() )
 		{
 			_p->_Stack.back()->SetObject();
@@ -547,9 +551,6 @@ void XE::JsonOArchive::Serialize( const XE::Variant & val )
 
 			switch( val.GetData().index() )
 			{
-			case 1:
-				value.SetBool( val.Value< bool >() );
-				break;
 			case 2:
 				value.SetInt( val.Value< XE::int8 >() );
 				break;
@@ -587,50 +588,47 @@ void XE::JsonOArchive::Serialize( const XE::Variant & val )
 
 			_p->_Stack.back()->AddMember( key, value, _p->_Document.GetAllocator() );
 		}
+		else if ( val.GetType() == ClassID< XE::String >::Get() )
+		{
+			_p->_Stack.back()->SetString( val.Value< const XE::String & >().c_str(), _p->_Document.GetAllocator() );
+		}
+		else if ( val.GetType() == ClassID< XE::ArchiveNameVariant >::Get() )
+		{
+			auto nvp = val.Value< XE::ArchiveNameVariant >();
+
+			rapidjson::Value key( rapidjson::kStringType ), value( rapidjson::kObjectType );
+
+			key.SetString( nvp.Name.c_str(), _p->_Document.GetAllocator() );
+
+			_p->_Stack.push_back( &value );
+			Serialize( nvp.Value );
+			_p->_Stack.pop_back();
+
+			_p->_Stack.back()->AddMember( key, value, _p->_Document.GetAllocator() );
+		}
 		else
 		{
-			if( val.GetType() == ClassID< XE::String >::Get() )
+			rapidjson::Value type( rapidjson::kStringType ), flag( rapidjson::kStringType ), value( rapidjson::kObjectType );
+
+			type.SetString( val.GetType()->GetFullName().c_str(), _p->_Document.GetAllocator() );
+			flag.SetString( val.IsNull() ? flag_str( is_null ) : ( val.IsSharedPtr() ? flag_str( is_shared_ptr ) : flag_str( is_pointer ) ), _p->_Document.GetAllocator() );
+
+
+			_p->_Stack.back()->AddMember( "type", type, _p->_Document.GetAllocator() );
+			_p->_Stack.back()->AddMember( "flag", flag, _p->_Document.GetAllocator() );
+
+			if ( val.IsNull() )
 			{
-				_p->_Stack.back()->SetString( val.Value< const XE::String & >().c_str(), _p->_Document.GetAllocator() );
-			}
-			else if( val.GetType() == ClassID< XE::ArchiveNameVariant >::Get() )
-			{
-				auto nvp = val.Value< XE::ArchiveNameVariant >();
-
-				rapidjson::Value key( rapidjson::kStringType ), value( rapidjson::kObjectType );
-
-				key.SetString( nvp.Name.c_str(), _p->_Document.GetAllocator() );
-
-				_p->_Stack.push_back( &value );
-				Serialize( nvp.Value );
-				_p->_Stack.pop_back();
-
-				_p->_Stack.back()->AddMember( key, value, _p->_Document.GetAllocator() );
+				value.SetNull();
 			}
 			else
 			{
-				rapidjson::Value type( rapidjson::kStringType ), flag( rapidjson::kStringType ), value( rapidjson::kObjectType );
-
-				type.SetString( val.GetType()->GetFullName().c_str(), _p->_Document.GetAllocator() );
-				flag.SetString( val.IsNull() ? flag_str( is_null ) : ( val.IsSharedPtr() ? flag_str( is_shared_ptr ) : flag_str( is_pointer ) ), _p->_Document.GetAllocator() );
-
-
-				_p->_Stack.back()->AddMember( "type", type, _p->_Document.GetAllocator() );
-				_p->_Stack.back()->AddMember( "flag", flag, _p->_Document.GetAllocator() );
-
-				if( val.IsNull() )
-				{
-					value.SetNull();
-				}
-				else
-				{
-					_p->_Stack.push_back( &value );
-					val.GetType()->Serialize( *this, val );
-					_p->_Stack.pop_back();
-				}
-
-				_p->_Stack.back()->AddMember( "value", value, _p->_Document.GetAllocator() );
+				_p->_Stack.push_back( &value );
+				val.GetType()->Serialize( *this, val );
+				_p->_Stack.pop_back();
 			}
+
+			_p->_Stack.back()->AddMember( "value", value, _p->_Document.GetAllocator() );
 		}
 	}
 }
@@ -689,9 +687,9 @@ XE::Variant XE::JsonIArchive::Deserialize( const XE::String & name /*= ""*/ )
 	}
 	else
 	{
-		if( _p->_Stack.back()->IsObject() && _p->_Stack.back()->HasMember( ::TypeID< bool >::Get()->GetFullName().c_str() ) )
+		if( _p->_Stack.back()->IsBool() )
 		{
-			result = _p->_Stack.back()->MemberBegin()->value.GetBool();
+			result = _p->_Stack.back()->GetBool();
 		}
 		else if( _p->_Stack.back()->IsObject() && _p->_Stack.back()->HasMember( ::TypeID< XE::int8 >::Get()->GetFullName().c_str() ) )
 		{

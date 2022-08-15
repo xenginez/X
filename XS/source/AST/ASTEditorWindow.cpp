@@ -133,12 +133,12 @@ void XS::ASTEditorWindow::assetOpen( const QUuid & uuid )
 	{
 		QDir dir( XS::CoreFramework::GetCurrentFramework()->GetProjectPath().string().c_str() );
 
-		XS::ASTTabWidget * node = new XS::ASTTabWidget( this );
+		XS::ASTTabWidget * tab = new XS::ASTTabWidget( ui->tabWidget );
 		{
-			node->setProperty( UUID_NAME, uuid );
-			node->setProperty( PATH_NAME, QVariant::fromValue( path ) );
+			tab->setProperty( UUID_NAME, uuid );
+			tab->setProperty( PATH_NAME, QVariant::fromValue( path ) );
 		}
-		ui->tabWidget->setCurrentIndex( ui->tabWidget->addTab( node, dir.relativeFilePath( path.absoluteFilePath() ) ) );
+		ui->tabWidget->setCurrentIndex( ui->tabWidget->addTab( tab, dir.relativeFilePath( path.absoluteFilePath() ) ) );
 	}
 }
 
@@ -153,7 +153,7 @@ void XS::ASTEditorWindow::SaveLayout( QSettings & settings )
 		{
 			settings.setArrayIndex( i );
 
-			qobject_cast<XS::Widget *>( ui->tabWidget->widget( i ) )->SaveLayout( settings );
+			// qobject_cast<XS::Widget *>( ui->tabWidget->widget( i ) )->SaveLayout( settings );
 
 			settings.setValue( "uuid", ui->tabWidget->widget( i )->property( UUID_NAME ) );
 		}
@@ -175,7 +175,7 @@ void XS::ASTEditorWindow::LoadLayout( QSettings & settings )
 
 			assetOpen( settings.value( "uuid" ).toUuid() );
 
-			qobject_cast<XS::Widget *>( ui->tabWidget->widget( i ) )->SaveLayout( settings );
+			// qobject_cast<XS::Widget *>( ui->tabWidget->widget( i ) )->SaveLayout( settings );
 		}
 		settings.endArray();
 	}

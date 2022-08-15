@@ -43,21 +43,11 @@ public:
 		return nullptr;
 	}
 
+	void PushUndoCommand( QUndoCommand * command );
+
 	template< typename REDO, typename UNDO > void PushUndoCommand( const QString & text, REDO && redo, UNDO && undo )
 	{
-		QWidget * parent = parentWidget();
-		while ( parent != nullptr )
-		{
-			if ( parent->metaObject()->inherits( &XS::DockWidget::staticMetaObject ) )
-			{
-				dynamic_cast<XS::DockWidget *>( parent )->PushUndoCommand( text, redo, undo );
-				break;
-			}
-			else
-			{
-				parent = parent->parentWidget();
-			}
-		}
+		PushUndoCommand( new XS::UndoCommand( text, redo, undo ) );
 	}
 
 public:
@@ -67,6 +57,11 @@ public:
 	virtual void SaveLayout( QSettings & settings );
 
 	virtual void LoadLayout( QSettings & settings );
+
+protected:
+	virtual void OnPushCommand();
+
+	virtual void OnSaveCommand();
 
 };
 

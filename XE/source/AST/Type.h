@@ -65,8 +65,9 @@ enum class ExecutorGotoType
 	CONTINUE,
 };
 
-struct XE_API ASTEnum : public XE::EnableSharedFromThis< XE::ASTEnum >
+class XE_API ASTEnum : public XE::EnableSharedFromThis< XE::ASTEnum >
 {
+public:
 	XE::String Name;
 	XE::String Module;
 	bool Flag = false;
@@ -74,8 +75,9 @@ struct XE_API ASTEnum : public XE::EnableSharedFromThis< XE::ASTEnum >
 };
 DECL_XE_CLASS( ASTEnum );
 
-struct XE_API ASTClass : public XE::EnableSharedFromThis < XE::ASTClass >
+class XE_API ASTClass : public XE::EnableSharedFromThis < XE::ASTClass >
 {
+public:
 	XE::String Name;
 	XE::String Super;
 	XE::String Module;
@@ -86,19 +88,22 @@ struct XE_API ASTClass : public XE::EnableSharedFromThis < XE::ASTClass >
 };
 DECL_XE_CLASS( ASTClass );
 
-struct XE_API ASTModule : public XE::EnableSharedFromThis < XE::ASTModule >
+class XE_API ASTModule : public XE::EnableSharedFromThis < XE::ASTModule >
 {
+public:
 	XE::String Name;
 	XE::String Owner;
 	XE::Array< XE::SharedPtr< XE::ASTEnum > > Enums;
 	XE::Array< XE::SharedPtr< XE::ASTClass > > Clsses;
+	XE::Array< XE::SharedPtr< XE::ASTModule > > Modules;
 	XE::Array< XE::SharedPtr< XE::ASTFunction > > Functions;
 	XE::Array< XE::SharedPtr< XE::ASTVariable > > Variables;
 };
 DECL_XE_CLASS( ASTModule );
 
-struct XE_API ASTMethod : public XE::EnableSharedFromThis < XE::ASTMethod >
+class XE_API ASTMethod : public XE::EnableSharedFromThis < XE::ASTMethod >
 {
+public:
 	XE::String Name;
 	XE::String Owner;
 	XE::String Module;
@@ -109,8 +114,9 @@ struct XE_API ASTMethod : public XE::EnableSharedFromThis < XE::ASTMethod >
 };
 DECL_XE_CLASS( ASTMethod );
 
-struct XE_API ASTProperty : public XE::EnableSharedFromThis < XE::ASTProperty >
+class XE_API ASTProperty : public XE::EnableSharedFromThis < XE::ASTProperty >
 {
+public:
 	XE::String Name;
 	XE::String Owner;
 	XE::String Module;
@@ -120,8 +126,9 @@ struct XE_API ASTProperty : public XE::EnableSharedFromThis < XE::ASTProperty >
 };
 DECL_XE_CLASS( ASTProperty );
 
-struct XE_API ASTFunction : public XE::EnableSharedFromThis < XE::ASTFunction >
+class XE_API ASTFunction : public XE::EnableSharedFromThis < XE::ASTFunction >
 {
+public:
 	XE::String Name;
 	XE::String Module;
 	XE::String Result;
@@ -131,8 +138,9 @@ struct XE_API ASTFunction : public XE::EnableSharedFromThis < XE::ASTFunction >
 };
 DECL_XE_CLASS( ASTFunction );
 
-struct XE_API ASTVariable : public XE::EnableSharedFromThis < XE::ASTVariable >
+class XE_API ASTVariable : public XE::EnableSharedFromThis < XE::ASTVariable >
 {
+public:
 	XE::String Name;
 	XE::String Module;
 	XE::String Type;

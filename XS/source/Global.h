@@ -17,6 +17,7 @@
 #include <QWidget>
 #include <QDialog>
 #include <QMetaType>
+#include <QShortcut>
 #include <QApplication>
 
 #ifdef XS_EXPORT

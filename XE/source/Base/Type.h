@@ -185,6 +185,11 @@ enum class TypeFlag
 	SHAREDPTR,
 };
 
+struct ValueTypeFlag { static constexpr XE::TypeFlag flag = TypeFlag::VALUE; };
+struct PointerTypeFlag { static constexpr XE::TypeFlag flag = TypeFlag::POINTER; };
+struct ReferenceTypeFlag { static constexpr XE::TypeFlag flag = TypeFlag::REFERENCE; };
+struct SharedPtrTypeFlag { static constexpr XE::TypeFlag flag = TypeFlag::SHAREDPTR; };
+
 template< typename T > struct TypeTraits
 {
 	using value_t = T;
@@ -210,12 +215,12 @@ template< typename T > struct TypeTraits
 
 	static constexpr bool is_pointer_v = std::is_pointer_v< T >;
 	static constexpr bool is_reference_v = std::is_reference_v< T >;
-	static constexpr bool is_shared_ptr_v = std::is_shared_ptr< T >;
-	static constexpr bool is_value_v = !is_pointer_v< T > && !is_reference_v< T > && !is_shared_ptr_v< T >;
-	static constexpr XE::TypeFlag flag = is_value_v< T > ?
-		XE::TypeFlag::VALUE : ( is_shared_ptr_v< T> ?
-								XE::TypeFlag::SHAREDPTR : ( is_reference_v< T > ?
-															XE::TypeFlag::REFERENCE : XE::TypeFlag::POINTER ) );
+	static constexpr bool is_shared_ptr_v = std::is_shared_ptr_v< T >;
+	static constexpr bool is_value_v = std::conjunction_v< std::negation< std::is_pointer< T > >, std::negation< std::is_reference< T > >, std::negation< std::is_shared_ptr< T > > >;
+	static constexpr XE::TypeFlag flag =
+		std::conditional_t< is_value_v, XE::ValueTypeFlag,
+		std::conditional_t< is_pointer_v, XE::PointerTypeFlag,
+		std::conditional_t< is_reference_v, XE::ReferenceTypeFlag, XE::SharedPtrTypeFlag> > >::flag;
 };
 
 template< typename ... T > struct FunctionTraits;

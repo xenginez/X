@@ -12,6 +12,8 @@
 #include "Widget.h"
 #include "NodeWidget.h"
 
+class QListWidgetItem;
+
 UI_DECL( ASTTabWidget );
 
 BEG_XS_NAMESPACE
@@ -25,18 +27,24 @@ public:
 
 	~ASTTabWidget() override;
 
-public:
-	void SaveLayout( QSettings & settings ) override;
-
-	void LoadLayout( QSettings & settings ) override;
-
 private slots:
 	void OnAddToolButtonClicked( bool clicked );
 
 	void OnToolToolButtonClicked( bool clicked );
 
+	void OnEnumListItemChanged( QListWidgetItem * item );
+
+protected:
+	void OnPushCommand() override;
+
+	void OnSaveCommand() override;
+
+protected:
+	void showEvent( QShowEvent * event ) override;
+
 private:
 	Ui::ASTTabWidget * ui;
+	XE::SyntaxTreePtr _Tree;
 };
 
 END_XS_NAMESPACE

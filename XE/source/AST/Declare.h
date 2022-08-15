@@ -13,13 +13,13 @@
 
 BEG_XE_NAMESPACE
 
-struct ASTEnum;
-struct ASTClass;
-struct ASTModule;
-struct ASTMethod;
-struct ASTProperty;
-struct ASTFunction;
-struct ASTVariable;
+DECL_PTR( ASTEnum );
+DECL_PTR( ASTClass );
+DECL_PTR( ASTModule );
+DECL_PTR( ASTMethod );
+DECL_PTR( ASTProperty );
+DECL_PTR( ASTFunction );
+DECL_PTR( ASTVariable );
 
 DECL_PTR( ASTMetaEnum );
 DECL_PTR( ASTMetaClass );
