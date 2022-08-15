@@ -5,7 +5,7 @@
 #include "ASTService.h"
 
 XE::ASTMetaVariable::ASTMetaVariable( const XE::SharedPtr< XE::ASTVariable > & val )
-	: XE::MetaVariable( val->Name, false, false, false, true, false,
+	: XE::MetaVariable( val->Name, false, val->Flag,
 						XE::Reflection::FindType( val->Type ),
 						XE::Reflection::FindModule( val->Module ) )
 	, _Variable( val )

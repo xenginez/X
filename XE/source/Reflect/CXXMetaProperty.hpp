@@ -20,7 +20,7 @@ public:
 
 public:
 	CXXMetaProperty( const String & Name, PropertyType * Value, MetaClassCPtr Owner, MetaModuleCPtr Module )
-		:MetaProperty( Name, true, std::is_const_v< ValueType >, !std::is_pointer_v< ValueType > && !std::is_reference_v< ValueType > && !std::is_weak_ptr_v< ValueType > && !std::is_shared_ptr_v< ValueType >, std::is_pointer_v< ValueType >, std::is_shared_ptr_v< ValueType > || std::is_weak_ptr_v< ValueType >, std::is_reference_v< ValueType >, TypeID< typename TypeTraits< ValueType >::raw_t >::Get(), Owner, Module ), _Value( Value )
+		:MetaProperty( Name, true, std::is_const_v< ValueType >, XE::TypeTraits< ValueType >::flag, TypeID< typename TypeTraits< ValueType >::raw_t >::Get(), Owner, Module ), _Value( Value )
 	{
 
 	}
@@ -61,7 +61,7 @@ public:
 
 public:
 	CXXMetaProperty( const String & Name, PropertyType Value, MetaClassCPtr Owner, MetaModuleCPtr Module )
-		:MetaProperty( Name, false, std::is_const_v< ValueType >, !std::is_pointer_v< ValueType > && !std::is_reference_v< ValueType > && !std::is_weak_ptr_v< ValueType > && !std::is_shared_ptr_v< ValueType >, std::is_pointer_v< ValueType >, std::is_shared_ptr_v< ValueType > || std::is_weak_ptr_v< ValueType >, std::is_reference_v< ValueType >, TypeID< typename XE::TypeTraits< ValueType >::raw_t >::Get(), Owner, Module ), _Value( Value )
+		:MetaProperty( Name, false, std::is_const_v< ValueType >, XE::TypeTraits< ValueType >::flag, TypeID< typename XE::TypeTraits< ValueType >::raw_t >::Get(), Owner, Module ), _Value( Value )
 	{
 
 	}
@@ -104,7 +104,7 @@ public:
 
 public:
 	CXXMetaProperty( const String & Name, GetFuncType get, SetFuncType set, MetaClassCPtr Owner, MetaModuleCPtr Module )
-		:MetaProperty( Name, false, false, !std::is_pointer_v< ValueType > && !std::is_reference_v< ValueType > && !std::is_weak_ptr_v< ValueType > && !std::is_shared_ptr_v< ValueType >, std::is_pointer_v< ValueType >, std::is_shared_ptr_v< ValueType > || std::is_weak_ptr_v< ValueType >, std::is_reference_v< ValueType >, TypeID< typename XE::TypeTraits< ValueType >::raw_t >::Get(), Owner, Module ), _GetFunc( get ), _SetFunc( set )
+		:MetaProperty( Name, false, false, XE::TypeTraits< ValueType >::flag, TypeID< typename XE::TypeTraits< ValueType >::raw_t >::Get(), Owner, Module ), _GetFunc( get ), _SetFunc( set )
 	{
 
 	}
@@ -141,7 +141,7 @@ public:
 
 public:
 	CXXMetaProperty( const String & Name, GetFuncType get, SetFuncType set, MetaClassCPtr Owner, MetaModuleCPtr Module )
-		:MetaProperty( Name, false, false, !std::is_pointer_v< ValueType > && !std::is_reference_v< ValueType > && !std::is_weak_ptr_v< ValueType > && !std::is_shared_ptr_v< ValueType >, std::is_pointer_v< ValueType >, std::is_shared_ptr_v< ValueType > || std::is_weak_ptr_v< ValueType >, std::is_reference_v< ValueType >, TypeID< typename XE::TypeTraits< ValueType >::raw_t >::Get(), Owner, Module ), _GetFunc( get ), _SetFunc( set )
+		:MetaProperty( Name, false, false, XE::TypeTraits< ValueType >::flag, TypeID< typename XE::TypeTraits< ValueType >::raw_t >::Get(), Owner, Module ), _GetFunc( get ), _SetFunc( set )
 	{
 
 	}
@@ -178,7 +178,7 @@ public:
 
 public:
 	CXXMetaProperty( const String & Name, GetFuncType get, SetFuncType set, MetaClassCPtr Owner, MetaModuleCPtr Module )
-		:MetaProperty( Name, false, false, !std::is_pointer_v< ValueType > && !std::is_reference_v< ValueType > && !std::is_weak_ptr_v< ValueType > && !std::is_shared_ptr_v< ValueType >, std::is_pointer_v< ValueType >, std::is_shared_ptr_v< ValueType > || std::is_weak_ptr_v< ValueType >, std::is_reference_v< ValueType >, TypeID< typename XE::TypeTraits< ValueType >::raw_t >::Get(), Owner, Module ), _GetFunc( get ), _SetFunc( set )
+		:MetaProperty( Name, false, false, XE::TypeTraits< ValueType >::flag, TypeID< typename XE::TypeTraits< ValueType >::raw_t >::Get(), Owner, Module ), _GetFunc( get ), _SetFunc( set )
 	{
 
 	}
@@ -214,7 +214,7 @@ public:
 
 public:
 	CXXMetaProperty( const String & Name, GetFuncType get, MetaClassCPtr Owner, MetaModuleCPtr Module )
-		:MetaProperty( Name, false, false, !std::is_pointer_v< ValueType > && !std::is_reference_v< ValueType > && !std::is_weak_ptr_v< ValueType > && !std::is_shared_ptr_v< ValueType >, std::is_pointer_v< ValueType >, std::is_shared_ptr_v< ValueType > || std::is_weak_ptr_v< ValueType >, std::is_reference_v< ValueType >, TypeID< typename XE::TypeTraits< ValueType >::raw_t >::Get(), Owner, Module ), _GetFunc( get )
+		:MetaProperty( Name, false, false, XE::TypeTraits< ValueType >::flag, TypeID< typename XE::TypeTraits< ValueType >::raw_t >::Get(), Owner, Module ), _GetFunc( get )
 	{
 
 	}
@@ -249,7 +249,7 @@ public:
 
 public:
 	CXXMetaProperty( const String & Name, GetFuncType get, MetaClassCPtr Owner, MetaModuleCPtr Module )
-		:MetaProperty( Name, false, false, !std::is_pointer_v< ValueType > && !std::is_reference_v< ValueType > && !std::is_weak_ptr_v< ValueType > && !std::is_shared_ptr_v< ValueType >, std::is_pointer_v< ValueType >, std::is_shared_ptr_v< ValueType > || std::is_weak_ptr_v< ValueType >, std::is_reference_v< ValueType >, TypeID< typename XE::TypeTraits< ValueType >::raw_t >::Get(), Owner, Module ), _GetFunc( get )
+		:MetaProperty( Name, false, false, XE::TypeTraits< ValueType >::flag, TypeID< typename XE::TypeTraits< ValueType >::raw_t >::Get(), Owner, Module ), _GetFunc( get )
 	{
 
 	}
@@ -284,7 +284,7 @@ public:
 
 public:
 	CXXMetaProperty( const String & Name, GetFuncType get, MetaClassCPtr Owner, MetaModuleCPtr Module )
-		:MetaProperty( Name, false, false, !std::is_pointer_v< ValueType > && !std::is_reference_v< ValueType > && !std::is_weak_ptr_v< ValueType > && !std::is_shared_ptr_v< ValueType >, std::is_pointer_v< ValueType >, std::is_shared_ptr_v< ValueType > || std::is_weak_ptr_v< ValueType >, std::is_reference_v< ValueType >, TypeID< typename XE::TypeTraits< ValueType >::raw_t >::Get(), Owner, Module ), _GetFunc( get )
+		:MetaProperty( Name, false, false, XE::TypeTraits< ValueType >::flag, TypeID< typename XE::TypeTraits< ValueType >::raw_t >::Get(), Owner, Module ), _GetFunc( get )
 	{
 
 	}
@@ -319,7 +319,7 @@ public:
 
 public:
 	CXXMetaProperty( const String & Name, SetFuncType set, MetaClassCPtr Owner, MetaModuleCPtr Module )
-		:MetaProperty( Name, false, false, !std::is_pointer_v< ValueType > && !std::is_reference_v< ValueType > && !std::is_weak_ptr_v< ValueType > && !std::is_shared_ptr_v< ValueType >, std::is_pointer_v< ValueType >, std::is_shared_ptr_v< ValueType > || std::is_weak_ptr_v< ValueType >, std::is_reference_v< ValueType >, TypeID< typename XE::TypeTraits< ValueType >::raw_t >::Get(), Owner, Module ), _SetFunc( set )
+		:MetaProperty( Name, false, false, XE::TypeTraits< ValueType >::flag, TypeID< typename XE::TypeTraits< ValueType >::raw_t >::Get(), Owner, Module ), _SetFunc( set )
 	{
 
 	}
@@ -348,7 +348,7 @@ public:
 
 public:
 	CXXMetaProperty( const String & Name, SetFuncType set, MetaClassCPtr Owner, MetaModuleCPtr Module )
-		:MetaProperty( Name, false, false, !std::is_pointer_v< ValueType > && !std::is_reference_v< ValueType > && !std::is_weak_ptr_v< ValueType > && !std::is_shared_ptr_v< ValueType >, std::is_pointer_v< ValueType >, std::is_shared_ptr_v< ValueType > || std::is_weak_ptr_v< ValueType >, std::is_reference_v< ValueType >, TypeID< typename XE::TypeTraits< ValueType >::raw_t >::Get(), Owner, Module ), _SetFunc( set )
+		:MetaProperty( Name, false, false, XE::TypeTraits< ValueType >::flag, TypeID< typename XE::TypeTraits< ValueType >::raw_t >::Get(), Owner, Module ), _SetFunc( set )
 	{
 
 	}
@@ -377,7 +377,7 @@ public:
 
 public:
 	CXXMetaProperty( const String & Name, SetFuncType set, MetaClassCPtr Owner, MetaModuleCPtr Module )
-		:MetaProperty( Name, false, false, !std::is_pointer_v< ValueType > && !std::is_reference_v< ValueType > && !std::is_weak_ptr_v< ValueType > && !std::is_shared_ptr_v< ValueType >, std::is_pointer_v< ValueType >, std::is_shared_ptr_v< ValueType > || std::is_weak_ptr_v< ValueType >, std::is_reference_v< ValueType >, TypeID< typename XE::TypeTraits< ValueType >::raw_t >::Get(), Owner, Module ), _SetFunc( set )
+		:MetaProperty( Name, false, false, XE::TypeTraits< ValueType >::flag, TypeID< typename XE::TypeTraits< ValueType >::raw_t >::Get(), Owner, Module ), _SetFunc( set )
 	{
 
 	}

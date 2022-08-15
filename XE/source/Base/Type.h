@@ -177,14 +177,13 @@ namespace std
 
 BEG_XE_NAMESPACE
 
-
-template < class To, class From > To BitCast( const From & src )
+enum class TypeFlag
 {
-	To dst;
-	std::memset( &dst, 0, sizeof( To ) );
-	std::memcpy( &dst, &src, std::min( sizeof( From ), sizeof( To ) ) );
-	return dst;
-}
+	VALUE,
+	POINTER,
+	REFERENCE,
+	SHAREDPTR,
+};
 
 template< typename T > struct TypeTraits
 {
@@ -208,10 +207,16 @@ template< typename T > struct TypeTraits
 	using remove_pointer_volatile_reference_t = typename std::remove_pointer< remove_volatile_reference_t >::type;
 
 	using raw_t = typename std::remove_pointer< typename std::remove_const< typename std::remove_volatile< typename std::remove_reference< value_t >::type >::type >::type >::type;
-};
 
-template< typename ... T > struct Overloaded : T... { using T::operator()...; };
-template< typename ... T > Overloaded( T... ) -> Overloaded< T... >;
+	static constexpr bool is_pointer_v = std::is_pointer_v< T >;
+	static constexpr bool is_reference_v = std::is_reference_v< T >;
+	static constexpr bool is_shared_ptr_v = std::is_shared_ptr< T >;
+	static constexpr bool is_value_v = !is_pointer_v< T > && !is_reference_v< T > && !is_shared_ptr_v< T >;
+	static constexpr XE::TypeFlag flag = is_value_v< T > ?
+		XE::TypeFlag::VALUE : ( is_shared_ptr_v< T> ?
+								XE::TypeFlag::SHAREDPTR : ( is_reference_v< T > ?
+															XE::TypeFlag::REFERENCE : XE::TypeFlag::POINTER ) );
+};
 
 template< typename ... T > struct FunctionTraits;
 template< typename R, typename ... Types > struct FunctionTraits< R( Types... ) >
@@ -258,6 +263,10 @@ template< typename R, typename C, typename ... Types > struct FunctionTraits< R(
 template< typename Callable > struct FunctionTraits< Callable > : public FunctionTraits< decltype( &Callable::operator() ) > {};
 template< typename R, typename ... Types > struct FunctionTraits< std::function< R( Types... ) > > : public FunctionTraits< R( Types... ) > {};
 
+template< typename ... T > struct Overloaded : T... { using T::operator()...; };
+template< typename ... T > Overloaded( T... )->Overloaded< T... >;
+
+
 template< bool... > struct __TupleTypeCheck {};
 template< typename _Fy, typename... _Ty > constexpr bool TupleHasType( const std::tuple< _Ty... > & )
 {
@@ -276,6 +285,14 @@ template< typename Func, typename Tuple, std::size_t I > void ApplyTupleImpl( Fu
 template< typename Func, typename Tuple > void ApplyTuple( Func && f, Tuple & t )
 {
 	return ApplyTupleImpl< 0 >( std::forward< Func >( f ), std::forward< Tuple >( t ) );
+}
+
+template < class To, class From > To BitCast( const From & src )
+{
+	To dst;
+	std::memset( &dst, 0, sizeof( To ) );
+	std::memcpy( &dst, &src, std::min( sizeof( From ), sizeof( To ) ) );
+	return dst;
 }
 
 template< typename T > XE_INLINE static T * RawPointer( T * val )
@@ -383,23 +400,9 @@ template< typename K, typename V, typename L = std::less< K >  > using MultiMap 
 template< typename K, typename V, typename H = XE::Hasher< K > > using UnorderedMap = std::pmr::unordered_map< K, V, H >;
 template< typename K, typename V, typename H = XE::Hasher< K > > using UnorderedMultiMap = std::pmr::unordered_multimap< K, V, H >;
 
+template< typename ... T >using Tuple = std::tuple< T... >;
+
 END_XE_NAMESPACE
-
-#define DECL_PTR( TYPE ) \
-class TYPE; \
-using TYPE##Ptr = XE::SharedPtr< TYPE >; \
-using TYPE##WPtr = XE::WeakPtr< TYPE >; \
-using TYPE##UPtr = XE::UniquePtr< TYPE >; \
-using TYPE##CPtr = XE::SharedPtr< const TYPE >; \
-using TYPE##CWPtr = XE::WeakPtr< const TYPE >; \
-using TYPE##CUPtr = XE::UniquePtr< const TYPE >;
-
-#define CP_CAST std::const_pointer_cast
-#define SP_CAST std::static_pointer_cast
-#define DP_CAST std::dynamic_pointer_cast
-#define RP_CAST std::reinterpret_pointer_cast
-
-#define XE_THIS( TYPE ) std::static_pointer_cast< TYPE >( shared_from_this() )
 
 constexpr XE::uint64 operator "" _hash( const char * p, size_t )
 {

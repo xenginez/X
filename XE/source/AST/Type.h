@@ -115,6 +115,7 @@ struct XE_API ASTProperty : public XE::EnableSharedFromThis < XE::ASTProperty >
 	XE::String Owner;
 	XE::String Module;
 	XE::String Type;
+	XE::TypeFlag Flag;
 	XE::uint64 Offset;
 };
 DECL_XE_CLASS( ASTProperty );
@@ -135,6 +136,7 @@ struct XE_API ASTVariable : public XE::EnableSharedFromThis < XE::ASTVariable >
 	XE::String Name;
 	XE::String Module;
 	XE::String Type;
+	XE::TypeFlag Flag;
 };
 DECL_XE_CLASS( ASTVariable );
 

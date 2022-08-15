@@ -1,7 +1,7 @@
 #include "ASTMetaProperty.h"
 
 XE::ASTMetaProperty::ASTMetaProperty( const XE::SharedPtr< XE::ASTProperty > & val )
-	: XE::MetaProperty( val->Name, false, false, false, false, true, false,
+	: XE::MetaProperty( val->Name, false, false, val->Flag,
 						XE::Reflection::FindType( val->Type ),
 						XE::Reflection::FindClass( val->Owner ),
 						XE::Reflection::FindModule( val->Module ) )

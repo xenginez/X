@@ -58,29 +58,11 @@ template< typename Ty, typename ... Types > XE::UniquePtr< Ty > MakeUnique( Type
 	return { XE::New< Ty >( std::forward< Types >( args )... ), XE::Deleter< Ty >() };
 }
 
+template<typename Ty, typename ... Types > XE::GCPtr< Ty > MakeGC( _Types &&... args )
+{
+	return new ( XE::MemoryResource::GetGCMemoryResource()->allocate( sizeof( Ty ) ) ) Ty( std::forward< Types >( args )... );
+}
+
 END_XE_NAMESPACE
-
-#define OBJECT_POOL_ALLOCATOR( TYPE ) \
-template<> class XE::AllocatorProxy< TYPE > \
-{ \
-public: \
-	static std::pmr::polymorphic_allocator< TYPE > GetAllocator() \
-	{ \
-		return { GetResource() }; \
-	} \
-	static std::pmr::memory_resource * GetResource() \
-	{ \
-		if constexpr( sizeof( TYPE ) <= 512 ) \
-		{ \
-			return XE::MemoryResource::GetObjectMemoryResource(); \
-		} \
-		else \
-		{ \
-			return XE::MemoryResource::GetDefaultMemoryResource(); \
-		} \
-	} \
-};
-
-
 
 #endif//ALLOCATORPROXY_HPP__D906995B_F0E7_4FAB_97FB_BA844CD27E7F

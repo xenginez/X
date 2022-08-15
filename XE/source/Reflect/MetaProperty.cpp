@@ -3,8 +3,8 @@
 #include "MetaClass.h"
 #include "MetaAttribute.h"
 
-XE::MetaProperty::MetaProperty( const String & Name, bool IsStatic, bool IsConst, bool IsObject, bool IsPointer, bool IsSharedPtr, bool IsReference, MetaTypeCPtr Value, MetaClassCPtr Owner, MetaModuleCPtr Module )
-	:MetaInfo( Name, MetaInfoType::PROPERTY, Owner, Module ), _IsStatic( IsStatic ), _IsConst( IsConst ), _IsObject( IsObject ), _IsPointer( IsPointer ), _IsSharedPtr( IsSharedPtr ), _IsReference( IsReference ), _Value( Value )
+XE::MetaProperty::MetaProperty( const String & Name, bool IsStatic, bool IsConst, XE::TypeFlag Flag, MetaTypeCPtr Value, MetaClassCPtr Owner, MetaModuleCPtr Module )
+	:MetaInfo( Name, MetaInfoType::PROPERTY, Owner, Module ), _IsStatic( IsStatic ), _IsConst( IsConst ), _Flag( Flag ), _Value( Value )
 {
 
 }
@@ -26,22 +26,27 @@ bool XE::MetaProperty::IsStatic() const
 
 bool XE::MetaProperty::IsObject() const
 {
-	return _IsObject;
+	return _Flag == XE::TypeFlag::VALUE;
 }
 
 bool XE::MetaProperty::IsPointer() const
 {
-	return _IsPointer;
+	return _Flag == XE::TypeFlag::POINTER;
 }
 
 bool XE::MetaProperty::IsSharedPtr() const
 {
-	return _IsSharedPtr;
+	return _Flag == XE::TypeFlag::SHAREDPTR;
 }
 
 bool XE::MetaProperty::IsReference() const
 {
-	return _IsReference;
+	return _Flag == XE::TypeFlag::REFERENCE;
+}
+
+XE::TypeFlag XE::MetaProperty::GetFlag() const
+{
+	return _Flag;
 }
 
 XE::MetaTypeCPtr XE::MetaProperty::GetValueType() const

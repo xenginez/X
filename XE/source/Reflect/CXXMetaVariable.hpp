@@ -20,7 +20,7 @@ public:
 
 public:
 	CXXMetaVariable( const String & Name, VariableType * Value, MetaModuleCPtr Module )
-		:MetaVariable( Name, true, !std::is_pointer_v< ValueType > && !std::is_reference_v< ValueType > && !std::is_weak_ptr_v< ValueType > && !std::is_shared_ptr_v< ValueType >, std::is_pointer_v< ValueType >, std::is_shared_ptr_v< ValueType > || std::is_weak_ptr_v< ValueType >, std::is_reference_v< ValueType >, TypeID< typename TypeTraits< ValueType >::raw_t >::Get(), Module ), _Value( Value )
+		:MetaVariable( Name, true,  XE::TypeTraits< ValueType >::flag, TypeID< typename TypeTraits< ValueType >::raw_t >::Get(), Module ), _Value( Value )
 	{
 
 	}

@@ -13,10 +13,17 @@
 
 BEG_XE_NAMESPACE
 
+class GCRoot;
+class GCObject;
+class GCRootObject;
 class MemoryResource;
+class GCMemoryResource;
 class FrameMemoryResource;
 class ObjectMemoryResource;
 class DefaultMemoryResource;
+template< typename _Ty > class GCPtr;
+template< typename _Ty > class GCWeakPtr;
+template< typename _Ty > class EnableGCFromThis;
 template< XE::uint64 S > class StackMemoryResource;
 
 template< typename Ty > void Delete( Ty * ptr );
@@ -36,13 +43,9 @@ template < typename _Ty > struct Deleter
 };
 template< typename T, typename D = XE::Deleter< T > > using UniquePtr = std::unique_ptr< T, D >;
 
-
-template< typename ... T >
-using Tuple = std::tuple< T... >;
-
 class MMapFile;
 class MemoryResource;
-
+template< typename T > class GCPtr;
 template< typename T > class ObjectPage;
 template< typename T > class AllocatorProxy;
 template< class _Elem > class BasicMemoryView;
@@ -53,8 +56,28 @@ template< class _Elem, class _Traits, class _Alloc > class BasicOMemoryStream;
 
 END_XE_NAMESPACE
 
-#define OBJECT_ALLOCATOR_PROXY( TYPE ) \
-template< > class XE::AllocatorProxy< TYPE > \
+#define DECL_PTR( TYPE ) \
+class TYPE; \
+using TYPE##Ptr = XE::SharedPtr< TYPE >; \
+using TYPE##WPtr = XE::WeakPtr< TYPE >; \
+using TYPE##UPtr = XE::UniquePtr< TYPE >; \
+using TYPE##GPtr = XE::GCPtr< TYPE >; \
+using TYPE##GWPtr = XE::GCWeakPtr< TYPE >; \
+using TYPE##CPtr = XE::SharedPtr< const TYPE >; \
+using TYPE##CWPtr = XE::WeakPtr< const TYPE >; \
+using TYPE##CUPtr = XE::UniquePtr< const TYPE >; \
+using TYPE##CGPtr = XE::GCPtr< const TYPE >; \
+using TYPE##CGWPtr = XE::GCWeakPtr< const TYPE >;
+
+#define CP_CAST std::const_pointer_cast
+#define SP_CAST std::static_pointer_cast
+#define DP_CAST std::dynamic_pointer_cast
+#define RP_CAST std::reinterpret_pointer_cast
+
+#define XE_THIS( TYPE ) std::static_pointer_cast< TYPE >( shared_from_this() )
+
+#define OBJECT_POOL_ALLOCATOR( TYPE ) \
+template<> class XE::AllocatorProxy< TYPE > \
 { \
 public: \
 	static std::pmr::polymorphic_allocator< TYPE > GetAllocator() \
@@ -63,7 +86,14 @@ public: \
 	} \
 	static std::pmr::memory_resource * GetResource() \
 	{ \
-		return XE::MemoryResource::GetObjectMemoryResource(); \
+		if constexpr( sizeof( TYPE ) <= 512 ) \
+		{ \
+			return XE::MemoryResource::GetObjectMemoryResource(); \
+		} \
+		else \
+		{ \
+			return XE::MemoryResource::GetDefaultMemoryResource(); \
+		} \
 	} \
 };
 
