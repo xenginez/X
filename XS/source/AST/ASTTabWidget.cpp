@@ -41,9 +41,12 @@ XS::ASTTabWidget::ASTTabWidget( QWidget * parent /*= nullptr */ )
 
 	ui->splitter->setSizes( { 2500, 5000, 2500 } );
 
+	connect( this, &XS::Widget::push_command, this, &XS::ASTTabWidget::OnPushCommand );
+	connect( this, &XS::Widget::save_command, this, &XS::ASTTabWidget::OnSaveCommand );
 	connect( ui->add, &QToolButton::clicked, this, &XS::ASTTabWidget::OnAddToolButtonClicked );
 	connect( ui->tool, &QToolButton::clicked, this, &XS::ASTTabWidget::OnToolToolButtonClicked );
 	connect( ui->enum_list, &QListWidget::itemChanged, this, &XS::ASTTabWidget::OnEnumListItemChanged );
+	connect( ui->enum_list, &QListWidget::itemDoubleClicked, this, &XS::ASTTabWidget::OnEnumListItemDoubleClicked );
 }
 
 XS::ASTTabWidget::~ASTTabWidget()
@@ -103,6 +106,23 @@ void XS::ASTTabWidget::OnEnumListItemChanged( QListWidgetItem * item )
 		PushUndoCommand( QString( R"(Enum Name '%1' -> '%2')" ).arg( ast->Name.c_str() ).arg( item->text() ),
 						 [ast, item, text = item->text()]() { ast->Name = text.toStdString(); },
 						 [ast, item, text = ast->Name]() { ast->Name = text; item->setText( text.c_str() ); } );
+	}
+}
+
+void XS::ASTTabWidget::OnEnumListItemDoubleClicked( QListWidgetItem * item )
+{
+	auto ast = item->data( AST_ROLE ).value<XE::ASTEnumPtr>();
+	if ( ast )
+	{
+		if ( _Inspector != nullptr )
+		{
+			_Inspector->deleteLater();
+		}
+
+		XS::ObjectProxy * proxy = new XS::VariantObjectProxy( ast );
+		_Inspector = XS::Inspector::Create( proxy, ui->detail );
+		ui->detail_title->setText( ast->Name.c_str() );
+		ui->detail_layout->addWidget( _Inspector );
 	}
 }
 

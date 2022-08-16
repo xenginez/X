@@ -211,7 +211,9 @@ public:
 	virtual XE::SharedPtr< void > SharedPointer() = 0;
 
 public:
-	virtual XE::Array< XE::Variant > ToArray() = 0;
+	virtual XE::Array< XE::Variant > ToArray() const = 0;
+
+	virtual bool FromArray( const XE::Array< XE::Variant > & val ) = 0;
 };
 
 template< typename T > struct VariantClassData : public VariantInterfaceData
@@ -252,9 +254,14 @@ public:
 	}
 
 public:
-	XE::Array< XE::Variant > ToArray() override
+	XE::Array< XE::Variant > ToArray() const override
 	{
 		return {};
+	}
+
+	bool FromArray( const XE::Array< XE::Variant > & val ) override
+	{
+		return false;
 	}
 
 private:
@@ -266,7 +273,7 @@ template< typename T > struct VariantSharedPtrData : public VariantInterfaceData
 public:
 	VariantSharedPtrData() = default;
 
-	template< typename T > VariantSharedPtrData( const XE::SharedPtr< T > & val )
+	VariantSharedPtrData( const XE::SharedPtr< T > & val )
 		:_Value( val )
 	{
 
@@ -300,9 +307,14 @@ public:
 	}
 
 public:
-	XE::Array< XE::Variant > ToArray() override
+	XE::Array< XE::Variant > ToArray() const override
 	{
 		return {};
+	}
+
+	bool FromArray( const XE::Array< XE::Variant > & val ) override
+	{
+		return false;
 	}
 
 private:
@@ -426,13 +438,7 @@ public:
 	XE::SharedPtr< VariantInterfaceData > Pointer = nullptr;
 };
 
-using VariantData = std::variant< 
-	std::monostate,
-	bool,
-	XE::int8, XE::int16, XE::int32, XE::int64,
-	XE::uint8, XE::uint16, XE::uint32, XE::uint64,
-	XE::float32, XE::float64,
-	VariantEnumData, VariantSmallData, VariantPointerData, VariantWarpperData >;
+using VariantData = std::variant< std::monostate, bool, XE::int8, XE::int16, XE::int32, XE::int64, XE::uint8, XE::uint16, XE::uint32, XE::uint64, XE::float32, XE::float64, VariantEnumData, VariantSmallData, VariantPointerData, VariantWarpperData >;
 
 struct XE_API VariantDataIsNull
 {
@@ -514,7 +520,6 @@ struct XE_API VariantDataGetRawPointer
 	void * operator()( XE::VariantWarpperData & val ) const;
 };
 
-
 struct XE_API VariantDataToArray
 {
 	XE::Array< XE::Variant > operator()( const std::monostate & ) const;
@@ -533,6 +538,30 @@ struct XE_API VariantDataToArray
 	XE::Array< XE::Variant > operator()( const XE::VariantSmallData & val ) const;
 	XE::Array< XE::Variant > operator()( const XE::VariantPointerData & val ) const;
 	XE::Array< XE::Variant > operator()( const XE::VariantWarpperData & val ) const;
+};
+
+struct XE_API VariantDataFromArray
+{
+	VariantDataFromArray( const XE::Array< XE::Variant > & val );
+
+	bool operator()( const std::monostate & ) const;
+	bool operator()( const bool & val ) const;
+	bool operator()( const XE::int8 & val ) const;
+	bool operator()( const XE::int16 & val ) const;
+	bool operator()( const XE::int32 & val ) const;
+	bool operator()( const XE::int64 & val ) const;
+	bool operator()( const XE::uint8 & val ) const;
+	bool operator()( const XE::uint16 & val ) const;
+	bool operator()( const XE::uint32 & val ) const;
+	bool operator()( const XE::uint64 & val ) const;
+	bool operator()( const XE::float32 & val ) const;
+	bool operator()( const XE::float64 & val ) const;
+	bool operator()( const XE::VariantEnumData & val ) const;
+	bool operator()( const XE::VariantSmallData & val ) const;
+	bool operator()( const XE::VariantPointerData & val ) const;
+	bool operator()( const XE::VariantWarpperData & val ) const;
+
+	const XE::Array< XE::Variant > & Array;
 };
 
 

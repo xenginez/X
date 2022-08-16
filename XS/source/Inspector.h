@@ -14,7 +14,7 @@
 
 BEG_XS_NAMESPACE
 
-class XS_API Inspector : public Widget
+class XS_API Inspector : public XS::Widget
 {
 	Q_OBJECT
 

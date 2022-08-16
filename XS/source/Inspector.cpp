@@ -16,7 +16,10 @@ XS::Inspector::Inspector( QWidget * parent /*= nullptr*/ )
 
 XS::Inspector::~Inspector()
 {
-
+	if ( _Proxy )
+	{
+		delete _Proxy;
+	}
 }
 
 void XS::Inspector::Register( const XE::MetaTypeCPtr & type, const QString & name )
@@ -49,6 +52,17 @@ XS::Inspector * XS::Inspector::Create( XS::ObjectProxy * proxy, QWidget * parent
 			else
 			{
 			 	result = XS::Registry::ConstructT< XS::Inspector >( "XS::EnumInspector", parent );//new XS::EnumInspector( parent );
+			}
+		}
+		else if ( proxy->GetType()->IsContainer() )
+		{
+			if ( proxy->GetType()->GetFullName().find_first_of( "XE::Pair" ) == 0 )
+			{
+				result = XS::Registry::ConstructT< XS::Inspector >( "XS::PairInspector", parent );//new XS::PairInspector( parent );
+			}
+			else
+			{
+				result = XS::Registry::ConstructT< XS::Inspector >( "XS::ContainerInspector", parent );//new XS::ContainerInspector( parent );
 			}
 		}
 		else

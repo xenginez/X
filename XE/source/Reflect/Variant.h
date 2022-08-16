@@ -207,7 +207,10 @@ public:
 
 	void * ToPointer() const;
 
+public:
 	XE::Array< XE::Variant > ToArray() const;
+
+	bool FromArray( const XE::Array< XE::Variant > & val );
 
 public:
 	XE::MetaTypeCPtr GetType() const;
@@ -216,6 +219,8 @@ public:
 
 public:
 	void Clear();
+
+	void Clone( XE::Variant * val ) const;
 
 	void swap( XE::Variant & val );
 
@@ -276,16 +281,14 @@ template< typename ... T > struct XE::VariantClassData< TYPE< T... > > : public 
 { \
 public: \
 	using ContainerType = TYPE< T... >; \
-private: \
-	ContainerType Value; \
 public: \
 	VariantClassData() = default; \
 	VariantClassData( ContainerType && val ) \
 	{ \
-		std::swap( Value, val ); \
+		std::swap( _Value, val ); \
 	} \
 	VariantClassData( const ContainerType & val ) \
-		:Value( val ) \
+		:_Value( val ) \
 	{ } \
 	bool IsContainer() const override \
 	{ \
@@ -301,21 +304,70 @@ public: \
 	} \
 	void * ValuePointer() override \
 	{ \
-		return &Value; \
+		return &_Value; \
 	} \
 	XE::SharedPtr< void > SharedPointer() override \
 	{ \
 		return nullptr; \
 	} \
-	XE::Array< XE::Variant > ToArray() override \
+	XE::Array< XE::Variant > ToArray() const override \
 	{ \
-		XE::VariantArray result; \
-		for( const auto & it : Value ) \
+		XE::Array< XE::Variant > result; \
+		for( const auto & it : _Value ) \
 		{ \
 			result.push_back( it ); \
 		} \
 		return result; \
 	} \
+	bool FromArray( const XE::Array< XE::Variant > & val ) \
+	{ \
+		for (const auto & it : val ) \
+		{ \
+			std::inserter( _Value, std::end( _Value ) ) = it.Value< typename ContainerType::value_type >(); \
+		} \
+		return true; \
+	} \
+private: \
+	ContainerType _Value; \
+}; \
+template< typename ... T > struct XE::VariantSharedPtrData< XE::SharedPtr< TYPE< T... > > > : public XE::VariantInterfaceData \
+{ \
+public: \
+	using ContainerType = TYPE< T... >; \
+	using SharedPtrType = XE::SharedPtr< ContainerType >; \
+public: \
+	VariantSharedPtrData() = default; \
+	VariantSharedPtrData( const SharedPtrType & val ) : _Value( val ) { } \
+public: \
+	bool IsContainer() const override { return true; } \
+	bool IsSharedPtr() const override  { return true; } \
+	const XE::MetaType * GetMetaType() const override { return TypeID< ContainerType >::Get( _Value.get() ).get(); } \
+public: \
+	void * ValuePointer() override { return _Value.get(); } \
+	XE::SharedPtr< void > SharedPointer() override { return _Value; } \
+public: \
+	XE::Array< XE::Variant > ToArray() const override \
+	{ \
+		XE::Array< XE::Variant > result; \
+		if ( _Value != nullptr ) \
+		{ \
+			for ( const auto & it : *_Value ) \
+			{ \
+				result.push_back( it ); \
+			} \
+		} \
+		return result; \
+	} \
+	bool FromArray( const XE::Array< XE::Variant > & val ) \
+	{ \
+		for (const auto & it : val ) \
+		{ \
+			std::inserter( *_Value, std::end( *_Value ) ) = it.Value< typename ContainerType::value_type >(); \
+		} \
+		return true; \
+	} \
+private: \
+	SharedPtrType _Value; \
 };
 
 VARIANT_CONTAINER_DATA( std::set );
@@ -329,5 +381,103 @@ VARIANT_CONTAINER_DATA( std::unordered_set );
 VARIANT_CONTAINER_DATA( std::unordered_map );
 VARIANT_CONTAINER_DATA( std::unordered_multiset );
 VARIANT_CONTAINER_DATA( std::unordered_multimap );
+
+template< typename K, typename V > struct XE::VariantClassData< std::pair< K, V > > : public XE::VariantInterfaceData
+{
+public:
+	using ContainerType = std::pair< std::remove_const_t< K >, V >;
+public:
+	VariantClassData() = default;
+	VariantClassData( ContainerType && val )
+	{
+		std::swap( _Value, val );
+	}
+	VariantClassData( const ContainerType & val )
+		:_Value( val )
+	{
+	}
+	bool IsContainer() const override
+	{
+		return true;
+	}
+	bool IsSharedPtr() const override
+	{
+		return false;
+	}
+	const XE::MetaType * GetMetaType() const override
+	{
+		return TypeID< ContainerType >::Get().get();
+	}
+	void * ValuePointer() override
+	{
+		return &_Value;
+	}
+	XE::SharedPtr< void > SharedPointer() override
+	{
+		return nullptr;
+	}
+	XE::Array< XE::Variant > ToArray() const override
+	{
+		XE::VariantArray result;
+		result.push_back( _Value.first );
+		result.push_back( _Value.second );
+		return result;
+	}
+	bool FromArray( const XE::Array< XE::Variant > & val )
+	{
+		if ( val.size() == 2 )
+		{
+			_Value.first = val[0].Value< ContainerType::first_type >();
+			_Value.second = val[1].Value< ContainerType::second_type >();
+
+			return true;
+		}
+
+		return false;
+	}
+private:
+	ContainerType _Value;
+};
+template< typename K, typename V > struct XE::VariantSharedPtrData< XE::SharedPtr< std::pair<  K, V > > > : public XE::VariantInterfaceData
+{
+public:
+	using ContainerType = std::pair< K, V >;
+	using SharedPtrType = XE::SharedPtr< ContainerType >;
+public:
+	VariantSharedPtrData() = default;
+	VariantSharedPtrData( const SharedPtrType & val ) : _Value( val ) {}
+public:
+	bool IsContainer() const override { return true; }
+	bool IsSharedPtr() const override { return true; }
+	const XE::MetaType * GetMetaType() const override { return TypeID< ContainerType >::Get( _Value.get() ).get(); }
+public:
+	void * ValuePointer() override { return _Value.get(); }
+	XE::SharedPtr< void > SharedPointer() override { return _Value; }
+public:
+	XE::Array< XE::Variant > ToArray() const override
+	{
+		XE::VariantArray result;
+		if ( _Value != nullptr )
+		{
+			result.push_back( _Value->first );
+			result.push_back( _Value->second );
+		}
+		return result;
+	}
+	bool FromArray( const XE::Array< XE::Variant > & val )
+	{
+		if ( val.size() == 2 )
+		{
+			_Value->first = val[0].Value< ContainerType::first_type >();
+			_Value->second = val[1].Value< ContainerType::second_type >();
+
+			return true;
+		}
+
+		return false;
+	}
+private:
+	SharedPtrType _Value;
+};
 
 #endif // __VARIANT_H__87E44F7B_D250_41E0_AEEE_7D7ECB2AAF35

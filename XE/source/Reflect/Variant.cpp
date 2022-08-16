@@ -673,6 +673,11 @@ XE::Array< XE::Variant > XE::Variant::ToArray() const
 	return std::visit( XE::VariantDataToArray(), _Data );
 }
 
+bool XE::Variant::FromArray( const XE::Array< XE::Variant > & val )
+{
+	return std::visit( XE::VariantDataFromArray( val ), _Data );
+}
+
 XE::MetaTypeCPtr XE::Variant::GetType() const
 {
 	return std::visit( XE::VariantDataGetMetaType(), _Data );
@@ -686,6 +691,11 @@ const XE::VariantData & XE::Variant::GetData() const
 void XE::Variant::Clear()
 {
 	_Data = std::monostate();
+}
+
+void XE::Variant::Clone( XE::Variant * val ) const
+{
+	// TODO: 
 }
 
 void XE::Variant::swap( XE::Variant & val )

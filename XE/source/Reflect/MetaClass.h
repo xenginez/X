@@ -18,7 +18,7 @@ BEG_XE_NAMESPACE
 class XE_API MetaClass : public MetaType
 {
 public:
-	MetaClass( const String& Name, XE::uint64 Size, bool IsAbs, MetaClassCPtr Super, MetaInfoCPtr Owner, MetaModuleCPtr Module, const XE::TemplateType & temps );
+	MetaClass( const String& Name, XE::uint64 Size, bool IsAbs, bool IsCont, MetaClassCPtr Super, MetaInfoCPtr Owner, MetaModuleCPtr Module, const XE::TemplateType & temps );
 
 	~MetaClass();
 
@@ -26,6 +26,8 @@ public:
 	bool IsAbstract() const;
 
 	bool IsTemplate() const;
+
+	bool IsContainer() const;
 
 public:
 	XE::MetaClassCPtr GetSuper() const;
@@ -80,6 +82,7 @@ protected:
 
 private:
 	bool _IsAbstract;
+	bool _IsContainer;
 	XE::MetaClassCWPtr _Super;
 	XE::TemplateType _Templates;
 	XE::Array< XE::MetaMethodCPtr > _Methods;

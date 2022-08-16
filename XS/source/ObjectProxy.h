@@ -13,25 +13,17 @@
 
 BEG_XS_NAMESPACE
 
-class XS_API ObjectProxy : public QObject
+class XS_API ObjectProxy
 {
-	Q_OBJECT
+public:
+	ObjectProxy( ObjectProxy * parent = nullptr );
 
 public:
-	ObjectProxy( QObject * parent = nullptr );
+	virtual XE::MetaTypeCPtr GetType() const = 0;
 
-	ObjectProxy( const ObjectProxy & val, QObject * parent = nullptr );
+	virtual const XE::String & GetName() const = 0;
 
-	ObjectProxy( const XE::Variant & obj, QObject * parent = nullptr );
-
-	ObjectProxy( const XE::Variant & obj, const XE::MetaPropertyCPtr & prop, QObject * parent = nullptr );
-
-public:
-	XE::MetaTypeCPtr GetType() const;
-
-	const XE::String & GetName() const;
-
-	XE::MetaAttributeCPtr FindAttribute( const XE::MetaClassCPtr & type ) const;
+	virtual XE::MetaAttributeCPtr FindAttribute( const XE::MetaClassCPtr & type ) const = 0;
 
 	template< typename T > XE::SharedPtr< const T > FindAttributeT() const
 	{
@@ -39,13 +31,37 @@ public:
 	}
 
 public:
-	XE::Variant GetValue() const;
+	virtual XE::Variant GetValue() const = 0;
 
-	void SetValue( const XE::Variant & val );
+	virtual void SetValue( const XE::Variant & val ) = 0;
+
+protected:
+	XS::ObjectProxy * GetParent() const;
+
+private:
+	XS::ObjectProxy * _Parent;
+};
+
+class XS_API VariantObjectProxy : public ObjectProxy
+{
+public:
+	VariantObjectProxy( const XE::Variant & obj );
+
+public:
+	XE::MetaTypeCPtr GetType() const override;
+
+	const XE::String & GetName() const override;
+
+	XE::MetaAttributeCPtr FindAttribute( const XE::MetaClassCPtr & type ) const override;
+
+public:
+	XE::Variant GetValue() const override;
+
+	void SetValue( const XE::Variant & val ) override;
 
 private:
 	XE::Variant _Object;
-	XE::MetaPropertyCPtr _Property;
+	XS::ObjectProxy * _Parent;
 };
 
 END_XS_NAMESPACE

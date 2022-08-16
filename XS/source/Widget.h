@@ -58,11 +58,10 @@ public:
 
 	virtual void LoadLayout( QSettings & settings );
 
-protected:
-	virtual void OnPushCommand();
+signals:
+	void push_command( const QString & text );
 
-	virtual void OnSaveCommand();
-
+	void save_command();
 };
 
 END_XS_NAMESPACE

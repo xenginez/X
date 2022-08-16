@@ -10,6 +10,7 @@
 #define ASTTABWIDGET_H__11CD18E7_C0B7_40CD_AB6A_5A8AF075920F
 
 #include "Widget.h"
+#include "Inspector.h"
 #include "NodeWidget.h"
 
 class QListWidgetItem;
@@ -34,10 +35,12 @@ private slots:
 
 	void OnEnumListItemChanged( QListWidgetItem * item );
 
-protected:
-	void OnPushCommand() override;
+	void OnEnumListItemDoubleClicked( QListWidgetItem * item );
 
-	void OnSaveCommand() override;
+protected slots:
+	void OnPushCommand();
+
+	void OnSaveCommand();
 
 protected:
 	void showEvent( QShowEvent * event ) override;
@@ -45,6 +48,7 @@ protected:
 private:
 	Ui::ASTTabWidget * ui;
 	XE::SyntaxTreePtr _Tree;
+	XS::Inspector * _Inspector = nullptr;
 };
 
 END_XS_NAMESPACE

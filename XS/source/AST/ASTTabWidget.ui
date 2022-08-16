@@ -138,14 +138,14 @@
        <item>
         <widget class="QToolBox" name="toolBox">
          <property name="currentIndex">
-          <number>0</number>
+          <number>6</number>
          </property>
          <widget class="QWidget" name="Module">
           <property name="geometry">
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>527</width>
+            <width>471</width>
             <height>544</height>
            </rect>
           </property>
@@ -169,7 +169,11 @@
             <number>0</number>
            </property>
            <item>
-            <widget class="QListWidget" name="module_list"/>
+            <widget class="QListWidget" name="module_list">
+             <property name="editTriggers">
+              <set>QAbstractItemView::EditKeyPressed|QAbstractItemView::SelectedClicked</set>
+             </property>
+            </widget>
            </item>
           </layout>
          </widget>
@@ -178,7 +182,7 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>527</width>
+            <width>471</width>
             <height>544</height>
            </rect>
           </property>
@@ -202,7 +206,11 @@
             <number>0</number>
            </property>
            <item>
-            <widget class="QListWidget" name="enum_list"/>
+            <widget class="QListWidget" name="enum_list">
+             <property name="editTriggers">
+              <set>QAbstractItemView::EditKeyPressed|QAbstractItemView::SelectedClicked</set>
+             </property>
+            </widget>
            </item>
           </layout>
          </widget>
@@ -211,7 +219,7 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>527</width>
+            <width>471</width>
             <height>544</height>
            </rect>
           </property>
@@ -235,7 +243,11 @@
             <number>0</number>
            </property>
            <item>
-            <widget class="QListWidget" name="class_list"/>
+            <widget class="QListWidget" name="class_list">
+             <property name="editTriggers">
+              <set>QAbstractItemView::EditKeyPressed|QAbstractItemView::SelectedClicked</set>
+             </property>
+            </widget>
            </item>
           </layout>
          </widget>
@@ -244,7 +256,7 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>527</width>
+            <width>471</width>
             <height>544</height>
            </rect>
           </property>
@@ -268,7 +280,11 @@
             <number>0</number>
            </property>
            <item>
-            <widget class="QListWidget" name="method_list"/>
+            <widget class="QListWidget" name="method_list">
+             <property name="editTriggers">
+              <set>QAbstractItemView::EditKeyPressed|QAbstractItemView::SelectedClicked</set>
+             </property>
+            </widget>
            </item>
           </layout>
          </widget>
@@ -277,7 +293,7 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>527</width>
+            <width>471</width>
             <height>544</height>
            </rect>
           </property>
@@ -301,7 +317,11 @@
             <number>0</number>
            </property>
            <item>
-            <widget class="QListWidget" name="property_list"/>
+            <widget class="QListWidget" name="property_list">
+             <property name="editTriggers">
+              <set>QAbstractItemView::EditKeyPressed|QAbstractItemView::SelectedClicked</set>
+             </property>
+            </widget>
            </item>
           </layout>
          </widget>
@@ -310,7 +330,7 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>527</width>
+            <width>471</width>
             <height>544</height>
            </rect>
           </property>
@@ -334,7 +354,11 @@
             <number>0</number>
            </property>
            <item>
-            <widget class="QListWidget" name="function_list"/>
+            <widget class="QListWidget" name="function_list">
+             <property name="editTriggers">
+              <set>QAbstractItemView::EditKeyPressed|QAbstractItemView::SelectedClicked</set>
+             </property>
+            </widget>
            </item>
           </layout>
          </widget>
@@ -343,7 +367,7 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>527</width>
+            <width>471</width>
             <height>544</height>
            </rect>
           </property>
@@ -367,7 +391,11 @@
             <number>0</number>
            </property>
            <item>
-            <widget class="QListWidget" name="variable_list"/>
+            <widget class="QListWidget" name="variable_list">
+             <property name="editTriggers">
+              <set>QAbstractItemView::EditKeyPressed|QAbstractItemView::SelectedClicked</set>
+             </property>
+            </widget>
            </item>
           </layout>
          </widget>
@@ -479,7 +507,38 @@
         </widget>
        </item>
        <item>
-        <widget class="QWidget" name="widget_2" native="true"/>
+        <widget class="QWidget" name="detail" native="true">
+         <layout class="QVBoxLayout" name="detail_layout">
+          <property name="spacing">
+           <number>0</number>
+          </property>
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
+          <item>
+           <spacer name="horizontalSpacer_2">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>103</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </widget>
        </item>
       </layout>
      </widget>

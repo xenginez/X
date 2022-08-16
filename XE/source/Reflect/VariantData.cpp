@@ -336,6 +336,71 @@ XE::Array< XE::Variant > XE::VariantDataToArray::operator()( const XE::VariantWa
 	return ( val.Pointer && val.Pointer->IsContainer() ) ? val.Pointer->ToArray() : XE::Array< XE::Variant >();
 }
 
+bool XE::VariantDataFromArray::operator()( const std::monostate & ) const
+{
+	return false;
+}
+bool XE::VariantDataFromArray::operator()( const bool & val ) const
+{
+	return false;
+}
+bool XE::VariantDataFromArray::operator()( const XE::int8 & val ) const
+{
+	return false;
+}
+bool XE::VariantDataFromArray::operator()( const XE::int16 & val ) const
+{
+	return false;
+}
+bool XE::VariantDataFromArray::operator()( const XE::int32 & val ) const
+{
+	return false;
+}
+bool XE::VariantDataFromArray::operator()( const XE::int64 & val ) const
+{
+	return false;
+}
+bool XE::VariantDataFromArray::operator()( const XE::uint8 & val ) const
+{
+	return false;
+}
+bool XE::VariantDataFromArray::operator()( const XE::uint16 & val ) const
+{
+	return false;
+}
+bool XE::VariantDataFromArray::operator()( const XE::uint32 & val ) const
+{
+	return false;
+}
+bool XE::VariantDataFromArray::operator()( const XE::uint64 & val ) const
+{
+	return false;
+}
+bool XE::VariantDataFromArray::operator()( const XE::float32 & val ) const
+{
+	return false;
+}
+bool XE::VariantDataFromArray::operator()( const XE::float64 & val ) const
+{
+	return false;
+}
+bool XE::VariantDataFromArray::operator()( const XE::VariantEnumData & val ) const
+{
+	return false;
+}
+bool XE::VariantDataFromArray::operator()( const XE::VariantSmallData & val ) const
+{
+	return false;
+}
+bool XE::VariantDataFromArray::operator()( const XE::VariantPointerData & val ) const
+{
+	return false;
+}
+bool XE::VariantDataFromArray::operator()( const XE::VariantWarpperData & val ) const
+{
+	return ( val.Pointer && val.Pointer->IsContainer() ) ? val.Pointer->FromArray() : false;
+}
+
 bool XE::__VariantDataIsCanConvert( const MetaInfo * type1, const MetaInfo * type2 )
 {
 	if( type1 == type2 )
@@ -349,4 +414,9 @@ bool XE::__VariantDataIsCanConvert( const MetaInfo * type1, const MetaInfo * typ
 	}
 
 	return false;
+}
+
+XE::VariantDataFromArray::VariantDataFromArray( const XE::Array< XE::Variant > & val )
+{
+
 }

@@ -4,8 +4,8 @@
 #include "MetaProperty.h"
 #include "MetaAttribute.h"
 
-XE::MetaClass::MetaClass( const String & Name, XE::uint64 Size, bool IsAbs, MetaClassCPtr Super, MetaInfoCPtr Owner, MetaModuleCPtr Module, const XE::TemplateType & temps )
-	:MetaType( Name, MetaInfoType::CLASS, Size, Owner, Module ), _IsAbstract( IsAbs ), _Super( Super )
+XE::MetaClass::MetaClass( const String & Name, XE::uint64 Size, bool IsAbs, bool IsCont, MetaClassCPtr Super, MetaInfoCPtr Owner, MetaModuleCPtr Module, const XE::TemplateType & temps )
+	:MetaType( Name, MetaInfoType::CLASS, Size, Owner, Module ), _IsAbstract( IsAbs ), _IsContainer( IsCont ), _Super( Super )
 {
 	if( Super )
 	{

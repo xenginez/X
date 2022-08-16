@@ -18,6 +18,7 @@ XE::ASTMetaClass::ASTMetaClass( const XE::SharedPtr< XE::ASTClass > & val )
 	: XE::MetaClass( val->Name,
 					 ClassSize( val ),
 					 false,
+					 false,
 					 XE::Reflection::FindClass( val->Super ),
 					 nullptr,
 					 XE::Reflection::FindModule( val->Module ), {} ),

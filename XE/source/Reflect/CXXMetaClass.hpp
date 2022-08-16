@@ -26,7 +26,7 @@ template< typename ClassType > class CXXMetaClass : public MetaClass
 {
 public:
 	CXXMetaClass( const XE::String & Name, XE::MetaClassCPtr Super, XE::MetaInfoCPtr Owner, XE::MetaModuleCPtr Module, const XE::TemplateType temps = {} )
-		:MetaClass( Name, sizeof( ClassType ), std::is_abstract_v< ClassType >, Super, Owner, Module, temps )
+		:MetaClass( Name, sizeof( ClassType ), std::is_abstract_v< ClassType >, std::is_container_v< ClassType >, Super, Owner, Module, temps )
 	{
 	}
 
@@ -171,7 +171,7 @@ template< typename ClassType > class CXXMetaFundamental : public MetaClass
 {
 public:
 	CXXMetaFundamental( const XE::String& Name )
-		:MetaClass( Name, sizeof( ClassType ), false, nullptr, nullptr, nullptr, {} )
+		:MetaClass( Name, sizeof( ClassType ), false, false, nullptr, nullptr, nullptr, {} )
 	{
 	}
 

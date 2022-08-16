@@ -4,6 +4,51 @@
 
 REG_WIDGET( XS::ClassInspector );
 
+namespace
+{
+	class PropertyObjectProxy : public XS::ObjectProxy
+	{
+	public:
+		PropertyObjectProxy( const XE::MetaPropertyCPtr & prop, XS::ObjectProxy * parent )
+			: XS::ObjectProxy( parent ), _Property( prop )
+		{
+
+		}
+
+	public:
+		XE::MetaTypeCPtr GetType() const override
+		{
+			return _Property->GetValueType();
+		}
+
+		const XE::String & GetName() const override
+		{
+			return _Property->GetName();
+		}
+
+		XE::MetaAttributeCPtr FindAttribute( const XE::MetaClassCPtr & type ) const override
+		{
+			return _Property->FindAttribute( type );
+		}
+
+	public:
+		XE::Variant GetValue() const override
+		{
+			return _Property->Get( GetParent()->GetValue() );
+		}
+
+		void SetValue( const XE::Variant & val ) override
+		{
+			auto val = GetParent()->GetValue();
+			_Property->Set( val, val );
+			GetParent()->SetValue( val );
+		}
+
+	private:
+		XE::MetaPropertyCPtr _Property;
+	};
+}
+
 XS::ClassInspector::ClassInspector( QWidget * parent /* = nullptr */ )
 	: Inspector( parent )
 {
@@ -27,7 +72,7 @@ void XS::ClassInspector::Refresh()
 	{
 		cls->VisitProperty( [this]( const XE::MetaPropertyCPtr & prop )
 			{
-				auto proxy = new XS::ObjectProxy( GetObjectProxy()->GetValue(), prop, this );
+				auto proxy = new PropertyObjectProxy( prop, GetObjectProxy() );
 
 				if ( proxy->FindAttributeT< XE::NonInspectorAttribute >() )
 				{
