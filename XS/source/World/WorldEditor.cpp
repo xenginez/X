@@ -108,7 +108,7 @@ void XS::WorldEditor::OnInspectorClicked( const XE::Variant & val )
 		ui->inspector_layout->removeItem( ui->inspector_layout->itemAt( 0 ) );
 	}
 
-	_Inspector = XS::Inspector::Create( new XS::ObjectProxy( val, this ), this );
+	_Inspector = XS::Inspector::Create( new XS::VariantObjectProxy( val ), this );
 
 	ui->inspector_layout->addWidget( _Inspector );
 }

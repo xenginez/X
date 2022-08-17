@@ -39,8 +39,8 @@ namespace
 
 		void SetValue( const XE::Variant & val ) override
 		{
-			auto val = GetParent()->GetValue();
-			_Property->Set( val, val );
+			auto obj = GetParent()->GetValue();
+			_Property->Set( obj, val );
 			GetParent()->SetValue( val );
 		}
 

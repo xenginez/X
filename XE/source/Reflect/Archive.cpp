@@ -541,45 +541,51 @@ void XE::JsonOArchive::Serialize( const XE::Variant & val )
 		{
 			_p->_Stack.back()->SetBool( val.ToBool() );
 		}
-		else if ( val.GetType() == ClassID< XE::int8 >::Get() )
+		else if ( val.IsFundamental() )
 		{
-			_p->_Stack.back()->SetInt( val.ToInt32() );
-		}
-		else if ( val.GetType() == ClassID< XE::int16 >::Get() )
-		{
-			_p->_Stack.back()->SetInt( val.ToInt32() );
-		}
-		else if ( val.GetType() == ClassID< XE::int32 >::Get() )
-		{
-			_p->_Stack.back()->SetInt( val.ToInt32() );
-		}
-		else if ( val.GetType() == ClassID< XE::int64 >::Get() )
-		{
-			_p->_Stack.back()->SetInt64( val.ToInt64() );
-		}
-		else if ( val.GetType() == ClassID< XE::uint8 >::Get() )
-		{
-			_p->_Stack.back()->SetUint( val.ToUInt32() );
-		}
-		else if ( val.GetType() == ClassID< XE::uint16 >::Get() )
-		{
-			_p->_Stack.back()->SetUint( val.ToUInt32() );
-		}
-		else if ( val.GetType() == ClassID< XE::uint32 >::Get() )
-		{
-			_p->_Stack.back()->SetUint( val.ToUInt32() );
-		}
-		else if ( val.GetType() == ClassID< XE::uint64 >::Get() )
-		{
-			_p->_Stack.back()->SetUint64( val.ToUInt64() );
-		}
-		else if ( val.GetType() == ClassID< XE::float32 >::Get() )
-		{
-			_p->_Stack.back()->SetFloat( val.ToFloat32() );
-		}
-		else if ( val.GetType() == ClassID< XE::float64 >::Get() )
-		{
-			_p->_Stack.back()->SetDouble( val.ToFloat64() );
+			_p->_Stack.back()->SetObject();
+
+			rapidjson::Value key( rapidjson::kStringType );
+			rapidjson::Value value( rapidjson::Type::kFalseType );
+			key.SetString( val.GetType()->GetFullName().c_str(), _p->_Document.GetAllocator() );
+
+			switch ( val.GetData().index() )
+			{
+			case 2:
+				value.SetInt( val.Value< XE::int8 >() );
+				break;
+			case 3:
+				value.SetInt( val.Value< XE::int16 >() );
+				break;
+			case 4:
+				value.SetInt( val.Value< XE::int32 >() );
+				break;
+			case 5:
+				value.SetInt64( val.Value< XE::int64 >() );
+				break;
+			case 6:
+				value.SetUint( val.Value< XE::uint8 >() );
+				break;
+			case 7:
+				value.SetUint( val.Value< XE::uint16 >() );
+				break;
+			case 8:
+				value.SetUint( val.Value< XE::uint32 >() );
+				break;
+			case 9:
+				value.SetUint64( val.Value< XE::uint64 >() );
+				break;
+			case 10:
+				value.SetFloat( val.Value< XE::float32 >() );
+				break;
+			case 11:
+				value.SetDouble( val.Value< XE::float64 >() );
+				break;
+			default:
+				break;
+			}
+
+			_p->_Stack.back()->AddMember( key, value, _p->_Document.GetAllocator() );
 		}
 		else if ( val.GetType() == ClassID< XE::String >::Get() )
 		{
@@ -682,29 +688,45 @@ XE::Variant XE::JsonIArchive::Deserialize( const XE::String & name /*= ""*/ )
 	{
 		result = _p->_Stack.back()->GetBool();
 	}
-	else if ( _p->_Stack.back()->IsInt() )
+	else if ( _p->_Stack.back()->IsObject() && _p->_Stack.back()->HasMember( ::TypeID< XE::int8 >::Get()->GetFullName().c_str() ) )
 	{
-		result = _p->_Stack.back()->GetInt();
+		result = XE::int8( _p->_Stack.back()->MemberBegin()->value.GetInt() );
 	}
-	else if ( _p->_Stack.back()->IsUint() )
+	else if ( _p->_Stack.back()->IsObject() && _p->_Stack.back()->HasMember( ::TypeID< XE::int16 >::Get()->GetFullName().c_str() ) )
 	{
-		result = _p->_Stack.back()->GetUint();
+		result = XE::int16( _p->_Stack.back()->MemberBegin()->value.GetInt() );
 	}
-	else if ( _p->_Stack.back()->IsInt64() )
+	else if ( _p->_Stack.back()->IsObject() && _p->_Stack.back()->HasMember( ::TypeID< XE::int32 >::Get()->GetFullName().c_str() ) )
 	{
-		result = _p->_Stack.back()->GetInt64();
+		result = XE::int32( _p->_Stack.back()->MemberBegin()->value.GetInt() );
 	}
-	else if ( _p->_Stack.back()->IsUint64() )
+	else if ( _p->_Stack.back()->IsObject() && _p->_Stack.back()->HasMember( ::TypeID< XE::int64 >::Get()->GetFullName().c_str() ) )
 	{
-		result = _p->_Stack.back()->GetUint64();
+		result = XE::int64( _p->_Stack.back()->MemberBegin()->value.GetInt64() );
 	}
-	else if ( _p->_Stack.back()->IsFloat() )
+	else if ( _p->_Stack.back()->IsObject() && _p->_Stack.back()->HasMember( ::TypeID< XE::uint8 >::Get()->GetFullName().c_str() ) )
 	{
-		result = _p->_Stack.back()->GetFloat();
+		result = XE::uint8( _p->_Stack.back()->MemberBegin()->value.GetUint() );
 	}
-	else if ( _p->_Stack.back()->IsDouble() )
+	else if ( _p->_Stack.back()->IsObject() && _p->_Stack.back()->HasMember( ::TypeID< XE::uint16 >::Get()->GetFullName().c_str() ) )
 	{
-		result = _p->_Stack.back()->GetDouble();
+		result = XE::uint16( _p->_Stack.back()->MemberBegin()->value.GetUint() );
+	}
+	else if ( _p->_Stack.back()->IsObject() && _p->_Stack.back()->HasMember( ::TypeID< XE::uint32 >::Get()->GetFullName().c_str() ) )
+	{
+		result = XE::uint32( _p->_Stack.back()->MemberBegin()->value.GetUint() );
+	}
+	else if ( _p->_Stack.back()->IsObject() && _p->_Stack.back()->HasMember( ::TypeID< XE::uint64 >::Get()->GetFullName().c_str() ) )
+	{
+		result = XE::uint64( _p->_Stack.back()->MemberBegin()->value.GetUint64() );
+	}
+	else if ( _p->_Stack.back()->IsObject() && _p->_Stack.back()->HasMember( ::TypeID< XE::float32 >::Get()->GetFullName().c_str() ) )
+	{
+		result = XE::float32( _p->_Stack.back()->MemberBegin()->value.GetFloat() );
+	}
+	else if ( _p->_Stack.back()->IsObject() && _p->_Stack.back()->HasMember( ::TypeID< XE::float64 >::Get()->GetFullName().c_str() ) )
+	{
+		result = XE::float64( _p->_Stack.back()->MemberBegin()->value.GetDouble() );
 	}
 	else if ( _p->_Stack.back()->IsString() )
 	{

@@ -77,10 +77,6 @@ namespace Ui
 			verticalLayout->setObjectName( QString::fromUtf8( "verticalLayout" ) );
 			verticalLayout->setContentsMargins( 0, 0, 0, 0 );
 			list = new QListWidget( Container );
-			new QListWidgetItem( list );
-			new QListWidgetItem( list );
-			new QListWidgetItem( list );
-			new QListWidgetItem( list );
 			list->setObjectName( QString::fromUtf8( "list" ) );
 
 			verticalLayout->addWidget( list );
@@ -114,9 +110,11 @@ namespace Ui
 }
 
 XS::ContainerInspector::ContainerInspector( QWidget * parent /*= nullptr */ )
-	: Inspector( parent ), ui( new Ui::ContainerInspector )
+	: GroupInspector( parent ), ui( new Ui::ContainerInspector )
 {
 	ui->setupUi( this );
+
+	connect( ui->add, &QToolButton::clicked, this, &XS::ContainerInspector::OnAddToolButtonClicked );
 }
 
 XS::ContainerInspector::~ContainerInspector()
@@ -143,9 +141,19 @@ void XS::ContainerInspector::Refresh()
 
 void XS::ContainerInspector::OnAddToolButtonClicked()
 {
-	XE::Variant val;
-	_Array.back().Clone( &val );
-	_Array.push_back( val );
+	if ( GetObjectProxy()->GetType()->GetType() == XE::MetaInfoType::CLASS )
+	{
+		auto cls = SP_CAST< const XE::MetaClass >( GetObjectProxy()->GetType() );
+		// TODO: 
+	}
+	else
+	{
+
+	}
+
+	auto val = GetObjectProxy()->GetValue();
+	val.FromArray( _Array );
+	GetObjectProxy()->SetValue( val );
 
 	Refresh();
 }

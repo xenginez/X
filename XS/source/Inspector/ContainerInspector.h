@@ -14,7 +14,7 @@
 UI_DECL( ContainerInspector );
 BEG_XS_NAMESPACE
 
-class ContainerInspector : public XS::Inspector
+class ContainerInspector : public XS::GroupInspector
 {
 	Q_OBJECT
 

@@ -327,6 +327,10 @@ public: \
 		} \
 		return true; \
 	} \
+	XE::SharedPtr< XE::VariantInterfaceData > Clone() const override \
+	{ \
+		return XE::MakeShared< XE::VariantClassData< TYPE< T... > > >( _Value ); \
+	} \
 private: \
 	ContainerType _Value; \
 }; \
@@ -365,6 +369,10 @@ public: \
 			std::inserter( *_Value, std::end( *_Value ) ) = it.Value< typename ContainerType::value_type >(); \
 		} \
 		return true; \
+	} \
+	XE::SharedPtr< XE::VariantInterfaceData > Clone() const override \
+	{ \
+		return XE::MakeShared< XE::VariantSharedPtrData< XE::SharedPtr< TYPE< T... > > > >( _Value ); \
 	} \
 private: \
 	SharedPtrType _Value; \
@@ -435,6 +443,10 @@ public:
 
 		return false;
 	}
+	XE::SharedPtr< XE::VariantInterfaceData > Clone() const override
+	{
+		return XE::MakeShared< XE::VariantClassData< ContainerType > >( _Value );
+	}
 private:
 	ContainerType _Value;
 };
@@ -475,6 +487,10 @@ public:
 		}
 
 		return false;
+	}
+	XE::SharedPtr< XE::VariantInterfaceData > Clone() const override
+	{
+		return XE::MakeShared< XE::VariantSharedPtrData< SharedPtrType > >( _Value );
 	}
 private:
 	SharedPtrType _Value;

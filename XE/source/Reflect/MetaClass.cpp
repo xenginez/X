@@ -28,6 +28,11 @@ bool XE::MetaClass::IsTemplate() const
 	return !_Templates.empty();
 }
 
+bool XE::MetaClass::IsContainer() const
+{
+	return _IsContainer;
+}
+
 XE::uint64 XE::MetaClass::GetMethodSize() const
 {
 	return _Methods.size();

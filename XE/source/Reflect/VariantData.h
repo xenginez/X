@@ -135,7 +135,7 @@ struct XE_API VariantSmallData
 
 struct XE_API VariantPointerData
 {
-	VariantPointerData();
+	VariantPointerData() = default;
 
 	VariantPointerData( VariantPointerData && ) = default;
 
@@ -214,6 +214,9 @@ public:
 	virtual XE::Array< XE::Variant > ToArray() const = 0;
 
 	virtual bool FromArray( const XE::Array< XE::Variant > & val ) = 0;
+
+public:
+	virtual XE::SharedPtr< VariantInterfaceData > Clone() const = 0;
 };
 
 template< typename T > struct VariantClassData : public VariantInterfaceData
@@ -262,6 +265,12 @@ public:
 	bool FromArray( const XE::Array< XE::Variant > & val ) override
 	{
 		return false;
+	}
+
+public:
+	XE::SharedPtr< VariantInterfaceData > Clone() const override
+	{
+		return XE::MakeShared< VariantClassData< T > >( _Value );
 	}
 
 private:
@@ -317,6 +326,12 @@ public:
 		return false;
 	}
 
+public:
+	XE::SharedPtr< VariantInterfaceData > Clone() const override
+	{
+		return XE::MakeShared< VariantSharedPtrData< T > >( _Value );
+	}
+
 private:
 	XE::SharedPtr< T > _Value;
 };
@@ -360,9 +375,20 @@ public:
 	}
 
 public:
-	XE::Array< XE::Variant > ToArray() override
+	XE::Array< XE::Variant > ToArray() const override
 	{
 		return {};
+	}
+
+	bool FromArray( const XE::Array< XE::Variant > & val ) override
+	{
+		return false;
+	}
+
+public:
+	XE::SharedPtr< VariantInterfaceData > Clone() const override
+	{
+		return XE::MakeShared< XE::VariantVoidSharedPtrData >( _Value, _Type );
 	}
 
 private:
@@ -562,6 +588,26 @@ struct XE_API VariantDataFromArray
 	bool operator()( const XE::VariantWarpperData & val ) const;
 
 	const XE::Array< XE::Variant > & Array;
+};
+
+struct XE_API VariantDataCloneVariantData
+{
+	VariantData operator()( const std::monostate & ) const;
+	VariantData operator()( const bool & val ) const;
+	VariantData operator()( const XE::int8 & val ) const;
+	VariantData operator()( const XE::int16 & val ) const;
+	VariantData operator()( const XE::int32 & val ) const;
+	VariantData operator()( const XE::int64 & val ) const;
+	VariantData operator()( const XE::uint8 & val ) const;
+	VariantData operator()( const XE::uint16 & val ) const;
+	VariantData operator()( const XE::uint32 & val ) const;
+	VariantData operator()( const XE::uint64 & val ) const;
+	VariantData operator()( const XE::float32 & val ) const;
+	VariantData operator()( const XE::float64 & val ) const;
+	VariantData operator()( const XE::VariantEnumData & val ) const;
+	VariantData operator()( const XE::VariantSmallData & val ) const;
+	VariantData operator()( const XE::VariantPointerData & val ) const;
+	VariantData operator()( const XE::VariantWarpperData & val ) const;
 };
 
 

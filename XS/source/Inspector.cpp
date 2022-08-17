@@ -54,7 +54,7 @@ XS::Inspector * XS::Inspector::Create( XS::ObjectProxy * proxy, QWidget * parent
 			 	result = XS::Registry::ConstructT< XS::Inspector >( "XS::EnumInspector", parent );//new XS::EnumInspector( parent );
 			}
 		}
-		else if ( proxy->GetType()->IsContainer() )
+		else if ( type->GetType() == XE::MetaInfoType::CLASS && SP_CAST< const XE::MetaClass >( type )->IsContainer() )
 		{
 			if ( proxy->GetType()->GetFullName().find_first_of( "XE::Pair" ) == 0 )
 			{

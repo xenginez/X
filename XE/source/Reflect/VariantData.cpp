@@ -4,9 +4,19 @@
 #include "CXXMetaEnum.hpp"
 #include "CXXMetaClass.hpp"
 
-XE::VariantPointerData::VariantPointerData()
+bool XE::__VariantDataIsCanConvert( const MetaInfo * type1, const MetaInfo * type2 )
 {
-	Type = ClassID< std::nullptr_t >::Get().get();
+	if ( type1 == type2 )
+	{
+		return true;
+	}
+
+	if ( type1->GetType() == XE::MetaInfoType::CLASS && type2->GetType() == XE::MetaInfoType::CLASS )
+	{
+		return static_cast<const XE::MetaClass *>( type1 )->CanConvert( static_cast<const XE::MetaClass *>( type2 ) );
+	}
+
+	return false;
 }
 
 
@@ -336,6 +346,11 @@ XE::Array< XE::Variant > XE::VariantDataToArray::operator()( const XE::VariantWa
 	return ( val.Pointer && val.Pointer->IsContainer() ) ? val.Pointer->ToArray() : XE::Array< XE::Variant >();
 }
 
+XE::VariantDataFromArray::VariantDataFromArray( const XE::Array< XE::Variant > & val )
+	:Array( val )
+{
+
+}
 bool XE::VariantDataFromArray::operator()( const std::monostate & ) const
 {
 	return false;
@@ -398,25 +413,72 @@ bool XE::VariantDataFromArray::operator()( const XE::VariantPointerData & val ) 
 }
 bool XE::VariantDataFromArray::operator()( const XE::VariantWarpperData & val ) const
 {
-	return ( val.Pointer && val.Pointer->IsContainer() ) ? val.Pointer->FromArray() : false;
+	return ( val.Pointer && val.Pointer->IsContainer() ) ? val.Pointer->FromArray( Array ) : false;
 }
 
-bool XE::__VariantDataIsCanConvert( const MetaInfo * type1, const MetaInfo * type2 )
+XE::VariantData XE::VariantDataCloneVariantData::operator()( const std::monostate & val ) const
 {
-	if( type1 == type2 )
-	{
-		return true;
-	}
-
-	if( type1->GetType() == XE::MetaInfoType::CLASS && type2->GetType() == XE::MetaInfoType::CLASS )
-	{
-		return static_cast<const XE::MetaClass *>( type1 )->CanConvert( static_cast<const XE::MetaClass *>( type2 ) );
-	}
-
-	return false;
+	return val;
 }
-
-XE::VariantDataFromArray::VariantDataFromArray( const XE::Array< XE::Variant > & val )
+XE::VariantData XE::VariantDataCloneVariantData::operator()( const bool & val ) const
 {
-
+	return val;
+}
+XE::VariantData XE::VariantDataCloneVariantData::operator()( const XE::int8 & val ) const
+{
+	return val;
+}
+XE::VariantData XE::VariantDataCloneVariantData::operator()( const XE::int16 & val ) const
+{
+	return val;
+}
+XE::VariantData XE::VariantDataCloneVariantData::operator()( const XE::int32 & val ) const
+{
+	return val;
+}
+XE::VariantData XE::VariantDataCloneVariantData::operator()( const XE::int64 & val ) const
+{
+	return val;
+}
+XE::VariantData XE::VariantDataCloneVariantData::operator()( const XE::uint8 & val ) const
+{
+	return val;
+}
+XE::VariantData XE::VariantDataCloneVariantData::operator()( const XE::uint16 & val ) const
+{
+	return val;
+}
+XE::VariantData XE::VariantDataCloneVariantData::operator()( const XE::uint32 & val ) const
+{
+	return val;
+}
+XE::VariantData XE::VariantDataCloneVariantData::operator()( const XE::uint64 & val ) const
+{
+	return val;
+}
+XE::VariantData XE::VariantDataCloneVariantData::operator()( const XE::float32 & val ) const
+{
+	return val;
+}
+XE::VariantData XE::VariantDataCloneVariantData::operator()( const XE::float64 & val ) const
+{
+	return val;
+}
+XE::VariantData XE::VariantDataCloneVariantData::operator()( const XE::VariantEnumData & val ) const
+{
+	return val;
+}
+XE::VariantData XE::VariantDataCloneVariantData::operator()( const XE::VariantSmallData & val ) const
+{
+	return val;
+}
+XE::VariantData XE::VariantDataCloneVariantData::operator()( const XE::VariantPointerData & val ) const
+{
+	return val;
+}
+XE::VariantData XE::VariantDataCloneVariantData::operator()( const XE::VariantWarpperData & val ) const
+{
+	XE::VariantWarpperData warpper;
+	warpper.Pointer = val.Pointer ? val.Pointer->Clone() : nullptr;
+	return warpper;
 }

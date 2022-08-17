@@ -695,7 +695,7 @@ void XE::Variant::Clear()
 
 void XE::Variant::Clone( XE::Variant * val ) const
 {
-	// TODO: 
+	val->_Data = std::visit( XE::VariantDataCloneVariantData(), _Data );
 }
 
 void XE::Variant::swap( XE::Variant & val )

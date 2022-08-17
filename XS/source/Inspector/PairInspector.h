@@ -11,6 +11,8 @@
 
 #include "Inspector.h"
 
+UI_DECL( PairInspector );
+
 BEG_XS_NAMESPACE
 
 class XS_API PairInspector : public XS::Inspector
@@ -25,6 +27,8 @@ public:
 public:
 	void Refresh() override;
 
+private:
+	Ui::PairInspector * ui;
 };
 
 END_XS_NAMESPACE
