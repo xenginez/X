@@ -25,10 +25,22 @@ XE_INLINE constexpr XE::uint64 Hash( const XE::TemplateType & val )
 class Entity
 {
 public:
+	Entity()
+	{
+
+	}
+
+	Entity( const Entity & val )
+	{
+
+	}
+
+public:
 	XE::uint64 Hash;
 	XE::EntityHandle Handle;
 	XE::Array< XE::Variant > Components;
 };
+DECL_PTR( Entity );
 DECL_XE_CLASS( Entity );
 
 END_XE_NAMESPACE
@@ -642,14 +654,14 @@ void XE::World::Serialize( XE::OArchive & archive ) const
 		& ARCHIVE_NVP( "SystemGroup", _p->_SystemGroup )
 		& ARCHIVE_NVP( "EntityHandleAllocator", _p->_EntityHandleAllocator );
 	
-	XE::Array< XE::Entity > Entities;
+	XE::Array< XE::EntityPtr > Entities;
 	{
 		for ( const auto & entity_it : _p->_EntityMap )
 		{
-			XE::Entity entity;
+			XE::EntityPtr entity = XE::MakeShared< XE::Entity >();
 			{
-				entity.Hash = entity_it.second;
-				entity.Handle = entity_it.first;
+				entity->Hash = entity_it.second;
+				entity->Handle = entity_it.first;
 				auto arche_it = _p->_ArchetypeMap.find( entity_it.second );
 				if ( arche_it == _p->_ArchetypeMap.end() ) continue;
 
@@ -660,7 +672,7 @@ void XE::World::Serialize( XE::OArchive & archive ) const
 				for ( const auto & type : arche_it->second.ComponentTypes )
 				{
 					XE::uint64 size = type->GetSize();
-					entity.Components.push_back(
+					entity->Components.push_back(
 						XE::Variant( 
 							CalcComponentPtr( ( *( index_it->second.Data ) )->Data, offset, index_it->second.Index, ( *( index_it->second.Data ) )->Bits.Count(), size ),
 							type.get()
@@ -677,7 +689,7 @@ void XE::World::Serialize( XE::OArchive & archive ) const
 
 void XE::World::Deserialize( XE::IArchive & archive )
 {
-	XE::Array< XE::Entity > Entities;
+	XE::Array< XE::EntityPtr > Entities;
 	archive
 		& ARCHIVE_NVP( "Enable", _p->_Enable )
 		& ARCHIVE_NVP( "Name", _p->_Name )
@@ -689,12 +701,12 @@ void XE::World::Deserialize( XE::IArchive & archive )
 
 	for ( const auto & entity : Entities )
 	{
-		_p->_EntityMap.insert( { entity.Handle, entity.Hash } );
-		auto arche_it = _p->_ArchetypeMap.find( entity.Hash );
+		_p->_EntityMap.insert( { entity->Handle, entity->Hash } );
+		auto arche_it = _p->_ArchetypeMap.find( entity->Hash );
 		if ( arche_it == _p->_ArchetypeMap.end() )
 		{
-			arche_it = _p->_ArchetypeMap.insert( { entity.Hash, {} } ).first;
-			for ( const auto & comp : entity.Components )
+			arche_it = _p->_ArchetypeMap.insert( { entity->Hash, {} } ).first;
+			for ( const auto & comp : entity->Components )
 			{
 				arche_it->second.ArchetypeSize += comp.GetType()->GetSize();
 				arche_it->second.ComponentTypes.push_back( comp.GetType() );
@@ -727,10 +739,10 @@ void XE::World::Deserialize( XE::IArchive & archive )
 
 		( *chunk_it )->Bits.Set( index.Index, true );
 
-		arche_it->second.EntityIndexMap.insert( { entity.Handle, index } );
+		arche_it->second.EntityIndexMap.insert( { entity->Handle, index } );
 
 		XE::uint64 offset = 0;
-		for ( const auto & comp : entity.Components )
+		for ( const auto & comp : entity->Components )
 		{
 			auto size = comp.GetType()->GetSize();
 			auto new_p = CalcComponentPtr( ( *index.Data )->Data, offset, index.Index, ( *index.Data )->Bits.Count(), comp.GetType()->GetSize() );

@@ -31,6 +31,8 @@ public:
 
 	XE::Variant FindValue( const String& val ) const;
 
+	const Array< Pair< String, XE::Variant > > & GetValues() const;
+
 public:
 	void Visit( const XE::Delegate< void( const String &, const XE::Variant & ) > & val ) const;
 

@@ -54,6 +54,11 @@ XE::Variant XE::MetaEnum::FindValue( const String& val ) const
 	return XE::Variant();
 }
 
+const XE::Array< XE::Pair< XE::String, XE::Variant > > & XE::MetaEnum::GetValues() const
+{
+	return _Values;
+}
+
 void XE::MetaEnum::Visit( const XE::Delegate< void( const String &, const XE::Variant & ) > & val ) const
 {
 	for ( auto var : _Values )

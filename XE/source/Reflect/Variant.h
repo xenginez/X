@@ -225,6 +225,13 @@ public:
 	void swap( XE::Variant & val );
 
 public:
+	bool ContainerInsert( const XE::Variant & val ) const;
+
+	bool ContainerErase( const XE::Variant & val ) const;
+
+	XE::MetaTypeCPtr GetContainerElementType() const;
+
+public:
 	template< typename T > T Value() const
 	{
 		using raw_t = typename XE::TypeTraits< T >::raw_t;
@@ -310,6 +317,21 @@ public: \
 	{ \
 		return nullptr; \
 	} \
+public: \
+	XE::MetaTypeCPtr GetElementType() const override \
+	{ \
+		return ::TypeID< ContainerType::value_type >::Get(); \
+	} \
+	bool Insert( const XE::Variant & val ) override \
+	{ \
+		std::inserter( _Value, std::end( _Value ) ) = val.Value< ContainerType::value_type >(); \
+		return true; \
+	} \
+	bool Erase( const XE::Variant & val ) override \
+	{ \
+		std::erase( _Value, val.Value< ContainerType::value_type >() ); \
+		return true; \
+	} \
 	XE::Array< XE::Variant > ToArray() const override \
 	{ \
 		XE::Array< XE::Variant > result; \
@@ -321,6 +343,7 @@ public: \
 	} \
 	bool FromArray( const XE::Array< XE::Variant > & val ) \
 	{ \
+		_Value.clear(); \
 		for (const auto & it : val ) \
 		{ \
 			std::inserter( _Value, std::end( _Value ) ) = it.Value< typename ContainerType::value_type >(); \
@@ -350,6 +373,20 @@ public: \
 	void * ValuePointer() override { return _Value.get(); } \
 	XE::SharedPtr< void > SharedPointer() override { return _Value; } \
 public: \
+	XE::MetaTypeCPtr GetElementType() const override \
+	{ \
+		return ::TypeID< ContainerType::value_type >::Get(); \
+	} \
+	bool Insert( const XE::Variant & val ) override \
+	{ \
+		std::inserter( *_Value, std::end( *_Value ) ) = val.Value< ContainerType::value_type >(); \
+		return true; \
+	} \
+	bool Erase( const XE::Variant & val ) override \
+	{ \
+		std::erase( *_Value, val.Value< ContainerType::value_type >() ); \
+		return true; \
+	} \
 	XE::Array< XE::Variant > ToArray() const override \
 	{ \
 		XE::Array< XE::Variant > result; \
@@ -364,6 +401,7 @@ public: \
 	} \
 	bool FromArray( const XE::Array< XE::Variant > & val ) \
 	{ \
+		_Value.clear(); \
 		for (const auto & it : val ) \
 		{ \
 			std::inserter( *_Value, std::end( *_Value ) ) = it.Value< typename ContainerType::value_type >(); \
@@ -424,6 +462,19 @@ public:
 	{
 		return nullptr;
 	}
+public:
+	XE::MetaTypeCPtr GetElementType() const override
+	{
+		return nullptr;
+	}
+	bool Insert( const XE::Variant & val ) override
+	{
+		return false;
+	}
+	bool Erase( const XE::Variant & val ) override
+	{
+		return false;
+	}
 	XE::Array< XE::Variant > ToArray() const override
 	{
 		XE::VariantArray result;
@@ -466,6 +517,18 @@ public:
 	void * ValuePointer() override { return _Value.get(); }
 	XE::SharedPtr< void > SharedPointer() override { return _Value; }
 public:
+	XE::MetaTypeCPtr GetElementType() const override
+	{
+		return nullptr;
+	}
+	bool Insert( const XE::Variant & val ) override
+	{
+		return false;
+	}
+	bool Erase( const XE::Variant & val ) override
+	{
+		return false;
+	}
 	XE::Array< XE::Variant > ToArray() const override
 	{
 		XE::VariantArray result;

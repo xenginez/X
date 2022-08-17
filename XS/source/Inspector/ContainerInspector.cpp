@@ -141,15 +141,23 @@ void XS::ContainerInspector::Refresh()
 
 void XS::ContainerInspector::OnAddToolButtonClicked()
 {
-	if ( GetObjectProxy()->GetType()->GetType() == XE::MetaInfoType::CLASS )
+	XE::Variant element;
+	auto type = GetObjectProxy()->GetValue().GetContainerElementType();
+	switch ( type->GetType() )
 	{
-		auto cls = SP_CAST< const XE::MetaClass >( GetObjectProxy()->GetType() );
-		// TODO: 
+	case XE::MetaInfoType::ENUM:
+		element = SP_CAST< const XE::MetaEnum >( type )->GetValues()[0].second;
+		break;
+	case XE::MetaInfoType::CLASS:
+	{
+		element = SP_CAST< const XE::MetaClass >( type )->Construct( nullptr );
 	}
-	else
-	{
+		break;
+	default:
+		break;
+	}
 
-	}
+	_Array.push_back( element );
 
 	auto val = GetObjectProxy()->GetValue();
 	val.FromArray( _Array );

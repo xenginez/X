@@ -46,6 +46,11 @@ public:
 	{
 		if constexpr( !std::is_abstract_v< ClassType > && std::is_constructible_v< ClassType > )
 		{
+			if ( ptr == nullptr )
+			{
+				ptr = XE::MemoryResource::Alloc( GetSize() );
+			}
+
 			return new ( ptr ) ClassType();
 		}
 
@@ -181,8 +186,13 @@ public:
 
 	}
 
-	Variant Construct( void * ptr = nullptr ) const override
+	Variant Construct( void * ptr ) const override
 	{
+		if ( ptr == nullptr )
+		{
+			ptr = XE::MemoryResource::Alloc( GetSize() );
+		}
+
 		return new ( ptr ) ClassType();
 	}
 

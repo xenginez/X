@@ -482,3 +482,213 @@ XE::VariantData XE::VariantDataCloneVariantData::operator()( const XE::VariantWa
 	warpper.Pointer = val.Pointer ? val.Pointer->Clone() : nullptr;
 	return warpper;
 }
+
+XE::MetaTypeCPtr XE::VariantDataGetContainerElementType::operator()( const std::monostate & ) const
+{
+	return nullptr;
+}
+XE::MetaTypeCPtr XE::VariantDataGetContainerElementType::operator()( const bool & val ) const
+{
+	return nullptr;
+}
+XE::MetaTypeCPtr XE::VariantDataGetContainerElementType::operator()( const XE::int8 & val ) const
+{
+	return nullptr;
+}
+XE::MetaTypeCPtr XE::VariantDataGetContainerElementType::operator()( const XE::int16 & val ) const
+{
+	return nullptr;
+}
+XE::MetaTypeCPtr XE::VariantDataGetContainerElementType::operator()( const XE::int32 & val ) const
+{
+	return nullptr;
+}
+XE::MetaTypeCPtr XE::VariantDataGetContainerElementType::operator()( const XE::int64 & val ) const
+{
+	return nullptr;
+}
+XE::MetaTypeCPtr XE::VariantDataGetContainerElementType::operator()( const XE::uint8 & val ) const
+{
+	return nullptr;
+}
+XE::MetaTypeCPtr XE::VariantDataGetContainerElementType::operator()( const XE::uint16 & val ) const
+{
+	return nullptr;
+}
+XE::MetaTypeCPtr XE::VariantDataGetContainerElementType::operator()( const XE::uint32 & val ) const
+{
+	return nullptr;
+}
+XE::MetaTypeCPtr XE::VariantDataGetContainerElementType::operator()( const XE::uint64 & val ) const
+{
+	return nullptr;
+}
+XE::MetaTypeCPtr XE::VariantDataGetContainerElementType::operator()( const XE::float32 & val ) const
+{
+	return nullptr;
+}
+XE::MetaTypeCPtr XE::VariantDataGetContainerElementType::operator()( const XE::float64 & val ) const
+{
+	return nullptr;
+}
+XE::MetaTypeCPtr XE::VariantDataGetContainerElementType::operator()( const XE::VariantEnumData & val ) const
+{
+	return nullptr;
+}
+XE::MetaTypeCPtr XE::VariantDataGetContainerElementType::operator()( const XE::VariantSmallData & val ) const
+{
+	return nullptr;
+}
+XE::MetaTypeCPtr XE::VariantDataGetContainerElementType::operator()( const XE::VariantPointerData & val ) const
+{
+	return nullptr;
+}
+XE::MetaTypeCPtr XE::VariantDataGetContainerElementType::operator()( const XE::VariantWarpperData & val ) const
+{
+	if ( val.Pointer )
+	{
+		return val.Pointer->GetElementType();
+	}
+
+	return nullptr;
+}
+
+XE::VariantDataContainerInsert::VariantDataContainerInsert( const XE::Variant & var )
+	:Var( var )
+{
+
+}
+bool XE::VariantDataContainerInsert::operator()( const std::monostate & ) const
+{
+	return false;
+}
+bool XE::VariantDataContainerInsert::operator()( const bool & val ) const
+{
+	return false;
+}
+bool XE::VariantDataContainerInsert::operator()( const XE::int8 & val ) const
+{
+	return false;
+}
+bool XE::VariantDataContainerInsert::operator()( const XE::int16 & val ) const
+{
+	return false;
+}
+bool XE::VariantDataContainerInsert::operator()( const XE::int32 & val ) const
+{
+	return false;
+}
+bool XE::VariantDataContainerInsert::operator()( const XE::int64 & val ) const
+{
+	return false;
+}
+bool XE::VariantDataContainerInsert::operator()( const XE::uint8 & val ) const
+{
+	return false;
+}
+bool XE::VariantDataContainerInsert::operator()( const XE::uint16 & val ) const
+{
+	return false;
+}
+bool XE::VariantDataContainerInsert::operator()( const XE::uint32 & val ) const
+{
+	return false;
+}
+bool XE::VariantDataContainerInsert::operator()( const XE::uint64 & val ) const
+{
+	return false;
+}
+bool XE::VariantDataContainerInsert::operator()( const XE::float32 & val ) const
+{
+	return false;
+}
+bool XE::VariantDataContainerInsert::operator()( const XE::float64 & val ) const
+{
+	return false;
+}
+bool XE::VariantDataContainerInsert::operator()( const XE::VariantEnumData & val ) const
+{
+	return false;
+}
+bool XE::VariantDataContainerInsert::operator()( const XE::VariantSmallData & val ) const
+{
+	return false;
+}
+bool XE::VariantDataContainerInsert::operator()( const XE::VariantPointerData & val ) const
+{
+	return false;
+}
+bool XE::VariantDataContainerInsert::operator()( const XE::VariantWarpperData & val ) const
+{
+	return val.Pointer ? val.Pointer->Insert( val ) : false;
+}
+
+XE::VariantDataContainerErase::VariantDataContainerErase( const XE::Variant & var )
+	:Var( var )
+{
+
+}
+bool XE::VariantDataContainerErase::operator()( const std::monostate & ) const
+{
+	return false;
+}
+bool XE::VariantDataContainerErase::operator()( const bool & val ) const
+{
+	return false;
+}
+bool XE::VariantDataContainerErase::operator()( const XE::int8 & val ) const
+{
+	return false;
+}
+bool XE::VariantDataContainerErase::operator()( const XE::int16 & val ) const
+{
+	return false;
+}
+bool XE::VariantDataContainerErase::operator()( const XE::int32 & val ) const
+{
+	return false;
+}
+bool XE::VariantDataContainerErase::operator()( const XE::int64 & val ) const
+{
+	return false;
+}
+bool XE::VariantDataContainerErase::operator()( const XE::uint8 & val ) const
+{
+	return false;
+}
+bool XE::VariantDataContainerErase::operator()( const XE::uint16 & val ) const
+{
+	return false;
+}
+bool XE::VariantDataContainerErase::operator()( const XE::uint32 & val ) const
+{
+	return false;
+}
+bool XE::VariantDataContainerErase::operator()( const XE::uint64 & val ) const
+{
+	return false;
+}
+bool XE::VariantDataContainerErase::operator()( const XE::float32 & val ) const
+{
+	return false;
+}
+bool XE::VariantDataContainerErase::operator()( const XE::float64 & val ) const
+{
+	return false;
+}
+bool XE::VariantDataContainerErase::operator()( const XE::VariantEnumData & val ) const
+{
+	return false;
+}
+bool XE::VariantDataContainerErase::operator()( const XE::VariantSmallData & val ) const
+{
+	return false;
+}
+bool XE::VariantDataContainerErase::operator()( const XE::VariantPointerData & val ) const
+{
+	return false;
+}
+bool XE::VariantDataContainerErase::operator()( const XE::VariantWarpperData & val ) const
+{
+	return val.Pointer ? val.Pointer->Erase( val ) : false;
+}

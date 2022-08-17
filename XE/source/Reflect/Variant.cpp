@@ -704,3 +704,18 @@ void XE::Variant::swap( XE::Variant & val )
 	_Data = val._Data;
 	val._Data = tmp;
 }
+
+bool XE::Variant::ContainerInsert( const XE::Variant & val ) const
+{
+	return std::visit( XE::VariantDataContainerInsert( val ), _Data );
+}
+
+bool XE::Variant::ContainerErase( const XE::Variant & val ) const
+{
+	return std::visit( XE::VariantDataContainerErase( val ), _Data );
+}
+
+XE::MetaTypeCPtr XE::Variant::GetContainerElementType() const
+{
+	return std::visit( XE::VariantDataGetContainerElementType(), _Data );
+}
