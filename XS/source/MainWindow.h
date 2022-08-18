@@ -84,7 +84,8 @@ private:
 private:
 	std::thread::id _MainThreadID;
 	QUndoGroup * _UndoGroup = nullptr;
-	QMap< QString, QKeySequence > _Shortcuts;
+	QMap< QString, QShortcut * > _Shortcuts;
+	QMap< QString, QKeySequence > _KeySequences;
 };
 
 END_XS_NAMESPACE

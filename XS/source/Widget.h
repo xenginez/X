@@ -17,6 +17,9 @@ class XS_API Widget : public QWidget
 {
 	Q_OBJECT
 
+private:
+	friend class DockWidget;
+
 public:
 	Widget( QWidget * parent = nullptr );
 
@@ -58,10 +61,24 @@ public:
 
 	virtual void LoadLayout( QSettings & settings );
 
-signals:
-	void push_command( const QString & text );
+public:
+	void OnCommandRedo();
 
-	void save_command();
+	void OnCommandUndo();
+
+	void OnCommandSave();
+
+protected:
+	virtual void OnRedo();
+
+	virtual void OnUndo();
+
+	virtual void OnSave();
+
+	int GetCommandCount() const;
+
+private:
+	int _CommandCount = 0;
 };
 
 END_XS_NAMESPACE

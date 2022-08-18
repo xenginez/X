@@ -27,6 +27,7 @@ DECL_PTR( MetaProperty );
 DECL_PTR( MetaFunction );
 DECL_PTR( MetaVariable );
 DECL_PTR( MetaAttribute );
+DECL_PTR( MetaEnumerator );
 
 DECL_PTR( Object );
 

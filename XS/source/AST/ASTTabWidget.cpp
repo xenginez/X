@@ -31,7 +31,7 @@ namespace
 }
 
 XS::ASTTabWidget::ASTTabWidget( QWidget * parent /*= nullptr */ )
-	: XS::Widget( parent ), ui( new Ui::ASTTabWidget )
+	: Widget( parent ), ui( new Ui::ASTTabWidget )
 {
 	ui->setupUi( this );
 
@@ -41,8 +41,6 @@ XS::ASTTabWidget::ASTTabWidget( QWidget * parent /*= nullptr */ )
 
 	ui->splitter->setSizes( { 2500, 5000, 2500 } );
 
-	connect( this, &XS::Widget::push_command, this, &XS::ASTTabWidget::OnPushCommand );
-	connect( this, &XS::Widget::save_command, this, &XS::ASTTabWidget::OnSaveCommand );
 	connect( ui->add, &QToolButton::clicked, this, &XS::ASTTabWidget::OnAddToolButtonClicked );
 	connect( ui->tool, &QToolButton::clicked, this, &XS::ASTTabWidget::OnToolToolButtonClicked );
 	connect( ui->enum_list, &QListWidget::itemChanged, this, &XS::ASTTabWidget::OnEnumListItemChanged );
@@ -60,30 +58,54 @@ void XS::ASTTabWidget::OnAddToolButtonClicked( bool clicked )
 
 	menu.addAction( QIcon( "SkinIcons:/images/ast/icon_ast_enum.png" ), "Enum", [this]()
 	{
-		XE::ASTEnumPtr _enum = XE::MakeShared< XE::ASTEnum >();
-
 		XE::String name = "New Enum";
 		for ( size_t i = 1; std::find_if( _Tree->GetEnums().begin(), _Tree->GetEnums().end(), [&]( const auto & val ) { return val->Name == name; } ) != _Tree->GetEnums().end(); ++i )
 		{
-			name = "New Enum" + XE::ToString( i );
+			name = "New Enum " + XE::ToString( i );
 		}
 
-		_enum->Name = name;
+		int toolBoxCurrentIndex = ui->toolBox->currentIndex();
+		auto enum_listCurrentIndex = ui->enum_list->currentIndex();
 
-		_Tree->AddEnum( _enum );
+		PushUndoCommand( "Create Enum",
+						 [&]()
+						{
+							XE::ASTEnumPtr _enum = XE::MakeShared< XE::ASTEnum >();
+							{
+								_enum->Name = name;
+							}
+							_Tree->AddEnum( _enum );
 
-		QListWidgetItem * item = new QListWidgetItem( ui->enum_list );
-		{
-			item->setText( name.c_str() );
-			item->setData( AST_ROLE, QVariant::fromValue( _enum ) );
-			item->setFlags( item->flags() | Qt::ItemIsEditable );
-		}
-		ui->enum_list->addItem( item );
+							QListWidgetItem * item = new QListWidgetItem( ui->enum_list );
+							{
+								item->setText( name.c_str() );
+								item->setData( AST_ROLE, QVariant::fromValue( _enum ) );
+								item->setFlags( item->flags() | Qt::ItemIsEditable );
+								ui->enum_list->addItem( item );
 
-		ui->toolBox->setCurrentIndex( ENUM_INDEX );
+								ui->toolBox->setCurrentIndex( ENUM_INDEX );
 
-		ui->enum_list->setCurrentItem( item );
-		ui->enum_list->editItem( item );
+								ui->enum_list->setCurrentItem( item );
+								ui->enum_list->editItem( item );
+							}
+						},
+						 [&]()
+						{
+							auto enums = _Tree->GetEnums();
+							auto it = std::find_if( enums.begin(), enums.end(), [name]( const auto & it ) { return it->Name == name; } );
+							if ( it != enums.end() ) enums.erase( it );
+							_Tree->SetEnums( enums );
+
+							auto items = ui->enum_list->findItems( name.c_str(), Qt::MatchExactly );
+							for ( auto it : items )
+							{
+								auto item = ui->enum_list->takeItem( ui->enum_list->row( it ) );
+								if ( item != nullptr ) delete item;
+							}
+
+							ui->enum_list->setCurrentIndex( enum_listCurrentIndex );
+							ui->toolBox->setCurrentIndex( toolBoxCurrentIndex );
+						} );
 	} );
 	menu.addAction( QIcon( "SkinIcons:/images/ast/icon_ast_class.png" ), "Class", [this]() {} );
 	menu.addAction( QIcon( "SkinIcons:/images/ast/icon_ast_module.png" ), "Module", [this]() {} );
@@ -126,49 +148,6 @@ void XS::ASTTabWidget::OnEnumListItemDoubleClicked( QListWidgetItem * item )
 	}
 }
 
-void XS::ASTTabWidget::OnPushCommand()
-{
-	auto tab = GetParent< QTabWidget >();
-	if ( tab != nullptr )
-	{
-		auto i = tab->indexOf( this );
-
-		QString text = tab->tabText( i );
-		if ( !text.startsWith( "* " ) )
-		{
-			tab->setTabText( i, "* " + text );
-		}
-	}
-}
-
-void XS::ASTTabWidget::OnSaveCommand()
-{
-	auto path = property( PATH_NAME ).value<QFileInfo>();
-
-	std::stringstream json;
-	XE::JsonOArchive archive( json );
-	archive << _Tree;
-
-	QFile file( path.absoluteFilePath() );
-	if ( file.open( QIODevice::ReadWrite ) )
-	{
-		std::string data = json.str();
-		file.write( data.c_str(), data.size() );
-
-		auto tab = GetParent< QTabWidget >();
-		if ( tab != nullptr )
-		{
-			auto i = tab->indexOf( this );
-
-			QString text = tab->tabText( i );
-			if ( text.startsWith( "* " ) )
-			{
-				tab->setTabText( i, text.right( text.size() - 2 ) );
-			}
-		}
-	}
-}
-
 void XS::ASTTabWidget::showEvent( QShowEvent * event )
 {
 	XS::Widget::showEvent( event );
@@ -196,5 +175,73 @@ void XS::ASTTabWidget::showEvent( QShowEvent * event )
 				ui->enum_list->addItem( item );
 			}
 		}
+	}
+}
+
+void XS::ASTTabWidget::OnRedo()
+{
+	if ( GetCommandCount() != 0 )
+	{
+		auto tab = GetParent< QTabWidget >();
+		if ( tab != nullptr )
+		{
+			auto i = tab->indexOf( this );
+
+			QString text = tab->tabText( i );
+			if ( !text.startsWith( "* " ) )
+			{
+				tab->setTabText( i, "* " + text );
+			}
+		}
+	}
+}
+
+void XS::ASTTabWidget::OnUndo()
+{
+	if ( GetCommandCount() == 0 )
+	{
+		auto tab = GetParent< QTabWidget >();
+		if ( tab != nullptr )
+		{
+			auto i = tab->indexOf( this );
+
+			QString text = tab->tabText( i );
+			if ( text.startsWith( "* " ) )
+			{
+				tab->setTabText( i, text.right( text.size() - 2 ) );
+			}
+		}
+	}
+}
+
+void XS::ASTTabWidget::OnSave()
+{
+	auto tab = GetParent< QTabWidget >();
+	if ( tab != nullptr )
+	{
+		auto i = tab->indexOf( this );
+
+		QString text = tab->tabText( i );
+		if ( text.startsWith( "* " ) )
+		{
+			tab->setTabText( i, text.right( text.size() - 2 ) );
+		}
+	}
+
+	auto path = property( PATH_NAME ).value<QFileInfo>();
+
+	std::stringstream json;
+	XE::JsonOArchive archive( json );
+	archive << _Tree;
+
+	QFile file( path.absoluteFilePath() );
+	if ( file.open( QIODevice::ReadWrite ) )
+	{
+		std::string data = json.str();
+		file.write( data.c_str(), data.size() );
+	}
+	else
+	{
+		//XE_ERROR( "{%1} file open failure", path.absoluteFilePath().toStdString() );
 	}
 }

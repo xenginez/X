@@ -27,6 +27,7 @@
 #include "CXXMetaProperty.hpp"
 #include "CXXMetaFunction.hpp"
 #include "CXXMetaVariable.hpp"
+#include "CXXMetaEnumerator.hpp"
 
 #include "Variant.h"
 #include "InvokeStack.h"

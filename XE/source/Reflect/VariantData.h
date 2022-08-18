@@ -211,12 +211,6 @@ public:
 	virtual XE::SharedPtr< void > SharedPointer() = 0;
 
 public:
-	virtual XE::MetaTypeCPtr GetElementType() const = 0;
-
-	virtual bool Insert( const XE::Variant & val ) = 0;
-
-	virtual bool Erase( const XE::Variant & val ) = 0;
-
 	virtual XE::Array< XE::Variant > ToArray() const = 0;
 
 	virtual bool FromArray( const XE::Array< XE::Variant > & val ) = 0;
@@ -263,21 +257,6 @@ public:
 	}
 
 public:
-	XE::MetaTypeCPtr GetElementType() const override
-	{
-		return nullptr;
-	}
-
-	bool Insert( const XE::Variant & val ) override
-	{
-		return false;
-	}
-
-	bool Erase( const XE::Variant & val ) override
-	{
-		return false;
-	}
-
 	XE::Array< XE::Variant > ToArray() const override
 	{
 		return {};
@@ -337,21 +316,6 @@ public:
 	}
 
 public:
-	XE::MetaTypeCPtr GetElementType() const override
-	{
-		return nullptr;
-	}
-
-	bool Insert( const XE::Variant & val ) override
-	{
-		return false;
-	}
-
-	bool Erase( const XE::Variant & val ) override
-	{
-		return false;
-	}
-
 	XE::Array< XE::Variant > ToArray() const override
 	{
 		return {};
@@ -411,21 +375,6 @@ public:
 	}
 
 public:
-	XE::MetaTypeCPtr GetElementType() const override
-	{
-		return nullptr;
-	}
-
-	bool Insert( const XE::Variant & val ) override
-	{
-		return false;
-	}
-
-	bool Erase( const XE::Variant & val ) override
-	{
-		return false;
-	}
-
 	XE::Array< XE::Variant > ToArray() const override
 	{
 		return {};
@@ -659,74 +608,6 @@ struct XE_API VariantDataCloneVariantData
 	VariantData operator()( const XE::VariantSmallData & val ) const;
 	VariantData operator()( const XE::VariantPointerData & val ) const;
 	VariantData operator()( const XE::VariantWarpperData & val ) const;
-};
-
-struct XE_API VariantDataGetContainerElementType
-{
-	XE::MetaTypeCPtr operator()( const std::monostate & ) const;
-	XE::MetaTypeCPtr operator()( const bool & val ) const;
-	XE::MetaTypeCPtr operator()( const XE::int8 & val ) const;
-	XE::MetaTypeCPtr operator()( const XE::int16 & val ) const;
-	XE::MetaTypeCPtr operator()( const XE::int32 & val ) const;
-	XE::MetaTypeCPtr operator()( const XE::int64 & val ) const;
-	XE::MetaTypeCPtr operator()( const XE::uint8 & val ) const;
-	XE::MetaTypeCPtr operator()( const XE::uint16 & val ) const;
-	XE::MetaTypeCPtr operator()( const XE::uint32 & val ) const;
-	XE::MetaTypeCPtr operator()( const XE::uint64 & val ) const;
-	XE::MetaTypeCPtr operator()( const XE::float32 & val ) const;
-	XE::MetaTypeCPtr operator()( const XE::float64 & val ) const;
-	XE::MetaTypeCPtr operator()( const XE::VariantEnumData & val ) const;
-	XE::MetaTypeCPtr operator()( const XE::VariantSmallData & val ) const;
-	XE::MetaTypeCPtr operator()( const XE::VariantPointerData & val ) const;
-	XE::MetaTypeCPtr operator()( const XE::VariantWarpperData & val ) const;
-};
-
-struct XE_API VariantDataContainerInsert
-{
-	VariantDataContainerInsert( const XE::Variant & var );
-
-	bool operator()( const std::monostate & ) const;
-	bool operator()( const bool & val ) const;
-	bool operator()( const XE::int8 & val ) const;
-	bool operator()( const XE::int16 & val ) const;
-	bool operator()( const XE::int32 & val ) const;
-	bool operator()( const XE::int64 & val ) const;
-	bool operator()( const XE::uint8 & val ) const;
-	bool operator()( const XE::uint16 & val ) const;
-	bool operator()( const XE::uint32 & val ) const;
-	bool operator()( const XE::uint64 & val ) const;
-	bool operator()( const XE::float32 & val ) const;
-	bool operator()( const XE::float64 & val ) const;
-	bool operator()( const XE::VariantEnumData & val ) const;
-	bool operator()( const XE::VariantSmallData & val ) const;
-	bool operator()( const XE::VariantPointerData & val ) const;
-	bool operator()( const XE::VariantWarpperData & val ) const;
-
-	const XE::Variant & Var;
-};
-
-struct XE_API VariantDataContainerErase
-{
-	VariantDataContainerErase( const XE::Variant & var );
-
-	bool operator()( const std::monostate & ) const;
-	bool operator()( const bool & val ) const;
-	bool operator()( const XE::int8 & val ) const;
-	bool operator()( const XE::int16 & val ) const;
-	bool operator()( const XE::int32 & val ) const;
-	bool operator()( const XE::int64 & val ) const;
-	bool operator()( const XE::uint8 & val ) const;
-	bool operator()( const XE::uint16 & val ) const;
-	bool operator()( const XE::uint32 & val ) const;
-	bool operator()( const XE::uint64 & val ) const;
-	bool operator()( const XE::float32 & val ) const;
-	bool operator()( const XE::float64 & val ) const;
-	bool operator()( const XE::VariantEnumData & val ) const;
-	bool operator()( const XE::VariantSmallData & val ) const;
-	bool operator()( const XE::VariantPointerData & val ) const;
-	bool operator()( const XE::VariantWarpperData & val ) const;
-
-	const XE::Variant & Var;
 };
 
 

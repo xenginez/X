@@ -28,6 +28,16 @@ XE::uint64 XE::MetaEnum::GetEnumCount() const
 	return _Values.size();
 }
 
+XE::String XE::MetaEnum::GetDefaultName() const
+{
+	return _Values[0].first;
+}
+
+XE::Variant XE::MetaEnum::GetDefaultValue() const
+{
+	return _Values[0].second;
+}
+
 XE::String XE::MetaEnum::FindName( XE::Variant val ) const
 {
 	for ( auto var : _Values )

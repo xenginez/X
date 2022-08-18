@@ -2,6 +2,7 @@
 
 #include <QDialog>
 #include <QTextEdit>
+#include <QLineEdit>
 #include <QToolButton>
 #include <QHBoxLayout>
 #include <QApplication>
@@ -10,30 +11,53 @@
 
 REG_WIDGET( XS::StringInspector );
 
+namespace Ui
+{
+	class StringInspector
+	{
+	public:
+		QHBoxLayout * horizontalLayout;
+		QLineEdit * lineEdit;
+		QToolButton * toolButton;
+
+		void setupUi( QWidget * StringInspector )
+		{
+			if ( StringInspector->objectName().isEmpty() )
+				StringInspector->setObjectName( QString::fromUtf8( "StringInspector" ) );
+			StringInspector->resize( 219, 20 );
+			horizontalLayout = new QHBoxLayout( StringInspector );
+			horizontalLayout->setSpacing( 0 );
+			horizontalLayout->setObjectName( QString::fromUtf8( "horizontalLayout" ) );
+			horizontalLayout->setContentsMargins( 0, 0, 0, 0 );
+			lineEdit = new QLineEdit( StringInspector );
+			lineEdit->setObjectName( QString::fromUtf8( "lineEdit" ) );
+
+			horizontalLayout->addWidget( lineEdit );
+
+			toolButton = new QToolButton( StringInspector );
+			toolButton->setObjectName( QString::fromUtf8( "toolButton" ) );
+			QSizePolicy sizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
+			sizePolicy.setHorizontalStretch( 0 );
+			sizePolicy.setVerticalStretch( 0 );
+			sizePolicy.setHeightForWidth( toolButton->sizePolicy().hasHeightForWidth() );
+			toolButton->setSizePolicy( sizePolicy );
+			toolButton->setMinimumSize( QSize( 15, 0 ) );
+			toolButton->setMaximumSize( QSize( 15, 16777215 ) );
+			toolButton->setIcon( QIcon( "SkinIcons:/images/common/icon_radiobutton_checked.png" ) );
+
+			horizontalLayout->addWidget( toolButton );
+		}
+	};
+}
+
 REG_INSPECTOR( XE::String, XS::StringInspector );
 
 XS::StringInspector::StringInspector( QWidget * parent /*= nullptr */ )
-	:Inspector( parent )
+	:Inspector( parent ), ui( new Ui::StringInspector )
 {
-	QWidget * widget = new QWidget( this );
+	ui->setupUi( this );
 
-	QHBoxLayout * verticalLayout = new QHBoxLayout( this );
-
-	verticalLayout->setSpacing( 0 );
-	verticalLayout->setObjectName( QString::fromUtf8( "layout" ) );
-	verticalLayout->setContentsMargins( 0, 0, 0, 0 );
-
-	_QLineEdit = new QLineEdit( this );
-	QToolButton * button = new QToolButton( this );
-	button->setMaximumWidth( 15 );
-	button->setIcon( QIcon( "SkinIcons:/images/common/icon_radiobutton_checked.png" ) );
-
-	verticalLayout->addWidget( _QLineEdit );
-	verticalLayout->addWidget( button );
-
-	SetContentWidget( widget );
-
-	connect( button, &QToolButton::clicked, [this]()
+	connect( ui->toolButton, &QToolButton::clicked, [this]()
 		{
 			QDialog * dialog = new QDialog( this );
 			{
@@ -43,7 +67,7 @@ XS::StringInspector::StringInspector( QWidget * parent /*= nullptr */ )
 
 				auto verticalLayout = new QVBoxLayout( dialog );
 				auto textEdit = new QTextEdit( dialog );
-				textEdit->setText( _QLineEdit->text() );
+				textEdit->setText( ui->lineEdit->text() );
 				auto cursor = textEdit->textCursor();
 				cursor.movePosition( QTextCursor::End );
 				textEdit->setTextCursor( cursor );
@@ -67,7 +91,7 @@ XS::StringInspector::StringInspector( QWidget * parent /*= nullptr */ )
 				{
 					if ( accept )
 					{
-						_QLineEdit->setText( text->toPlainText() );
+						ui->lineEdit->setText( text->toPlainText() );
 					}
 
 					dialog->deleteLater();
@@ -82,16 +106,16 @@ XS::StringInspector::StringInspector( QWidget * parent /*= nullptr */ )
 
 XS::StringInspector::~StringInspector()
 {
-
+	delete ui;
 }
 
 void XS::StringInspector::Refresh()
 {
-	disconnect( _QLineEdit, nullptr );
+	disconnect( ui->lineEdit, nullptr );
 
-	_QLineEdit->setText( GetObjectProxy()->GetValue().Value<XE::String>().c_str() );
+	ui->lineEdit->setText( GetObjectProxy()->GetValue().Value<XE::String>().c_str() );
 
-	connect( _QLineEdit, &QLineEdit::textChanged, [this]( const QString & text )
+	connect( ui->lineEdit, &QLineEdit::textChanged, [this]( const QString & text )
 		{
 			XE::String old = GetObjectProxy()->GetValue().Value<XE::String>();
 			if ( text != old.c_str() )
@@ -100,12 +124,12 @@ void XS::StringInspector::Refresh()
 					[this, proxy = GetObjectProxy(), value = XE::String( text.toStdString() )]()
 				{
 					proxy->SetValue( value );
-					_QLineEdit->setText( value.c_str() );
+					ui->lineEdit->setText( value.c_str() );
 				},
 					[this, proxy = GetObjectProxy(), value = old]()
 				{
 					proxy->SetValue( value );
-					_QLineEdit->setText( value.c_str() );
+					ui->lineEdit->setText( value.c_str() );
 				} );
 			}
 		} );

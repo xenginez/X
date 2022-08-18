@@ -10,51 +10,6 @@
 
 REG_WIDGET( XS::ContainerInspector );
 
-namespace
-{
-	class ElementObjectProxy : public XS::ObjectProxy
-	{
-	public:
-		ElementObjectProxy( XE::uint64 i, XE::VariantArray * arr, XS::ObjectProxy * parent )
-			: XS::ObjectProxy( parent ), _Index( i ), _Array( arr )
-		{
-
-		}
-
-	public:
-		XE::MetaTypeCPtr GetType() const override
-		{
-			return _Array->at( _Index ).GetType();
-		}
-
-		const XE::String & GetName() const override
-		{
-			return _Array->at( _Index ).GetType()->GetFullName();
-		}
-
-		XE::MetaAttributeCPtr FindAttribute( const XE::MetaClassCPtr & type ) const override
-		{
-			return _Array->at( _Index ).GetType()->FindAttribute( type );
-		}
-
-	public:
-		XE::Variant GetValue() const override
-		{
-			return _Array->at( _Index );
-		}
-
-		void SetValue( const XE::Variant & val ) override
-		{
-			_Array->at( _Index ) = val;
-			GetParent()->SetValue( *_Array );
-		}
-
-	private:
-		XE::uint64 _Index;
-		XE::VariantArray * _Array;
-	};
-}
-
 namespace Ui
 {
 	class ContainerInspector
@@ -115,6 +70,7 @@ XS::ContainerInspector::ContainerInspector( QWidget * parent /*= nullptr */ )
 	ui->setupUi( this );
 
 	connect( ui->add, &QToolButton::clicked, this, &XS::ContainerInspector::OnAddToolButtonClicked );
+	connect( ui->sub, &QToolButton::clicked, this, &XS::ContainerInspector::OnSubToolButtonClicked );
 }
 
 XS::ContainerInspector::~ContainerInspector()
@@ -126,53 +82,89 @@ void XS::ContainerInspector::Refresh()
 {
 	ui->list->clear();
 
-	_Array = GetObjectProxy()->GetValue().ToArray();
+	_Container = GetObjectProxy()->GetValue();
+	_Enumerator = SP_CAST< const XE::MetaClass >( GetObjectProxy()->GetType() )->GetEnumerator( _Container );
 
-	for ( size_t i = 0; i < _Array.size(); i++ )
+	for ( XE::uint64 i = 0; !_Enumerator->IsEnd(); _Enumerator->MoveNext(), ++i )
 	{
-		XS::ObjectProxy * proxy = new ElementObjectProxy( i, &_Array, GetObjectProxy() );
+		XS::ObjectProxy * proxy = new ElementObjectProxy( i, _Enumerator, GetObjectProxy() );
 
 		auto inspector = XS::Inspector::Create( proxy, this );
 
 		QListWidgetItem * item = new QListWidgetItem( ui->list );
+		item->setFlags( item->flags() | Qt::ItemIsSelectable );
 		ui->list->setItemWidget( item, inspector );
 	}
 }
 
 void XS::ContainerInspector::OnAddToolButtonClicked()
 {
-	XE::Variant element;
-	auto type = GetObjectProxy()->GetValue().GetContainerElementType();
-	switch ( type->GetType() )
-	{
-	case XE::MetaInfoType::ENUM:
-		element = SP_CAST< const XE::MetaEnum >( type )->GetValues()[0].second;
-		break;
-	case XE::MetaInfoType::CLASS:
-	{
-		element = SP_CAST< const XE::MetaClass >( type )->Construct( nullptr );
-	}
-		break;
-	default:
-		break;
-	}
+	auto old_value = _Container;
 
-	_Array.push_back( element );
+	PushUndoCommand( QString("Add %1 Enum Value").arg( GetObjectProxy()->GetName().c_str() ),
+					 [this]()
+					{
+						XE::Variant element;
 
-	auto val = GetObjectProxy()->GetValue();
-	val.FromArray( _Array );
-	GetObjectProxy()->SetValue( val );
+						auto type = _Enumerator->GetValueType();
+						switch ( type->GetType() )
+						{
+						case XE::MetaInfoType::ENUM:
+							element = SP_CAST< const XE::MetaEnum >( type )->GetDefaultValue();
+							break;
+						case XE::MetaInfoType::CLASS:
+							element = SP_CAST< const XE::MetaClass >( type )->Construct( nullptr );
+							break;
+						}
 
-	Refresh();
+						if ( ui->list->currentItem() != nullptr )
+							_Enumerator->SetIndex( ui->list->currentIndex().row() );
+						else
+							_Enumerator->SetIndex( 0 );
+
+						_Enumerator->InsertToCurrent( element );
+
+						GetObjectProxy()->SetValue( _Container );
+					},
+					 [this, old_value]()
+					{
+						GetObjectProxy()->SetValue( old_value );
+					} );
 }
 
 void XS::ContainerInspector::OnSubToolButtonClicked()
 {
-	_Array.pop_back();
+	auto old_value = _Container;
 
-	auto val = GetObjectProxy()->GetValue();
-	val.FromArray( _Array );
-	GetObjectProxy()->SetValue( val );
+	PushUndoCommand( QString( "Add %1 Enum Value" ).arg( GetObjectProxy()->GetName().c_str() ),
+					 [this]()
+					{
+						if ( ui->list->currentItem() != nullptr )
+							_Enumerator->SetIndex( ui->list->currentIndex().row() );
+						else
+							_Enumerator->SetIndex( 0 );
 
+						_Enumerator->EraseCurrent();
+
+						GetObjectProxy()->SetValue( _Container );
+					},
+					 [this, old_value]()
+					{
+						GetObjectProxy()->SetValue( old_value );
+					} );
+}
+
+void XS::ContainerInspector::OnRedo()
+{
 	Refresh();
+}
+
+void XS::ContainerInspector::OnUndo()
+{
+	Refresh();
+}
+
+void XS::ContainerInspector::OnSave()
+{
+	GetObjectProxy()->SetValue( _Container );
 }

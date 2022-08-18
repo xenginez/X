@@ -4,51 +4,6 @@
 
 REG_WIDGET( XS::ClassInspector );
 
-namespace
-{
-	class PropertyObjectProxy : public XS::ObjectProxy
-	{
-	public:
-		PropertyObjectProxy( const XE::MetaPropertyCPtr & prop, XS::ObjectProxy * parent )
-			: XS::ObjectProxy( parent ), _Property( prop )
-		{
-
-		}
-
-	public:
-		XE::MetaTypeCPtr GetType() const override
-		{
-			return _Property->GetValueType();
-		}
-
-		const XE::String & GetName() const override
-		{
-			return _Property->GetName();
-		}
-
-		XE::MetaAttributeCPtr FindAttribute( const XE::MetaClassCPtr & type ) const override
-		{
-			return _Property->FindAttribute( type );
-		}
-
-	public:
-		XE::Variant GetValue() const override
-		{
-			return _Property->Get( GetParent()->GetValue() );
-		}
-
-		void SetValue( const XE::Variant & val ) override
-		{
-			auto obj = GetParent()->GetValue();
-			_Property->Set( obj, val );
-			GetParent()->SetValue( val );
-		}
-
-	private:
-		XE::MetaPropertyCPtr _Property;
-	};
-}
-
 XS::ClassInspector::ClassInspector( QWidget * parent /* = nullptr */ )
 	: Inspector( parent )
 {
@@ -83,7 +38,6 @@ void XS::ClassInspector::Refresh()
 				{
 					item->setFlags( Qt::NoItemFlags );
 					item->setText( 0, tr( prop->GetName().c_str() ) );
-					item->setData( 0, Qt::UserRole + 1, QVariant::fromValue( proxy ) );
 					item->setToolTip( 0, tr( prop->GetValueType()->GetFullName().c_str() ) );
 				}
 				_QTreeWidget->addTopLevelItem( item );

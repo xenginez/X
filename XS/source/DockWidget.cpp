@@ -11,6 +11,7 @@
 #include <QSpacerItem>
 #include <QHBoxLayout>
 
+#include "Widget.h"
 #include "MainWindow.h"
 
 XS::DockWidget::DockWidget( QWidget * parent /*= nullptr */ )
@@ -25,10 +26,11 @@ XS::DockWidget::DockWidget( QWidget * parent /*= nullptr */ )
 	connect( this, &QDockWidget::topLevelChanged, this, &XS::DockWidget::OnTopLevelChanged );
 
 	QMetaObject::invokeMethod( this, [this]()
-		{
-			connect( AddShortcuts( "Redo", QKeySequence( "CTRL+Y" ) ), &QShortcut::activated, _UndoStack->createRedoAction( this, tr( "Redo" ) ), &QAction::trigger );
-			connect( AddShortcuts( "Undo", QKeySequence( "CTRL+Z" ) ), &QShortcut::activated, _UndoStack->createUndoAction( this, tr( "Undo" ) ), &QAction::trigger );
-		}, Qt::QueuedConnection );
+	{
+		connect( AddShortcuts( "Redo", QKeySequence( "CTRL+Y" ) ), &QShortcut::activated, this, &XS::DockWidget::OnCommandRedo );
+		connect( AddShortcuts( "Undo", QKeySequence( "CTRL+Z" ) ), &QShortcut::activated, this, &XS::DockWidget::OnCommandUndo );
+		connect( AddShortcuts( "Save", QKeySequence( "CTRL+S" ) ), &QShortcut::activated, this, &XS::DockWidget::OnCommandSave );
+	}, Qt::QueuedConnection );
 }
 
 XS::DockWidget::~DockWidget()
@@ -209,6 +211,7 @@ bool XS::DockWidget::eventFilter( QObject * watched, QEvent * event )
 void XS::DockWidget::PushUndoCommand( QUndoCommand * command )
 {
 	_UndoStack->push( command );
+	OnCommandRedo();
 }
 
 QShortcut * XS::DockWidget::AddShortcuts( const QString & name, const QKeySequence & key )
@@ -219,4 +222,100 @@ QShortcut * XS::DockWidget::AddShortcuts( const QString & name, const QKeySequen
 XS::CoreFramework * XS::DockWidget::GetFramework()
 {
 	return XS::CoreFramework::GetCurrentFramework();
+}
+
+void XS::DockWidget::OnCommandRedo()
+{
+	if ( _UndoStack->canRedo() )
+	{
+		_UndoStack->redo();
+
+		auto childs = children();
+		for ( auto it : childs )
+		{
+			if ( it->metaObject()->inherits( &XS::Widget::staticMetaObject ) )
+			{
+				qobject_cast<XS::Widget *>( it )->OnCommandRedo();
+			}
+		}
+
+		OnRedo();
+	}
+
+	if ( _UndoStack->count() == 1 )
+	{
+		auto title = windowTitle();
+		if ( !title.startsWith( "* " ) )
+		{
+			setWindowTitle( "* " + title );
+		}
+	}
+}
+
+void XS::DockWidget::OnCommandUndo()
+{
+	if ( _UndoStack->canUndo() )
+	{
+		_UndoStack->undo();
+
+		auto childs = children();
+		for ( auto it : childs )
+		{
+			if ( it->metaObject()->inherits( &XS::Widget::staticMetaObject ) )
+			{
+				qobject_cast<XS::Widget *>( it )->OnCommandUndo();
+			}
+		}
+
+		OnUndo();
+	}
+
+	if ( _UndoStack->count() == 0 )
+	{
+		auto title = windowTitle();
+		if ( title.startsWith( "* " ) )
+		{
+			setWindowTitle( title.right( title.size() - 2 ) );
+		}
+	}
+}
+
+void XS::DockWidget::OnCommandSave()
+{
+	if ( _UndoStack->count() != 0 )
+	{
+		auto childs = children();
+		for ( auto it : childs )
+		{
+			if ( it->metaObject()->inherits( &XS::Widget::staticMetaObject ) )
+			{
+				qobject_cast<XS::Widget *>( it )->OnCommandSave();
+			}
+		}
+
+		OnSave();
+
+		_UndoStack->clear();
+	}
+
+	auto title = windowTitle();
+	if ( title.startsWith( "* " ) )
+	{
+		setWindowTitle( title.right( title.size() - 2 ) );
+	}
+}
+
+void XS::DockWidget::OnRedo()
+{
+	
+}
+
+void XS::DockWidget::OnUndo()
+{
+	
+}
+
+void XS::DockWidget::OnSave()
+{
+	
 }

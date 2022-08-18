@@ -27,6 +27,10 @@ public:
 	XE::uint64 GetEnumCount() const;
 
 public:
+	XE::String GetDefaultName() const;
+	
+	XE::Variant GetDefaultValue() const;
+
 	String FindName( XE::Variant val ) const;
 
 	XE::Variant FindValue( const String& val ) const;

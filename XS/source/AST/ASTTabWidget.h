@@ -37,13 +37,15 @@ private slots:
 
 	void OnEnumListItemDoubleClicked( QListWidgetItem * item );
 
-protected slots:
-	void OnPushCommand();
-
-	void OnSaveCommand();
-
 protected:
 	void showEvent( QShowEvent * event ) override;
+
+protected:
+	void OnRedo() override;
+
+	void OnUndo() override;
+
+	void OnSave() override;
 
 private:
 	Ui::ASTTabWidget * ui;

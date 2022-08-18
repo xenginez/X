@@ -19,14 +19,15 @@
 #include "CXXMetaMethod.hpp"
 #include "CXXMetaProperty.hpp"
 #include "VariantOperation.hpp"
+#include "CXXMetaEnumerator.hpp"
 
 BEG_XE_NAMESPACE
 
 template< typename ClassType > class CXXMetaClass : public MetaClass
 {
 public:
-	CXXMetaClass( const XE::String & Name, XE::MetaClassCPtr Super, XE::MetaInfoCPtr Owner, XE::MetaModuleCPtr Module, const XE::TemplateType temps = {} )
-		:MetaClass( Name, sizeof( ClassType ), std::is_abstract_v< ClassType >, std::is_container_v< ClassType >, Super, Owner, Module, temps )
+	CXXMetaClass( const XE::String & Name, XE::MetaClassCPtr Super, XE::MetaInfoCPtr Owner, XE::MetaModuleCPtr Module, const XE::TemplateType temps = {}, const XE::MetaTypeCPtr & element = nullptr )
+		:MetaClass( Name, sizeof( ClassType ), std::is_abstract_v< ClassType >, std::is_container_v< ClassType >, Super, Owner, Module, temps, element )
 	{
 	}
 
@@ -60,6 +61,11 @@ public:
 	void Clone( const XE::Variant & from, XE::Variant & to ) const override
 	{
 		XE::Cloneable< ClassType >::Clone( from.Value< const ClassType * >(), to.Value< ClassType * >() );
+	}
+
+	XE::MetaEnumeratorPtr GetEnumerator( const XE::Variant & container ) const override
+	{
+		return nullptr;
 	}
 
 	void Serialize( XE::OArchive & arc, const XE::Variant & val ) const override
@@ -176,7 +182,7 @@ template< typename ClassType > class CXXMetaFundamental : public MetaClass
 {
 public:
 	CXXMetaFundamental( const XE::String& Name )
-		:MetaClass( Name, sizeof( ClassType ), false, false, nullptr, nullptr, nullptr, {} )
+		:MetaClass( Name, sizeof( ClassType ), false, false, nullptr, nullptr, nullptr, {}, nullptr )
 	{
 	}
 
@@ -201,6 +207,11 @@ public:
 		to = from.Value< ClassType >();
 	}
 
+	XE::MetaEnumeratorPtr GetEnumerator( const XE::Variant & container ) const override
+	{
+		return nullptr;
+	}
+
 	void Serialize( XE::OArchive & arc, const XE::Variant & val ) const override
 	{
 		XE::Serializable< ClassType >::Serialize( arc, val.Value< const ClassType & >() );
@@ -216,8 +227,21 @@ template< typename ClassType, typename ... Types > class CXXTplMetaClass : publi
 {
 public:
 	CXXTplMetaClass( const XE::String & Name, XE::MetaClassCPtr Super, XE::MetaInfoCPtr Owner, XE::MetaModuleCPtr Module )
-		:CXXMetaClass< ClassType >( Name + XE::ToString( XE::MakeTemplateType< Types... >() ), Super, Owner, Module, XE::MakeTemplateType< Types... >() )
+		: CXXMetaClass< ClassType >( Name + XE::ToString( XE::MakeTemplateType< Types... >() ), Super, Owner, Module, XE::MakeTemplateType< Types... >(), ::TypeID< std::is_container< ClassType >::value_type >::Get() )
 	{
+	}
+
+public:
+	XE::MetaEnumeratorPtr GetEnumerator( const XE::Variant & container ) const override
+	{
+		if constexpr ( std::is_container_v< ClassType > )
+		{
+			return XE::MakeShared< XE::CXXMetaEnumerator< ClassType > >( container.Value< ClassType *>() );
+		}
+		else
+		{
+			return nullptr;
+		}
 	}
 };
 

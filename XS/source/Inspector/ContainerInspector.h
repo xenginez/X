@@ -31,9 +31,17 @@ private slots:
 
 	void OnSubToolButtonClicked();
 
+protected:
+	void OnRedo() override;
+
+	void OnUndo() override;
+
+	void OnSave() override;
+
 private:
-	XE::VariantArray _Array;
+	XE::Variant _Container;
 	Ui::ContainerInspector * ui;
+	XE::MetaEnumeratorPtr _Enumerator;
 };
 
 END_XS_NAMESPACE

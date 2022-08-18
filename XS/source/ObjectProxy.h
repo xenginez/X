@@ -13,7 +13,7 @@
 
 BEG_XS_NAMESPACE
 
-class XS_API ObjectProxy : public QObject
+class XS_API ObjectProxy
 {
 public:
 	ObjectProxy( ObjectProxy * parent = nullptr );
@@ -45,7 +45,7 @@ private:
 class XS_API VariantObjectProxy : public ObjectProxy
 {
 public:
-	VariantObjectProxy( const XE::Variant & obj );
+	VariantObjectProxy( const XE::Variant & obj, ObjectProxy * parent = nullptr );
 
 public:
 	XE::MetaTypeCPtr GetType() const override;
@@ -60,8 +60,51 @@ public:
 	void SetValue( const XE::Variant & val ) override;
 
 private:
-	XE::Variant _Object;
+	XE::Variant _Value;
 	XS::ObjectProxy * _Parent;
+};
+
+class XS_API ElementObjectProxy : public XS::ObjectProxy
+{
+public:
+	ElementObjectProxy( XE::uint64 i, XE::MetaEnumeratorPtr & enumer, XS::ObjectProxy * parent );
+
+public:
+	XE::MetaTypeCPtr GetType() const override;
+
+	const XE::String & GetName() const override;
+
+	XE::MetaAttributeCPtr FindAttribute( const XE::MetaClassCPtr & type ) const override;
+
+public:
+	XE::Variant GetValue() const override;
+
+	void SetValue( const XE::Variant & val ) override;
+
+private:
+	XE::uint64 _Index;
+	XE::MetaEnumeratorPtr & _Enumerator;
+};
+
+class XS_API PropertyObjectProxy : public XS::ObjectProxy
+{
+public:
+	PropertyObjectProxy( const XE::MetaPropertyCPtr & prop, XS::ObjectProxy * parent );
+
+public:
+	XE::MetaTypeCPtr GetType() const override;
+
+	const XE::String & GetName() const override;
+
+	XE::MetaAttributeCPtr FindAttribute( const XE::MetaClassCPtr & type ) const override;
+
+public:
+	XE::Variant GetValue() const override;
+
+	void SetValue( const XE::Variant & val ) override;
+
+private:
+	XE::MetaPropertyCPtr _Property;
 };
 
 END_XS_NAMESPACE

@@ -350,7 +350,7 @@ void XS::MainWindow::SaveShortcuts()
 
 	QJsonObject obj;
 	{
-		for ( auto it = _Shortcuts.begin(); it != _Shortcuts.end(); ++it )
+		for ( auto it = _KeySequences.begin(); it != _KeySequences.end(); ++it )
 		{
 			obj.insert( it.key(), it.value().toString() );
 		}
@@ -377,21 +377,35 @@ void XS::MainWindow::LoadShortcuts()
 
 		for ( auto it = obj.begin(); it != obj.end(); ++it )
 		{
-			_Shortcuts.insert( it.key(), QKeySequence::fromString( it.value().toString() ) );
+			_KeySequences.insert( it.key(), QKeySequence::fromString( it.value().toString() ) );
 		}
 	}
 }
 
 QShortcut * XS::MainWindow::AddShortcuts( const QString & name, const QKeySequence & key, QWidget * widget )
 {
-	auto it = _Shortcuts.find( name );
-	if ( it != _Shortcuts.end() )
+	auto it = _KeySequences.find( name );
+	if ( it != _KeySequences.end() )
 	{
-		return new QShortcut( it.value(), widget, nullptr, nullptr, Qt::ShortcutContext::WidgetWithChildrenShortcut );
+		auto it2 = _Shortcuts.find( name );
+		if ( it2 != _Shortcuts.end() )
+		{
+			return it2.value();
+		}
+		else
+		{
+			auto shortcut = new QShortcut( it.value(), widget, nullptr, nullptr, Qt::ShortcutContext::WidgetWithChildrenShortcut );
+			_Shortcuts.insert( name, shortcut );
+			return shortcut;
+		}
 	}
 	else
 	{
-		_Shortcuts.insert( name, key );
-		return new QShortcut( key, widget, nullptr, nullptr, Qt::ShortcutContext::WidgetWithChildrenShortcut );
+		auto shortcut = new QShortcut( key, widget, nullptr, nullptr, Qt::ShortcutContext::WidgetWithChildrenShortcut );
+
+		_KeySequences.insert( name, key );
+		_Shortcuts.insert( name, shortcut );
+
+		return shortcut;
 	}
 }

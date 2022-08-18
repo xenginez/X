@@ -102,6 +102,20 @@ protected:
 		QDockWidget::setWindowTitle( widget->windowTitle() );
 	}
 
+public:
+	void OnCommandRedo();
+
+	void OnCommandUndo();
+
+	void OnCommandSave();
+
+protected:
+	virtual void OnRedo();
+
+	virtual void OnUndo();
+
+	virtual void OnSave();
+
 protected:
 	bool eventFilter( QObject * watched, QEvent * event ) override;
 

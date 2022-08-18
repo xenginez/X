@@ -34,6 +34,8 @@ class MetaProperty;
 class MetaFunction;
 class MetaVariable;
 
+class MetaEnumerator;
+
 class Object;
 class Reflection;
 
@@ -52,22 +54,15 @@ template< typename T > struct VariantCast;
 template< typename ... Types > struct TypeList;
 
 
-template< typename T >
-class CXXMetaEnum;
-template< typename ClassType >
-class CXXMetaClass;
-template< typename ClassType, typename ... Types >
-class CXXTplMetaClass;
-template< typename ClassType >
-class CXXMetaFundamental;
-template< typename MethodType  >
-class CXXMetaMethod;
-template< typename ... T >
-class CXXMetaProperty;
-template< typename FunctionType >
-class CXXMetaFunction;
-template< typename T >
-class CXXMetaVariable;
+template< typename T > class CXXMetaEnum;
+template< typename T > class CXXMetaClass;
+template< typename T, typename ... Types > class CXXTplMetaClass;
+template< typename T > class CXXMetaFundamental;
+template< typename T  > class CXXMetaMethod;
+template< typename ... T > class CXXMetaProperty;
+template< typename T > class CXXMetaFunction;
+template< typename T > class CXXMetaVariable;
+template< typename T > class CXXMetaEnumerator;
 
 END_XE_NAMESPACE
 

@@ -9,7 +9,6 @@ XS::Widget::Widget( QWidget * parent /*= nullptr */ )
 {
 	QMetaObject::invokeMethod( this, [this]()
 	{
-		connect( AddShortcuts( "Save", QKeySequence( "CTRL+S" ) ), &QShortcut::activated, this, &XS::Widget::save_command );
 	}, Qt::QueuedConnection );
 }
 
@@ -26,7 +25,6 @@ void XS::Widget::PushUndoCommand( QUndoCommand * command )
 		if ( parent->metaObject()->inherits( &XS::DockWidget::staticMetaObject ) )
 		{
 			dynamic_cast<XS::DockWidget *>( parent )->PushUndoCommand( command );
-			emit push_command( command->text() );
 			break;
 		}
 		else
@@ -54,4 +52,72 @@ void XS::Widget::SaveLayout( QSettings & settings )
 void XS::Widget::LoadLayout( QSettings & settings )
 {
 	restoreGeometry( settings.value( "geometry" ).toByteArray() );
+}
+
+void XS::Widget::OnCommandRedo()
+{
+	auto childs = children();
+	for ( auto it : childs )
+	{
+		if ( it->metaObject()->inherits( &XS::Widget::staticMetaObject ) )
+		{
+			qobject_cast<XS::Widget *>( it )->OnCommandRedo();
+		}
+	}
+
+	OnRedo();
+
+	_CommandCount++;
+}
+
+void XS::Widget::OnCommandUndo()
+{
+	auto childs = children();
+	for ( auto it : childs )
+	{
+		if ( it->metaObject()->inherits( &XS::Widget::staticMetaObject ) )
+		{
+			qobject_cast<XS::Widget *>( it )->OnCommandUndo();
+		}
+	}
+
+	OnUndo();
+
+	_CommandCount--;
+}
+
+void XS::Widget::OnCommandSave()
+{
+	auto childs = children();
+	for ( auto it : childs )
+	{
+		if ( it->metaObject()->inherits( &XS::Widget::staticMetaObject ) )
+		{
+			qobject_cast<XS::Widget *>( it )->OnCommandSave();
+		}
+	}
+
+	OnSave();
+
+	_CommandCount = 0;
+}
+
+void XS::Widget::OnRedo()
+{
+
+}
+
+void XS::Widget::OnUndo()
+{
+
+}
+
+void XS::Widget::OnSave()
+{
+
+}
+
+int XS::Widget::GetCommandCount() const
+{
+	return _CommandCount;
 }

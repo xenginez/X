@@ -54,86 +54,86 @@ namespace std
 	template< typename T > struct is_container
 	{
 		using type = T;
+		using value_type = void;
 		static constexpr bool value = false;
 	};
 	template< typename T > inline constexpr bool is_container_v = is_container< T >::value;
 
 
+	template< typename ... T > struct is_container< std::list< T... > >
+	{
+		using type = std::list< T... >;
+		using value_type = type::value_type;
+		static constexpr bool value = true;
+	};
+
 	template< typename ... T > struct is_container< std::vector< T... > >
 	{
 		using type = std::vector< T... >;
+		using value_type = type::value_type;
 		static constexpr bool value = true;
 	};
 
 	template< typename ... T > struct is_container< std::deque< T... > >
 	{
 		using type = std::deque< T... >;
-		static constexpr bool value = true;
-	};
-
-	template< typename ... T > struct is_container< std::stack< T... > >
-	{
-		using type = std::stack< T... >;
-		static constexpr bool value = true;
-	};
-
-	template< typename ... T > struct is_container< std::queue< T... > >
-	{
-		using type = std::queue< T... >;
-		static constexpr bool value = true;
-	};
-
-	template< typename ... T > struct is_container< std::pair< T... > >
-	{
-		using type = std::pair< T... >;
+		using value_type = type::value_type;
 		static constexpr bool value = true;
 	};
 
 	template< typename ... T > struct is_container< std::set< T... > >
 	{
 		using type = std::set< T... >;
+		using value_type = type::value_type;
 		static constexpr bool value = true;
 	};
 
 	template< typename ... T > struct is_container< std::map< T... > >
 	{
 		using type = std::map< T... >;
+		using value_type = type::value_type;
 		static constexpr bool value = true;
 	};
 
 	template< typename ... T > struct is_container< std::multiset< T... > >
 	{
 		using type = std::multiset< T... >;
+		using value_type = type::value_type;
 		static constexpr bool value = true;
 	};
 
 	template< typename ... T > struct is_container< std::multimap< T... > >
 	{
 		using type = std::multimap< T... >;
+		using value_type = type::value_type;
 		static constexpr bool value = true;
 	};
 
 	template< typename ... T > struct is_container< std::unordered_set< T... > >
 	{
 		using type = std::unordered_set< T... >;
+		using value_type = type::value_type;
 		static constexpr bool value = true;
 	};
 
 	template< typename ... T > struct is_container< std::unordered_map< T... > >
 	{
 		using type = std::unordered_map< T... >;
+		using value_type = type::value_type;
 		static constexpr bool value = true;
 	};
 
 	template< typename ... T > struct is_container< std::unordered_multiset< T... > >
 	{
 		using type = std::unordered_multiset< T... >;
+		using value_type = type::value_type;
 		static constexpr bool value = true;
 	};
 
 	template< typename ... T > struct is_container< std::unordered_multimap< T... > >
 	{
 		using type = std::unordered_multimap< T... >;
+		using value_type = type::value_type;
 		static constexpr bool value = true;
 	};
 
