@@ -1706,7 +1706,7 @@ XE::GraphicsPipelineLayoutPtr XE::GraphicsServiceD3D12::DeviceCreatePipelineLayo
 		}
 	}
 
-	XE_ERROR( "D3D12SerializeRootSignature Error: {%0}", (const char *)errmsg->GetBufferPointer() );
+	XE_ERROR( "D3D12SerializeRootSignature Error: {%1}", (const char *)errmsg->GetBufferPointer() );
 
 	return {};
 }

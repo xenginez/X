@@ -7,14 +7,27 @@
 XS::Widget::Widget( QWidget * parent /*= nullptr */ )
 	:QWidget( parent )
 {
-	QMetaObject::invokeMethod( this, [this]()
+	_Parent = GetParent< XS::Widget >();
+	if ( _Parent )
 	{
-	}, Qt::QueuedConnection );
+		_Parent->_Children.push_back( this );
+	}
+	else
+	{
+		GetParent< XS::DockWidget >()->_Children.push_back( this );
+	}
 }
 
 XS::Widget::~Widget()
 {
-
+	if ( _Parent )
+	{
+		_Parent->_Children.removeOne( this );
+	}
+	else if( GetParent< XS::DockWidget >() )
+	{
+		GetParent< XS::DockWidget >()->_Children.removeOne( this );
+	}
 }
 
 void XS::Widget::PushUndoCommand( QUndoCommand * command )
@@ -56,50 +69,32 @@ void XS::Widget::LoadLayout( QSettings & settings )
 
 void XS::Widget::OnCommandRedo()
 {
-	auto childs = children();
-	for ( auto it : childs )
+	for ( auto it : _Children )
 	{
-		if ( it->metaObject()->inherits( &XS::Widget::staticMetaObject ) )
-		{
-			qobject_cast<XS::Widget *>( it )->OnCommandRedo();
-		}
+		it->OnCommandRedo();
 	}
 
 	OnRedo();
-
-	_CommandCount++;
 }
 
 void XS::Widget::OnCommandUndo()
 {
-	auto childs = children();
-	for ( auto it : childs )
+	for ( auto it : _Children )
 	{
-		if ( it->metaObject()->inherits( &XS::Widget::staticMetaObject ) )
-		{
-			qobject_cast<XS::Widget *>( it )->OnCommandUndo();
-		}
+		it->OnCommandUndo();
 	}
 
 	OnUndo();
-
-	_CommandCount--;
 }
 
 void XS::Widget::OnCommandSave()
 {
-	auto childs = children();
-	for ( auto it : childs )
+	for ( auto it : _Children )
 	{
-		if ( it->metaObject()->inherits( &XS::Widget::staticMetaObject ) )
-		{
-			qobject_cast<XS::Widget *>( it )->OnCommandSave();
-		}
+		it->OnCommandSave();
 	}
 
 	OnSave();
-
-	_CommandCount = 0;
 }
 
 void XS::Widget::OnRedo()
@@ -115,9 +110,4 @@ void XS::Widget::OnUndo()
 void XS::Widget::OnSave()
 {
 
-}
-
-int XS::Widget::GetCommandCount() const
-{
-	return _CommandCount;
 }

@@ -3,7 +3,12 @@
 #include "MetaInfo.h"
 #include "Reflection.h"
 
-
+BEG_META( XE::TypeFlag )
+type->Value( "VALUE", XE::TypeFlag::VALUE );
+type->Value( "POINTER", XE::TypeFlag::POINTER );
+type->Value( "REFERENCE", XE::TypeFlag::REFERENCE );
+type->Value( "SHAREDPTR", XE::TypeFlag::SHAREDPTR );
+END_META()
 
 XE::MetaException::MetaException( MetaInfoCPtr Meta, const String & Msg )
 	: XE::RuntimeException( XE::Format( "" ) ), _Meta( Meta ), _Msg( Msg )

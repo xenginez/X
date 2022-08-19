@@ -54,7 +54,7 @@ template< > struct ::EnumID< _MODULE::_ENUM > \
 		static auto meta = XE::MetaInfo::NewMetaInfo< XE::CXXMetaEnum< _MODULE::_ENUM > >( XE::Hash( __xe__sig__ ), #_ENUM, nullptr, _MODULE##::GetModule() ); \
 		return meta; \
 	} \
-}
+};
 
 #define DECL_XE_ENUM( _ENUM ) DECL_META_ENUM( XE, _ENUM )
 

@@ -23,6 +23,10 @@ public:
 	~SyntaxTree() override;
 
 public:
+	const XE::String & GetName() const;
+
+	void SetName( const XE::String & val );
+
 	const XE::Array<XE::ASTEnumPtr> & GetEnums() const;
 
 	void SetEnums( const XE::Array<XE::ASTEnumPtr> & val );
@@ -34,14 +38,6 @@ public:
 	const XE::Array<XE::ASTModulePtr> & GetModules() const;
 
 	void SetModules( const XE::Array<XE::ASTModulePtr> & val );
-
-	const XE::Array<XE::ASTMethodPtr> & GetMethods() const;
-
-	void SetMethods( const XE::Array<XE::ASTMethodPtr> & val );
-
-	const XE::Array<XE::ASTPropertyPtr> & GetPropertys() const;
-
-	void SetPropertys( const XE::Array<XE::ASTPropertyPtr> & val );
 
 	const XE::Array<XE::ASTFunctionPtr> & GetFunctions() const;
 
@@ -58,20 +54,15 @@ public:
 
 	void AddModule( const XE::ASTModulePtr & val );
 
-	void AddMethod( const XE::ASTMethodPtr & val );
-
-	void AddProperty( const XE::ASTPropertyPtr & val );
-
 	void AddFunction( const XE::ASTFunctionPtr & val );
 
 	void AddVariable( const XE::ASTVariablePtr & val );
 
 private:
+	XE::String _Name;
 	XE::Array< XE::ASTEnumPtr > _Enums;
 	XE::Array< XE::ASTClassPtr > _Classes;
 	XE::Array< XE::ASTModulePtr > _Modules;
-	XE::Array< XE::ASTMethodPtr > _Methods;
-	XE::Array< XE::ASTPropertyPtr > _Propertys;
 	XE::Array< XE::ASTFunctionPtr > _Functions;
 	XE::Array< XE::ASTVariablePtr > _Variables;
 };

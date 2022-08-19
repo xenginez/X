@@ -59,14 +59,14 @@ XS::StringInspector::StringInspector( QWidget * parent /*= nullptr */ )
 
 	connect( ui->toolButton, &QToolButton::clicked, [this]()
 		{
-			QDialog * dialog = new QDialog( this );
+			QDialog dialog( this );
 			{
 				auto desktop_rect = QApplication::desktop()->screenGeometry( 0 );
 
-				dialog->resize( desktop_rect.width() * 0.3f, desktop_rect.height() * 0.6f );
+				dialog.resize( desktop_rect.width() * 0.3f, desktop_rect.height() * 0.6f );
 
-				auto verticalLayout = new QVBoxLayout( dialog );
-				auto textEdit = new QTextEdit( dialog );
+				auto verticalLayout = new QVBoxLayout( &dialog );
+				auto textEdit = new QTextEdit( &dialog );
 				textEdit->setText( ui->lineEdit->text() );
 				auto cursor = textEdit->textCursor();
 				cursor.movePosition( QTextCursor::End );
@@ -74,33 +74,38 @@ XS::StringInspector::StringInspector( QWidget * parent /*= nullptr */ )
 
 				verticalLayout->addWidget( textEdit );
 
-				auto buttonBox = new QDialogButtonBox( dialog );
+				auto buttonBox = new QDialogButtonBox( &dialog );
 				buttonBox->setOrientation( Qt::Horizontal );
 				buttonBox->setStandardButtons( QDialogButtonBox::Cancel | QDialogButtonBox::Ok );
 
 				verticalLayout->addWidget( buttonBox );
 
-				QObject::connect( buttonBox, SIGNAL( accepted() ), dialog, SLOT( accept() ) );
-				QObject::connect( buttonBox, SIGNAL( rejected() ), dialog, SLOT( reject() ) );
+				QObject::connect( buttonBox, SIGNAL( accepted() ), &dialog, SLOT( accept() ) );
+				QObject::connect( buttonBox, SIGNAL( rejected() ), &dialog, SLOT( reject() ) );
 
-				dialog->setWindowTitle( GetObjectProxy()->GetName().c_str() );
-				dialog->setWindowFlags( Qt::Dialog | Qt::WindowCloseButtonHint );
+				dialog.setWindowTitle( GetObjectProxy()->GetName().c_str() );
+				dialog.setWindowFlags( Qt::Dialog | Qt::WindowCloseButtonHint );
 
-
-				auto callback = [this, dialog, text = textEdit]( bool accept )
+				if ( dialog.exec() == QDialog::Accepted )
 				{
-					if ( accept )
-					{
-						ui->lineEdit->setText( text->toPlainText() );
-					}
+					auto old = ui->lineEdit->text();
+					auto text = textEdit->toPlainText();
 
-					dialog->deleteLater();
-				};
+					ui->lineEdit->setText( text );
 
-				connect( dialog, &QDialog::accepted, [callback]() { callback( true ); } );
-				connect( dialog, &QDialog::rejected, [callback]() { callback( false ); } );
+					PushUndoCommand( GetObjectProxy()->GetName().c_str(),
+									 [this, proxy = GetObjectProxy(), value = XE::String( text.toStdString() )]()
+									{
+										proxy->SetValue( value );
+										ui->lineEdit->setText( value.c_str() );
+									},
+									 [this, proxy = GetObjectProxy(), value = old]()
+									{
+										proxy->SetValue( XE::String( value.toStdString() ) );
+										ui->lineEdit->setText( value );
+									} );
+				}
 			}
-			dialog->show();
 		} );
 }
 
@@ -115,22 +120,23 @@ void XS::StringInspector::Refresh()
 
 	ui->lineEdit->setText( GetObjectProxy()->GetValue().Value<XE::String>().c_str() );
 
-	connect( ui->lineEdit, &QLineEdit::textChanged, [this]( const QString & text )
+	connect( ui->lineEdit, &QLineEdit::editingFinished, [this]()
+	{
+		auto text = ui->lineEdit->text();
+		XE::String old = GetObjectProxy()->GetValue().Value<XE::String>();
+		if ( text != old.c_str() )
 		{
-			XE::String old = GetObjectProxy()->GetValue().Value<XE::String>();
-			if ( text != old.c_str() )
-			{
-				PushUndoCommand( GetObjectProxy()->GetName().c_str(),
-					[this, proxy = GetObjectProxy(), value = XE::String( text.toStdString() )]()
-				{
-					proxy->SetValue( value );
-					ui->lineEdit->setText( value.c_str() );
-				},
-					[this, proxy = GetObjectProxy(), value = old]()
-				{
-					proxy->SetValue( value );
-					ui->lineEdit->setText( value.c_str() );
-				} );
-			}
-		} );
+			PushUndoCommand( GetObjectProxy()->GetName().c_str(),
+							 [this, proxy = GetObjectProxy(), value = XE::String( text.toStdString() )]()
+							{
+								proxy->SetValue( value );
+								ui->lineEdit->setText( value.c_str() );
+							},
+							 [this, proxy = GetObjectProxy(), value = old]()
+							{
+								proxy->SetValue( value );
+								ui->lineEdit->setText( value.c_str() );
+							} );
+		}
+	} );
 }

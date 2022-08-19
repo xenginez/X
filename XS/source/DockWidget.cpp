@@ -211,7 +211,13 @@ bool XS::DockWidget::eventFilter( QObject * watched, QEvent * event )
 void XS::DockWidget::PushUndoCommand( QUndoCommand * command )
 {
 	_UndoStack->push( command );
-	OnCommandRedo();
+
+	for ( auto it : _Children )
+	{
+		it->OnCommandRedo();
+	}
+
+	OnRedo();
 }
 
 QShortcut * XS::DockWidget::AddShortcuts( const QString & name, const QKeySequence & key )
@@ -230,25 +236,12 @@ void XS::DockWidget::OnCommandRedo()
 	{
 		_UndoStack->redo();
 
-		auto childs = children();
-		for ( auto it : childs )
+		for ( auto it : _Children )
 		{
-			if ( it->metaObject()->inherits( &XS::Widget::staticMetaObject ) )
-			{
-				qobject_cast<XS::Widget *>( it )->OnCommandRedo();
-			}
+			it->OnCommandRedo();
 		}
 
 		OnRedo();
-	}
-
-	if ( _UndoStack->count() == 1 )
-	{
-		auto title = windowTitle();
-		if ( !title.startsWith( "* " ) )
-		{
-			setWindowTitle( "* " + title );
-		}
 	}
 }
 
@@ -258,25 +251,12 @@ void XS::DockWidget::OnCommandUndo()
 	{
 		_UndoStack->undo();
 
-		auto childs = children();
-		for ( auto it : childs )
+		for ( auto it : _Children )
 		{
-			if ( it->metaObject()->inherits( &XS::Widget::staticMetaObject ) )
-			{
-				qobject_cast<XS::Widget *>( it )->OnCommandUndo();
-			}
+			it->OnCommandUndo();
 		}
 
 		OnUndo();
-	}
-
-	if ( _UndoStack->count() == 0 )
-	{
-		auto title = windowTitle();
-		if ( title.startsWith( "* " ) )
-		{
-			setWindowTitle( title.right( title.size() - 2 ) );
-		}
 	}
 }
 
@@ -284,38 +264,28 @@ void XS::DockWidget::OnCommandSave()
 {
 	if ( _UndoStack->count() != 0 )
 	{
-		auto childs = children();
-		for ( auto it : childs )
+		_UndoStack->clear();
+
+		for ( auto it : _Children )
 		{
-			if ( it->metaObject()->inherits( &XS::Widget::staticMetaObject ) )
-			{
-				qobject_cast<XS::Widget *>( it )->OnCommandSave();
-			}
+			it->OnCommandSave();
 		}
 
 		OnSave();
-
-		_UndoStack->clear();
-	}
-
-	auto title = windowTitle();
-	if ( title.startsWith( "* " ) )
-	{
-		setWindowTitle( title.right( title.size() - 2 ) );
 	}
 }
 
 void XS::DockWidget::OnRedo()
 {
-	
+
 }
 
 void XS::DockWidget::OnUndo()
 {
-	
+
 }
 
 void XS::DockWidget::OnSave()
 {
-	
+
 }

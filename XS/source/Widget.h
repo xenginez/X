@@ -75,10 +75,9 @@ protected:
 
 	virtual void OnSave();
 
-	int GetCommandCount() const;
-
 private:
-	int _CommandCount = 0;
+	XS::Widget * _Parent = nullptr;
+	QList< XS::Widget * > _Children;
 };
 
 END_XS_NAMESPACE

@@ -44,6 +44,8 @@ QUuid XS::ASTEditor::assetCreate( const QFileInfo & path )
 {
 	XE::SyntaxTreePtr tree = XE::MakeShared< XE::SyntaxTree >();
 	{
+		tree->SetName( path.baseName().toStdString() );
+
 		std::stringstream json;
 		XE::JsonOArchive archive( json );
 		archive << tree;

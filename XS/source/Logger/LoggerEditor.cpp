@@ -260,7 +260,7 @@ void XS::LoggerEditor::OnListViewItemDoubleClicked( const QModelIndex & index )
 #elif PLATFORM_OS == OS_MAC
 #endif
 
-	if ( vscode.isEmpty() || QProcess::startDetached( vscode, QStringList() << "-r" << "-g" << QString( "%0:%1" ).arg( QDir( QApplication::applicationDirPath() ).absoluteFilePath( file ) ).arg( line ) ) == false )
+	if ( vscode.isEmpty() || QProcess::startDetached( vscode, QStringList() << "-r" << "-g" << QString( "%1:%2" ).arg( QDir( QApplication::applicationDirPath() ).absoluteFilePath( file ) ).arg( line ) ) == false )
 	{
 		QDesktopServices::openUrl( QUrl::fromLocalFile( QDir( QApplication::applicationDirPath() ).absoluteFilePath( file ) ) );
 	}

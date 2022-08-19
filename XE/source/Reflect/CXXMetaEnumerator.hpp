@@ -70,7 +70,7 @@ public:
 	{
 		_Cur = _Beg;
 
-		if ( (XE::uint64)std::distance( _Beg, _End ) < val )
+		if ( (XE::uint64)std::distance( _Beg, _End ) > val )
 		{
 			std::advance( _Cur, val );
 		}
@@ -165,7 +165,7 @@ public:
 	void SetIndex( XE::uint64 val ) override
 	{
 		_Cur = _Beg;
-		if ( (XE::uint64)std::distance( _Beg, _End ) < val )
+		if ( (XE::uint64)std::distance( _Beg, _End ) > val )
 		{
 			std::advance( _Cur, val );
 		}
@@ -253,7 +253,7 @@ public:
 	void SetIndex( XE::uint64 val ) override
 	{
 		_Cur = _Beg;
-		if ( (XE::uint64)std::distance( _Beg, _End ) < val )
+		if ( (XE::uint64)std::distance( _Beg, _End ) > val )
 		{
 			std::advance( _Cur, val );
 		}
@@ -341,7 +341,7 @@ public:
 	void SetIndex( XE::uint64 val ) override
 	{
 		_Cur = _Beg;
-		if ( (XE::uint64)std::distance( _Beg, _End ) < val )
+		if ( (XE::uint64)std::distance( _Beg, _End ) > val )
 		{
 			std::advance( _Cur, val );
 		}
@@ -429,7 +429,7 @@ public:
 	void SetIndex( XE::uint64 val ) override
 	{
 		_Cur = _Beg;
-		if ( (XE::uint64)std::distance( _Beg, _End ) < val )
+		if ( (XE::uint64)std::distance( _Beg, _End ) > val )
 		{
 			std::advance( _Cur, val );
 		}
@@ -517,7 +517,7 @@ public:
 	void SetIndex( XE::uint64 val ) override
 	{
 		_Cur = _Beg;
-		if ( (XE::uint64)std::distance( _Beg, _End ) < val )
+		if ( (XE::uint64)std::distance( _Beg, _End ) > val )
 		{
 			std::advance( _Cur, val );
 		}
@@ -605,7 +605,7 @@ public:
 	void SetIndex( XE::uint64 val ) override
 	{
 		_Cur = _Beg;
-		if ( (XE::uint64)std::distance( _Beg, _End ) < val )
+		if ( (XE::uint64)std::distance( _Beg, _End ) > val )
 		{
 			std::advance( _Cur, val );
 		}
@@ -693,7 +693,7 @@ public:
 	void SetIndex( XE::uint64 val ) override
 	{
 		_Cur = _Beg;
-		if ( (XE::uint64)std::distance( _Beg, _End ) < val )
+		if ( (XE::uint64)std::distance( _Beg, _End ) > val )
 		{
 			std::advance( _Cur, val );
 		}
@@ -781,7 +781,7 @@ public:
 	void SetIndex( XE::uint64 val ) override
 	{
 		_Cur = _Beg;
-		if ( (XE::uint64)std::distance( _Beg, _End ) < val )
+		if ( (XE::uint64)std::distance( _Beg, _End ) > val )
 		{
 			std::advance( _Cur, val );
 		}

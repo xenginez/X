@@ -13,6 +13,7 @@
 
 BEG_XE_NAMESPACE
 
+DECL_PTR( ASTMeta );
 DECL_PTR( ASTEnum );
 DECL_PTR( ASTClass );
 DECL_PTR( ASTModule );

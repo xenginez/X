@@ -44,7 +44,7 @@ void XE::AssetsService::Startup()
 
 			if ( !pak->Open( p ) )
 			{
-				XE_ERROR( "{%0} failed to open!", p );
+				XE_ERROR( "{%1} failed to open!", p );
 				continue;
 			}
 

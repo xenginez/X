@@ -2228,7 +2228,7 @@ DECL_XE_CLASS( Mathf );
 
 XE_INLINE XE::String ToString(const XE::Quat & _Val )
 {
-	return XE::Format( "{%0}, {%1}, {%2}, {%3}", _Val.x, _Val.y, _Val.z, _Val.w );
+	return XE::Format( "{%1}, {%2}, {%3}, {%4}", _Val.x, _Val.y, _Val.z, _Val.w );
 }
 
 XE_INLINE XE::String ToString(const XE::float16 & _Val )
@@ -2238,17 +2238,17 @@ XE_INLINE XE::String ToString(const XE::float16 & _Val )
 
 template< typename T > XE_INLINE XE::String ToString(const XE::Vec2< T > & _Val )
 {
-	return XE::Format( "{%0}, {%1}", _Val.x, _Val.y );
+	return XE::Format( "{%1}, {%2}", _Val.x, _Val.y );
 }
 
 template< typename T > XE_INLINE XE::String ToString(const XE::Vec3< T > & _Val )
 {
-	return XE::Format( "{%0}, {%1}, {%2}", _Val.x, _Val.y, _Val.z );
+	return XE::Format( "{%1}, {%2}, {%3}", _Val.x, _Val.y, _Val.z );
 }
 
 template< typename T > XE_INLINE XE::String ToString(const XE::Vec4< T > & _Val )
 {
-	return XE::Format( "{%0}, {%1}, {%2}, {%3}", _Val.x, _Val.y, _Val.z, _Val.w );
+	return XE::Format( "{%1}, {%2}, {%3}, {%4}", _Val.x, _Val.y, _Val.z, _Val.w );
 }
 
 template< typename T, XE::uint64 R, XE::uint64 C > XE_INLINE XE::String ToString(const XE::Mat< T, R, C > & _Val )

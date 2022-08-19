@@ -6,8 +6,9 @@
 
 #include <QMenu>
 #include <QCursor>
-#include <QAbstractItemModel>
+#include <QItemDelegate>
 
+Q_DECLARE_METATYPE( XE::ASTMetaPtr );
 Q_DECLARE_METATYPE( XE::ASTEnumPtr );
 Q_DECLARE_METATYPE( XE::ASTClassPtr );
 Q_DECLARE_METATYPE( XE::ASTModulePtr );
@@ -28,6 +29,36 @@ namespace
 	static constexpr int AST_ROLE = Qt::UserRole + 1;
 	static constexpr const char * UUID_NAME = "AST_UUID";
 	static constexpr const char * PATH_NAME = "AST_PATH";
+	static constexpr const char * TREE_ICON = "SkinIcons:/images/icons/icon_asset_ast.svg";
+	static constexpr const char * ENUM_ICON = "SkinIcons:/images/ast/icon_ast_enum.png";
+	static constexpr const char * CLASS_ICON = "SkinIcons:/images/ast/icon_ast_class.png";
+	static constexpr const char * MODULE_ICON = "SkinIcons:/images/ast/icon_ast_module.png";
+	static constexpr const char * METHOD_ICON = "SkinIcons:/images/ast/icon_ast_method.png";
+	static constexpr const char * PROPERTY_ICON = "SkinIcons:/images/ast/icon_ast_property.png";
+	static constexpr const char * FUNCTION_ICON = "SkinIcons:/images/ast/icon_ast_function.png";
+	static constexpr const char * VARIABLE_ICON = "SkinIcons:/images/ast/icon_ast_variable.png";
+
+	class TreeItemDelegate : public QItemDelegate
+	{
+	public:
+		TreeItemDelegate( QObject * parent = nullptr )
+			:QItemDelegate( parent )
+		{
+
+		}
+
+		QSize sizeHint( const QStyleOptionViewItem & option, const QModelIndex & index ) const override
+		{
+			QSize size = QItemDelegate::sizeHint( option, index );
+
+			if ( ( index.model()->flags( index ) & Qt::ItemFlag::ItemIsEditable ) == 0 )
+			{
+				size.setHeight( size.height() * 2 );
+			}
+
+			return size;
+		}
+	};
 }
 
 XS::ASTTabWidget::ASTTabWidget( QWidget * parent /*= nullptr */ )
@@ -40,6 +71,7 @@ XS::ASTTabWidget::ASTTabWidget( QWidget * parent /*= nullptr */ )
 	ui->search->addAction( QIcon( "SkinIcons:/images/ast/icon_ast_search.png" ), QLineEdit::ActionPosition::LeadingPosition );
 
 	ui->splitter->setSizes( { 2500, 5000, 2500 } );
+	ui->tree->setItemDelegate( new TreeItemDelegate( this ) );
 
 	connect( ui->add, &QToolButton::clicked, this, &XS::ASTTabWidget::OnAddToolButtonClicked );
 	connect( ui->tool, &QToolButton::clicked, this, &XS::ASTTabWidget::OnToolToolButtonClicked );
@@ -143,7 +175,7 @@ void XS::ASTTabWidget::OnEnumListItemDoubleClicked( QListWidgetItem * item )
 
 		XS::ObjectProxy * proxy = new XS::VariantObjectProxy( ast );
 		_Inspector = XS::Inspector::Create( proxy, ui->detail );
-		ui->detail_title->setText( ast->Name.c_str() );
+		ui->detail_title->setText( QString( "Enum - %1" ).arg( ast->Name.c_str() ) );
 		ui->detail_layout->addWidget( _Inspector );
 	}
 }
@@ -163,55 +195,43 @@ void XS::ASTTabWidget::showEvent( QShowEvent * event )
 
 		if ( _Tree )
 		{
-			ui->enum_list->clear();
-			for ( const auto & it : _Tree->GetEnums() )
-			{
-				QListWidgetItem * item = new QListWidgetItem( ui->enum_list );
-				{
-					item->setText( it->Name.c_str() );
-					item->setData( AST_ROLE, QVariant::fromValue( it ) );
-					item->setFlags( item->flags() | Qt::ItemIsEditable );
-				}
-				ui->enum_list->addItem( item );
-			}
+			FillTree();
 		}
 	}
 }
 
 void XS::ASTTabWidget::OnRedo()
 {
-	if ( GetCommandCount() != 0 )
+	auto tab = GetParent< QTabWidget >();
+	if ( tab != nullptr )
 	{
-		auto tab = GetParent< QTabWidget >();
-		if ( tab != nullptr )
-		{
-			auto i = tab->indexOf( this );
+		auto i = tab->indexOf( this );
 
-			QString text = tab->tabText( i );
-			if ( !text.startsWith( "* " ) )
-			{
-				tab->setTabText( i, "* " + text );
-			}
+		QString text = tab->tabText( i );
+		if ( !text.startsWith( "* " ) )
+		{
+			tab->setTabText( i, "* " + text );
 		}
 	}
+
+	Rename();
 }
 
 void XS::ASTTabWidget::OnUndo()
 {
-	if ( GetCommandCount() == 0 )
+	auto tab = GetParent< QTabWidget >();
+	if ( tab != nullptr )
 	{
-		auto tab = GetParent< QTabWidget >();
-		if ( tab != nullptr )
-		{
-			auto i = tab->indexOf( this );
+		auto i = tab->indexOf( this );
 
-			QString text = tab->tabText( i );
-			if ( text.startsWith( "* " ) )
-			{
-				tab->setTabText( i, text.right( text.size() - 2 ) );
-			}
+		QString text = tab->tabText( i );
+		if ( text.startsWith( "* " ) )
+		{
+			tab->setTabText( i, text.right( text.size() - 2 ) );
 		}
 	}
+
+	Rename();
 }
 
 void XS::ASTTabWidget::OnSave()
@@ -244,4 +264,323 @@ void XS::ASTTabWidget::OnSave()
 	{
 		//XE_ERROR( "{%1} file open failure", path.absoluteFilePath().toStdString() );
 	}
+}
+
+void XS::ASTTabWidget::Rename()
+{
+	for ( int i = 0; i < ui->enum_list->count(); i++ )
+	{
+		auto item = ui->enum_list->item( i );
+		auto ast = item->data( AST_ROLE ).value<XE::ASTEnumPtr>();
+
+		if ( item->text() != ast->Name.c_str() )
+		{
+			item->setText( QString::fromUtf8( ast->Name.c_str() ) );
+		}
+	}
+	for ( int i = 0; i < ui->class_list->count(); i++ )
+	{
+		auto item = ui->class_list->item( i );
+		auto ast = item->data( AST_ROLE ).value<XE::ASTClassPtr>();
+
+		if ( item->text() != ast->Name.c_str() )
+		{
+			item->setText( QString::fromUtf8( ast->Name.c_str() ) );
+		}
+	}
+	for ( int i = 0; i < ui->module_list->count(); i++ )
+	{
+		auto item = ui->module_list->item( i );
+		auto ast = item->data( AST_ROLE ).value<XE::ASTModulePtr>();
+
+		if ( item->text() != ast->Name.c_str() )
+		{
+			item->setText( QString::fromUtf8( ast->Name.c_str() ) );
+		}
+	}
+	for ( int i = 0; i < ui->method_list->count(); i++ )
+	{
+		auto item = ui->method_list->item( i );
+		auto ast = item->data( AST_ROLE ).value<XE::ASTMethodPtr>();
+
+		if ( item->text() != ast->Name.c_str() )
+		{
+			item->setText( QString::fromUtf8( ast->Name.c_str() ) );
+		}
+	}
+	for ( int i = 0; i < ui->property_list->count(); i++ )
+	{
+		auto item = ui->property_list->item( i );
+		auto ast = item->data( AST_ROLE ).value<XE::ASTPropertyPtr>();
+
+		if ( item->text() != ast->Name.c_str() )
+		{
+			item->setText( QString::fromUtf8( ast->Name.c_str() ) );
+		}
+	}
+	for ( int i = 0; i < ui->function_list->count(); i++ )
+	{
+		auto item = ui->function_list->item( i );
+		auto ast = item->data( AST_ROLE ).value<XE::ASTFunctionPtr>();
+
+		if ( item->text() != ast->Name.c_str() )
+		{
+			item->setText( QString::fromUtf8( ast->Name.c_str() ) );
+		}
+	}
+	for ( int i = 0; i < ui->variable_list->count(); i++ )
+	{
+		auto item = ui->variable_list->item( i );
+		auto ast = item->data( AST_ROLE ).value<XE::ASTVariablePtr>();
+
+		if ( item->text() != ast->Name.c_str() )
+		{
+			item->setText( QString::fromUtf8( ast->Name.c_str() ) );
+		}
+	}
+}
+
+void XS::ASTTabWidget::FillTree()
+{
+	ui->tree->clear();
+
+	QTreeWidgetItem * item = new QTreeWidgetItem( ui->tree );
+	{
+		item->setText( 0, QString::fromUtf8( _Tree->GetName().c_str() ) );
+		item->setIcon( 0, QIcon( TREE_ICON ) );
+		ui->tree->addTopLevelItem( item );
+		auto font = item->font( 0 ); font.setBold( true ); item->setFont( 0, font );
+	}
+
+	QTreeWidgetItem * enum_item = new QTreeWidgetItem( item );
+	{
+		enum_item->setText( 0, tr( "Enum" ) );
+		enum_item->setIcon( 0, QIcon( ENUM_ICON ) );
+		auto font = enum_item->font( 0 ); font.setBold( true ); enum_item->setFont( 0, font );
+
+		for ( const auto & it : _Tree->GetEnums() )
+		{
+			FillEnum( it, enum_item );
+		}
+	}
+
+	QTreeWidgetItem * class_item = new QTreeWidgetItem( item );
+	{
+		class_item->setText( 0, tr( "Class" ) );
+		class_item->setIcon( 0, QIcon( CLASS_ICON ) );
+		auto font = class_item->font( 0 ); font.setBold( true ); class_item->setFont( 0, font );
+
+		for ( const auto & it : _Tree->GetClasses() )
+		{
+			FillClass( it, class_item );
+		}
+	}
+
+	QTreeWidgetItem * module_item = new QTreeWidgetItem( item );
+	{
+		module_item->setText( 0, tr( "Module" ) );
+		module_item->setIcon( 0, QIcon( MODULE_ICON ) );
+		auto font = module_item->font( 0 ); font.setBold( true ); module_item->setFont( 0, font );
+
+		for ( const auto & it : _Tree->GetModules() )
+		{
+			FillModule( it, module_item );
+		}
+	}
+
+	QTreeWidgetItem * function_item = new QTreeWidgetItem( item );
+	{
+		function_item->setText( 0, tr( "Function" ) );
+		function_item->setIcon( 0, QIcon( FUNCTION_ICON ) );
+		auto font = function_item->font( 0 ); font.setBold( true ); function_item->setFont( 0, font );
+
+		for ( const auto & it : _Tree->GetFunctions() )
+		{
+			FillFunction( it, function_item );
+		}
+	}
+
+	QTreeWidgetItem * variable_item = new QTreeWidgetItem( item );
+	{
+		variable_item->setText( 0, tr( "Variable" ) );
+		variable_item->setIcon( 0, QIcon( VARIABLE_ICON ) );
+		auto font = variable_item->font( 0 ); font.setBold( true ); variable_item->setFont( 0, font );
+
+		for ( const auto & it : _Tree->GetVariables() )
+		{
+			FillVariable( it, variable_item );
+		}
+	}
+}
+
+void XS::ASTTabWidget::FillEnum( const XE::ASTEnumPtr & ast, QTreeWidgetItem * parent )
+{
+	QTreeWidgetItem * item = new QTreeWidgetItem( parent );
+	{
+		item->setText( 0, QString::fromUtf8( ast->Name.c_str() ) );
+		item->setIcon( 0, QIcon( ENUM_ICON ) );
+		item->setFlags( item->flags() | Qt::ItemFlag::ItemIsSelectable | Qt::ItemFlag::ItemIsEditable );
+	}
+
+	for ( const auto & it : ast->Elements )
+	{
+		QTreeWidgetItem * element_item = new QTreeWidgetItem( item );
+		{
+			element_item->setText( 0, QString::fromUtf8( it.c_str() ) );
+			element_item->setIcon( 0, QIcon( ENUM_ICON ) );
+			element_item->setFlags( item->flags() | Qt::ItemFlag::ItemIsSelectable | Qt::ItemFlag::ItemIsEditable );
+		}
+	}
+}
+
+void XS::ASTTabWidget::FillClass( const XE::ASTClassPtr & ast, QTreeWidgetItem * parent )
+{
+	QTreeWidgetItem * item = new QTreeWidgetItem( parent );
+	{
+		item->setText( 0, QString::fromUtf8( ast->Name.c_str() ) );
+		item->setIcon( 0, QIcon( CLASS_ICON ) );
+		item->setFlags( item->flags() | Qt::ItemFlag::ItemIsSelectable | Qt::ItemFlag::ItemIsEditable );
+	}
+
+	FillMethod( ast->Construct, item );
+	FillMethod( ast->Destruct, item );
+
+	QTreeWidgetItem * method_item = new QTreeWidgetItem( parent );
+	{
+		method_item->setText( 0, tr( "Method" ) );
+		method_item->setIcon( 0, QIcon( METHOD_ICON ) );
+		auto font = method_item->font( 0 ); font.setBold( true ); method_item->setFont( 0, font );
+
+		for ( const auto & it : ast->Methods )
+		{
+			FillMethod( it, method_item );
+		}
+	}
+
+	QTreeWidgetItem * property_item = new QTreeWidgetItem( parent );
+	{
+		property_item->setText( 0, tr( "Property" ) );
+		property_item->setIcon( 0, QIcon( METHOD_ICON ) );
+		auto font = property_item->font( 0 ); font.setBold( true ); property_item->setFont( 0, font );
+
+		for ( const auto & it : ast->Propertys )
+		{
+			FillProperty( it, property_item );
+		}
+	}
+}
+
+void XS::ASTTabWidget::FillModule( const XE::ASTModulePtr & ast, QTreeWidgetItem * parent )
+{
+	QTreeWidgetItem * item = new QTreeWidgetItem( parent );
+	{
+		item->setText( 0, QString::fromUtf8( ast->Name.c_str() ) );
+		item->setIcon( 0, QIcon( MODULE_ICON ) );
+		item->setFlags( item->flags() | Qt::ItemFlag::ItemIsSelectable | Qt::ItemFlag::ItemIsEditable );
+	}
+
+	QTreeWidgetItem * enum_item = new QTreeWidgetItem( item );
+	{
+		enum_item->setText( 0, tr( "Enum" ) );
+		enum_item->setIcon( 0, QIcon( ENUM_ICON ) );
+		auto font = enum_item->font( 0 ); font.setBold( true ); enum_item->setFont( 0, font );
+
+		for ( const auto & it : ast->Enums )
+		{
+			FillEnum( it, enum_item );
+		}
+	}
+	QTreeWidgetItem * class_item = new QTreeWidgetItem( item );
+	{
+		class_item->setText( 0, tr( "Class" ) );
+		class_item->setIcon( 0, QIcon( CLASS_ICON ) );
+		auto font = class_item->font( 0 ); font.setBold( true ); class_item->setFont( 0, font );
+
+		for ( const auto & it : ast->Clsses )
+		{
+			FillClass( it, class_item );
+		}
+	}
+	QTreeWidgetItem * module_item = new QTreeWidgetItem( item );
+	{
+		module_item->setText( 0, tr( "Module" ) );
+		module_item->setIcon( 0, QIcon( MODULE_ICON ) );
+		auto font = module_item->font( 0 ); font.setBold( true ); module_item->setFont( 0, font );
+
+		for ( const auto & it : ast->Modules )
+		{
+			FillModule( it, module_item );
+		}
+	}
+	QTreeWidgetItem * function_item = new QTreeWidgetItem( item );
+	{
+		function_item->setText( 0, tr( "Function" ) );
+		function_item->setIcon( 0, QIcon( FUNCTION_ICON ) );
+		auto font = function_item->font( 0 ); font.setBold( true ); function_item->setFont( 0, font );
+
+		for ( const auto & it : ast->Functions )
+		{
+			FillFunction( it, function_item );
+		}
+	}
+	QTreeWidgetItem * variable_item = new QTreeWidgetItem( item );
+	{
+		variable_item->setText( 0, tr( "Variable" ) );
+		variable_item->setIcon( 0, QIcon( VARIABLE_ICON ) );
+		auto font = variable_item->font( 0 ); font.setBold( true ); variable_item->setFont( 0, font );
+
+		for ( const auto & it : ast->Variables )
+		{
+			FillVariable( it, variable_item );
+		}
+	}
+}
+
+void XS::ASTTabWidget::FillMethod( const XE::ASTMethodPtr & ast, QTreeWidgetItem * parent )
+{
+	QTreeWidgetItem * item = new QTreeWidgetItem( parent );
+	{
+		item->setText( 0, QString::fromUtf8( ast->Name.c_str() ) );
+		item->setIcon( 0, QIcon( METHOD_ICON ) );
+		item->setFlags( item->flags() | Qt::ItemFlag::ItemIsSelectable | Qt::ItemFlag::ItemIsEditable );
+	}
+
+	QTreeWidgetItem * parameter_item = new QTreeWidgetItem( item );
+	{
+		parameter_item->setText( 0, tr( "Parameter" ) );
+		parameter_item->setIcon( 0, QIcon( ENUM_ICON ) );
+		auto font = parameter_item->font( 0 ); font.setBold( true ); parameter_item->setFont( 0, font );
+
+		for ( const auto & it : ast->Parameters )
+		{
+			// TODO: 
+		}
+	}
+
+	QTreeWidgetItem * local_item = new QTreeWidgetItem( item );
+	{
+		local_item->setText( 0, tr( "LocalVariable" ) );
+		local_item->setIcon( 0, QIcon( ENUM_ICON ) );
+		auto font = local_item->font( 0 ); font.setBold( true ); local_item->setFont( 0, font );
+
+		for ( const auto & it : ast->LocalVariables )
+		{
+			// TODO: 
+		}
+	}
+}
+
+void XS::ASTTabWidget::FillProperty( const XE::ASTPropertyPtr & ast, QTreeWidgetItem * parent )
+{
+
+}
+
+void XS::ASTTabWidget::FillFunction( const XE::ASTFunctionPtr & ast, QTreeWidgetItem * parent )
+{
+
+}
+
+void XS::ASTTabWidget::FillVariable( const XE::ASTVariablePtr & ast, QTreeWidgetItem * parent )
+{
+
 }

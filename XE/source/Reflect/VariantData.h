@@ -694,15 +694,15 @@ template< typename T > struct VariantDataIsCanConvert
 	}
 	bool operator()( const VariantSmallData & val ) const
 	{
-		return val.Type != nullptr && __VariantDataIsCanConvert( TypeID< T >::Get().get(), val.Type );
+		return val.Type != nullptr && __VariantDataIsCanConvert( val.Type, TypeID< T >::Get().get() );
 	}
 	bool operator()( const VariantPointerData & val ) const
 	{
-		return val.Type != nullptr && __VariantDataIsCanConvert( TypeID< T >::Get().get(), val.Type );
+		return val.Type != nullptr && __VariantDataIsCanConvert( val.Type, TypeID< T >::Get().get() );
 	}
 	bool operator()( const VariantWarpperData & val ) const
 	{
-		return val.Pointer != nullptr && __VariantDataIsCanConvert( TypeID< T >::Get().get(), val.Pointer->GetMetaType() );
+		return val.Pointer != nullptr && __VariantDataIsCanConvert( val.Pointer->GetMetaType(), TypeID< T >::Get().get() );
 	}
 };
 

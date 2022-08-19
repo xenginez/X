@@ -57,7 +57,7 @@ bool g_cpu_info_init = cpuinfo_initialize();
 XE::String XE::Platform::CpuInfo()
 {
 	XE::String result( R"(
-Name:{%0} Vendor:{%1} Core:{%2}
+Name:{%1} Vendor:{%2} Core:{%3}
 Support:)" );
 
 	result = XE::Format( result,

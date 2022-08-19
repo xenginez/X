@@ -22,6 +22,8 @@ class QToolButton;
 
 BEG_XS_NAMESPACE
 
+class Widget;
+
 class UndoCommand : public QUndoCommand
 {
 public:
@@ -47,6 +49,9 @@ private:
 class XS_API DockWidget : public QDockWidget
 {
 	Q_OBJECT
+
+private:
+	friend class Widget;
 
 public:
 	DockWidget( QWidget * parent = nullptr );
@@ -133,6 +138,7 @@ private:
 	QUndoStack * _UndoStack = nullptr;
 	QToolButton * _FloatButton = nullptr;
 	QToolButton * _FixedButton = nullptr;
+	QList< XS::Widget * > _Children = {};
 };
 
 END_XS_NAMESPACE

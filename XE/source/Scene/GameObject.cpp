@@ -130,7 +130,7 @@ XE::GameObjectComponentPtr XE::GameObject::AddComponent( const XE::MetaClassCPtr
 	{
 		if ( it->GetMetaClass() == val )
 		{
-			XE_ERROR( "{%0} the type already exists.", val->GetFullName() );
+			XE_ERROR( "{%1} the type already exists.", val->GetFullName() );
 
 			return nullptr;
 		}

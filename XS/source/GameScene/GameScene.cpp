@@ -3,11 +3,8 @@
 #include "ui_GameScene.h"
 
 XS::GameScene::GameScene( QWidget * parent /*= nullptr */ )
-	: ui( new Ui::GameScene )
+	: Widget( parent ), ui( new Ui::GameScene )
 {
-	setFrameShape( QFrame::Box );
-	setFrameShadow( QFrame::Sunken );
-
 	ui->setupUi( this );
 
 	ui->fps->setIcon( QIcon( "SkinIcons:/images/gamescene/icon_gamescene_fps.png" ) );
@@ -30,5 +27,5 @@ bool XS::GameScene::eventFilter( QObject * watched, QEvent * event )
 	{
 	}
 
-	return QFrame::eventFilter( watched, event );
+	return XS::Widget::eventFilter( watched, event );
 }

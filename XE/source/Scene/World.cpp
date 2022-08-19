@@ -387,13 +387,13 @@ void XE::World::AddComponent( const XE::EntityHandle & handle, const XE::MetaCla
 		old_it = _p->_ArchetypeMap.find( entity_it->second );
 		if ( old_it == _p->_ArchetypeMap.end() )
 		{
-			XE_ERROR( "the archetype of {%0} was not found.", handle.GetValue() );
+			XE_ERROR( "the archetype of {%1} was not found.", handle.GetValue() );
 
 			return;
 		}
 		if ( std::find( old_it->second.ComponentTypes.begin(), old_it->second.ComponentTypes.end(), component ) != old_it->second.ComponentTypes.end() )
 		{
-			XE_ERROR( "Type {%0} already exists", component->GetFullName() );
+			XE_ERROR( "Type {%1} already exists", component->GetFullName() );
 
 			return;
 		}
@@ -478,7 +478,7 @@ void XE::World::RemoveComponent( const XE::EntityHandle & handle, const XE::Meta
 		old_it = _p->_ArchetypeMap.find( entity_it->second );
 		if ( old_it == _p->_ArchetypeMap.end() )
 		{
-			XE_ERROR( "the archetype of {%0} was not found.", handle.GetValue() );
+			XE_ERROR( "the archetype of {%1} was not found.", handle.GetValue() );
 
 			return;
 		}

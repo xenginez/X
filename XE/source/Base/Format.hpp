@@ -18,14 +18,14 @@ XE_INLINE XE::String Format( XE::uint64 index, const XE::String & fmt )
 	return fmt;
 };
 
-template< typename T > XE::String Format( XE::uint64 index, const XE::String & fmt, T && arg )
+template< typename T > XE::String Format( XE::uint64 index, const XE::String & fmt, T arg )
 {
 	return std::regex_replace( fmt.std_str(), std::regex( R"(\{\s*%)" + XE::ToString( index ).std_str() + R"(\s*\})" ), XE::ToString( arg ).std_str() );
 };
 
-template< typename T, typename ... Types > XE::String Format( XE::uint64 index, const XE::String & fmt, T && arg, Types &&... args )
+template< typename T, typename ... Types > XE::String Format( XE::uint64 index, const XE::String & fmt, T && arg, Types ... args )
 {
-	return Format( index + 1, Format( index, fmt, arg ), std::forward< Types >( args )... );
+	return Format( index + 1, Format( index, fmt, arg ), args... );
 };
 
 
@@ -34,9 +34,9 @@ XE_INLINE XE::String Format( const XE::String & fmt )
 	return fmt;
 }
 
-template< typename ... Types > XE::String Format( const XE::String & fmt, Types &&... args )
+template< typename ... Types > XE::String Format( const XE::String & fmt, Types ... args )
 {
-	return XE::Format( XE::uint64( 0 ), fmt, std::forward< Types >( args )... );
+	return XE::Format( XE::uint64( 1 ), fmt, args... );
 }
 
 END_XE_NAMESPACE

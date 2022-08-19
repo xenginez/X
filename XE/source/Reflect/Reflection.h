@@ -162,4 +162,15 @@ public: \
 private:
 #define OBJECT(...)            MACRO_EXP_(MACRO_GLUE(OBJECT_,MACRO_ARGS_CONTER(__VA_ARGS__))(__VA_ARGS__))
 
+
+template< > struct ::EnumID< XE::TypeFlag >
+{
+	static XE::MetaEnumCPtr Get( const XE::TypeFlag * val = nullptr )
+	{
+		static constexpr char __xe__sig__[] = __FUNCTION__;
+		static auto meta = XE::MetaInfo::NewMetaInfo< XE::CXXMetaEnum< XE::TypeFlag > >( XE::Hash( __xe__sig__ ), "TypeFlag", nullptr, XE::GetModule() );
+		return meta;
+	}
+};
+
 #endif // __REFLECTION_H__7A09BEF6_4373_410D_94CD_7AF277A37AB3

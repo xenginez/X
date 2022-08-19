@@ -26,7 +26,7 @@ namespace Ui
 		{
 			if ( Container->objectName().isEmpty() )
 				Container->setObjectName( QString::fromUtf8( "ContainerInspector" ) );
-			Container->resize( 410, 508 );
+			Container->resize( 410, 500 );
 			verticalLayout = new QVBoxLayout( Container );
 			verticalLayout->setSpacing( 5 );
 			verticalLayout->setObjectName( QString::fromUtf8( "verticalLayout" ) );
@@ -46,6 +46,7 @@ namespace Ui
 			add->setObjectName( QString::fromUtf8( "add" ) );
 			add->setMinimumSize( QSize( 20, 20 ) );
 			add->setMaximumSize( QSize( 20, 20 ) );
+			add->setIcon( QIcon( "SkinIcons:/images/inspector/icon_inspector_add.png" ) );
 
 			horizontalLayout->addWidget( add );
 
@@ -53,6 +54,7 @@ namespace Ui
 			sub->setObjectName( QString::fromUtf8( "sub" ) );
 			sub->setMinimumSize( QSize( 20, 20 ) );
 			sub->setMaximumSize( QSize( 20, 20 ) );
+			sub->setIcon( QIcon( "SkinIcons:/images/inspector/icon_inspector_sub.png" ) );
 
 			horizontalLayout->addWidget( sub );
 
@@ -125,10 +127,14 @@ void XS::ContainerInspector::OnAddToolButtonClicked()
 						_Enumerator->InsertToCurrent( element );
 
 						GetObjectProxy()->SetValue( _Container );
+
+						Refresh();
 					},
 					 [this, old_value]()
 					{
 						GetObjectProxy()->SetValue( old_value );
+
+						Refresh();
 					} );
 }
 
@@ -147,21 +153,25 @@ void XS::ContainerInspector::OnSubToolButtonClicked()
 						_Enumerator->EraseCurrent();
 
 						GetObjectProxy()->SetValue( _Container );
+
+						Refresh();
 					},
 					 [this, old_value]()
 					{
 						GetObjectProxy()->SetValue( old_value );
+
+						Refresh();
 					} );
 }
 
 void XS::ContainerInspector::OnRedo()
 {
-	Refresh();
+	GetObjectProxy()->SetValue( _Container );
 }
 
 void XS::ContainerInspector::OnUndo()
 {
-	Refresh();
+	GetObjectProxy()->SetValue( _Container );
 }
 
 void XS::ContainerInspector::OnSave()

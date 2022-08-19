@@ -14,6 +14,7 @@
 #include "NodeWidget.h"
 
 class QListWidgetItem;
+class QTreeWidgetItem;
 
 UI_DECL( ASTTabWidget );
 
@@ -46,6 +47,19 @@ protected:
 	void OnUndo() override;
 
 	void OnSave() override;
+
+private:
+	void Rename();
+
+private:
+	void FillTree();
+	void FillEnum( const XE::ASTEnumPtr & ast, QTreeWidgetItem * parent );
+	void FillClass( const XE::ASTClassPtr & ast, QTreeWidgetItem * parent );
+	void FillModule( const XE::ASTModulePtr & ast, QTreeWidgetItem * parent );
+	void FillMethod( const XE::ASTMethodPtr & ast, QTreeWidgetItem * parent );
+	void FillProperty( const XE::ASTPropertyPtr & ast, QTreeWidgetItem * parent );
+	void FillFunction( const XE::ASTFunctionPtr & ast, QTreeWidgetItem * parent );
+	void FillVariable( const XE::ASTVariablePtr & ast, QTreeWidgetItem * parent );
 
 private:
 	Ui::ASTTabWidget * ui;

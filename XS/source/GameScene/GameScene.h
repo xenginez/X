@@ -9,15 +9,13 @@
 #ifndef GAMESCENE_H__28F1025F_BA22_4F52_AA5C_A9112428279E
 #define GAMESCENE_H__28F1025F_BA22_4F52_AA5C_A9112428279E
 
-#include <QFrame>
-
-#include "Global.h"
+#include "Widget.h"
 
 UI_DECL( GameScene );
 
 BEG_XS_NAMESPACE
 
-class XS_API GameScene : public QFrame
+class XS_API GameScene : public XS::Widget
 {
 	Q_OBJECT
 
