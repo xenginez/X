@@ -1,10 +1,12 @@
 #include "ASTMetaProperty.h"
 
-XE::ASTMetaProperty::ASTMetaProperty( const XE::SharedPtr< XE::ASTProperty > & val )
+#include "ASTInfo.h"
+
+XE::ASTMetaProperty::ASTMetaProperty( const XE::ASTInfoPropertyPtr & val, const XE::MetaClassCPtr Owner, const XE::MetaModuleCPtr & Module )
 	: XE::MetaProperty( val->Name, false, false, val->Flag,
-						XE::Reflection::FindType( val->Type ),
-						XE::Reflection::FindClass( val->Owner ),
-						XE::Reflection::FindModule( val->Module ) )
+						XE::Reflection::FindType( val->Type->Name ),
+						Owner,
+						Module )
 	, _Property( val )
 {
 

@@ -30,13 +30,13 @@ public:
 	~ASTTabWidget() override;
 
 private slots:
-	void OnAddToolButtonClicked( bool clicked );
+	void OnSearchTextChanged( const QString & text );
 
-	void OnToolToolButtonClicked( bool clicked );
+	void OnTreeWidgetItemChanged( QTreeWidgetItem * item, int col );
 
-	void OnEnumListItemChanged( QListWidgetItem * item );
+	void OnTreeWidgetItemDoubleClicked( QTreeWidgetItem * item, int col );
 
-	void OnEnumListItemDoubleClicked( QListWidgetItem * item );
+	void OnTreeWidgetCustomContextMenuRequested( const QPoint & pos );
 
 protected:
 	void showEvent( QShowEvent * event ) override;
@@ -49,21 +49,34 @@ protected:
 	void OnSave() override;
 
 private:
-	void Rename();
+	void FillTree();
+	QTreeWidgetItem * FillEnum( const XE::ASTInfoEnumPtr & ast, QTreeWidgetItem * parent );
+	QTreeWidgetItem * FillClass( const XE::ASTInfoClassPtr & ast, QTreeWidgetItem * parent );
+	QTreeWidgetItem * FillModule( const XE::ASTInfoModulePtr & ast, QTreeWidgetItem * parent );
+	QTreeWidgetItem * FillMethod( const XE::ASTInfoMethodPtr & ast, QTreeWidgetItem * parent );
+	QTreeWidgetItem * FillProperty( const XE::ASTInfoPropertyPtr & ast, QTreeWidgetItem * parent );
+	QTreeWidgetItem * FillFunction( const XE::ASTInfoFunctionPtr & ast, QTreeWidgetItem * parent );
+	QTreeWidgetItem * FillVariable( const XE::ASTInfoVariablePtr & ast, QTreeWidgetItem * parent );
 
 private:
-	void FillTree();
-	void FillEnum( const XE::ASTEnumPtr & ast, QTreeWidgetItem * parent );
-	void FillClass( const XE::ASTClassPtr & ast, QTreeWidgetItem * parent );
-	void FillModule( const XE::ASTModulePtr & ast, QTreeWidgetItem * parent );
-	void FillMethod( const XE::ASTMethodPtr & ast, QTreeWidgetItem * parent );
-	void FillProperty( const XE::ASTPropertyPtr & ast, QTreeWidgetItem * parent );
-	void FillFunction( const XE::ASTFunctionPtr & ast, QTreeWidgetItem * parent );
-	void FillVariable( const XE::ASTVariablePtr & ast, QTreeWidgetItem * parent );
+	void CreateEnum( QTreeWidgetItem * group );
+	void CreateClass( QTreeWidgetItem * group );
+	void CreateModule( QTreeWidgetItem * group );
+	void CreateMethod( QTreeWidgetItem * group );
+	void CreateProperty( QTreeWidgetItem * group );
+	void CreateFunction( QTreeWidgetItem * group );
+	void CreateVariable( QTreeWidgetItem * group );
+	void CreateMethodParameter( QTreeWidgetItem * group );
+	void CreateFunctionParameter( QTreeWidgetItem * group );
+	void CreateMethodLocalVariable( QTreeWidgetItem * group );
+	void CreateFunctionLocalVariable( QTreeWidgetItem * group );
+
+private:
+	XE::ASTInfoMetaPtr GetASTParent( QTreeWidgetItem * item, int type );
 
 private:
 	Ui::ASTTabWidget * ui;
-	XE::SyntaxTreePtr _Tree;
+	XE::ASTInfoModulePtr _Module;
 	XS::Inspector * _Inspector = nullptr;
 };
 

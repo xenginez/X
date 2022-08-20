@@ -1,7 +1,9 @@
 #include "ASTMetaEnum.h"
 
-XE::ASTMetaEnum::ASTMetaEnum( const XE::SharedPtr< XE::ASTEnum > & val )
-	: XE::MetaEnum( val->Name, sizeof( XE::uint64 ), nullptr, XE::Reflection::FindModule( val->Module ) ), _Enum( val )
+#include "ASTInfo.h"
+
+XE::ASTMetaEnum::ASTMetaEnum( const XE::ASTInfoEnumPtr & val, const XE::MetaModuleCPtr & Module )
+	: XE::MetaEnum( val->Name, sizeof( XE::uint64 ), nullptr, Module ), _Enum( val )
 {
 	for ( size_t i = 0; i < _Enum->Elements.size(); i++ )
 	{

@@ -10,8 +10,8 @@
 #define AST_H__DD0506DC_6206_4EA2_AA59_AE8D8EA4E453
 
 #include "ASTNode.h"
+#include "ASTInfo.h"
 #include "ASTVisitor.h"
-#include "SyntaxTree.h"
 
 #include "ASTExecutor.h"
 #include "ASTCompiler.h"

@@ -42,9 +42,9 @@ QString XS::ASTEditor::extensionName()
 
 QUuid XS::ASTEditor::assetCreate( const QFileInfo & path )
 {
-	XE::SyntaxTreePtr tree = XE::MakeShared< XE::SyntaxTree >();
+	XE::ASTInfoModulePtr tree = XE::MakeShared< XE::ASTInfoModule >();
 	{
-		tree->SetName( path.baseName().toStdString() );
+		tree->Name = path.baseName().toStdString();
 
 		std::stringstream json;
 		XE::JsonOArchive archive( json );

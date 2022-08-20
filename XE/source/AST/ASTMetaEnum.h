@@ -16,7 +16,7 @@ BEG_XE_NAMESPACE
 class XE_API ASTMetaEnum : public XE::MetaEnum
 {
 public:
-	ASTMetaEnum( const XE::SharedPtr< XE::ASTEnum > & val );
+	ASTMetaEnum( const XE::ASTInfoEnumPtr & val, const XE::MetaModuleCPtr & Module );
 
 	~ASTMetaEnum() override;
 
@@ -26,7 +26,7 @@ public:
 	void Deserialize( XE::IArchive & arc, XE::Variant & obj ) const override;
 
 private:
-	XE::SharedPtr< XE::ASTEnum > _Enum;
+	XE::ASTInfoEnumPtr _Enum;
 };
 
 END_XE_NAMESPACE

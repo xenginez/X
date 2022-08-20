@@ -16,7 +16,7 @@ BEG_XE_NAMESPACE
 class XE_API ASTMetaProperty : public XE::MetaProperty
 {
 public:
-	ASTMetaProperty( const XE::SharedPtr< XE::ASTProperty > & val );
+	ASTMetaProperty( const XE::ASTInfoPropertyPtr & val, const XE::MetaClassCPtr Owner, const XE::MetaModuleCPtr & Module );
 
 	~ASTMetaProperty() override;
 
@@ -26,7 +26,7 @@ public:
 	void Setter( const XE::Variant & obj, const XE::Variant & val ) const override;
 
 private:
-	XE::SharedPtr< XE::ASTProperty > _Property;
+	XE::ASTInfoPropertyPtr _Property;
 };
 
 END_XE_NAMESPACE

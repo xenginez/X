@@ -3,6 +3,7 @@
 #include "Core/CoreFramework.h"
 
 #include "ASTNode.h"
+#include "ASTInfo.h"
 #include "ASTService.h"
 
 XE::ASTExecutor::ASTExecutor()
@@ -300,13 +301,13 @@ void XE::ASTExecutor::AddMacro( const XE::String & val )
 	_Macros.push_back( val );
 }
 
-XE::Variant XE::ASTExecutor::Invoke( const XE::SharedPtr< XE::ASTMethod > & method, XE::InvokeStack * args )
+XE::Variant XE::ASTExecutor::Invoke( const XE::ASTInfoMethodPtr & method, XE::InvokeStack * args )
 {
 	XE::ASTFrame frame;
 	{
 		frame.FP = 0;
 		frame.SP = _ValStack.size();
-		frame.AST = method.get();
+		frame.AST = method;
 	}
 
 	_FrameStack.push_back( &frame );
@@ -327,16 +328,16 @@ XE::Variant XE::ASTExecutor::Invoke( const XE::SharedPtr< XE::ASTMethod > & meth
 	}
 	_FrameStack.pop_back();
 
-	return method->Result.empty() ? XE::Variant() : Pop();
+	return method->Result->Name.empty() ? XE::Variant() : Pop();
 }
 
-XE::Variant XE::ASTExecutor::Invoke( const XE::SharedPtr< XE::ASTFunction > & function, XE::InvokeStack * args )
+XE::Variant XE::ASTExecutor::Invoke( const XE::ASTInfoFunctionPtr & function, XE::InvokeStack * args )
 {
 	XE::ASTFrame frame;
 	{
 		frame.FP = 0;
 		frame.SP = _ValStack.size();
-		frame.AST = function.get();
+		frame.AST = function;
 	}
 
 	_FrameStack.push_back( &frame );
@@ -356,7 +357,7 @@ XE::Variant XE::ASTExecutor::Invoke( const XE::SharedPtr< XE::ASTFunction > & fu
 	}
 	_FrameStack.pop_back();
 
-	return function->Result.empty() ? XE::Variant() : Pop();
+	return function->Result->Name.empty() ? XE::Variant() : Pop();
 }
 
 void XE::ASTExecutor::Push( const XE::Variant & val )
@@ -410,7 +411,7 @@ void XE::ASTExecutor::Exec()
 {
 	std::visit( XE::Overloaded
 				{
-					[this]( XE::ASTMethod * func )
+					[this]( XE::ASTInfoMethodPtr func )
 					{
 						while ( _FrameStack.back()->FP < func->StatementBody.size() )
 						{
@@ -423,7 +424,7 @@ void XE::ASTExecutor::Exec()
 							}
 						}
 					},
-					[this]( XE::ASTFunction * func )
+					[this]( XE::ASTInfoFunctionPtr func )
 					{
 						while ( _FrameStack.back()->FP < func->StatementBody.size() )
 						{

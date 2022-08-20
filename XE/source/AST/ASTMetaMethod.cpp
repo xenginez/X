@@ -1,10 +1,11 @@
 #include "ASTMetaMethod.h"
 
+#include "ASTInfo.h"
 #include "ASTExecutor.h"
 
 namespace
 {
-	XE::ParameterType GetMethodParameter( const XE::SharedPtr< XE::ASTMethod > & val )
+	XE::ParameterType GetMethodParameter( const XE::ASTInfoMethodPtr & val )
 	{
 		XE::ParameterType result;
 
@@ -17,14 +18,14 @@ namespace
 	}
 }
 
-XE::ASTMetaMethod::ASTMetaMethod( const XE::SharedPtr< XE::ASTMethod > & val )
+XE::ASTMetaMethod::ASTMetaMethod( const XE::ASTInfoMethodPtr & val, const XE::MetaClassCPtr Owner, const XE::MetaModuleCPtr & Module )
 	: XE::MetaMethod( val->Name,
 					  false,
 					  false,
-					  XE::Reflection::FindType( val->Result ),
+					  XE::Reflection::FindType( val->Result->Name ),
 					  GetMethodParameter( val ),
-					  XE::Reflection::FindClass( val->Owner ),
-					  XE::Reflection::FindModule( val->Module ) )
+					  Owner,
+					  Module )
 	, _Method( val )
 {
 

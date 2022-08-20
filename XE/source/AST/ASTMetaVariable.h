@@ -16,7 +16,7 @@ BEG_XE_NAMESPACE
 class XE_API ASTMetaVariable : public XE::MetaVariable
 {
 public:
-	ASTMetaVariable( const XE::SharedPtr< XE::ASTVariable > & val );
+	ASTMetaVariable( const XE::ASTInfoVariablePtr & val, const XE::MetaModuleCPtr & Module );
 
 	~ASTMetaVariable() override;
 
@@ -26,7 +26,7 @@ public:
 	void Setter( const XE::Variant & val ) const override;
 
 private:
-	XE::SharedPtr< XE::ASTVariable > _Variable;
+	XE::ASTInfoVariablePtr _Variable;
 };
 
 END_XE_NAMESPACE

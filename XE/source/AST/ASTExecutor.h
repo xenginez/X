@@ -57,9 +57,9 @@ public:
 	void AddMacro( const XE::String & val );
 
 public:
-	XE::Variant Invoke( const XE::SharedPtr< XE::ASTMethod > & method, XE::InvokeStack * args );
+	XE::Variant Invoke( const XE::ASTInfoMethodPtr & method, XE::InvokeStack * args );
 
-	XE::Variant Invoke( const XE::SharedPtr< XE::ASTFunction > & function, XE::InvokeStack * args );
+	XE::Variant Invoke( const XE::ASTInfoFunctionPtr & function, XE::InvokeStack * args );
 
 public:
 	void Push( const XE::Variant & val );

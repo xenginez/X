@@ -65,82 +65,6 @@ enum class ExecutorGotoType
 	CONTINUE,
 };
 
-class XE_API ASTMeta : public XE::EnableSharedFromThis < XE::ASTMeta >
-{
-public:
-	XE::String Name;
-	XE::String Owner;
-	XE::String Module;
-};
-DECL_XE_CLASS( ASTMeta );
-
-class XE_API ASTEnum : public XE::ASTMeta
-{
-public:
-	bool Flag = false;
-	XE::Array< XE::String > Elements;
-};
-DECL_XE_CLASS( ASTEnum, XE::ASTMeta );
-
-class XE_API ASTClass : public XE::ASTMeta
-{
-public:
-	XE::String Super;
-	XE::SharedPtr< XE::ASTMethod > Destruct;
-	XE::SharedPtr< XE::ASTMethod > Construct;
-	XE::Array< XE::SharedPtr< XE::ASTMethod > > Methods;
-	XE::Array< XE::SharedPtr< XE::ASTProperty > > Propertys;
-};
-DECL_XE_CLASS( ASTClass, XE::ASTMeta );
-
-class XE_API ASTModule : public XE::ASTMeta
-{
-public:
-	XE::Array< XE::SharedPtr< XE::ASTEnum > > Enums;
-	XE::Array< XE::SharedPtr< XE::ASTClass > > Clsses;
-	XE::Array< XE::SharedPtr< XE::ASTModule > > Modules;
-	XE::Array< XE::SharedPtr< XE::ASTFunction > > Functions;
-	XE::Array< XE::SharedPtr< XE::ASTVariable > > Variables;
-};
-DECL_XE_CLASS( ASTModule, XE::ASTMeta );
-
-class XE_API ASTMethod : public XE::ASTMeta
-{
-public:
-	XE::String Result;
-	XE::Array< XE::ASTNodePtr > StatementBody;
-	XE::Array< XE::Pair< XE::String, XE::String > > Parameters;
-	XE::Array< XE::Pair< XE::String, XE::Variant > > LocalVariables;
-};
-DECL_XE_CLASS( ASTMethod, XE::ASTMeta );
-
-class XE_API ASTProperty : public XE::ASTMeta
-{
-public:
-	XE::String Type;
-	XE::uint64 Offset = 0;
-	XE::TypeFlag Flag = XE::TypeFlag::VALUE;
-};
-DECL_XE_CLASS( ASTProperty, XE::ASTMeta );
-
-class XE_API ASTFunction : public XE::ASTMeta
-{
-public:
-	XE::String Result;
-	XE::Array< XE::ASTNodePtr > StatementBody;
-	XE::Array< XE::Pair< XE::String, XE::String > > Parameters;
-	XE::Array< XE::Pair< XE::String, XE::Variant > > LocalVariables;
-};
-DECL_XE_CLASS( ASTFunction, XE::ASTMeta );
-
-class XE_API ASTVariable : public XE::ASTMeta
-{
-public:
-	XE::String Type;
-	XE::TypeFlag Flag = XE::TypeFlag::VALUE;
-};
-DECL_XE_CLASS( ASTVariable, XE::ASTMeta );
-
 struct XE_API ASTFrame
 {
 	XE::uint64 SP = 0;
@@ -149,7 +73,7 @@ struct XE_API ASTFrame
 	XE::ExecutorGotoType ExecGo = XE::ExecutorGotoType::NONE;
 	XE::Stack< const XE::WhileStatNode * > Loop;
 	XE::Map< XE::String, XE::uint64 > Variables;
-	std::variant< XE::ASTMethod *, XE::ASTFunction * > AST;
+	std::variant< XE::ASTInfoMethodPtr, XE::ASTInfoFunctionPtr > AST;
 };
 
 END_XE_NAMESPACE

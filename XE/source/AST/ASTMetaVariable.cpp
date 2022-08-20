@@ -2,12 +2,13 @@
 
 #include "Core/CoreFramework.h"
 
+#include "ASTInfo.h"
 #include "ASTService.h"
 
-XE::ASTMetaVariable::ASTMetaVariable( const XE::SharedPtr< XE::ASTVariable > & val )
+XE::ASTMetaVariable::ASTMetaVariable( const XE::ASTInfoVariablePtr & val, const XE::MetaModuleCPtr & Module )
 	: XE::MetaVariable( val->Name, false, val->Flag,
-						XE::Reflection::FindType( val->Type ),
-						XE::Reflection::FindModule( val->Module ) )
+						XE::Reflection::FindType( val->Type->Name ),
+						Module )
 	, _Variable( val )
 {
 

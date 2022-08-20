@@ -16,7 +16,7 @@ BEG_XE_NAMESPACE
 class XE_API ASTMetaClass : public XE::MetaClass
 {
 public:
-	ASTMetaClass( const XE::SharedPtr< XE::ASTClass > & val );
+	ASTMetaClass( const XE::ASTInfoClassPtr & val, const XE::MetaInfoCPtr Owner, const XE::MetaModuleCPtr & Module );
 
 	~ASTMetaClass() override;
 
@@ -32,7 +32,7 @@ public:
 	void Deserialize( XE::IArchive & arc, XE::Variant & val ) const override;
 
 private:
-	XE::SharedPtr< XE::ASTClass > _Class;
+	XE::ASTInfoClassPtr _Class;
 };
 
 END_XE_NAMESPACE

@@ -13,14 +13,15 @@
 
 BEG_XE_NAMESPACE
 
-DECL_PTR( ASTMeta );
-DECL_PTR( ASTEnum );
-DECL_PTR( ASTClass );
-DECL_PTR( ASTModule );
-DECL_PTR( ASTMethod );
-DECL_PTR( ASTProperty );
-DECL_PTR( ASTFunction );
-DECL_PTR( ASTVariable );
+DECL_PTR( ASTInfoMeta );
+DECL_PTR( ASTInfoType );
+DECL_PTR( ASTInfoEnum );
+DECL_PTR( ASTInfoClass );
+DECL_PTR( ASTInfoModule );
+DECL_PTR( ASTInfoMethod );
+DECL_PTR( ASTInfoProperty );
+DECL_PTR( ASTInfoFunction );
+DECL_PTR( ASTInfoVariable );
 
 DECL_PTR( ASTMetaEnum );
 DECL_PTR( ASTMetaClass );
@@ -49,7 +50,6 @@ DECL_PTR( InvokeExprNode );
 DECL_PTR( VariableExprNode );
 
 DECL_PTR( ASTVisitor );
-DECL_PTR( SyntaxTree );
 DECL_PTR( ASTExecutor );
 DECL_PTR( ASTCompiler );
 

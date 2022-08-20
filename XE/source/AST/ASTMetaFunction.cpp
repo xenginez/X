@@ -1,10 +1,11 @@
 #include "ASTMetaFunction.h"
 
+#include "ASTInfo.h"
 #include "ASTExecutor.h"
 
 namespace
 {
-	XE::ParameterType GetFunctionParameter( const XE::SharedPtr< XE::ASTFunction > & val )
+	XE::ParameterType GetFunctionParameter( const XE::ASTInfoFunctionPtr & val )
 	{
 		XE::ParameterType result;
 
@@ -17,8 +18,8 @@ namespace
 	}
 }
 
-XE::ASTMetaFunction::ASTMetaFunction( const XE::SharedPtr< XE::ASTFunction > & val )
-	: XE::MetaFunction( val->Name, XE::Reflection::FindClass( val->Result ), GetFunctionParameter( val ), XE::Reflection::FindModule( val->Module ) )
+XE::ASTMetaFunction::ASTMetaFunction( const XE::ASTInfoFunctionPtr & val, const XE::MetaModuleCPtr & Module )
+	: XE::MetaFunction( val->Name, XE::Reflection::FindClass( val->Result->Name ), GetFunctionParameter( val ), Module )
 	, _Function( val )
 {
 

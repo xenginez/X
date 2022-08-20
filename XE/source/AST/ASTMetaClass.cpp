@@ -1,12 +1,13 @@
 #include "ASTMetaClass.h"
 
+#include "ASTInfo.h"
 #include "ASTExecutor.h"
 
 namespace
 {
-	XE::uint64 ClassSize( const XE::SharedPtr< XE::ASTClass > & val )
+	XE::uint64 ClassSize( const XE::ASTInfoClassPtr & val )
 	{
-		auto sz = XE::Reflection::FindClass( val->Super )->GetSize();
+		auto sz = XE::Reflection::FindClass( val->SuperClass )->GetSize();
 
 		sz += sizeof( XE::Variant ) * val->Propertys.size();
 
@@ -14,14 +15,14 @@ namespace
 	}
 }
 
-XE::ASTMetaClass::ASTMetaClass( const XE::SharedPtr< XE::ASTClass > & val )
+XE::ASTMetaClass::ASTMetaClass( const XE::ASTInfoClassPtr & val, const XE::MetaInfoCPtr Owner, const XE::MetaModuleCPtr & Module )
 	: XE::MetaClass( val->Name,
 					 ClassSize( val ),
 					 false,
 					 false,
-					 XE::Reflection::FindClass( val->Super ),
-					 nullptr,
-					 XE::Reflection::FindModule( val->Module ),
+					 XE::Reflection::FindClass( val->SuperClass ),
+					 Owner,
+					 Module,
 					 {},
 					 nullptr ),
 	_Class( val )

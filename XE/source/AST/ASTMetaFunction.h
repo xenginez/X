@@ -16,7 +16,7 @@ BEG_XE_NAMESPACE
 class XE_API ASTMetaFunction : public XE::MetaFunction
 {
 public:
-	ASTMetaFunction( const XE::SharedPtr< XE::ASTFunction > & val );
+	ASTMetaFunction( const XE::ASTInfoFunctionPtr & val, const XE::MetaModuleCPtr & Module );
 
 	~ASTMetaFunction() override;
 
@@ -24,7 +24,7 @@ public:
 	XE::Variant Invoke( XE::InvokeStack * params ) const override;
 
 private:
-	XE::SharedPtr< XE::ASTFunction > _Function;
+	XE::ASTInfoFunctionPtr _Function;
 };
 
 END_XE_NAMESPACE
