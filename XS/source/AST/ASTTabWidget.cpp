@@ -9,6 +9,8 @@
 #include <QMessageBox>
 #include <QItemDelegate>
 
+#include "TypeSelectorDialog.h"
+
 Q_DECLARE_METATYPE( XE::ASTInfoMetaPtr );
 
 namespace
@@ -36,6 +38,7 @@ namespace
 
 	static constexpr int AST_PTR_ROLE = Qt::UserRole + 1;
 	static constexpr int AST_TYPE_ROLE = Qt::UserRole + 2;
+	static constexpr int AST_INDEX_ROLE = Qt::UserRole + 3;
 	static constexpr const char * UUID_NAME = "AST_UUID";
 	static constexpr const char * PATH_NAME = "AST_PATH";
 	static constexpr const char * TREE_ICON = "SkinIcons:/images/icons/icon_asset_ast.svg";
@@ -522,8 +525,13 @@ QTreeWidgetItem * XS::ASTTabWidget::FillClass( const XE::ASTInfoClassPtr & ast, 
 {
 	QTreeWidgetItem * item = new QTreeWidgetItem( parent );
 	{
+		QString name = QString::fromUtf8( ast->Name.c_str() );
+		if ( !ast->SuperClass.empty() )
+		{
+			name += QString( " ( %1 )" ).arg( QString::fromUtf8( ast->SuperClass.c_str() ) );
+		}
 		item->setIcon( 0, QIcon( CLASS_ICON ) );
-		item->setText( 0, QString::fromUtf8( ast->Name.c_str() ) );
+		item->setText( 0, name );
 		item->setFlags( item->flags() | Qt::ItemFlag::ItemIsEditable );
 		item->setData( 0, AST_TYPE_ROLE, (int)ASTType::CLASS );
 		item->setData( 0, AST_PTR_ROLE, QVariant::fromValue( SP_CAST< XE::ASTInfoMeta >( ast ) ) );
@@ -808,6 +816,13 @@ void XS::ASTTabWidget::CreateEnum( QTreeWidgetItem * group )
 
 void XS::ASTTabWidget::CreateClass( QTreeWidgetItem * group )
 {
+	XS::TypeSelectorDialog dialog( XS::TypeSelectorDialog::CLASS, this );
+	dialog.setWindowTitle( tr( "inherit type" ) );
+	if ( dialog.exec() != QDialog::Accepted )
+	{
+		return;
+	}
+
 	auto module_ptr = SP_CAST< XE::ASTInfoModule >( GetASTParent( group, ASTType::MODULE ) );
 
 	QString name = "NewClass";
@@ -819,6 +834,7 @@ void XS::ASTTabWidget::CreateClass( QTreeWidgetItem * group )
 	auto ast = XE::MakeShared< XE::ASTInfoClass >();
 	{
 		ast->Name = name.toStdString();
+		ast->SuperClass = dialog.GetSelectType()->GetFullName();
 		ast->Construct = XE::MakeShared< XE::ASTInfoMethod >();
 		{
 			ast->Construct->Name = "Construct";
@@ -888,26 +904,145 @@ void XS::ASTTabWidget::CreateModule( QTreeWidgetItem * group )
 
 void XS::ASTTabWidget::CreateMethod( QTreeWidgetItem * group )
 {
+	auto class_ptr = SP_CAST< XE::ASTInfoClass >( GetASTParent( group, ASTType::CLASS ) );
 
+	QString name = "NewMethod";
+	for ( int i = 1; std::find_if( class_ptr->Methods.begin(), class_ptr->Methods.end(), [&]( const auto & val ) { return val->Name == name.toStdString(); } ) != class_ptr->Methods.end(); i++ )
+	{
+		name = QString( "NewMethod_%1" ).arg( i );
+	}
+
+	auto ast = XE::MakeShared< XE::ASTInfoMethod >();
+	ast->Name = name.toStdString();
+	ast->Result = XE::MakeShared<XE::ASTInfoType>();
+
+	PushUndoCommand( tr( "Create Method " ) + name,
+					 [this, ast, group, class_ptr]()
+					{
+						class_ptr->Methods.push_back( ast );
+						ui->tree->setCurrentItem( FillMethod( ast, group ) );
+					},
+					 [this, ast, group, class_ptr]()
+					{
+						class_ptr->Methods.erase( std::find( class_ptr->Methods.begin(), class_ptr->Methods.end(), ast ) );
+
+						for ( int i = 0; i < group->childCount(); i++ )
+						{
+							if ( group->child( i )->data( 0, AST_PTR_ROLE ).value<XE::ASTInfoMetaPtr>() == ast )
+							{
+								delete group->takeChild( i );
+								break;
+							}
+						}
+					} );
 }
 
 void XS::ASTTabWidget::CreateProperty( QTreeWidgetItem * group )
 {
+	auto class_ptr = SP_CAST< XE::ASTInfoClass >( GetASTParent( group, ASTType::CLASS ) );
 
+	QString name = "NewProperty";
+	for ( int i = 1; std::find_if( class_ptr->Propertys.begin(), class_ptr->Propertys.end(), [&]( const auto & val ) { return val->Name == name.toStdString(); } ) != class_ptr->Propertys.end(); i++ )
+	{
+		name = QString( "NewProperty_%1" ).arg( i );
+	}
+
+	auto ast = XE::MakeShared< XE::ASTInfoProperty >();
+	ast->Name = name.toStdString();
+
+	PushUndoCommand( tr( "Create Property " ) + name,
+					 [this, ast, group, class_ptr]()
+					{
+						class_ptr->Propertys.push_back( ast );
+						ui->tree->setCurrentItem( FillProperty( ast, group ) );
+					},
+					 [this, ast, group, class_ptr]()
+					{
+						class_ptr->Propertys.erase( std::find( class_ptr->Propertys.begin(), class_ptr->Propertys.end(), ast ) );
+
+						for ( int i = 0; i < group->childCount(); i++ )
+						{
+							if ( group->child( i )->data( 0, AST_PTR_ROLE ).value<XE::ASTInfoMetaPtr>() == ast )
+							{
+								delete group->takeChild( i );
+								break;
+							}
+						}
+					} );
 }
 
 void XS::ASTTabWidget::CreateFunction( QTreeWidgetItem * group )
 {
+	auto module_ptr = SP_CAST< XE::ASTInfoModule >( GetASTParent( group, ASTType::MODULE ) );
 
+	QString name = "NewFunction";
+	for ( int i = 1; std::find_if( module_ptr->Functions.begin(), module_ptr->Functions.end(), [&]( const auto & val ) { return val->Name == name.toStdString(); } ) != module_ptr->Functions.end(); i++ )
+	{
+		name = QString( "NewFunction_%1" ).arg( i );
+	}
+
+	auto ast = XE::MakeShared< XE::ASTInfoFunction >();
+	ast->Name = name.toStdString();
+	ast->Result = XE::MakeShared<XE::ASTInfoType>();
+
+	PushUndoCommand( tr( "Create Function " ) + name,
+					 [this, ast, group, module_ptr]()
+					{
+						module_ptr->Functions.push_back( ast );
+						ui->tree->setCurrentItem( FillFunction( ast, group ) );
+					},
+					 [this, ast, group, module_ptr]()
+					{
+						module_ptr->Functions.erase( std::find( module_ptr->Functions.begin(), module_ptr->Functions.end(), ast ) );
+
+						for ( int i = 0; i < group->childCount(); i++ )
+						{
+							if ( group->child( i )->data( 0, AST_PTR_ROLE ).value<XE::ASTInfoMetaPtr>() == ast )
+							{
+								delete group->takeChild( i );
+								break;
+							}
+						}
+					} );
 }
 
 void XS::ASTTabWidget::CreateVariable( QTreeWidgetItem * group )
 {
+	auto module_ptr = SP_CAST< XE::ASTInfoModule >( GetASTParent( group, ASTType::MODULE ) );
 
+	QString name = "NewVariable";
+	for ( int i = 1; std::find_if( module_ptr->Variables.begin(), module_ptr->Variables.end(), [&]( const auto & val ) { return val->Name == name.toStdString(); } ) != module_ptr->Variables.end(); i++ )
+	{
+		name = QString( "NewVariable_%1" ).arg( i );
+	}
+
+	auto ast = XE::MakeShared< XE::ASTInfoVariable >();
+	ast->Name = name.toStdString();
+
+	PushUndoCommand( tr( "Create Variable " ) + name,
+					 [this, ast, group, module_ptr]()
+					{
+						module_ptr->Variables.push_back( ast );
+						ui->tree->setCurrentItem( FillVariable( ast, group ) );
+					},
+					 [this, ast, group, module_ptr]()
+					{
+						module_ptr->Variables.erase( std::find( module_ptr->Variables.begin(), module_ptr->Variables.end(), ast ) );
+
+						for ( int i = 0; i < group->childCount(); i++ )
+						{
+							if ( group->child( i )->data( 0, AST_PTR_ROLE ).value<XE::ASTInfoMetaPtr>() == ast )
+							{
+								delete group->takeChild( i );
+								break;
+							}
+						}
+					} );
 }
 
 void XS::ASTTabWidget::CreateMethodParameter( QTreeWidgetItem * group )
 {
+	auto class_ptr = SP_CAST< XE::ASTInfoClass >( GetASTParent( group, ASTType::CLASS ) );
 
 }
 
