@@ -237,6 +237,8 @@ void XS::TypeSelectorDialog::FillTree()
 	class_item->setText( 0, tr( "Classes" ) );
 	class_item->setSizeHint( 0, QSize( ui->tree->width(), 30 ) );
 
+	QMap<XE::MetaClassCPtr, QTreeWidgetItem *> item_map;
+
 	for ( const auto & it : enums )
 	{
 		auto item = new QTreeWidgetItem( enum_item );
@@ -244,7 +246,6 @@ void XS::TypeSelectorDialog::FillTree()
 		item->setData( 0, Qt::UserRole + 1, QVariant::fromValue( SP_CAST< const XE::MetaInfo>( it ) ) );
 	}
 
-	QMap<XE::MetaClassCPtr, QTreeWidgetItem *> item_map;
 	for ( const auto & it : classes )
 	{
 		auto parent = class_item;

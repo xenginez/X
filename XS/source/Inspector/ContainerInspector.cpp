@@ -6,8 +6,6 @@
 #include <QToolButton>
 #include <QVBoxLayout>
 
-#include "ui_PairInspector.h"
-
 REG_WIDGET( XS::ContainerInspector );
 
 namespace Ui

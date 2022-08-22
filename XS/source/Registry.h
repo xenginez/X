@@ -41,11 +41,13 @@ private:
 	QMap< QString, std::function< QObject * ( QObject * ) > > _Constructs;
 };
 
+template< typename ... T > struct MetaTypeCollector;
+
 END_XS_NAMESPACE
 
 
 #define REG_OBJECT( TYPE ) \
-namespace XE \
+namespace XS \
 { \
 	template<> struct MetaTypeCollector< TYPE > \
 	{ \
@@ -55,13 +57,13 @@ namespace XE \
 		} \
 		static void Use() \
 		{ \
-			XE::ActiveSingleton< XE::MetaTypeCollector< TYPE > >::Register(); \
+			XE::ActiveSingleton< XS::MetaTypeCollector< TYPE > >::Register(); \
 		} \
 	}; \
 };
 
 #define REG_WIDGET( TYPE ) \
-namespace XE \
+namespace XS \
 { \
 	template<> struct MetaTypeCollector< TYPE > \
 	{ \
@@ -71,7 +73,7 @@ namespace XE \
 		} \
 		static void Use() \
 		{ \
-			XE::ActiveSingleton< XE::MetaTypeCollector< TYPE > >::Register(); \
+			XE::ActiveSingleton< XS::MetaTypeCollector< TYPE > >::Register(); \
 		} \
 	}; \
 };

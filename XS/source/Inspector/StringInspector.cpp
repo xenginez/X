@@ -9,7 +9,7 @@
 #include <QDesktopWidget>
 #include <QDialogButtonBox>
 
-REG_WIDGET( XS::StringInspector );
+REG_INSPECTOR( XE::String, XS::StringInspector );
 
 namespace Ui
 {
@@ -49,8 +49,6 @@ namespace Ui
 		}
 	};
 }
-
-REG_INSPECTOR( XE::String, XS::StringInspector );
 
 XS::StringInspector::StringInspector( QWidget * parent /*= nullptr */ )
 	:Inspector( parent ), ui( new Ui::StringInspector )

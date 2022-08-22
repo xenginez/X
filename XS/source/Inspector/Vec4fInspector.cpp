@@ -2,8 +2,6 @@
 
 #include <QHBoxLayout>
 
-REG_WIDGET( XS::Vec4fInspector );
-
 REG_INSPECTOR( XE::Vec4f, XS::Vec4fInspector );
 
 XS::Vec4fInspector::Vec4fInspector( QWidget * parent /*= nullptr */ )

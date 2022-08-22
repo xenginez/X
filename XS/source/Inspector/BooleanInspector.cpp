@@ -2,8 +2,6 @@
 
 #include <QDebug>
 
-REG_WIDGET( XS::BooleanInspector );
-
 REG_INSPECTOR( bool, XS::BooleanInspector );
 
 XS::BooleanInspector::BooleanInspector( QWidget * parent /*= nullptr */ )

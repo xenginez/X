@@ -19,7 +19,7 @@ BEG_XS_NAMESPACE
 
 class NodeWidget;
 
-class XS_API NodeItem : public QGraphicsProxyWidget
+class XS_API NodeItem : public QGraphicsObject
 {
 	Q_OBJECT
 
@@ -45,16 +45,9 @@ public:
 	XS::NodeWidget * nodeWidget() const;
 
 public:
-	virtual void setupUi( QWidget * widget );
-
 	virtual QPointF portPos( PortType type, int index );
 
 	virtual QString portName( PortType type, int index );
-
-protected:
-	void paint( QPainter * painter, QStyleOptionGraphicsItem const * option, QWidget * widget /* = 0 */ ) override;
-
-	bool eventFilter( QObject * object, QEvent * event ) override;
 
 private:
 	QString _Name;

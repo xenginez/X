@@ -1,7 +1,5 @@
 #include "IntegerInspector.h"
 
-REG_WIDGET( XS::IntegerInspector );
-
 REG_INSPECTOR( XE::int8, XS::IntegerInspector );
 REG_INSPECTOR( XE::int16, XS::IntegerInspector );
 REG_INSPECTOR( XE::int32, XS::IntegerInspector );

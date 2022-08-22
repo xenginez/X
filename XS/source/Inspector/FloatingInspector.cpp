@@ -1,7 +1,5 @@
 #include "FloatingInspector.h"
 
-REG_WIDGET( XS::FloatingInspector );
-
 REG_INSPECTOR( XE::float16, XS::FloatingInspector );
 REG_INSPECTOR( XE::float32, XS::FloatingInspector );
 REG_INSPECTOR( XE::float64, XS::FloatingInspector );

@@ -5,6 +5,7 @@
 
 namespace
 {
+	QMap< XE::String, QString > _TemplateRegisters = {};
 	QMap< XE::MetaTypeCPtr, QString > _Registers = {};
 }
 
@@ -20,6 +21,11 @@ XS::Inspector::~Inspector()
 	{
 		delete _Proxy;
 	}
+}
+
+void XS::Inspector::Register( const XE::String & tname, const QString & name )
+{
+	_TemplateRegisters.insert( tname, name );
 }
 
 void XS::Inspector::Register( const XE::MetaTypeCPtr & type, const QString & name )
@@ -54,20 +60,25 @@ XS::Inspector * XS::Inspector::Create( XS::ObjectProxy * proxy, QWidget * parent
 			 	result = XS::Registry::ConstructT< XS::Inspector >( "XS::EnumInspector", parent );//new XS::EnumInspector( parent );
 			}
 		}
-		else if ( type->GetType() == XE::MetaInfoType::CLASS && SP_CAST< const XE::MetaClass >( type )->IsContainer() )
+		else if ( auto cls = SP_CAST< const XE::MetaClass >( type ) )
 		{
-			if ( proxy->GetType()->GetFullName().find_first_of( "XE::Pair" ) == 0 )
-			{
-				result = XS::Registry::ConstructT< XS::Inspector >( "XS::PairInspector", parent );//new XS::PairInspector( parent );
-			}
-			else
+			if ( cls->IsContainer() )
 			{
 				result = XS::Registry::ConstructT< XS::Inspector >( "XS::ContainerInspector", parent );//new XS::ContainerInspector( parent );
 			}
-		}
-		else
-		{
-			result = XS::Registry::ConstructT< XS::Inspector >( "XS::ClassInspector", parent );//new XS::ClassInspector( parent );
+			else if ( cls->IsTemplate() )
+			{
+				auto name = cls->GetFullName().substr( 0, cls->GetFullName().find( "<" ) );
+				auto it = _TemplateRegisters.find( name );
+				if ( it != _TemplateRegisters.end() )
+				{
+					result = XS::Registry::ConstructT< XS::Inspector >( it.value(), parent );
+				}
+			}
+			else
+			{
+				result = XS::Registry::ConstructT< XS::Inspector >( "XS::ClassInspector", parent );//new XS::ClassInspector( parent );
+			}
 		}
 	}
 

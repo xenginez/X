@@ -9,6 +9,8 @@
 #ifndef PAIRINSPECTOR_H__09EAE13A_13DC_4CBF_8819_C0741AA34B19
 #define PAIRINSPECTOR_H__09EAE13A_13DC_4CBF_8819_C0741AA34B19
 
+#include <QFormLayout>
+
 #include "Inspector.h"
 
 UI_DECL( PairInspector );
@@ -28,7 +30,7 @@ public:
 	void Refresh() override;
 
 private:
-	Ui::PairInspector * ui;
+	QFormLayout * _Layout;
 };
 
 END_XS_NAMESPACE

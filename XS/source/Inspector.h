@@ -24,6 +24,8 @@ public:
 	~Inspector() override;
 
 public:
+	static void Register( const XE::String & tname, const QString & name );
+
 	static void Register( const XE::MetaTypeCPtr & type, const QString & name );
 
 	static Inspector * Create( XS::ObjectProxy * proxy, QWidget * parent = nullptr );
@@ -60,17 +62,35 @@ public:
 END_XS_NAMESPACE
 
 #define REG_INSPECTOR( TYPE, NAME ) \
-namespace XE \
+namespace XS \
+{ \
+	template<> struct MetaTypeCollector< TYPE, NAME  > \
+	{ \
+		MetaTypeCollector() \
+		{ \
+			XS::Inspector::Register( ::TypeID<TYPE>::Get(), #NAME ); \
+			XS::Registry::Register( &NAME::staticMetaObject, []( QObject * parent ) { return new NAME( qobject_cast< QWidget * >( parent ) ); } ); \
+		} \
+		static void Use() \
+		{ \
+			XE::ActiveSingleton< XS::MetaTypeCollector< TYPE, NAME  > >::Register(); \
+		} \
+	}; \
+};
+
+#define REG_INSPECTOR_T( KEY, TYPE ) \
+namespace XS \
 { \
 	template<> struct MetaTypeCollector< TYPE > \
 	{ \
 		MetaTypeCollector() \
 		{ \
-			XS::Inspector::Register( ::TypeID<TYPE>::Get(), #NAME ); \
+			XS::Inspector::Register( #KEY, #TYPE ); \
+			XS::Registry::Register( &TYPE::staticMetaObject, []( QObject * parent ) { return new TYPE( qobject_cast< QWidget * >( parent ) ); } ); \
 		} \
 		static void Use() \
 		{ \
-			XE::ActiveSingleton< XE::MetaTypeCollector< TYPE > >::Register(); \
+			XE::ActiveSingleton< XS::MetaTypeCollector< TYPE > >::Register(); \
 		} \
 	}; \
 };

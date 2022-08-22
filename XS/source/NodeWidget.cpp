@@ -343,7 +343,7 @@ namespace
 }
 
 XS::NodeItem::NodeItem( XS::NodeItem * parent /*= nullptr */ )
-	: QGraphicsProxyWidget( parent ), _Name( "NodeItem" )
+	: QGraphicsObject( parent ), _Name( "NodeItem" )
 {
 	setFlag( QGraphicsItem::ItemIsMovable );
 	setFlag( QGraphicsItem::ItemIsFocusable );
@@ -358,10 +358,6 @@ XS::NodeItem::NodeItem( XS::NodeItem * parent /*= nullptr */ )
 	widget->setMouseTracking( true );
 
 	widget->installEventFilter( this );
-
-	setupUi( widget );
-
-	setWidget( widget );
 
 	auto ports = new Ports;
 
@@ -409,99 +405,15 @@ XS::NodeWidget * XS::NodeItem::nodeWidget() const
 	return _NodeWidget;
 }
 
-void XS::NodeItem::setupUi( QWidget * widget )
-{
-	widget->resize( 100, 100 );
-}
-
 QPointF XS::NodeItem::portPos( PortType type, int index )
 {
-	return mapToScene( this->rect().center() );
+	return mapToScene( pos() );
 }
 
 QString XS::NodeItem::portName( PortType type, int index )
 {
 	return QString( "port %1" ).arg( index );
 }
-
-void XS::NodeItem::paint( QPainter * painter, QStyleOptionGraphicsItem const * option, QWidget * widget /* = 0 */ )
-{
-	if ( isSelected() )
-	{
-		painter->save();
-		{
-			painter->setBrush( QBrush( option->palette.color( QPalette::Highlight ) ) );
-
-			painter->drawRect( rect().marginsAdded( QMargins( 1, 1, 1, 1 ) ) );
-		}
-		painter->restore();
-	}
-
-	QGraphicsProxyWidget::paint( painter, option, widget );
-}
-
-bool XS::NodeItem::eventFilter( QObject * object, QEvent * event )
-{
-	if ( object == widget() )
-	{
-		switch ( event->type() )
-		{
-		case QEvent::Enter:
-		{
-			this->setProperty( ENTER_FLAG_NAME, true );
-
-			QMetaObject::invokeMethod( this, [this]() { update(); }, Qt::QueuedConnection );
-		}
-		break;
-		case QEvent::Leave:
-		{
-			this->setProperty( ENTER_FLAG_NAME, false );
-
-			QMetaObject::invokeMethod( this, [this]() { update(); }, Qt::QueuedConnection );
-		}
-		break;
-		case QEvent::Paint:
-		{
-			bool res = QGraphicsProxyWidget::eventFilter( object, event );
-
-			if ( this->property( ENTER_FLAG_NAME ).toBool() )
-			{
-				QPainter painter( widget() );
-
-				painter.save();
-				{
-					painter.setPen( QPen( widget()->palette().color( QPalette::Highlight ), 1.0f ) );
-
-					auto rect = widget()->rect();
-
-					painter.drawLine( rect.left() + 1, rect.top() + 1, rect.right(), rect.top() + 1 );
-					painter.drawLine( rect.right(), rect.top() + 1, rect.right(), rect.bottom() );
-					painter.drawLine( rect.right(), rect.bottom(), rect.left() + 1, rect.bottom() );
-					painter.drawLine( rect.left() + 1, rect.bottom(), rect.left() + 1, rect.top() + 1 );
-				}
-				painter.restore();
-			}
-
-			return res;
-		}
-		break;
-		case QEvent::MouseButtonPress:
-		{
-			QMouseEvent * mouse = (QMouseEvent *)event;
-			if ( ( mouse->buttons() == Qt::LeftButton || widget()->hasFocus() ) && !isSelected() )
-			{
-				QMetaObject::invokeMethod( this, [this]() { setSelected( true ); }, Qt::QueuedConnection );
-			}
-		}
-		break;
-		default:
-			break;
-		}
-	}
-
-	return QGraphicsProxyWidget::eventFilter( object, event );
-}
-
 
 
 XS::NodeWidget::NodeWidget( QWidget * parent /*= nullptr */ )
