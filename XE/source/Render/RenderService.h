@@ -42,17 +42,19 @@ public:
 	void Clearup() override;
 
 public:
-	XE::RenderTexturePtr GetCurrentMainTexture() const;
-
-public:
 	XE::RenderResourcePtr CreateResource( const XE::RenderGraphPtr & val );
 
 public:
+	XE::RenderTexturePtr GetCurrentMainTexture() const;
+
 	XE::RenderTexturePtr GetRenderTextureFromPool( XE::int32 width, XE::int32 height, XE::GraphicsTextureFormat format );
 
 	XE::RenderTexturePtr GetRenderTextureFromGlobal( const XE::String & name );
 
 	XE::RenderTexturePtr CreateRenderTextureFromGlobal( const XE::String & name, XE::int32 width, XE::int32 height, XE::GraphicsTextureFormat format );
+
+public:
+	XE::RenderQueueData Culling( const XE::CameraData * val );
 
 private:
 	XE::Disposable RegisterLight( XE::LightData * val );
@@ -60,6 +62,9 @@ private:
 	XE::Disposable RegisterRender( XE::RenderData * val );
 
 	XE::Disposable RegisterCamera( XE::CameraData * val );
+
+private:
+	void RenderCamera( XE::CameraData * val );
 
 private:
 	Private * _p;
