@@ -4,6 +4,7 @@
 
 #include "RenderGraph.h"
 #include "RenderTexture.h"
+#include "RenderMaterial.h"
 #include "LightComponent.h"
 #include "CameraComponent.h"
 #include "RenderComponent.h"
@@ -45,88 +46,88 @@ namespace
 	{
 		bool operator()( const XE::RenderData * left, const XE::RenderData * right ) const
 		{
-			return left->Queue < right->Queue;
+			return left->Material->GetRenderQueueType() < right->Material->GetRenderQueueType();
 		}
 	};
 	template<> struct RenderQueueSorter< XE::RenderQueueType::GEOMETRY >
 	{
-		RenderQueueSorter( const XE::CameraData * pos )
-			: _Camera( pos )
+		RenderQueueSorter( const XE::Vec3f & origin )
+			: Origin( origin )
 		{
 
 		}
 
 		bool operator()( const XE::RenderData * left, const XE::RenderData * right ) const
 		{
-			return XE::Mathf::Distance( _Camera->Position, left->Position ) < XE::Mathf::Distance( _Camera->Position, right->Position );
+			return XE::Mathf::Distance( Origin, XE::Mathf::Translation( left->Transform ) ) < XE::Mathf::Distance( Origin, XE::Mathf::Translation( right->Transform ) );
 		}
 
-		const XE::CameraData * _Camera;
+		const XE::Vec3f & Origin;
 	};
 	template<> struct RenderQueueSorter< XE::RenderQueueType::ALPHA_TEST >
 	{
-		RenderQueueSorter( const XE::CameraData * pos )
-			: _Camera( pos )
+		RenderQueueSorter( const XE::Vec3f & origin )
+			: Origin( origin )
 		{
 
 		}
 
 		bool operator()( const XE::RenderData * left, const XE::RenderData * right ) const
 		{
-			return XE::Mathf::Distance( _Camera->Position, left->Position ) >= XE::Mathf::Distance( _Camera->Position, right->Position );
+			return XE::Mathf::Distance( Origin, XE::Mathf::Translation( left->Transform ) ) >= XE::Mathf::Distance( Origin, XE::Mathf::Translation( right->Transform ) );
 		}
 
-		const XE::CameraData * _Camera;
+		const XE::Vec3f & Origin;
 	};
 	template<> struct RenderQueueSorter< XE::RenderQueueType::GEOMETRY_LAST >
 	{
-		RenderQueueSorter( const XE::CameraData * pos )
-			: _Camera( pos )
+		RenderQueueSorter( const XE::Vec3f & origin )
+			: Origin( origin )
 		{
 
 		}
 
 		bool operator()( const XE::RenderData * left, const XE::RenderData * right ) const
 		{
-			return XE::Mathf::Distance( _Camera->Position, left->Position ) < XE::Mathf::Distance( _Camera->Position, right->Position );
+			return XE::Mathf::Distance( Origin, XE::Mathf::Translation( left->Transform ) ) < XE::Mathf::Distance( Origin, XE::Mathf::Translation( right->Transform ) );
 		}
 
-		const XE::CameraData * _Camera;
+		const XE::Vec3f & Origin;
 	};
 	template<> struct RenderQueueSorter< XE::RenderQueueType::SKY_BOX >
 	{
 		bool operator()( const XE::RenderData * left, const XE::RenderData * right ) const
 		{
-			return left->Queue < right->Queue;
+			return left->Material->GetRenderQueueType() < right->Material->GetRenderQueueType();
 		}
 	};
 	template<> struct RenderQueueSorter< XE::RenderQueueType::TRANSPARENT >
 	{
-		RenderQueueSorter( const XE::CameraData * pos )
-			: _Camera( pos )
+		RenderQueueSorter( const XE::Vec3f & origin )
+			: Origin( origin )
 		{
 
 		}
 
 		bool operator()( const XE::RenderData * left, const XE::RenderData * right ) const
 		{
-			return XE::Mathf::Distance( _Camera->Position, left->Position ) >= XE::Mathf::Distance( _Camera->Position, right->Position );
+			return XE::Mathf::Distance( Origin, XE::Mathf::Translation( left->Transform ) ) >= XE::Mathf::Distance( Origin, XE::Mathf::Translation( right->Transform ) );
 		}
 
-		const XE::CameraData * _Camera;
+		const XE::Vec3f & Origin;
 	};
 	template<> struct RenderQueueSorter< XE::RenderQueueType::POST_PROCESS >
 	{
 		bool operator()( const XE::RenderData * left, const XE::RenderData * right ) const
 		{
-			return left->Queue < right->Queue;
+			return left->Material->GetRenderQueueType() < right->Material->GetRenderQueueType();
 		}
 	};
 	template<> struct RenderQueueSorter< XE::RenderQueueType::USER_INTERFACE >
 	{
 		bool operator()( const XE::RenderData * left, const XE::RenderData * right ) const
 		{
-			return left->Queue < right->Queue;
+			return left->Material->GetRenderQueueType() < right->Material->GetRenderQueueType();
 		}
 	};
 }
@@ -143,11 +144,11 @@ struct XE::RenderService::Private
 	XE::List< RenderTextureTemporaryPtr > _TexturePool;
 	XE::Map< XE::String, RenderTextureTemporaryPtr > _GlobalTexture;
 
-	XE::List< XE::CameraData * > _Cameras;
+	XE::List< XE::CameraComponent * > _Cameras;
 	XE::OCTree< XE::LightData * > _StaticLights;
-	XE::Array< XE::LightData * > _DynamicLights;
+	XE::List< XE::LightData * > _DynamicLights;
 	XE::OCTree< XE::RenderData * > _StaticRenders;
-	XE::Array< XE::RenderData * > _DynamicRenders;
+	XE::List< XE::RenderData * > _DynamicRenders;
 };
 
 XE::RenderService::RenderService()
@@ -353,59 +354,71 @@ XE::RenderTexturePtr XE::RenderService::GetRenderTextureFromPool( XE::int32 widt
 	return nullptr;
 }
 
-XE::RenderQueueData XE::RenderService::Culling( const XE::CameraData * val )
+XE::CullingData XE::RenderService::Culling( XE::CameraComponent * val )
 {
-	XE::RenderQueueData data;
-
-	auto classify = []( XE::RenderQueueData & data, XE::RenderData * it )
-	{
-		XE::uint32 q = XE::uint32( it->Queue ) - ( XE::uint32( it->Queue ) % 1000 );
-		switch( q )
-		{
-		case ( XE::uint32 ) XE::RenderQueueType::BACKGROUND:
-			data.Background.push_back( it );
-			break;
-		case ( XE::uint32 ) XE::RenderQueueType::GEOMETRY:
-			data.Geometry.push_back( it );
-			break;
-		case ( XE::uint32 ) XE::RenderQueueType::ALPHA_TEST:
-			data.AlphaTest.push_back( it );
-			break;
-		case ( XE::uint32 ) XE::RenderQueueType::GEOMETRY_LAST:
-			data.GeometryLast.push_back( it );
-			break;
-		case ( XE::uint32 ) XE::RenderQueueType::SKY_BOX:
-			data.SkyBox.push_back( it );
-			break;
-		case ( XE::uint32 ) XE::RenderQueueType::TRANSPARENT:
-			data.Transparent.push_back( it );
-			break;
-		case ( XE::uint32 ) XE::RenderQueueType::POST_PROCESS:
-			data.PostProcess.push_back( it );
-			break;
-		case ( XE::uint32 ) XE::RenderQueueType::USER_INTERFACE:
-			data.UserInterface.push_back( it );
-			break;
-		case ( XE::uint32 ) XE::RenderQueueType::END:
-			break;
-		default:
-			break;
-		}
-	};
+	XE::CullingData data;
 
 	// cull
 	{
+		auto frustum = val->GetFrustum();
+		XE::Array< XE::RenderData * > renders( XE::MemoryResource::GetFrameMemoryResource() ); renders.reserve( 1000 );
 
+		_p->_StaticRenders.Intersect( frustum, renders );
+		for ( auto it : _p->_DynamicRenders )
+		{
+			if ( frustum.Intersect( it->BoundingBox ) )
+			{
+				renders.push_back( it );
+			}
+		}
+
+		for ( auto it : renders )
+		{
+			if ( ( val->GetMask() & it->Mask ) != 0 )
+			{
+				auto queue = it->Material->GetRenderQueueType();
+
+				switch ( XE::uint32( queue ) - ( XE::uint32( queue ) % 1000 ) )
+				{
+				case (XE::uint32)XE::RenderQueueType::BACKGROUND:
+					data.Background.push_back( it );
+					break;
+				case (XE::uint32)XE::RenderQueueType::GEOMETRY:
+					data.Geometry.push_back( it );
+					break;
+				case (XE::uint32)XE::RenderQueueType::ALPHA_TEST:
+					data.AlphaTest.push_back( it );
+					break;
+				case (XE::uint32)XE::RenderQueueType::GEOMETRY_LAST:
+					data.GeometryLast.push_back( it );
+					break;
+				case (XE::uint32)XE::RenderQueueType::SKY_BOX:
+					data.SkyBox.push_back( it );
+					break;
+				case (XE::uint32)XE::RenderQueueType::TRANSPARENT:
+					data.Transparent.push_back( it );
+					break;
+				case (XE::uint32)XE::RenderQueueType::POST_PROCESS:
+					data.PostProcess.push_back( it );
+					break;
+				case (XE::uint32)XE::RenderQueueType::USER_INTERFACE:
+					data.UserInterface.push_back( it );
+					break;
+				}
+			};
+		}
 	}
 
 	// sort
 	{
+		auto origin = val->GetTransform().GetWorldPosition();
+
 		std::sort( data.Background.begin(), data.Background.end(), RenderQueueSorter<XE::RenderQueueType::BACKGROUND>() );
-		std::sort( data.Geometry.begin(), data.Geometry.end(), RenderQueueSorter<XE::RenderQueueType::GEOMETRY>( val ) );
-		std::sort( data.AlphaTest.begin(), data.AlphaTest.end(), RenderQueueSorter<XE::RenderQueueType::ALPHA_TEST>( val ) );
-		std::sort( data.GeometryLast.begin(), data.GeometryLast.end(), RenderQueueSorter<XE::RenderQueueType::GEOMETRY_LAST>( val ) );
+		std::sort( data.Geometry.begin(), data.Geometry.end(), RenderQueueSorter<XE::RenderQueueType::GEOMETRY>( origin ) );
+		std::sort( data.AlphaTest.begin(), data.AlphaTest.end(), RenderQueueSorter<XE::RenderQueueType::ALPHA_TEST>( origin ) );
+		std::sort( data.GeometryLast.begin(), data.GeometryLast.end(), RenderQueueSorter<XE::RenderQueueType::GEOMETRY_LAST>( origin ) );
 		std::sort( data.SkyBox.begin(), data.SkyBox.end(), RenderQueueSorter<XE::RenderQueueType::SKY_BOX>() );
-		std::sort( data.Transparent.begin(), data.Transparent.end(), RenderQueueSorter<XE::RenderQueueType::TRANSPARENT>( val ) );
+		std::sort( data.Transparent.begin(), data.Transparent.end(), RenderQueueSorter<XE::RenderQueueType::TRANSPARENT>( origin ) );
 		std::sort( data.PostProcess.begin(), data.PostProcess.end(), RenderQueueSorter<XE::RenderQueueType::POST_PROCESS>() );
 		std::sort( data.UserInterface.begin(), data.UserInterface.end(), RenderQueueSorter<XE::RenderQueueType::USER_INTERFACE>() );
 	}
@@ -475,7 +488,7 @@ XE::Disposable XE::RenderService::RegisterRender( XE::RenderData * val )
 	}
 }
 
-XE::Disposable XE::RenderService::RegisterCamera( XE::CameraData * val )
+XE::Disposable XE::RenderService::RegisterCamera( XE::CameraComponent * val )
 {
 	auto it = std::find( _p->_Cameras.begin(), _p->_Cameras.end(), nullptr );
 	if ( it != _p->_Cameras.end() )
@@ -487,7 +500,7 @@ XE::Disposable XE::RenderService::RegisterCamera( XE::CameraData * val )
 		it = _p->_Cameras.insert( _p->_Cameras.end(), val );
 	}
 
-	std::sort( _p->_Cameras.begin(), _p->_Cameras.end(), []( const auto & left, const auto & right ) { return left->Depth < right->Depth; } );
+	std::sort( _p->_Cameras.begin(), _p->_Cameras.end(), []( const auto & left, const auto & right ) { return left->GetDepth() < right->GetDepth(); } );
 
 	return { [this, val]()
 	{
@@ -499,7 +512,7 @@ XE::Disposable XE::RenderService::RegisterCamera( XE::CameraData * val )
 	} };
 }
 
-void XE::RenderService::RenderCamera( XE::CameraData * val )
+void XE::RenderService::RenderCamera( XE::CameraComponent * val )
 {
 
 }

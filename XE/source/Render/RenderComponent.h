@@ -56,7 +56,6 @@ public:
 private:
 	XE::RenderData _Data;
 	XE::Disposable _Disposable;
-	XE::RenderMaterialPtr _Material;
 };
 
 END_XE_NAMESPACE

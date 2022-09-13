@@ -82,7 +82,14 @@ public:
 	XE::Mat4x4f GetProjection() const;
 
 private:
-	XE::CameraData _Data;
+	XE::float32 _FOV = 60.0f;
+	XE::float32 _Near = 0.1f;
+	XE::float32 _Far = 1000.0f;
+	XE::uint32 _Depth = 1;
+	XE::uint64 _Mask = 0;
+	XE::Rectf _Viewport = { 0, 0, 1, 1 };
+	XE::CameraType _Type = XE::CameraType::ORTHOGRAPHIC;
+
 	XE::Disposable _Disposable;
 	XE::RenderGraphPtr _RenderGraph;
 	XE::RenderTexturePtr _RenderTexture;

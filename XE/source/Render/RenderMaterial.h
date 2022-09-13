@@ -23,6 +23,13 @@ public:
 	~RenderMaterial() override;
 
 public:
+	bool GetTwoSided() const;
+
+	void SetTwoSided( bool val );
+
+	XE::RenderQueueType GetRenderQueueType() const;
+
+	void SetRenderQueueType( XE::RenderQueueType val );
 
 private:
 	bool _TowSided = false;

@@ -54,17 +54,17 @@ public:
 	XE::RenderTexturePtr CreateRenderTextureFromGlobal( const XE::String & name, XE::int32 width, XE::int32 height, XE::GraphicsTextureFormat format );
 
 public:
-	XE::RenderQueueData Culling( const XE::CameraData * val );
+	XE::CullingData Culling( XE::CameraComponent * val );
 
 private:
 	XE::Disposable RegisterLight( XE::LightData * val );
 
 	XE::Disposable RegisterRender( XE::RenderData * val );
 
-	XE::Disposable RegisterCamera( XE::CameraData * val );
+	XE::Disposable RegisterCamera( XE::CameraComponent * val );
 
 private:
-	void RenderCamera( XE::CameraData * val );
+	void RenderCamera( XE::CameraComponent * val );
 
 private:
 	Private * _p;

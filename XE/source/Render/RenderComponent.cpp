@@ -23,7 +23,7 @@ void XE::RenderComponent::OnStartup()
 
 void XE::RenderComponent::OnClearup()
 {
-
+	_Disposable.Dispose();
 }
 
 void XE::RenderComponent::Render( const XE::GraphicsCommandEncoderPtr & encoder ) const
@@ -53,12 +53,12 @@ void XE::RenderComponent::SetMask( XE::uint64 val )
 
 const XE::RenderMaterialPtr & XE::RenderComponent::GetMaterial() const
 {
-	return _Material;
+	return _Data.Material;
 }
 
 void XE::RenderComponent::SetMaterial( const XE::RenderMaterialPtr & val )
 {
-	_Material = val;
+	_Data.Material = val;
 }
 
 XE::AABB XE::RenderComponent::GetBoundingBox() const

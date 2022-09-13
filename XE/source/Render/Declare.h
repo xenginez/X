@@ -19,14 +19,16 @@ class RenderPassData;
 class RenderExecutor;
 
 class RenderService;
+
+class SkyComponent;
 class LightComponent;
 class CameraComponent;
 class RenderComponent;
 class SpriteComponent;
-class SkinnedComponent;
 class SpotLightComponent;
 class PointLightComponent;
 class StaticMeshComponent;
+class SkinnedMeshComponent;
 class AmbientBoxLightComponent;
 class DirectionalLightComponent;
 class AmbientSphereLightComponent;
@@ -39,8 +41,6 @@ DECL_PTR( RenderMesh );
 DECL_PTR( RenderShader );
 DECL_PTR( RenderTexture );
 DECL_PTR( RenderMaterial );
-// DECL_PTR( RenderGBuffer );
-// DECL_PTR( RenderVirtualTexture );
 
 DECL_PTR( RenderService );
 DECL_PTR( LightComponent );

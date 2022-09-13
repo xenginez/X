@@ -49,7 +49,6 @@ enum class RenderQueueType : XE::uint32
 	TRANSPARENT = 5000,		// [5000, 5999]
 	POST_PROCESS = 6000,	// [6000, 6999]
 	USER_INTERFACE = 7000,	// [7000, 7999]
-	END = 8000,
 };
 DECL_XE_ENUM( RenderQueueType );
 
@@ -73,25 +72,16 @@ struct XE_API RenderData
 {
 	bool IsDynamic = false;
 	XE::uint64 Mask = 0;
-	XE::Vec3f Position;
-	XE::RenderQueueType Queue = XE::RenderQueueType::END;
+	XE::AABB BoundingBox;
+	XE::Mat4x4f Transform;
+	XE::RenderMaterialPtr Material;
 	XE::Delegate< void( XE::RenderExecutor & ) > RenderCallback;
 };
 
-struct XE_API CameraData
+struct XE_API CullingData
 {
-	XE::float32 FOV = 60.0f;
-	XE::float32 Near = 0.1f;
-	XE::float32 Far = 1000.0f;
-	XE::uint32 Depth = 1;
-	XE::uint64 Mask = 0;
-	XE::Rectf Viewport = { 0, 0, 1, 1 };
-	XE::Vec3f Position;
-	XE::CameraType Type = XE::CameraType::ORTHOGRAPHIC;
-};
+	XE::Array< XE::LightData * > Lights;
 
-struct XE_API RenderQueueData
-{
 	XE::Array< XE::RenderData * > Background;
 	XE::Array< XE::RenderData * > Geometry;
 	XE::Array< XE::RenderData * > AlphaTest;
