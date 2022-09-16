@@ -363,7 +363,7 @@ XE::CullingData XE::RenderService::Culling( XE::CameraComponent * val )
 		auto frustum = val->GetFrustum();
 		XE::Array< XE::RenderData * > renders( XE::MemoryResource::GetFrameMemoryResource() ); renders.reserve( 1000 );
 
-		_p->_StaticRenders.Intersect( frustum, renders );
+		_p->_StaticRenders.Intersect( frustum, {}, renders );
 		for ( auto it : _p->_DynamicRenders )
 		{
 			if ( frustum.Intersect( it->BoundingBox ) )
@@ -500,7 +500,7 @@ XE::Disposable XE::RenderService::RegisterCamera( XE::CameraComponent * val )
 		it = _p->_Cameras.insert( _p->_Cameras.end(), val );
 	}
 
-	std::sort( _p->_Cameras.begin(), _p->_Cameras.end(), []( const auto & left, const auto & right ) { return left->GetDepth() < right->GetDepth(); } );
+	_p->_Cameras.sort( []( const auto & left, const auto & right ) { return left->GetDepth() < right->GetDepth(); } );
 
 	return { [this, val]()
 	{

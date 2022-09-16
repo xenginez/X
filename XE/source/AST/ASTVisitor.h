@@ -13,40 +13,278 @@
 
 BEG_XE_NAMESPACE
 
-class XE_API ASTVisitor : public XE::NonCopyable
+class XE_API ASTVisitor : public XE::Object
 {
+	OBJECT( ASTVisitor, XE::Object );
+
 public:
-	virtual void Visit( const XE::ASTNode * val ) = 0;
+	ASTVisitor() = default;
 
-	virtual void Visit( const XE::MacroIfASTNode * val ) = 0;
+	virtual ~ASTVisitor() = default;
 
-	virtual void Visit( const XE::MacroElseASTNode * val ) = 0;
+protected:
+	XE::ASTServicePtr GetService() const;
+};
 
-	virtual void Visit( const XE::MacroElifASTNode * val ) = 0;
+class XE_API ASTExecuteVisitor : public ASTVisitor
+{
+	OBJECT( ASTExecuteVisitor, XE::ASTVisitor );
 
-	virtual void Visit( const XE::MacroEndASTNode * val ) = 0;
+public:
+	ASTExecuteVisitor() = default;
 
-	virtual void Visit( const XE::IfStatNode * val ) = 0;
+	~ASTExecuteVisitor() override = default;
+};
 
-	virtual void Visit( const XE::BreakStatNode * val ) = 0;
+class XE_API MacroIfNodeExecuteVisitor : public ASTExecuteVisitor
+{
+	OBJECT( MacroIfNodeExecuteVisitor, XE::ASTExecuteVisitor );
 
-	virtual void Visit( const XE::WhileStatNode * val ) = 0;
+public:
+	void Visit( XE::ASTExecuteContext * context, const XE::MacroIfNode * node ) const;
+};
 
-	virtual void Visit( const XE::SwitchStatNode * val ) = 0;
+class XE_API MacroElseNodeExecuteVisitor : public ASTExecuteVisitor
+{
+	OBJECT( MacroElseNodeExecuteVisitor, XE::ASTExecuteVisitor );
 
-	virtual void Visit( const XE::ReturnStatNode * val ) = 0;
+public:
+	void Visit( XE::ASTExecuteContext * context, const XE::MacroElseNode * node ) const;
+};
 
-	virtual void Visit( const XE::ContinueStatNode * val ) = 0;
+class XE_API MacroElifNodeExecuteVisitor : public ASTExecuteVisitor
+{
+	OBJECT( MacroElifNodeExecuteVisitor, XE::ASTExecuteVisitor );
 
-	virtual void Visit( const XE::ValueExprNode * val ) = 0;
+public:
+	void Visit( XE::ASTExecuteContext * context, const XE::MacroElifNode * node ) const;
+};
 
-	virtual void Visit( const XE::UnaryExprNode * val ) = 0;
+class XE_API MacroEndNodeExecuteVisitor : public ASTExecuteVisitor
+{
+	OBJECT( MacroEndNodeExecuteVisitor, XE::ASTExecuteVisitor );
 
-	virtual void Visit( const XE::BinaryExprNode * val ) = 0;
+public:
+	void Visit( XE::ASTExecuteContext * context, const XE::MacroEndNode * node ) const;
+};
 
-	virtual void Visit( const XE::InvokeExprNode * val ) = 0;
+class XE_API IfStatNodeExecuteVisitor : public ASTExecuteVisitor
+{
+	OBJECT( IfStatNodeExecuteVisitor, XE::ASTExecuteVisitor );
 
-	virtual void Visit( const XE::VariableExprNode * val ) = 0;
+public:
+	void Visit( XE::ASTExecuteContext * context, const XE::IfStatNode * node ) const;
+};
+
+class XE_API BreakStatNodeExecuteVisitor : public ASTExecuteVisitor
+{
+	OBJECT( BreakStatNodeExecuteVisitor, XE::ASTExecuteVisitor );
+
+public:
+	void Visit( XE::ASTExecuteContext * context, const XE::BreakStatNode * node ) const;
+};
+
+class XE_API WhileStatNodeExecuteVisitor : public ASTExecuteVisitor
+{
+	OBJECT( WhileStatNodeExecuteVisitor, XE::ASTExecuteVisitor );
+
+public:
+	void Visit( XE::ASTExecuteContext * context, const XE::WhileStatNode * node ) const;
+};
+
+class XE_API SwitchStatNodeExecuteVisitor : public ASTExecuteVisitor
+{
+	OBJECT( SwitchStatNodeExecuteVisitor, XE::ASTExecuteVisitor );
+
+public:
+	void Visit( XE::ASTExecuteContext * context, const XE::SwitchStatNode * node ) const;
+};
+
+class XE_API ReturnStatNodeExecuteVisitor : public ASTExecuteVisitor
+{
+	OBJECT( ReturnStatNodeExecuteVisitor, XE::ASTExecuteVisitor );
+
+public:
+	void Visit( XE::ASTExecuteContext * context, const XE::ReturnStatNode * node ) const;
+};
+
+class XE_API ContinueStatNodeExecuteVisitor : public ASTExecuteVisitor
+{
+	OBJECT( ContinueStatNodeExecuteVisitor, XE::ASTExecuteVisitor );
+
+public:
+	void Visit( XE::ASTExecuteContext * context, const XE::ContinueStatNode * node ) const;
+};
+
+class XE_API ValueExprNodeExecuteVisitor : public ASTExecuteVisitor
+{
+	OBJECT( ValueExprNodeExecuteVisitor, XE::ASTExecuteVisitor );
+
+public:
+	void Visit( XE::ASTExecuteContext * context, const XE::ValueExprNode * node ) const;
+};
+
+class XE_API UnaryExprNodeExecuteVisitor : public ASTExecuteVisitor
+{
+	OBJECT( UnaryExprNodeExecuteVisitor, XE::ASTExecuteVisitor );
+
+public:
+	void Visit( XE::ASTExecuteContext * context, const XE::UnaryExprNode * node ) const;
+};
+
+class XE_API BinaryExprNodeExecuteVisitor : public ASTExecuteVisitor
+{
+	OBJECT( BinaryExprNodeExecuteVisitor, XE::ASTExecuteVisitor );
+
+public:
+	void Visit( XE::ASTExecuteContext * context, const XE::BinaryExprNode * node ) const;
+};
+
+class XE_API InvokeExprNodeExecuteVisitor : public ASTExecuteVisitor
+{
+	OBJECT( InvokeExprNodeExecuteVisitor, XE::ASTExecuteVisitor );
+
+public:
+	void Visit( XE::ASTExecuteContext * context, const XE::InvokeExprNode * node ) const;
+};
+
+class XE_API VariableExprNodeExecuteVisitor : public ASTExecuteVisitor
+{
+	OBJECT( VariableExprNodeExecuteVisitor, XE::ASTExecuteVisitor );
+
+public:
+	void Visit( XE::ASTExecuteContext * context, const XE::VariableExprNode * node ) const;
+};
+
+
+class XE_API ASTCompileVisitor : public ASTVisitor
+{
+	OBJECT( ASTCompileVisitor, XE::ASTVisitor );
+
+public:
+	ASTCompileVisitor() = default;
+
+	~ASTCompileVisitor() override = default;
+};
+
+class XE_API MacroIfNodeCompileVisitor : public ASTCompileVisitor
+{
+	OBJECT( MacroIfNodeCompileVisitor, XE::ASTCompileVisitor );
+
+public:
+	void Visit( XE::ASTCompileContext * context, const XE::MacroIfNode * node ) const;
+};
+
+class XE_API MacroElseNodeCompileVisitor : public ASTCompileVisitor
+{
+	OBJECT( MacroElseNodeCompileVisitor, XE::ASTCompileVisitor );
+
+public:
+	void Visit( XE::ASTCompileContext * context, const XE::MacroElseNode * node ) const;
+};
+
+class XE_API MacroElifNodeCompileVisitor : public ASTCompileVisitor
+{
+	OBJECT( MacroElifNodeCompileVisitor, XE::ASTCompileVisitor );
+
+public:
+	void Visit( XE::ASTCompileContext * context, const XE::MacroElifNode * node ) const;
+};
+
+class XE_API MacroEndNodeCompileVisitor : public ASTCompileVisitor
+{
+	OBJECT( MacroEndNodeCompileVisitor, XE::ASTCompileVisitor );
+
+public:
+	void Visit( XE::ASTCompileContext * context, const XE::MacroEndNode * node ) const;
+};
+
+class XE_API IfStatNodeCompileVisitor : public ASTCompileVisitor
+{
+	OBJECT( IfStatNodeCompileVisitor, XE::ASTCompileVisitor );
+
+public:
+	void Visit( XE::ASTCompileContext * context, const XE::IfStatNode * node ) const;
+};
+
+class XE_API BreakStatNodeCompileVisitor : public ASTCompileVisitor
+{
+	OBJECT( BreakStatNodeCompileVisitor, XE::ASTCompileVisitor );
+
+public:
+	void Visit( XE::ASTCompileContext * context, const XE::BreakStatNode * node ) const;
+};
+
+class XE_API WhileStatNodeCompileVisitor : public ASTCompileVisitor
+{
+	OBJECT( WhileStatNodeCompileVisitor, XE::ASTCompileVisitor );
+
+public:
+	void Visit( XE::ASTCompileContext * context, const XE::WhileStatNode * node ) const;
+};
+
+class XE_API SwitchStatNodeCompileVisitor : public ASTCompileVisitor
+{
+	OBJECT( SwitchStatNodeCompileVisitor, XE::ASTCompileVisitor );
+
+public:
+	void Visit( XE::ASTCompileContext * context, const XE::SwitchStatNode * node ) const;
+};
+
+class XE_API ReturnStatNodeCompileVisitor : public ASTCompileVisitor
+{
+	OBJECT( ReturnStatNodeCompileVisitor, XE::ASTCompileVisitor );
+
+public:
+	void Visit( XE::ASTCompileContext * context, const XE::ReturnStatNode * node ) const;
+};
+
+class XE_API ContinueStatNodeCompileVisitor : public ASTCompileVisitor
+{
+	OBJECT( ContinueStatNodeCompileVisitor, XE::ASTCompileVisitor );
+
+public:
+	void Visit( XE::ASTCompileContext * context, const XE::ContinueStatNode * node ) const;
+};
+
+class XE_API ValueExprNodeCompileVisitor : public ASTCompileVisitor
+{
+	OBJECT( ValueExprNodeCompileVisitor, XE::ASTCompileVisitor );
+
+public:
+	void Visit( XE::ASTCompileContext * context, const XE::ValueExprNode * node ) const;
+};
+
+class XE_API UnaryExprNodeCompileVisitor : public ASTCompileVisitor
+{
+	OBJECT( UnaryExprNodeCompileVisitor, XE::ASTCompileVisitor );
+
+public:
+	void Visit( XE::ASTCompileContext * context, const XE::UnaryExprNode * node ) const;
+};
+
+class XE_API BinaryExprNodeCompileVisitor : public ASTCompileVisitor
+{
+	OBJECT( BinaryExprNodeCompileVisitor, XE::ASTCompileVisitor );
+
+public:
+	void Visit( XE::ASTCompileContext * context, const XE::BinaryExprNode * node ) const;
+};
+
+class XE_API InvokeExprNodeCompileVisitor : public ASTCompileVisitor
+{
+	OBJECT( InvokeExprNodeCompileVisitor, XE::ASTCompileVisitor );
+
+public:
+	void Visit( XE::ASTCompileContext * context, const XE::InvokeExprNode * node ) const;
+};
+
+class XE_API VariableExprNodeCompileVisitor : public ASTCompileVisitor
+{
+	OBJECT( VariableExprNodeCompileVisitor, XE::ASTCompileVisitor );
+
+public:
+	void Visit( XE::ASTCompileContext * context, const XE::VariableExprNode * node ) const;
 };
 
 END_XE_NAMESPACE

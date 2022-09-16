@@ -13,6 +13,13 @@
 
 BEG_XE_NAMESPACE
 
+class ASTContext;
+class ASTExecuteContext;
+class ASTCompileContext;
+
+DECL_PTR( ASTService );
+DECL_PTR( ASTVisitor );
+
 DECL_PTR( ASTInfoMeta );
 DECL_PTR( ASTInfoType );
 DECL_PTR( ASTInfoEnum );
@@ -31,10 +38,10 @@ DECL_PTR( ASTMetaFunction );
 DECL_PTR( ASTMetaVariable );
 
 DECL_PTR( ASTNode );
-DECL_PTR( MacroIfASTNode );
-DECL_PTR( MacroElseASTNode );
-DECL_PTR( MacroElifASTNode );
-DECL_PTR( MacroEndASTNode );
+DECL_PTR( MacroIfNode );
+DECL_PTR( MacroElseNode );
+DECL_PTR( MacroElifNode );
+DECL_PTR( MacroEndNode );
 DECL_PTR( StatASTNode );
 DECL_PTR( IfStatNode );
 DECL_PTR( BreakStatNode );
@@ -48,10 +55,6 @@ DECL_PTR( UnaryExprNode );
 DECL_PTR( BinaryExprNode );
 DECL_PTR( InvokeExprNode );
 DECL_PTR( VariableExprNode );
-
-DECL_PTR( ASTVisitor );
-DECL_PTR( ASTExecutor );
-DECL_PTR( ASTCompiler );
 
 END_XE_NAMESPACE
 

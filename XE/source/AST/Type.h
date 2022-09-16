@@ -57,7 +57,7 @@ enum class MacroGotoType
 };
 DECL_FLAGS( MacroGotoType );
 
-enum class ExecutorGotoType
+enum class ExecuteGotoType
 {
 	NONE,
 	BREAK,
@@ -70,7 +70,7 @@ struct XE_API ASTFrame
 	XE::uint64 SP = 0;
 	XE::uint64 FP = 0;
 	XE::Stack< XE::MacroGotoTypeFlags > MacroGo;
-	XE::ExecutorGotoType ExecGo = XE::ExecutorGotoType::NONE;
+	XE::ExecuteGotoType ExecGo = XE::ExecuteGotoType::NONE;
 	XE::Stack< const XE::WhileStatNode * > Loop;
 	XE::Map< XE::String, XE::uint64 > Variables;
 	std::variant< XE::ASTInfoMethodPtr, XE::ASTInfoFunctionPtr > AST;

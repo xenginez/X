@@ -3,14 +3,14 @@
 #include "ASTVisitor.h"
 
 IMPLEMENT_META( XE::ASTNode );
-BEG_META( XE::MacroIfASTNode )
-type->Property( "Name", &XE::MacroIfASTNode::_Name );
+BEG_META( XE::MacroIfNode )
+type->Property( "Name", &XE::MacroIfNode::_Name );
 END_META()
-IMPLEMENT_META( XE::MacroElseASTNode );
-BEG_META( XE::MacroElifASTNode )
-type->Property( "Name", &XE::MacroElifASTNode::_Name );
+IMPLEMENT_META( XE::MacroElseNode );
+BEG_META( XE::MacroElifNode )
+type->Property( "Name", &XE::MacroElifNode::_Name );
 END_META()
-IMPLEMENT_META( XE::MacroEndASTNode );
+IMPLEMENT_META( XE::MacroEndNode );
 IMPLEMENT_META( XE::StatASTNode );
 IMPLEMENT_META( XE::ExprStatNode );
 BEG_META( XE::IfStatNode )
@@ -52,47 +52,22 @@ BEG_META( XE::VariableExprNode )
 type->Property( "Name", &XE::VariableExprNode::_Name );
 END_META()
 
-//////////////////////////////////////////////////////////////////////////
-
-#define VISIT( TYPE ) void TYPE::Visit( XE::ASTVisitor * val ) const { val->Visit( this ); }
-VISIT( XE::ASTNode );
-VISIT( XE::MacroIfASTNode );
-VISIT( XE::MacroElseASTNode );
-VISIT( XE::MacroElifASTNode );
-VISIT( XE::MacroEndASTNode );
-VISIT( XE::StatASTNode );
-VISIT( XE::ExprStatNode );
-VISIT( XE::IfStatNode );
-VISIT( XE::BreakStatNode );
-VISIT( XE::WhileStatNode );
-VISIT( XE::SwitchStatNode );
-VISIT( XE::ReturnStatNode );
-VISIT( XE::ContinueStatNode );
-VISIT( XE::ValueExprNode );
-VISIT( XE::UnaryExprNode );
-VISIT( XE::BinaryExprNode );
-VISIT( XE::InvokeExprNode );
-VISIT( XE::VariableExprNode );
-#undef VISIT
-
-//////////////////////////////////////////////////////////////////////////
-
-const XE::String & XE::MacroIfASTNode::GetName() const
+const XE::String & XE::MacroIfNode::GetName() const
 {
 	return _Name;
 }
 
-void XE::MacroIfASTNode::SetName( const XE::String & val )
+void XE::MacroIfNode::SetName( const XE::String & val )
 {
 	_Name = val;
 }
 
-const XE::String & XE::MacroElifASTNode::GetName() const
+const XE::String & XE::MacroElifNode::GetName() const
 {
 	return _Name;
 }
 
-void XE::MacroElifASTNode::SetName( const XE::String & val )
+void XE::MacroElifNode::SetName( const XE::String & val )
 {
 	_Name = val;
 }

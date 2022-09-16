@@ -1,13 +1,17 @@
 #include "ASTService.h"
 
+#include "ASTInfo.h"
+#include "ASTNode.h"
+#include "ASTVisitor.h"
+#include "ASTContext.h"
+
 IMPLEMENT_META( XE::ASTService )
 
 struct XE::ASTService::Private
 {
 	XE::Set< XE::String > _Macros;
 	XE::Map< XE::String, XE::Variant > _Globals;
-	XE::Map< XE::MetaClassCPtr, XE::Delegate< void( XE::ASTVisitor * ) > > _CustomNodeExecutes;
-	XE::Map< XE::MetaClassCPtr, XE::Delegate< void( XE::ASTVisitor * ) > > _CustomNodeCompiles;
+	XE::MultiMap< XE::MetaClassCPtr, XE::ASTVisitorPtr > _Visitors; // ASTNode Type : ASTVisitor
 };
 
 XE::ASTService::ASTService()
@@ -41,6 +45,33 @@ void XE::ASTService::Clearup()
 
 }
 
+void XE::ASTService::Visit( XE::ASTContext * context, XE::ASTNode * node ) const
+{
+	auto ranges = _p->_Visitors.equal_range( node->GetMetaClass() );
+	for ( auto it = ranges.first; it != ranges.second; ++it )
+	{
+		if ( it->second->GetMetaClass()->CanConvert( context->GetVisitorBaseClass() ) )
+		{
+			if ( auto visit = it->second->GetMetaClass()->FindMethod( "Visit" ) )
+			{
+				if ( context->GetMetaClass()->CanConvert( visit->GetParameterType().front() ) )
+				{
+					XE::InvokeStack args( it->second, context, node );
+
+					visit->Invoke( &args );
+
+					return;
+				}
+			}
+		}
+	}
+}
+
+void XE::ASTService::Visit( XE::ASTContext * context, const XE::ASTNodePtr & node ) const
+{
+	Visit( context, node.get() );
+}
+
 void XE::ASTService::SetVariable( const XE::String & name, const XE::Variant & val )
 {
 	_p->_Globals[name] = val;
@@ -53,48 +84,12 @@ XE::Variant XE::ASTService::GetVariable( const XE::String & name )
 	return it != _p->_Globals.end() ? it->second : XE::Variant();
 }
 
-void XE::ASTService::AddMacro( const XE::String & val )
+void XE::ASTService::AddGlobalMacro( const XE::String & val )
 {
 	_p->_Macros.insert( val );
 }
 
-bool XE::ASTService::HasMacro( const XE::String & val ) const
+bool XE::ASTService::HasGlobalMacro( const XE::String & val ) const
 {
 	return _p->_Macros.find( val ) != _p->_Macros.end();
-}
-
-void XE::ASTService::AddCustomNodeExecute( const XE::MetaClassCPtr & type, const XE::Delegate< void( XE::ASTVisitor * ) > & callback )
-{
-	_p->_CustomNodeExecutes.insert( { type, callback } );
-}
-
-void XE::ASTService::AddCustomNodeCompile( const XE::MetaClassCPtr & type, const XE::Delegate< void( XE::ASTVisitor * ) > & callback )
-{
-	_p->_CustomNodeCompiles.insert( { type, callback } );
-}
-
-bool XE::ASTService::ExecuteCustomNode( const XE::MetaClassCPtr & type, XE::ASTVisitor * visitor ) const
-{
-	auto it = _p->_CustomNodeExecutes.find( type );
-	if ( it != _p->_CustomNodeExecutes.end() )
-	{
-		it->second( visitor );
-
-		return true;
-	}
-
-	return false;
-}
-
-bool XE::ASTService::CompileCustomNode( const XE::MetaClassCPtr & type, XE::ASTVisitor * visitor ) const
-{
-	auto it = _p->_CustomNodeCompiles.find( type );
-	if ( it != _p->_CustomNodeCompiles.end() )
-	{
-		it->second( visitor );
-
-		return true;
-	}
-
-	return false;
 }

@@ -1,7 +1,8 @@
 #include "ASTMetaMethod.h"
 
 #include "ASTInfo.h"
-#include "ASTExecutor.h"
+#include "ASTVisitor.h"
+#include "ASTContext.h"
 
 namespace
 {
@@ -38,7 +39,5 @@ XE::ASTMetaMethod::~ASTMetaMethod()
 
 XE::Variant XE::ASTMetaMethod::Invoke( XE::InvokeStack * params ) const
 {
-	XE::ASTExecutor exec;
-
-	return exec.Invoke( _Method, params );
+	return XE::ASTExecuteContext( XE::MemoryResource::GetFrameMemoryResource() ).Invoke( _Method, params );
 }

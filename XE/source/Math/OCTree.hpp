@@ -79,12 +79,7 @@ public:
 	}
 
 public:
-	template< typename G > void Intersect( const G & geometry, XE::Array< ValueType > & outs )
-	{
-		Intersect( geometry, {}, outs );
-	}
-
-	template< typename G > void Intersect( const G & geometry, XE::Span< const ValueType > exclude, XE::Array< ValueType > & outs )
+	template< typename G > void Intersect( const G & geometry, const XE::Array< ValueType > & exclude, XE::Array< ValueType > & outs )
 	{
 		if ( _Nodes.empty() )
 		{
@@ -232,7 +227,7 @@ private:
 		}
 	}
 
-	template< typename G > void Intersect( XE::uint64 node_idx, const G & geometry, XE::Span< const ValueType > exclude, XE::Array< ValueType > & outs )
+	template< typename G > void Intersect( XE::uint64 node_idx, const G & geometry, const XE::Array< ValueType > & exclude, XE::Array< ValueType > & outs )
 	{
 		if ( node_idx < _Nodes.size() )
 		{

@@ -21,77 +21,62 @@ public:
 	ASTNode() = default;
 
 	~ASTNode() override = default;
-
-public:
-	virtual void Visit( XE::ASTVisitor * val ) const;
 };
 
-class XE_API MacroIfASTNode : public XE::ASTNode
+class XE_API MacroIfNode : public XE::ASTNode
 {
-	OBJECT( MacroIfASTNode, XE::ASTNode )
+	OBJECT( MacroIfNode, XE::ASTNode )
 
 public:
-	MacroIfASTNode() = default;
+	MacroIfNode() = default;
 
-	~MacroIfASTNode() override = default;
+	~MacroIfNode() override = default;
 
 public:
 	const XE::String & GetName() const;
 
 	void SetName( const XE::String & val );
 
-public:
-	void Visit( XE::ASTVisitor * val ) const override;
-
 private:
 	XE::String _Name;
 };
 
-class XE_API MacroElseASTNode : public XE::ASTNode
+class XE_API MacroElseNode : public XE::ASTNode
 {
-	OBJECT( MacroElseASTNode, XE::ASTNode )
+	OBJECT( MacroElseNode, XE::ASTNode )
 
 public:
-	MacroElseASTNode() = default;
+	MacroElseNode() = default;
 
-	~MacroElseASTNode() override = default;
-
-public:
-	void Visit( XE::ASTVisitor * val ) const override;
+	~MacroElseNode() override = default;
 };
 
-class XE_API MacroElifASTNode : public XE::ASTNode
+class XE_API MacroElifNode : public XE::ASTNode
 {
-	OBJECT( MacroElifASTNode, XE::ASTNode )
+	OBJECT( MacroElifNode, XE::ASTNode )
 
 public:
-	MacroElifASTNode() = default;
+	MacroElifNode() = default;
 
-	~MacroElifASTNode() override = default;
+	~MacroElifNode() override = default;
 
 public:
 	const XE::String & GetName() const;
 
 	void SetName( const XE::String & val );
 
-public:
-	void Visit( XE::ASTVisitor * val ) const override;
-
 private:
 	XE::String _Name;
 };
 
-class XE_API MacroEndASTNode : public XE::ASTNode
+class XE_API MacroEndNode : public XE::ASTNode
 {
-	OBJECT( MacroEndASTNode, XE::ASTNode )
+	OBJECT( MacroEndNode, XE::ASTNode )
 
 public:
-	MacroEndASTNode() = default;
+	MacroEndNode() = default;
 
-	~MacroEndASTNode() override = default;
-
-public:
-	void Visit( XE::ASTVisitor * val ) const override;
+	~MacroEndNode() override = default;
 };
 
 class XE_API StatASTNode : public XE::ASTNode
@@ -102,9 +87,6 @@ public:
 	StatASTNode() = default;
 
 	~StatASTNode() override = default;
-
-public:
-	void Visit( XE::ASTVisitor * val ) const override;
 };
 
 class XE_API ExprStatNode : public XE::StatASTNode
@@ -115,9 +97,6 @@ public:
 	ExprStatNode() = default;
 
 	~ExprStatNode() override = default;
-
-public:
-	void Visit( XE::ASTVisitor * val ) const override;
 };
 
 class XE_API IfStatNode : public XE::StatASTNode
@@ -142,9 +121,6 @@ public:
 
 	void SetFalse( const XE::StatASTNodePtr & val );
 
-public:
-	void Visit( XE::ASTVisitor * val ) const override;
-
 private:
 	XE::StatASTNodePtr _Condition;
 	XE::StatASTNodePtr _True;
@@ -159,9 +135,6 @@ public:
 	BreakStatNode() = default;
 
 	~BreakStatNode() override = default;
-
-public:
-	void Visit( XE::ASTVisitor * val ) const override;
 };
 
 class XE_API WhileStatNode : public XE::StatASTNode
@@ -181,9 +154,6 @@ public:
 	const XE::StatASTNodePtr & GetStatement() const;
 
 	void SetStatement( const XE::StatASTNodePtr & val );
-
-public:
-	void Visit( XE::ASTVisitor * val ) const override;
 
 private:
 	XE::StatASTNodePtr _Condition;
@@ -215,9 +185,6 @@ public:
 public:
 	void AddCase( const XE::Variant & val, const XE::StatASTNodePtr & stat );
 
-public:
-	void Visit( XE::ASTVisitor * val ) const override;
-
 private:
 	XE::ExprStatNodePtr _Express;
 	XE::StatASTNodePtr _Default;
@@ -238,9 +205,6 @@ public:
 
 	void SetResult( const XE::StatASTNodePtr & val );
 
-public:
-	void Visit( XE::ASTVisitor * val ) const override;
-
 private:
 	XE::StatASTNodePtr _Result;
 };
@@ -253,9 +217,6 @@ public:
 	ContinueStatNode() = default;
 
 	~ContinueStatNode() override = default;
-
-public:
-	void Visit( XE::ASTVisitor * val ) const override;
 };
 
 class XE_API ValueExprNode : public XE::ExprStatNode
@@ -271,9 +232,6 @@ public:
 	const XE::Variant & GetValue() const;
 
 	void SetValue( const XE::Variant & val );
-
-public:
-	void Visit( XE::ASTVisitor * val ) const override;
 
 private:
 	XE::Variant _Value;
@@ -296,9 +254,6 @@ public:
 	const XE::ExprStatNodePtr & GetExpress() const;
 
 	void SetExpress( const XE::ExprStatNodePtr & val );
-
-public:
-	void Visit( XE::ASTVisitor * val ) const override;
 
 private:
 	XE::UnaryExprType _Type;
@@ -327,9 +282,6 @@ public:
 
 	void SetRightExpress( const XE::ExprStatNodePtr & val );
 
-public:
-	void Visit( XE::ASTVisitor * val ) const override;
-
 private:
 	XE::BinaryExprType _Type;
 	XE::ExprStatNodePtr _LeftExpress;
@@ -357,9 +309,6 @@ public:
 public:
 	void AddArguments( const XE::ExprStatNodePtr & val );
 
-public:
-	void Visit( XE::ASTVisitor * val ) const override;
-
 private:
 	XE::String _Name;
 	XE::Array< XE::ExprStatNodePtr > _Arguments;
@@ -378,9 +327,6 @@ public:
 	const XE::String & GetName() const;
 
 	void SetName( const XE::String & val );
-
-public:
-	void Visit( XE::ASTVisitor * val ) const override;
 
 private:
 	XE::String _Name;

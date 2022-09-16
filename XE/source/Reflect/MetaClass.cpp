@@ -15,7 +15,14 @@ XE::MetaClass::MetaClass( const String & Name, XE::uint64 Size, bool IsAbs, bool
 
 XE::MetaClass::~MetaClass()
 {
-
+	if ( auto super = CP_CAST< XE::MetaClass >( _Super.lock() ) )
+	{
+		auto it = std::find( super->_DerivedClasses.begin(), super->_DerivedClasses.end(), this );
+		if ( it != super->_DerivedClasses.end() )
+		{
+			super->_DerivedClasses.erase( it );
+		}
+	}
 }
 
 bool XE::MetaClass::IsAbstract() const
@@ -51,11 +58,6 @@ XE::uint64 XE::MetaClass::GetDerivedClassSize() const
 XE::MetaTypeCPtr XE::MetaClass::GetElementType() const
 {
 	return _ElementType;
-}
-
-const XE::TemplateType & XE::MetaClass::GetTemplateTypes() const
-{
-	return _Templates;
 }
 
 bool XE::MetaClass::CanConvert( const XE::MetaClass * val ) const
@@ -99,6 +101,11 @@ XE::MetaClassCPtr XE::MetaClass::GetSuper() const
 	return _Super.lock();
 }
 
+const XE::TemplateType & XE::MetaClass::GetTemplateTypes() const
+{
+	return _Templates;
+}
+
 const XE::Array< XE::MetaMethodCPtr > & XE::MetaClass::GetMethods() const
 {
 	return _Methods;
@@ -107,6 +114,11 @@ const XE::Array< XE::MetaMethodCPtr > & XE::MetaClass::GetMethods() const
 const XE::Array< XE::MetaPropertyCPtr > & XE::MetaClass::GetPropertys() const
 {
 	return _Propertys;
+}
+
+const XE::Array< const XE::MetaClass * > & XE::MetaClass::GetDerivedClasses() const
+{
+	return _DerivedClasses;
 }
 
 void XE::MetaClass::VisitMethod( const XE::Delegate< void( const MetaMethodCPtr & ) > & val ) const

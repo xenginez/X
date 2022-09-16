@@ -36,23 +36,19 @@ public:
 	void Clearup() override;
 
 public:
+	void Visit( XE::ASTContext * context, XE::ASTNode * node ) const;
+
+	void Visit( XE::ASTContext * context, const XE::ASTNodePtr & node ) const;
+
+public:
 	void SetVariable( const XE::String & name, const XE::Variant & val );
 
 	XE::Variant GetVariable( const XE::String & name );
 
 public:
-	void AddMacro( const XE::String & val );
+	void AddGlobalMacro( const XE::String & val );
 
-	bool HasMacro( const XE::String & val ) const;
-
-public:
-	void AddCustomNodeExecute( const XE::MetaClassCPtr & type, const XE::Delegate< void( XE::ASTVisitor * ) > & callback );
-
-	void AddCustomNodeCompile( const XE::MetaClassCPtr & type, const XE::Delegate< void( XE::ASTVisitor * ) > & callback );
-
-	bool ExecuteCustomNode( const XE::MetaClassCPtr & type, XE::ASTVisitor * visitor ) const;
-
-	bool CompileCustomNode( const XE::MetaClassCPtr & type, XE::ASTVisitor * visitor ) const;
+	bool HasGlobalMacro( const XE::String & val ) const;
 
 private:
 	Private * _p;

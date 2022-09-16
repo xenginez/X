@@ -39,11 +39,14 @@ public:
 
 	XE::MetaTypeCPtr GetElementType() const;
 
+public:
 	const XE::TemplateType & GetTemplateTypes() const;
 
 	const XE::Array< XE::MetaMethodCPtr > & GetMethods() const;
 
 	const XE::Array< XE::MetaPropertyCPtr > & GetPropertys() const;
+
+	const XE::Array< const XE::MetaClass * > & GetDerivedClasses() const;
 
 public:
 	bool CanConvert( const XE::MetaClass * val ) const;

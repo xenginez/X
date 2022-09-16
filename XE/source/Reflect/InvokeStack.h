@@ -54,28 +54,12 @@ public:
 
 	void Push( const XE::Variant & val );
 
-	template< typename T > void Push( T && val )
-	{
-		if constexpr ( std::is_pointer_v<T> )
-		{
-			_Stack.push_back( val );
-		}
-		else if constexpr ( std::is_lvalue_reference_v< T > )
-		{
-			_Stack.push_back( XE::RawPointer( val ) );
-		}
-		else
-		{
-			_Stack.push_back( std::forward< T >( val ) );
-		}
-	}
-
-	template< typename T, std::enable_if_t< std::is_trivial_v< T >, int > = 0 > void Push( T val )
+	template< typename T > void Push( T val )
 	{
 		_Stack.push_back( val );
 	}
 
-	template<  typename T, typename ...Types > void Push( T && val, Types &&... args )
+	template<  typename T, typename ...Types > void Push( T val, Types ... args )
 	{
 		Push( std::move( val ) );
 
