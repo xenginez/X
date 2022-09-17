@@ -39,5 +39,5 @@ XE::ASTMetaMethod::~ASTMetaMethod()
 
 XE::Variant XE::ASTMetaMethod::Invoke( XE::InvokeStack * params ) const
 {
-	return XE::ASTExecuteContext( XE::MemoryResource::GetFrameMemoryResource() ).Invoke( _Method, params );
+	return XE::ASTExecuteContext::ThreadInstance()->Invoke( _Method, params );
 }

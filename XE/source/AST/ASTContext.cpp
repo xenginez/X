@@ -24,29 +24,35 @@ bool XE::ASTContext::HasMacro( const XE::String & val ) const
 
 bool XE::ASTContext::MacroSkip() const
 {
-	return !_MacroGo.empty() && _MacroGo.top() != XE::MacroGotoType::ELSE && _MacroGo.top() != XE::MacroGotoType::THEN_END;
+	return !_MacroGo.empty() && _MacroGo.front() != XE::MacroGotoType::ELSE && _MacroGo.front() != XE::MacroGotoType::THEN_END;
 }
 
 void XE::ASTContext::PushMacroGotoType( XE::MacroGotoTypeFlags type )
 {
-	_MacroGo.push( type );
+	_MacroGo.push_front( type );
 }
 
 XE::MacroGotoTypeFlags & XE::ASTContext::TopMacroGotoType()
 {
-	return _MacroGo.top();
+	return _MacroGo.front();
 }
 
 void XE::ASTContext::PopMacroGotoType()
 {
-	_MacroGo.pop();
+	_MacroGo.pop_front();
+}
+
+void XE::ASTContext::Clear()
+{
+	_Macros.clear();
+	_MacroGo.clear();
 }
 
 
-XE::ASTExecuteContext::ASTExecuteContext( std::pmr::memory_resource * resource )
-	: _Macros( resource ), _ValStack( resource ), _FrameStack( resource )
+XE::ASTExecuteContext * XE::ASTExecuteContext::ThreadInstance()
 {
-
+	thread_local XE::ASTExecuteContext context;
+	return &context;
 }
 
 XE::MetaClassCPtr XE::ASTExecuteContext::GetVisitorBaseClass()
@@ -168,6 +174,12 @@ XE::ExecuteGotoType XE::ASTExecuteContext::GetExecGotoType() const
 void XE::ASTExecuteContext::SetExecGotoType( XE::ExecuteGotoType type )
 {
 	_FrameStack.back()->ExecGo = type;
+}
+
+void XE::ASTExecuteContext::Clear()
+{
+	_ValStack.clear();
+	_FrameStack.clear();
 }
 
 void XE::ASTExecuteContext::Exec()

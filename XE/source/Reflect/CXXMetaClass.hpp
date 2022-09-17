@@ -251,7 +251,10 @@ template<> struct ::ClassID< void >
 {
 	static XE::MetaClassCPtr Get( const void * val = nullptr )
 	{
-		return nullptr;
+		static constexpr char __xe__sig__[] = __FUNCTION__;
+
+		static auto meta = XE::MetaInfo::NewMetaInfo< XE::CXXMetaFundamental< std::nullptr_t > >( XE::Hash( __xe__sig__ ), "void" );
+		return meta;
 	}
 };
 
