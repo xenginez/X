@@ -10,6 +10,10 @@
 IMPLEMENT_META( XE::ASTContext );
 IMPLEMENT_META( XE::ASTExecuteContext );
 IMPLEMENT_META( XE::ASTCompileContext );
+IMPLEMENT_META( XE::ASTAMD64CompileContext );
+IMPLEMENT_META( XE::ASTARM64CompileContext );
+IMPLEMENT_META( XE::ASTRISCVCompileContext );
+
 
 void XE::ASTContext::AddMacro( const XE::String & val )
 {
@@ -40,12 +44,6 @@ XE::MacroGotoTypeFlags & XE::ASTContext::TopMacroGotoType()
 void XE::ASTContext::PopMacroGotoType()
 {
 	_MacroGo.pop_front();
-}
-
-void XE::ASTContext::Clear()
-{
-	_Macros.clear();
-	_MacroGo.clear();
 }
 
 
@@ -174,12 +172,6 @@ XE::ExecuteGotoType XE::ASTExecuteContext::GetExecGotoType() const
 void XE::ASTExecuteContext::SetExecGotoType( XE::ExecuteGotoType type )
 {
 	_FrameStack.back()->ExecGo = type;
-}
-
-void XE::ASTExecuteContext::Clear()
-{
-	_ValStack.clear();
-	_FrameStack.clear();
 }
 
 void XE::ASTExecuteContext::Exec()

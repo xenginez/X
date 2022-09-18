@@ -188,14 +188,15 @@ public:// Cast operators ...
 public:// Other operators...
 	Value * ICmpEQ( Value * left, Value * right );
 	Value * ICmpNE( Value * left, Value * right );
-	Value * ICmpUGE( Value * left, Value * right );
-	Value * ICmpULT( Value * left, Value * right );
-	Value * ICmpULE( Value * left, Value * right );
+	Value * ICmpSGE( Value * left, Value * right );
 	Value * ICmpSGT( Value * left, Value * right );
-	Value * ICmpSGE( Value * left, Value * right );
+	Value * ICmpSLE( Value * left, Value * right );
 	Value * ICmpSLT( Value * left, Value * right );
-	Value * ICmpSGE( Value * left, Value * right );
-	Value * FCmpFALSE( Value * left, Value * right );
+	Value * ICmpUGE( Value * left, Value * right );
+	Value * ICmpSGT( Value * left, Value * right );
+	Value * ICmpULE( Value * left, Value * right );
+	Value * ICmpULT( Value * left, Value * right );
+
 	Value * FCmpOEQ( Value * left, Value * right );
 	Value * FCmpOGT( Value * left, Value * right );
 	Value * FCmpOGE( Value * left, Value * right );
@@ -211,6 +212,8 @@ public:// Other operators...
 	Value * FCmpUNE( Value * left, Value * right );
 	Value * FCmpUNO( Value * left, Value * right );
 	Value * FCmpTRUE( Value * left, Value * right );
+	Value * FCmpFALSE( Value * left, Value * right );
+
 	Value * PHI( Type * type, XE::Span< XE::Pair< Value *, Label * > > labels );
 	Value * Call( Type * type, const XE::String & name, XE::Span< Value * > args );
 	Value * Select( Value * cond, Value * iftrue, Value * iffalse );
@@ -231,8 +234,35 @@ public:
 	void LandingPad();
 	void Freeze();
 
+protected:
+	virtual void ToTargetCode() = 0;
+
 private:
 	XE::MemoryStream _Bytecodes;
+};
+
+class XE_API ASTAMD64CompileContext : public ASTCompileContext
+{
+	OBJECT( ASTAMD64CompileContext, ASTCompileContext );
+
+protected:
+	void ToTargetCode() override;
+};
+
+class XE_API ASTARM64CompileContext : public ASTCompileContext
+{
+	OBJECT( ASTARM64CompileContext, ASTCompileContext );
+
+protected:
+	void ToTargetCode() override;
+};
+
+class XE_API ASTRISCVCompileContext : public ASTCompileContext
+{
+	OBJECT( ASTRISCVCompileContext, ASTCompileContext );
+
+protected:
+	void ToTargetCode() override;
 };
 
 END_XE_NAMESPACE
