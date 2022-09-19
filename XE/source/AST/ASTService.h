@@ -50,6 +50,11 @@ public:
 
 	bool HasGlobalMacro( const XE::String & val ) const;
 
+public:
+	XE::Variant Execute( XE::ASTContext * context, const XE::ASTInfoMethodPtr & method, XE::InvokeStack * args );
+
+	XE::Variant Execute( XE::ASTContext * context, const XE::ASTInfoFunctionPtr & function, XE::InvokeStack * args );
+
 private:
 	Private * _p;
 };

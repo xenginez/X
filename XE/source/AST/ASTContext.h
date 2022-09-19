@@ -235,34 +235,21 @@ public:
 	void Freeze();
 
 protected:
-	virtual void ToTargetCode() = 0;
+	virtual void CodeGen() = 0;
 
 private:
 	XE::MemoryStream _Bytecodes;
 };
 
-class XE_API ASTAMD64CompileContext : public ASTCompileContext
+class XE_API ASTJITCompileContext : public ASTCompileContext
 {
-	OBJECT( ASTAMD64CompileContext, ASTCompileContext );
+	OBJECT( ASTJITCompileContext, ASTCompileContext );
+
+public:
+	static ASTExecuteContext * ThreadInstance();
 
 protected:
-	void ToTargetCode() override;
-};
-
-class XE_API ASTARM64CompileContext : public ASTCompileContext
-{
-	OBJECT( ASTARM64CompileContext, ASTCompileContext );
-
-protected:
-	void ToTargetCode() override;
-};
-
-class XE_API ASTRISCVCompileContext : public ASTCompileContext
-{
-	OBJECT( ASTRISCVCompileContext, ASTCompileContext );
-
-protected:
-	void ToTargetCode() override;
+	void CodeGen() override;
 };
 
 END_XE_NAMESPACE

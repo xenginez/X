@@ -1,8 +1,11 @@
 #include "ASTMetaClass.h"
 
+#include "Core/CoreFramework.h"
+
 #include "ASTInfo.h"
 #include "ASTVisitor.h"
 #include "ASTContext.h"
+#include "ASTService.h"
 
 namespace
 {
@@ -42,16 +45,27 @@ void XE::ASTMetaClass::Destruct( void * ptr ) const
 
 	args.Push( XE::Variant( ptr, this ) );
 
-	XE::ASTExecuteContext( XE::MemoryResource::GetFrameMemoryResource() ).Invoke( _Class->Destruct, &args );
+#if HAS_JIT
+	XE::CoreFramework::GetCurrentFramework()->GetServiceT< XE::ASTService >()->Execute( XE::ASTJITCompileContext::ThreadInstance(), _Class->Destruct, &args );
+#else
+	XE::CoreFramework::GetCurrentFramework()->GetServiceT< XE::ASTService >()->Execute( XE::ASTExecuteContext::ThreadInstance(), _Class->Destruct, &args );
+#endif
 }
 
 XE::Variant XE::ASTMetaClass::Construct( void * ptr ) const
 {
-	XE::InvokeStack args;
+	if ( ptr == nullptr )
+	{
+		ptr = XE::MemoryResource::Alloc( GetSize() );
+	}
 
-	args.Push( XE::Variant( ptr, this ) );
+	XE::InvokeStack args( XE::Variant( ptr, this ) );
 
-	return XE::ASTExecuteContext( XE::MemoryResource::GetFrameMemoryResource() ).Invoke( _Class->Construct, &args );
+#if HAS_JIT
+	XE::CoreFramework::GetCurrentFramework()->GetServiceT< XE::ASTService >()->Execute( XE::ASTJITCompileContext::ThreadInstance(), _Class->Construct, &args );
+#else
+	XE::CoreFramework::GetCurrentFramework()->GetServiceT< XE::ASTService >()->Execute( XE::ASTExecuteContext::ThreadInstance(), _Class->Construct, &args );
+#endif
 }
 
 void XE::ASTMetaClass::Clone( const XE::Variant & from, XE::Variant & to ) const

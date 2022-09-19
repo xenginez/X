@@ -54,7 +54,7 @@ void XE::ASTService::Visit( XE::ASTContext * context, XE::ASTNode * node ) const
 		{
 			if ( auto visit = it->second->GetMetaClass()->FindMethod( "Visit" ) )
 			{
-				if ( context->GetMetaClass()->CanConvert( visit->GetParameterType().front() ) )
+				if ( context->GetMetaClass()->CanConvert( SP_CAST< const XE::MetaClass >( visit->GetParameterType().front() ) ) )
 				{
 					XE::InvokeStack args( it->second, context, node );
 

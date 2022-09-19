@@ -1,8 +1,11 @@
 #include "ASTMetaMethod.h"
 
+#include "Core/CoreFramework.h"
+
 #include "ASTInfo.h"
 #include "ASTVisitor.h"
 #include "ASTContext.h"
+#include "ASTService.h"
 
 namespace
 {
@@ -39,5 +42,9 @@ XE::ASTMetaMethod::~ASTMetaMethod()
 
 XE::Variant XE::ASTMetaMethod::Invoke( XE::InvokeStack * params ) const
 {
-	return XE::ASTExecuteContext::ThreadInstance()->Invoke( _Method, params );
+#if HAS_JIT
+	XE::CoreFramework::GetCurrentFramework()->GetServiceT< XE::ASTService >()->Execute( XE::ASTJITCompileContext::ThreadInstance(), _Method, params );
+#else
+	XE::CoreFramework::GetCurrentFramework()->GetServiceT< XE::ASTService >()->Execute( XE::ASTExecuteContext::ThreadInstance(), _Method, params );
+#endif
 }

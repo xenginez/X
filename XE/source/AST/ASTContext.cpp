@@ -10,9 +10,7 @@
 IMPLEMENT_META( XE::ASTContext );
 IMPLEMENT_META( XE::ASTExecuteContext );
 IMPLEMENT_META( XE::ASTCompileContext );
-IMPLEMENT_META( XE::ASTAMD64CompileContext );
-IMPLEMENT_META( XE::ASTARM64CompileContext );
-IMPLEMENT_META( XE::ASTRISCVCompileContext );
+IMPLEMENT_META( XE::ASTJITCompileContext );
 
 
 void XE::ASTContext::AddMacro( const XE::String & val )
