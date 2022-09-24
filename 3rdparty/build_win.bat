@@ -185,6 +185,37 @@ xcopy %cd%\install\include\ %RD3_PATH%\..\depends\include\ /s /y
 
 
 
+:BUILD_LLVM
+cd %RD3_PATH%
+mkdir .\llvm-project\llvm\build
+echo "build llvm debug"
+cd %RD3_PATH%
+cd .\llvm-project\llvm\build
+cmake -DBENCHMARK_INSTALL_DOCS=OFF -DBENCHMARK_USE_BUNDLED_GTEST=OFF -DLLVM_BUILD_LLVM_C_DYLIB=OFF -DLLVM_BUILD_TOOLS=OFF -DLLVM_BUILD_UTILS=OFF -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_INCLUDE_DOCS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_INCLUDE_TOOLS=OFF -DLLVM_INCLUDE_UTILS=OFF -DCMAKE_INSTALL_PREFIX=.\install\ .. -G "Visual Studio 16 2019"
+msbuild.exe ".\INSTALL.vcxproj"  /m /nr:true ^
+    /p:Configuration=Debug ^
+    /p:Platform=x64 ^
+    /p:AppxBundlePlatforms=x64 ^
+    /p:UseSubFolderForOutputDirDuringMultiPlatformBuild=false
+echo "copy llvm release file to depends"
+xcopy %cd%\install\bin\*.dll %RD3_PATH%\..\depends\bin\win\debug\ /y
+xcopy %cd%\install\lib\*.lib %RD3_PATH%\..\depends\lib\win\debug\ /y
+del %cd%\install\ /f /s /q
+echo "build llvm release"
+cd %RD3_PATH%
+cd .\llvm-project\llvm\build
+msbuild.exe ".\INSTALL.vcxproj"  /m /nr:true ^
+    /p:Configuration=Release ^
+    /p:Platform=x64 ^
+    /p:AppxBundlePlatforms=x64 ^
+    /p:UseSubFolderForOutputDirDuringMultiPlatformBuild=false
+echo "copy llvm release file to depends"
+xcopy %cd%\install\bin\*.dll %RD3_PATH%\..\depends\bin\win\release\ /y
+xcopy %cd%\install\lib\*.lib %RD3_PATH%\..\depends\lib\win\release\ /y
+xcopy %cd%\install\include\llvm\ %RD3_PATH%\..\depends\include\llvm\ /s /y
+
+
+
 
 
 :BUILD_STB
