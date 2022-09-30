@@ -14,11 +14,6 @@
 
 BEG_XE_NAMESPACE
 
-enum class Instcode
-{
-
-};
-
 enum class UnaryExprType
 {
 	NOT, // !x

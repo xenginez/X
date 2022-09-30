@@ -104,15 +104,18 @@ class XE_API ASTCompileContext : public ASTContext
 {
 	OBJECT( ASTCompileContext, XE::ASTContext );
 
+private:
+	struct Private;
+
 public:
 	struct Type;
 	struct Value;
 	struct Label;
 
 public:
-	ASTCompileContext() = default;
+	ASTCompileContext();
 
-	~ASTCompileContext() override = default;
+	~ASTCompileContext() override;
 
 public:
 	XE::MetaClassCPtr GetVisitorBaseClass() override;
@@ -127,11 +130,35 @@ public:
 
 	Value * CreateValue( Type * type );
 
-	Label * CreateLabel();
+	Value * CreateValue( bool val );
 
-public:// Unary operators...
+	Value * CreateValue( XE::int8 val );
+
+	Value * CreateValue( XE::int16 val );
+
+	Value * CreateValue( XE::int32 val );
+
+	Value * CreateValue( XE::int64 val );
+
+	Value * CreateValue( XE::uint8 val );
+
+	Value * CreateValue( XE::uint16 val );
+
+	Value * CreateValue( XE::uint32 val );
+
+	Value * CreateValue( XE::uint64 val );
+
+	Value * CreateValue( XE::float32 val );
+
+	Value * CreateValue( XE::float64 val );
+
+	Value * CreateValue( const XE::String & val );
+
+	Label * CreateLabel( const XE::String & val );
+
+public:// unary operators...
 	void Ret( Value * value );
-	void Br( Value * cond, Label * iftrue, Label * iffalse );
+	void Br( Value * cond, Label * if_true, Label * if_false );
 	void Switch( Value * value, Label * def, XE::Span< XE::Pair< Value *, Label * > > cases );
 	void IndirectBr( Value * addr, XE::Span< Label * > labels );
 	void Invoke();
@@ -142,77 +169,50 @@ public:// Unary operators...
 	void CatchSwitch();
 	void CallBr();
 
-public:// Binary operators...
-	Value * Add( Type * type, Value * left, Value * right );
-	Value * FAdd( Type * type, Value * left, Value * right );
-	Value * Sub( Type * type, Value * left, Value * right );
-	Value * FSub( Type * type, Value * left, Value * right );
-	Value * Mul( Type * type, Value * left, Value * right );
-	Value * FMul( Type * type, Value * left, Value * right );
-	Value * UDiv( Type * type, Value * left, Value * right );
-	Value * SDiv( Type * type, Value * left, Value * right );
-	Value * FDiv( Type * type, Value * left, Value * right );
-	Value * URem( Type * type, Value * left, Value * right );
-	Value * SRem( Type * type, Value * left, Value * right );
-	Value * FRem( Type * type, Value * left, Value * right );
+public:// binary operators...
+	Value * Add( Value * left, Value * right );
+	Value * Sub( Value * left, Value * right );
+	Value * Mul( Value * left, Value * right );
+	Value * Div( Value * left, Value * right );
+	Value * Rem( Value * left, Value * right );
 
-public:// Logical operators ...
-	Value * Shl( Type * type, Value * left, Value * right );
-	Value * LShr( Type * type, Value * left, Value * right );
-	Value * AShr( Type * type, Value * left, Value * right );
-	Value * And( Type * type, Value * left, Value * right );
-	Value * Or( Type * type, Value * left, Value * right );
-	Value * Xor( Type * type, Value * left, Value * right );
+public:// logical operators ...
+	Value * Shl( Value * left, Value * right );
+	Value * Shr( Value * left, Value * right );
+	Value * And( Value * left, Value * right );
+	Value * Or( Value * left, Value * right );
+	Value * Xor( Value * left, Value * right );
 
-public:// Memory operators ...
+public:// memory operators ...
 	Value * Alloca( Type * type, XE::uint64 element_num = 1, XE::uint64 alignment = sizeof( void * ) );
 	Value * Load( Type * type, Value * ptr );
 	Value * Store( Value * value, Value * ptr );
 	Value * GetElementPtr( Type * type, Value * ptr, XE::Span< XE::uint64 > idx );
 
-public:// Cast operators ...
+public:// cast operators ...
 	Value * Trunc( Value * value, Type * type );
-	void Zext();
-	void Sext();
-	void FpToUI();
-	void FpToSI();
-	void UiToFP();
-	void SiToFP();
-	void FpTrunc();
-	void FpExt();
-	void PtrToInt();
-	void IntToPtr();
-	void BitCast();
-	void AddrSpaceCast();
+	void Zext( Value * value, Type * type );
+	void Sext( Value * value, Type * type );
+	void FpToUI( Value * value, Type * type );
+	void FpToSI( Value * value, Type * type );
+	void UiToFP( Value * value, Type * type );
+	void SiToFP( Value * value, Type * type );
+	void FpTrunc( Value * value, Type * type );
+	void FpExt( Value * value, Type * type );
+	void PtrToInt( Value * value, Type * type );
+	void IntToPtr( Value * value, Type * type );
+	void BitCast( Value * value, Type * type );
+	void AddrSpaceCast( Value * value, Type * type );
 
-public:// Other operators...
-	Value * ICmpEQ( Value * left, Value * right );
-	Value * ICmpNE( Value * left, Value * right );
-	Value * ICmpSGE( Value * left, Value * right );
-	Value * ICmpSGT( Value * left, Value * right );
-	Value * ICmpSLE( Value * left, Value * right );
-	Value * ICmpSLT( Value * left, Value * right );
-	Value * ICmpUGE( Value * left, Value * right );
-	Value * ICmpSGT( Value * left, Value * right );
-	Value * ICmpULE( Value * left, Value * right );
-	Value * ICmpULT( Value * left, Value * right );
-
-	Value * FCmpOEQ( Value * left, Value * right );
-	Value * FCmpOGT( Value * left, Value * right );
-	Value * FCmpOGE( Value * left, Value * right );
-	Value * FCmpOLT( Value * left, Value * right );
-	Value * FCmpOLE( Value * left, Value * right );
-	Value * FCmpONE( Value * left, Value * right );
-	Value * FCmpORD( Value * left, Value * right );
-	Value * FCmpUEQ( Value * left, Value * right );
-	Value * FCmpUGT( Value * left, Value * right );
-	Value * FCmpUGE( Value * left, Value * right );
-	Value * FCmpULT( Value * left, Value * right );
-	Value * FCmpULE( Value * left, Value * right );
-	Value * FCmpUNE( Value * left, Value * right );
-	Value * FCmpUNO( Value * left, Value * right );
-	Value * FCmpTRUE( Value * left, Value * right );
-	Value * FCmpFALSE( Value * left, Value * right );
+public:// other operators...
+	Value * CmpEQ( Value * left, Value * right );
+	Value * CmpNE( Value * left, Value * right );
+	Value * CmpGE( Value * left, Value * right );
+	Value * CmpGT( Value * left, Value * right );
+	Value * CmpLE( Value * left, Value * right );
+	Value * CmpLT( Value * left, Value * right );
+	Value * CmpTRUE( Value * left, Value * right );
+	Value * CmpFALSE( Value * left, Value * right );
 
 	Value * PHI( Type * type, XE::Span< XE::Pair< Value *, Label * > > labels );
 	Value * Call( Type * type, const XE::String & name, XE::Span< Value * > args );
@@ -238,18 +238,7 @@ protected:
 	virtual void CodeGen() = 0;
 
 private:
-	XE::MemoryStream _Bytecodes;
-};
-
-class XE_API ASTJITCompileContext : public ASTCompileContext
-{
-	OBJECT( ASTJITCompileContext, ASTCompileContext );
-
-public:
-	static ASTExecuteContext * ThreadInstance();
-
-protected:
-	void CodeGen() override;
+	Private * _p;
 };
 
 END_XE_NAMESPACE

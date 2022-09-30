@@ -1,5 +1,13 @@
 #include "ASTService.h"
 
+#include <llvm/IR/LLVMContext.h>
+#include <llvm/Support/TargetSelect.h>
+#include <llvm/ExecutionEngine/MCJIT.h>
+#include <llvm/ExecutionEngine/Interpreter.h>
+#include <llvm/ExecutionEngine/GenericValue.h>
+#include <llvm/ExecutionEngine/ExecutionEngine.h>
+#include <llvm/ExecutionEngine/SectionMemoryManager.h>
+
 #include "ASTInfo.h"
 #include "ASTNode.h"
 #include "ASTVisitor.h"
@@ -12,6 +20,8 @@ struct XE::ASTService::Private
 	XE::Set< XE::String > _Macros;
 	XE::Map< XE::String, XE::Variant > _Globals;
 	XE::MultiMap< XE::MetaClassCPtr, XE::ASTVisitorPtr > _Visitors; // ASTNode Type : ASTVisitor
+
+	llvm::ExecutionEngine * _ExecutionEngine = nullptr;
 };
 
 XE::ASTService::ASTService()
@@ -27,7 +37,9 @@ XE::ASTService::~ASTService()
 
 void XE::ASTService::Prepare()
 {
-
+	llvm::InitializeNativeTarget();
+	llvm::InitializeNativeTargetAsmParser();
+	llvm::InitializeNativeTargetAsmPrinter();
 }
 
 void XE::ASTService::Startup()
@@ -45,7 +57,7 @@ void XE::ASTService::Clearup()
 
 }
 
-void XE::ASTService::Visit( XE::ASTContext * context, XE::ASTNode * node ) const
+void XE::ASTService::Visit( XE::ASTContext * context, const XE::ASTNode * node ) const
 {
 	auto ranges = _p->_Visitors.equal_range( node->GetMetaClass() );
 	for ( auto it = ranges.first; it != ranges.second; ++it )

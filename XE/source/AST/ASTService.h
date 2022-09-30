@@ -36,7 +36,7 @@ public:
 	void Clearup() override;
 
 public:
-	void Visit( XE::ASTContext * context, XE::ASTNode * node ) const;
+	void Visit( XE::ASTContext * context, const XE::ASTNode * node ) const;
 
 	void Visit( XE::ASTContext * context, const XE::ASTNodePtr & node ) const;
 
@@ -49,11 +49,6 @@ public:
 	void AddGlobalMacro( const XE::String & val );
 
 	bool HasGlobalMacro( const XE::String & val ) const;
-
-public:
-	XE::Variant Execute( XE::ASTContext * context, const XE::ASTInfoMethodPtr & method, XE::InvokeStack * args );
-
-	XE::Variant Execute( XE::ASTContext * context, const XE::ASTInfoFunctionPtr & function, XE::InvokeStack * args );
 
 private:
 	Private * _p;

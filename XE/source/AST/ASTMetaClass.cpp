@@ -1,5 +1,7 @@
 #include "ASTMetaClass.h"
 
+#include "Core/CacheService.h"
+#include "Core/ThreadService.h"
 #include "Core/CoreFramework.h"
 
 #include "ASTInfo.h"
@@ -46,10 +48,31 @@ void XE::ASTMetaClass::Destruct( void * ptr ) const
 	args.Push( XE::Variant( ptr, this ) );
 
 #if HAS_JIT
-	XE::CoreFramework::GetCurrentFramework()->GetServiceT< XE::ASTService >()->Execute( XE::ASTJITCompileContext::ThreadInstance(), _Class->Destruct, &args );
-#else
-	XE::CoreFramework::GetCurrentFramework()->GetServiceT< XE::ASTService >()->Execute( XE::ASTExecuteContext::ThreadInstance(), _Class->Destruct, &args );
+	if ( auto cache = XE::CoreFramework::GetCurrentFramework()->GetServiceT< XE::CacheService >() )
+	{
+		auto hash = XE::Hash( GetFullName() + "." + "Destruct" );
+
+		XE::MemoryView view = cache->FindCache( hash );
+
+		if ( view.data() == nullptr )
+		{
+			if ( auto thread = XE::CoreFramework::GetCurrentFramework()->GetServiceT< XE::ThreadService >() )
+			{
+				thread->PostTask( XE::ThreadType::WORKS, [this, hash, cache]()
+				{
+					cache->InsertCache( hash, XE::ASTJITCompileContext::ThreadInstance()->Compile( _Class->Destruct ), true );
+				} );
+			}
+		}
+		else
+		{
+			XE::ASTJITCompileContext::ThreadInstance()->Invoke( (const void *)( view.data() ), &args );
+			return;
+		}
+	}
 #endif
+
+	XE::ASTExecuteContext::ThreadInstance()->Invoke( _Class->Destruct, &args );
 }
 
 XE::Variant XE::ASTMetaClass::Construct( void * ptr ) const
@@ -62,10 +85,30 @@ XE::Variant XE::ASTMetaClass::Construct( void * ptr ) const
 	XE::InvokeStack args( XE::Variant( ptr, this ) );
 
 #if HAS_JIT
-	XE::CoreFramework::GetCurrentFramework()->GetServiceT< XE::ASTService >()->Execute( XE::ASTJITCompileContext::ThreadInstance(), _Class->Construct, &args );
-#else
-	XE::CoreFramework::GetCurrentFramework()->GetServiceT< XE::ASTService >()->Execute( XE::ASTExecuteContext::ThreadInstance(), _Class->Construct, &args );
+	if ( auto cache = XE::CoreFramework::GetCurrentFramework()->GetServiceT< XE::CacheService >() )
+	{
+		auto hash = XE::Hash( GetFullName() + "." + "Construct" );
+
+		XE::MemoryView view = cache->FindCache( hash );
+
+		if ( view.data() == nullptr )
+		{
+			if ( auto thread = XE::CoreFramework::GetCurrentFramework()->GetServiceT< XE::ThreadService >() )
+			{
+				thread->PostTask( XE::ThreadType::WORKS, [this, hash, cache]()
+				{
+					cache->InsertCache( hash, XE::ASTJITCompileContext::ThreadInstance()->Compile( _Class->Construct ), true );
+				} );
+			}
+		}
+		else
+		{
+			return XE::ASTJITCompileContext::ThreadInstance()->Invoke( (const void *)( view.data() ), &args );
+		}
+	}
 #endif
+
+	return XE::ASTExecuteContext::ThreadInstance()->Invoke( _Class->Construct, &args );
 }
 
 void XE::ASTMetaClass::Clone( const XE::Variant & from, XE::Variant & to ) const

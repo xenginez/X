@@ -1,5 +1,7 @@
 #include "ASTMetaMethod.h"
 
+#include "Core/CacheService.h"
+#include "Core/ThreadService.h"
 #include "Core/CoreFramework.h"
 
 #include "ASTInfo.h"
@@ -43,8 +45,28 @@ XE::ASTMetaMethod::~ASTMetaMethod()
 XE::Variant XE::ASTMetaMethod::Invoke( XE::InvokeStack * params ) const
 {
 #if HAS_JIT
-	XE::CoreFramework::GetCurrentFramework()->GetServiceT< XE::ASTService >()->Execute( XE::ASTJITCompileContext::ThreadInstance(), _Method, params );
-#else
-	XE::CoreFramework::GetCurrentFramework()->GetServiceT< XE::ASTService >()->Execute( XE::ASTExecuteContext::ThreadInstance(), _Method, params );
+	if ( auto cache = XE::CoreFramework::GetCurrentFramework()->GetServiceT< XE::CacheService >() )
+	{
+		auto hash = GetHashCode();
+
+		XE::MemoryView view = cache->FindCache( hash );
+
+		if ( view.data() == nullptr )
+		{
+			if ( auto thread = XE::CoreFramework::GetCurrentFramework()->GetServiceT< XE::ThreadService >() )
+			{
+				thread->PostTask( XE::ThreadType::WORKS, [this, hash, cache]()
+				{
+					cache->InsertCache( hash, XE::ASTJITCompileContext::ThreadInstance()->Compile( _Method ), true );
+				} );
+			}
+		}
+		else
+		{
+			return XE::ASTJITCompileContext::ThreadInstance()->Invoke( (const void *)( view.data() ), params );
+		}
+}
 #endif
+
+	return XE::ASTExecuteContext::ThreadInstance()->Invoke( _Method, params );
 }

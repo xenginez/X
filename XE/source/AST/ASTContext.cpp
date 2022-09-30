@@ -1,5 +1,14 @@
 #include "ASTContext.h"
 
+#include <llvm/IR/Module.h>
+#include <llvm/IR/Verifier.h>
+#include <llvm/IR/Function.h>
+#include <llvm/IR/IRBuilder.h>
+#include <llvm/IR/BasicBlock.h>
+#include <llvm/IR/LLVMContext.h>
+#include <llvm/IR/Instructions.h>
+#include <llvm/ExecutionEngine/ExecutionEngine.h>
+
 #include "Core/CoreFramework.h"
 
 #include "ASTInfo.h"
@@ -10,7 +19,6 @@
 IMPLEMENT_META( XE::ASTContext );
 IMPLEMENT_META( XE::ASTExecuteContext );
 IMPLEMENT_META( XE::ASTCompileContext );
-IMPLEMENT_META( XE::ASTJITCompileContext );
 
 
 void XE::ASTContext::AddMacro( const XE::String & val )
@@ -209,6 +217,26 @@ void XE::ASTExecuteContext::Exec()
 }
 
 
+struct XE::ASTCompileContext::Private
+{
+	llvm::Module * _Module;
+	llvm::LLVMContext * _Context;
+	XE::Stack<llvm::BasicBlock *> _BasicBlock;
+
+	XE::MemoryStream _Bytecodes;
+};
+
+XE::ASTCompileContext::ASTCompileContext()
+	:_p( XE::New<Private>() )
+{
+
+}
+
+XE::ASTCompileContext::~ASTCompileContext()
+{
+	XE::Delete( _p );
+}
+
 XE::MetaClassCPtr XE::ASTCompileContext::GetVisitorBaseClass()
 {
 	return XE::ASTCompileVisitor::GetMetaClassStatic();
@@ -216,18 +244,45 @@ XE::MetaClassCPtr XE::ASTCompileContext::GetVisitorBaseClass()
 
 XE::MemoryView XE::ASTCompileContext::Compile( const XE::ASTInfoMethodPtr & method )
 {
-	_Bytecodes.clear();
+	_p->_Bytecodes.clear();
 	{
+		llvm::LLVMContext context;
+		_p->_Context = &context;
+
+		std::unique_ptr< llvm::Module > mod = std::make_unique<llvm::Module>( "_Module", context );
+
+		llvm::FunctionType * prototype = llvm::FunctionType::get( llvm::IntegerType::get( context, 32 ), llvm::PointerType::get( context, 0 ), false );
+		llvm::Function * func = llvm::Function::Create( prototype, llvm::GlobalValue::ExternalLinkage, "_Function", *mod );
+		llvm::BasicBlock * entry = llvm::BasicBlock::Create( context, "entry", func, nullptr );
+		llvm::Value * params = func->arg_begin(); params->setName( "params" );
+
+		_p->_BasicBlock.push( entry );
+		{
+			if ( auto service = XE::CoreFramework::GetCurrentFramework()->GetServiceT< XE::ASTService >() )
+			{
+				for ( auto it : method->StatementBody )
+				{
+					service->Visit( this, it );
+				}
+			}
+			llvm::ReturnInst::Create( context, _p->_BasicBlock.top() );
+		}
+		_p->_BasicBlock.pop();
+
+		llvm::ExecutionEngine * engine = llvm::EngineBuilder( std::move( mod ) ).create();
+
+		void * callback = engine->getPointerToNamedFunction( "_Function" );
+
 
 	}
-	return _Bytecodes.view();
+	return _p->_Bytecodes.view();
 }
 
 XE::MemoryView XE::ASTCompileContext::Compile( const XE::ASTInfoFunctionPtr & function )
 {
-	_Bytecodes.clear();
+	_p->_Bytecodes.clear();
 	{
 
 	}
-	return _Bytecodes.view();
+	return _p->_Bytecodes.view();
 }

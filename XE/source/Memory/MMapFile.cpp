@@ -20,18 +20,14 @@ struct XE::MMapFile::Private
 	XE::uint64 _Size = 0;
 	XE::uint8 * _Addr = nullptr;
 	std::filesystem::path _Path;
+
+	bool _Exec = false;
 };
 
 XE::MMapFile::MMapFile()
 	:_p( XE::New< Private >() )
 {
 
-}
-
-XE::MMapFile::MMapFile( XE::uint64 size )
-	: _p( XE::New< Private >() )
-{
-	Open( size );
 }
 
 XE::MMapFile::MMapFile( MMapFile && val )
@@ -44,6 +40,12 @@ XE::MMapFile::MMapFile( const std::filesystem::path & file )
 	: _p( XE::New< Private >() )
 {
 	Open( file );
+}
+
+XE::MMapFile::MMapFile( XE::uint64 size, bool exec /*= false */ )
+	: _p( XE::New< Private >() )
+{
+	Open( size, exec );
 }
 
 XE::MMapFile::~MMapFile()
@@ -71,6 +73,11 @@ void XE::MMapFile::Swap( MMapFile & val )
 bool XE::MMapFile::IsOpen() const
 {
 	return _p->_Size != 0;
+}
+
+bool XE::MMapFile::IsExec() const
+{
+	return _p->_Exec;
 }
 
 XE::uint64 XE::MMapFile::GetSize() const
@@ -111,23 +118,25 @@ void XE::MMapFile::Reset()
 }
 
 #if PLATFORM_OS & ( OS_WINDOWS | OS_XBOX )
-bool XE::MMapFile::Open( XE::uint64 size )
+bool XE::MMapFile::Open( XE::uint64 size, bool exec /*= false */ )
 {
 	Close();
 
-	HANDLE mapping_ = ::CreateFileMappingA( INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, size & 0xFFFFFFFF00000000, size & 0x00000000FFFFFFFF, NULL );
+	HANDLE mapping_ = ::CreateFileMappingA( INVALID_HANDLE_VALUE, NULL, exec ? PAGE_EXECUTE_READWRITE : PAGE_READWRITE, size & 0xFFFFFFFF00000000, size & 0x00000000FFFFFFFF, NULL );
 
 	if( mapping_ != INVALID_HANDLE_VALUE && mapping_ != 0 )
 	{
 		_p->_Size = size;
 
-		_p->_Addr = static_cast< XE::uint8 * >( ::MapViewOfFile( mapping_, FILE_MAP_READ | FILE_MAP_WRITE, 0, 0, 0 ) );
+		_p->_Addr = static_cast<XE::uint8 *>( ::MapViewOfFile( mapping_, exec ? ( FILE_MAP_READ | FILE_MAP_WRITE | FILE_MAP_EXECUTE ) : ( FILE_MAP_READ | FILE_MAP_WRITE ), 0, 0, 0 ) );
 
 		_p->_File = nullptr;
 
 		_p->_Mapping = mapping_;
 
 		_p->_Path = "";
+
+		_p->_Exec = exec;
 
 		return true;
 	}
@@ -189,12 +198,12 @@ void XE::MMapFile::Close()
 		}
 
 		_p->_Size = 0;
-
+		_p->_Exec = false;
 		_p->_Path.clear();
 	}
 }
 #else
-bool XE::MMapFile::Open( XE::uint64 size )
+bool XE::MMapFile::Open( XE::uint64 size, bool exec /*= false */ )
 {
 	Close();
 
@@ -206,11 +215,13 @@ bool XE::MMapFile::Open( XE::uint64 size )
 		{
 			_p->_Size = size;
 
-			_p->_Addr = static_cast< XE::uint8 * >( mmap( NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, file_, 0 ) );
+			_p->_Addr = static_cast< XE::uint8 * >( mmap( NULL, size, exec ? ( PROT_READ | PROT_WRITE | PROT_EXEC ) : ( PROT_READ | PROT_WRITE ), MAP_SHARED, file_, 0 ) );
 
 			_p->_Path = "";
 
 			_p->_File = reinterpret_cast< void * >( file_ );
+
+			_P->_Exec = exec;
 
 			return true;
 		}
@@ -270,7 +281,7 @@ void XE::MMapFile::Close()
 		}
 
 		_p->_Size = 0;
-
+		_p->_Exec = false;
 		_p->_Path.clear();
 	}
 }

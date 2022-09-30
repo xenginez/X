@@ -21,11 +21,11 @@ private:
 public:
 	MMapFile();
 
-	MMapFile( XE::uint64 size );
-
 	MMapFile( MMapFile && val );
 
 	MMapFile( const std::filesystem::path & path );
+
+	MMapFile( XE::uint64 size, bool exec = false );
 
 	~MMapFile();
 
@@ -40,6 +40,8 @@ public:
 public:
 	bool IsOpen() const;
 
+	bool IsExec() const;
+
 	XE::uint64 GetSize() const;
 
 	XE::uint8 * GetAddress() const;
@@ -47,9 +49,9 @@ public:
 	const std::filesystem::path & GetFilePath() const;
 
 public:
-	bool Open( XE::uint64 size );
-
 	bool Open( const std::filesystem::path & path );
+
+	bool Open( XE::uint64 size, bool exec = false );
 
 	void Close();
 
