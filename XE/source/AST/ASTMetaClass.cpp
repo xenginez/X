@@ -48,26 +48,34 @@ void XE::ASTMetaClass::Destruct( void * ptr ) const
 	args.Push( XE::Variant( ptr, this ) );
 
 #if HAS_JIT
-	if ( auto cache = XE::CoreFramework::GetCurrentFramework()->GetServiceT< XE::CacheService >() )
+	if ( _Destructor != nullptr )
 	{
-		auto hash = XE::Hash( GetFullName() + "." + "Destruct" );
+		_Destructor( &args );
 
-		XE::MemoryView view = cache->FindCache( hash );
-
-		if ( view.data() == nullptr )
+		return;
+	}
+	else
+	{
+		if ( auto ast = XE::CoreFramework::GetCurrentFramework()->GetServiceT< XE::ASTService >() )
 		{
-			if ( auto thread = XE::CoreFramework::GetCurrentFramework()->GetServiceT< XE::ThreadService >() )
+			switch ( ast->GetJITCompileState( GetFullName() + "." + "Destruct" ) )
 			{
-				thread->PostTask( XE::ThreadType::WORKS, [this, hash, cache]()
+			case XE::CompileStateType::NONE:
+				if ( auto thread = XE::CoreFramework::GetCurrentFramework()->GetServiceT< XE::ThreadService >() )
 				{
-					cache->InsertCache( hash, XE::ASTJITCompileContext::ThreadInstance()->Compile( _Class->Destruct ), true );
-				} );
+					thread->PostTask( XE::ThreadType::WORKS, [this, ast]()
+					{
+						_Destructor = ast->JITCompile( GetFullName() + "." + "Destruct", XE::ASTCompileContext::ThreadInstance()->Compile( _Class->Destruct ) );
+					} );
+				}
+				break;
+			case XE::CompileStateType::EXIST:
+				_Destructor = ast->FindJITFunction( GetFullName() + "." + "Destruct" );
+				_Destructor( &args );
+				return;
+			default:
+				break;
 			}
-		}
-		else
-		{
-			XE::ASTJITCompileContext::ThreadInstance()->Invoke( (const void *)( view.data() ), &args );
-			return;
 		}
 	}
 #endif
@@ -85,25 +93,31 @@ XE::Variant XE::ASTMetaClass::Construct( void * ptr ) const
 	XE::InvokeStack args( XE::Variant( ptr, this ) );
 
 #if HAS_JIT
-	if ( auto cache = XE::CoreFramework::GetCurrentFramework()->GetServiceT< XE::CacheService >() )
+	if ( _Constructor != nullptr )
 	{
-		auto hash = XE::Hash( GetFullName() + "." + "Construct" );
-
-		XE::MemoryView view = cache->FindCache( hash );
-
-		if ( view.data() == nullptr )
+		return _Constructor( &args );
+	}
+	else
+	{
+		if ( auto ast = XE::CoreFramework::GetCurrentFramework()->GetServiceT< XE::ASTService >() )
 		{
-			if ( auto thread = XE::CoreFramework::GetCurrentFramework()->GetServiceT< XE::ThreadService >() )
+			switch ( ast->GetJITCompileState( GetFullName() + "." + "Construct" ) )
 			{
-				thread->PostTask( XE::ThreadType::WORKS, [this, hash, cache]()
+			case XE::CompileStateType::NONE:
+				if ( auto thread = XE::CoreFramework::GetCurrentFramework()->GetServiceT< XE::ThreadService >() )
 				{
-					cache->InsertCache( hash, XE::ASTJITCompileContext::ThreadInstance()->Compile( _Class->Construct ), true );
-				} );
+					thread->PostTask( XE::ThreadType::WORKS, [this, ast]()
+					{
+						_Constructor = ast->JITCompile( GetFullName() + "." + "Construct", XE::ASTCompileContext::ThreadInstance()->Compile( _Class->Construct ) );
+					} );
+				}
+				break;
+			case XE::CompileStateType::EXIST:
+				_Constructor = ast->FindJITFunction( GetFullName() + "." + "Construct" );
+				return _Constructor( &args );
+			default:
+				break;
 			}
-		}
-		else
-		{
-			return XE::ASTJITCompileContext::ThreadInstance()->Invoke( (const void *)( view.data() ), &args );
 		}
 	}
 #endif

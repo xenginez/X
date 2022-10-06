@@ -24,8 +24,8 @@ public:
 	XE::Variant Invoke( XE::InvokeStack * params ) const override;
 
 private:
-	XE::MemoryView _JITCode;
 	XE::ASTInfoFunctionPtr _Function;
+	mutable XE::Delegate<XE::Variant( XE::InvokeStack * )> _Callback;
 };
 
 END_XE_NAMESPACE

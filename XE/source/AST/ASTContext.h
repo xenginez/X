@@ -110,12 +110,14 @@ private:
 public:
 	struct Type;
 	struct Value;
-	struct Label;
 
 public:
 	ASTCompileContext();
 
 	~ASTCompileContext() override;
+
+public:
+	static ASTCompileContext * ThreadInstance();
 
 public:
 	XE::MetaClassCPtr GetVisitorBaseClass() override;
@@ -126,116 +128,40 @@ public:
 	XE::MemoryView Compile( const XE::ASTInfoFunctionPtr & function );
 
 public:
-	Type * CreateType();
+	Type * CreateType( const XE::MetaClassCPtr & val );
 
-	Value * CreateValue( Type * type );
+	Value * CreateValue( Type * val );
 
-	Value * CreateValue( bool val );
+	Value * CreateConstant( bool val );
 
-	Value * CreateValue( XE::int8 val );
+	Value * CreateConstant( XE::int8 val );
 
-	Value * CreateValue( XE::int16 val );
+	Value * CreateConstant( XE::int16 val );
 
-	Value * CreateValue( XE::int32 val );
+	Value * CreateConstant( XE::int32 val );
 
-	Value * CreateValue( XE::int64 val );
+	Value * CreateConstant( XE::int64 val );
 
-	Value * CreateValue( XE::uint8 val );
+	Value * CreateConstant( XE::uint8 val );
 
-	Value * CreateValue( XE::uint16 val );
+	Value * CreateConstant( XE::uint16 val );
 
-	Value * CreateValue( XE::uint32 val );
+	Value * CreateConstant( XE::uint32 val );
 
-	Value * CreateValue( XE::uint64 val );
+	Value * CreateConstant( XE::uint64 val );
 
-	Value * CreateValue( XE::float32 val );
+	Value * CreateConstant( XE::float16 val );
 
-	Value * CreateValue( XE::float64 val );
+	Value * CreateConstant( XE::float32 val );
 
-	Value * CreateValue( const XE::String & val );
+	Value * CreateConstant( XE::float64 val );
 
-	Label * CreateLabel( const XE::String & val );
-
-public:// unary operators...
-	void Ret( Value * value );
-	void Br( Value * cond, Label * if_true, Label * if_false );
-	void Switch( Value * value, Label * def, XE::Span< XE::Pair< Value *, Label * > > cases );
-	void IndirectBr( Value * addr, XE::Span< Label * > labels );
-	void Invoke();
-	void Resume();
-	void Unreachable();
-	void CleanupRet();
-	void CatchRet();
-	void CatchSwitch();
-	void CallBr();
-
-public:// binary operators...
-	Value * Add( Value * left, Value * right );
-	Value * Sub( Value * left, Value * right );
-	Value * Mul( Value * left, Value * right );
-	Value * Div( Value * left, Value * right );
-	Value * Rem( Value * left, Value * right );
-
-public:// logical operators ...
-	Value * Shl( Value * left, Value * right );
-	Value * Shr( Value * left, Value * right );
-	Value * And( Value * left, Value * right );
-	Value * Or( Value * left, Value * right );
-	Value * Xor( Value * left, Value * right );
-
-public:// memory operators ...
-	Value * Alloca( Type * type, XE::uint64 element_num = 1, XE::uint64 alignment = sizeof( void * ) );
-	Value * Load( Type * type, Value * ptr );
-	Value * Store( Value * value, Value * ptr );
-	Value * GetElementPtr( Type * type, Value * ptr, XE::Span< XE::uint64 > idx );
-
-public:// cast operators ...
-	Value * Trunc( Value * value, Type * type );
-	void Zext( Value * value, Type * type );
-	void Sext( Value * value, Type * type );
-	void FpToUI( Value * value, Type * type );
-	void FpToSI( Value * value, Type * type );
-	void UiToFP( Value * value, Type * type );
-	void SiToFP( Value * value, Type * type );
-	void FpTrunc( Value * value, Type * type );
-	void FpExt( Value * value, Type * type );
-	void PtrToInt( Value * value, Type * type );
-	void IntToPtr( Value * value, Type * type );
-	void BitCast( Value * value, Type * type );
-	void AddrSpaceCast( Value * value, Type * type );
-
-public:// other operators...
-	Value * CmpEQ( Value * left, Value * right );
-	Value * CmpNE( Value * left, Value * right );
-	Value * CmpGE( Value * left, Value * right );
-	Value * CmpGT( Value * left, Value * right );
-	Value * CmpLE( Value * left, Value * right );
-	Value * CmpLT( Value * left, Value * right );
-	Value * CmpTRUE( Value * left, Value * right );
-	Value * CmpFALSE( Value * left, Value * right );
-
-	Value * PHI( Type * type, XE::Span< XE::Pair< Value *, Label * > > labels );
-	Value * Call( Type * type, const XE::String & name, XE::Span< Value * > args );
-	Value * Select( Value * cond, Value * iftrue, Value * iffalse );
-	Value * ExtractElement( XE::uint64 n, Type * type, Value * vec, Type * type2, XE::uint64 idx );
-	Value * InsertElement( XE::uint64 n, Type * type, Value * vec, Type * type2, XE::uint64 elt, Type * type3, XE::uint64 idx );
-	Value * ShuffleVector( XE::uint64 n1, Type * type1, Value * vec1, XE::uint64 n2, Type * type2, Value * vec2, XE::Span< Value * > masks );
-	Value * ExtractValue( Type * type, Value * value, XE::Span< XE::uint64 > idx );
-	Value * InsertValue( Type * type, Value * value, Value * elt, XE::Span< XE::uint64 > idx );
+	Value * CreateConstant( const XE::String & val );
 
 public:
-	void Fence();
-	void AtomicCmpXchg();
-	void AtomicRMW();
+	void PushBasicBlock( const XE::String & val );
 
-public:
-	void CleanupPad();
-	void CatchPad();
-	void LandingPad();
-	void Freeze();
-
-protected:
-	virtual void CodeGen() = 0;
+	void PopBasicBlock();
 
 private:
 	Private * _p;

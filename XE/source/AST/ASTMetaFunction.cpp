@@ -39,29 +39,33 @@ XE::ASTMetaFunction::~ASTMetaFunction()
 XE::Variant XE::ASTMetaFunction::Invoke( XE::InvokeStack * params ) const
 {
 #if HAS_JIT
-	if ( _JITCode.data() == nullptr )
+	if ( _Callback != nullptr )
 	{
-		if ( auto cache = XE::CoreFramework::GetCurrentFramework()->GetServiceT< XE::CacheService >() )
+		return _Callback( params );
+	}
+	else
+	{
+		if ( auto ast = XE::CoreFramework::GetCurrentFramework()->GetServiceT< XE::ASTService >() )
 		{
-			auto hash = GetHashCode();
-
-			XE::MemoryView view = cache->FindCache( hash );
-			if ( view.data() == nullptr )
+			switch ( ast->GetJITCompileState( GetFullName() ) )
 			{
+			case XE::CompileStateType::NONE:
 				if ( auto thread = XE::CoreFramework::GetCurrentFramework()->GetServiceT< XE::ThreadService >() )
 				{
-					thread->PostTask( XE::ThreadType::WORKS, [this, hash, cache]()
+					thread->PostTask( XE::ThreadType::WORKS, [this, ast]()
 					{
-						cache->InsertCache( hash, XE::ASTJITCompileContext::ThreadInstance()->Compile( _Function ) );
+						_Callback = ast->JITCompile( GetFullName(), XE::ASTCompileContext::ThreadInstance()->Compile( _Function ) );
 					} );
 				}
+				break;
+			case XE::CompileStateType::EXIST:
+				_Callback = ast->FindJITFunction( GetFullName() );
+				return _Callback( params );
+			default:
+				break;
 			}
-			else
-			{
-				return XE::ASTJITCompileContext::ThreadInstance()->Invoke( (const void *)( view.data() ), params );
-			}
+		}
 	}
-}
 #endif
 
 	return XE::ASTExecuteContext::ThreadInstance()->Invoke( _Function, params );

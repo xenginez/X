@@ -14,6 +14,13 @@
 
 BEG_XE_NAMESPACE
 
+enum class CompileStateType
+{
+	NONE,
+	COMPILING,
+	EXIST,
+};
+
 enum class UnaryExprType
 {
 	NOT, // !x

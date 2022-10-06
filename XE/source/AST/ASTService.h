@@ -41,6 +41,13 @@ public:
 	void Visit( XE::ASTContext * context, const XE::ASTNodePtr & node ) const;
 
 public:
+	XE::CompileStateType GetJITCompileState( const XE::String & name ) const;
+
+	XE::Delegate< XE::Variant( XE::InvokeStack * ) > JITCompile( const XE::String & name, XE::MemoryView bitcodes );
+
+	XE::Delegate< XE::Variant( XE::InvokeStack * ) > FindJITFunction( const XE::String & name ) const;
+
+public:
 	void SetVariable( const XE::String & name, const XE::Variant & val );
 
 	XE::Variant GetVariable( const XE::String & name );
