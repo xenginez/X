@@ -245,7 +245,22 @@ void XE::ASTExecuteContext::Exec()
 	}
 }
 
+struct XE::ASTCompileContext::Type
+{
 
+};
+struct XE::ASTCompileContext::Inst
+{
+
+};
+struct XE::ASTCompileContext::Value
+{
+
+};
+struct XE::ASTCompileContext::BasicBlock
+{
+
+};
 struct XE::ASTCompileContext::Private
 {
 	llvm::LLVMContext * _Context;
