@@ -163,6 +163,13 @@ public:
 	BasicBlock * CreateBasicBlock( const XE::String & val );
 
 public:
+	void PushBasicBlock( BasicBlock * val );
+
+	BasicBlock * TopBasicBlock();
+
+	BasicBlock * PopBasicBlock();
+
+public:
 	Inst * CreateFAddReduce( Value * Acc, Value * Src );
 
 	Inst * CreateFMulReduce( Value * Acc, Value * Src );
@@ -202,399 +209,256 @@ public:
 
 	Inst * CreateBr( BasicBlock * Dest );
 
-	Inst * CreateCondBr( Value * Cond, BasicBlock * True, BasicBlock * False, MDNode * BranchWeights = nullptr, MDNode * Unpredictable = nullptr );
+	Inst * CreateCondBr( Value * Cond, BasicBlock * True, BasicBlock * False );
 
-	Inst * CreateCondBr( Value * Cond, BasicBlock * True, BasicBlock * False, Inst * MDSrc );
-
-	Inst * CreateSwitch( Value * V, BasicBlock * Dest, unsigned NumCases = 10, MDNode * BranchWeights = nullptr, MDNode * Unpredictable = nullptr );
+	Inst * CreateSwitch( Value * V, BasicBlock * Dest, unsigned NumCases = 10 );
 
 	Inst * CreateIndirectBr( Value * Addr, unsigned NumDests = 10 );
 
-	Inst * CreateInvoke( FunctionType * Ty, Value * Callee, BasicBlock * NormalDest, BasicBlock * UnwindDest, XE::Array<Value *> Args, const XE::String & Name = "" );
+	Inst * CreateInvoke( Value * Callee, BasicBlock * NormalDest, BasicBlock * UnwindDest, XE::Span<Value *> Args );
 
-	Inst * CreateInvoke( FunctionType * Ty, Value * Callee, BasicBlock * NormalDest, BasicBlock * UnwindDest, XE::Array<Value *> Args = {}, const XE::String & Name = "" );
-
-	Inst * CreateInvoke( FunctionCallee Callee, BasicBlock * NormalDest, BasicBlock * UnwindDest, XE::Array<Value *> Args, const XE::String & Name = "" );
-
-	Inst * CreateInvoke( FunctionCallee Callee, BasicBlock * NormalDest, BasicBlock * UnwindDest, XE::Array<Value *> Args = {}, const XE::String & Name = "" );
-
-	Inst * CreateCallBr( FunctionType * Ty, Value * Callee, BasicBlock * DefaultDest, XE::Array<BasicBlock *> IndirectDests, XE::Array<Value *> Args = {}, const XE::String & Name = "" );
-
-	Inst * CreateCallBr( FunctionType * Ty, Value * Callee, BasicBlock * DefaultDest, XE::Array<BasicBlock *> IndirectDests,  XE::Array<Value *> Args, const XE::String & Name = "" );
-
-	Inst * CreateCallBr( FunctionCallee Callee, BasicBlock * DefaultDest, XE::Array<BasicBlock *> IndirectDests, XE::Array<Value *> Args = {}, const XE::String & Name = "" );
-
-	Inst * CreateCallBr( FunctionCallee Callee, BasicBlock * DefaultDest, XE::Array<BasicBlock *> IndirectDests, XE::Array<Value *> Args, const XE::String & Name = "" );
+	Inst * CreateCallBr( Value * Callee, BasicBlock * DefaultDest, XE::Span<BasicBlock *> IndirectDests, XE::Span<Value *> Args );
 
 	Inst * CreateResume( Value * Exn );
 
-	Inst * CreateCleanupRet( CleanupPadInst * CleanupPad, BasicBlock * UnwindBB = nullptr );
+	Inst * CreateCleanupRet( Inst * CleanupPad, BasicBlock * UnwindBB = nullptr );
 
-	Inst * CreateCatchSwitch( Value * ParentPad, BasicBlock * UnwindBB, unsigned NumHandlers, const XE::String & Name = "" );
+	Inst * CreateCatchSwitch( Value * ParentPad, BasicBlock * UnwindBB, unsigned NumHandlers );
 
-	Inst * CreateCatchPad( Value * ParentPad, XE::Array<Value *> Args, const XE::String & Name = "" );
+	Inst * CreateCatchPad( Value * ParentPad, XE::Span<Value *> Args );
 
-	Inst * CreateCleanupPad( Value * ParentPad, XE::Array<Value *> Args = {}, const XE::String & Name = "" );
+	Inst * CreateCleanupPad( Value * ParentPad, XE::Span<Value *> Args = {} );
 
 	Inst * CreateCatchRet( Inst * CatchPad, BasicBlock * BB );
 
 	Inst * CreateUnreachable();
 
 public:
-	Value * CreateAdd( Value * LHS, Value * RHS, const XE::String & Name = "", bool HasNUW = false, bool HasNSW = false );
+	Value * CreateAdd( Value * LHS, Value * RHS );
 
-	Value * CreateNSWAdd( Value * LHS, Value * RHS, const XE::String & Name = "" );
+	Value * CreateSub( Value * LHS, Value * RHS );
 
-	Value * CreateNUWAdd( Value * LHS, Value * RHS, const XE::String & Name = "" );
+	Value * CreateMul( Value * LHS, Value * RHS );
 
-	Value * CreateSub( Value * LHS, Value * RHS, const XE::String & Name = "", bool HasNUW = false, bool HasNSW = false );
+	Value * CreateUDiv( Value * LHS, Value * RHS );
 
-	Value * CreateNSWSub( Value * LHS, Value * RHS, const XE::String & Name = "" );
+	Value * CreateSDiv( Value * LHS, Value * RHS );
 
-	Value * CreateNUWSub( Value * LHS, Value * RHS, const XE::String & Name = "" );
+	Value * CreateURem( Value * LHS, Value * RHS );
 
-	Value * CreateMul( Value * LHS, Value * RHS, const XE::String & Name = "", bool HasNUW = false, bool HasNSW = false );
+	Value * CreateSRem( Value * LHS, Value * RHS );
 
-	Value * CreateNSWMul( Value * LHS, Value * RHS, const XE::String & Name = "" );
+	Value * CreateShl( Value * LHS, Value * RHS );
 
-	Value * CreateNUWMul( Value * LHS, Value * RHS, const XE::String & Name = "" );
+	Value * CreateShl( Value * LHS, Value * RHS );
 
-	Value * CreateUDiv( Value * LHS, Value * RHS, const XE::String & Name = "", bool isExact = false );
+	Value * CreateShl( Value * LHS, uint64_t RHS );
 
-	Value * CreateExactUDiv( Value * LHS, Value * RHS, const XE::String & Name = "" );
+	Value * CreateLShr( Value * LHS, Value * RHS );
 
-	Value * CreateSDiv( Value * LHS, Value * RHS, const XE::String & Name = "", bool isExact = false );
+	Value * CreateAShr( Value * LHS, Value * RHS );
 
-	Value * CreateExactSDiv( Value * LHS, Value * RHS, const XE::String & Name = "" );
+	Value * CreateAnd( Value * LHS, Value * RHS );
 
-	Value * CreateURem( Value * LHS, Value * RHS, const XE::String & Name = "" );
+	Value * CreateOr( Value * LHS, Value * RHS );
 
-	Value * CreateSRem( Value * LHS, Value * RHS, const XE::String & Name = "" );
+	Value * CreateXor( Value * LHS, Value * RHS );
 
-	Value * CreateShl( Value * LHS, Value * RHS, const XE::String & Name = "", bool HasNUW = false, bool HasNSW = false );
+	Value * CreateFAdd( Value * L, Value * R );
 
-	Value * CreateShl( Value * LHS, Value * RHS, const XE::String & Name = "", bool HasNUW = false, bool HasNSW = false );
+	Value * CreateFSub( Value * L, Value * R );
 
-	Value * CreateShl( Value * LHS, uint64_t RHS, const XE::String & Name = "", bool HasNUW = false, bool HasNSW = false );
+	Value * CreateFMul( Value * L, Value * R );
 
-	Value * CreateLShr( Value * LHS, Value * RHS, const XE::String & Name = "", bool isExact = false );
+	Value * CreateFDiv( Value * L, Value * R );
 
-	Value * CreateLShr( Value * LHS, Value * RHS, const XE::String & Name = "", bool isExact = false );
+	Value * CreateFRem( Value * L, Value * R );
 
-	Value * CreateLShr( Value * LHS, uint64_t RHS, const XE::String & Name = "", bool isExact = false );
+	Value * CreateBinOp( XE::BinaryExprType Opc, Value * LHS, Value * RHS );
 
-	Value * CreateAShr( Value * LHS, Value * RHS, const XE::String & Name = "", bool isExact = false );
+	Value * CreateLogicalAnd( Value * Cond1, Value * Cond2 );
 
-	Value * CreateAShr( Value * LHS, Value * RHS, const XE::String & Name = "", bool isExact = false );
+	Value * CreateLogicalOr( Value * Cond1, Value * Cond2 );
 
-	Value * CreateAShr( Value * LHS, uint64_t RHS, const XE::String & Name = "", bool isExact = false );
+	Value * CreateLogicalOr( const XE::Span< Value *> & Ops );
 
-	Value * CreateAnd( Value * LHS, Value * RHS, const XE::String & Name = "" );
+	Value * CreateNeg( Value * V );
 
-	Value * CreateAnd( Value * LHS, Value * RHS, const XE::String & Name = "" );
+	Value * CreateNSWNeg( Value * V );
 
-	Value * CreateAnd( Value * LHS, uint64_t RHS, const XE::String & Name = "" );
+	Value * CreateNUWNeg( Value * V );
 
-	Value * CreateAnd( const XE::Array< Value *> & Ops );
+	Value * CreateFNeg( Value * V );
 
-	Value * CreateOr( Value * LHS, Value * RHS, const XE::String & Name = "" );
+	Value * CreateNot( Value * V );
 
-	Value * CreateOr( Value * LHS, Value * RHS, const XE::String & Name = "" );
+	Value * CreateUnOp( XE::UnaryExprType Opc, Value * V );
 
-	Value * CreateOr( Value * LHS, uint64_t RHS, const XE::String & Name = "" );
+	Inst * CreateAlloca( Type * Ty, Value * ArraySize = nullptr );
 
-	Value * CreateOr( const XE::Array< Value *> & Ops );
+	Inst * CreateLoad( Type * Ty, Value * Ptr );
 
-	Value * CreateXor( Value * LHS, Value * RHS, const XE::String & Name = "" );
+	Inst * CreateStore( Value * Val, Value * Ptr );
 
-	Value * CreateXor( Value * LHS, Value * RHS, const XE::String & Name = "" );
+	Value * CreateGEP( Type * Ty, Value * Ptr, const XE::Span< Value *> & IdxList );
 
-	Value * CreateXor( Value * LHS, uint64_t RHS, const XE::String & Name = "" );
+	Value * CreateGlobalStringPtr( const XE::String & Str );
 
-	Value * CreateFAdd( Value * L, Value * R, const XE::String & Name = "", MDNode * FPMD = nullptr );
+	Value * CreateTrunc( Value * V, Type * DestTy );
 
-	Value * CreateFAddFMF( Value * L, Value * R, Inst * FMFSource, const XE::String & Name = "" );
+	Value * CreateZExt( Value * V, Type * DestTy );
 
-	Value * CreateFSub( Value * L, Value * R, const XE::String & Name = "", MDNode * FPMD = nullptr );
+	Value * CreateSExt( Value * V, Type * DestTy );
 
-	Value * CreateFSubFMF( Value * L, Value * R, Inst * FMFSource, const XE::String & Name = "" );
+	Value * CreateZExtOrTrunc( Value * V, Type * DestTy );
 
-	Value * CreateFMul( Value * L, Value * R, const XE::String & Name = "", MDNode * FPMD = nullptr );
+	Value * CreateSExtOrTrunc( Value * V, Type * DestTy );
 
-	Value * CreateFMulFMF( Value * L, Value * R, Inst * FMFSource, const XE::String & Name = "" );
+	Value * CreateFPToUI( Value * V, Type * DestTy );
 
-	Value * CreateFDiv( Value * L, Value * R, const XE::String & Name = "", MDNode * FPMD = nullptr );
+	Value * CreateFPToSI( Value * V, Type * DestTy );
 
-	Value * CreateFDivFMF( Value * L, Value * R, Inst * FMFSource, const XE::String & Name = "" );
+	Value * CreateUIToFP( Value * V, Type * DestTy );
 
-	Value * CreateFRem( Value * L, Value * R, const XE::String & Name = "", MDNode * FPMD = nullptr );
+	Value * CreateSIToFP( Value * V, Type * DestTy );
 
-	Value * CreateFRemFMF( Value * L, Value * R, Inst * FMFSource, const XE::String & Name = "" );
+	Value * CreateFPTrunc( Value * V, Type * DestTy );
 
-	Value * CreateBinOp( XE::BinaryExprType Opc, Value * LHS, Value * RHS, const XE::String & Name = "", MDNode * FPMathTag = nullptr );
+	Value * CreateFPExt( Value * V, Type * DestTy );
 
-	Value * CreateLogicalAnd( Value * Cond1, Value * Cond2, const XE::String & Name = "" );
+	Value * CreatePtrToInt( Value * V, Type * DestTy );
 
-	Value * CreateLogicalOr( Value * Cond1, Value * Cond2, const XE::String & Name = "" );
+	Value * CreateIntToPtr( Value * V, Type * DestTy );
 
-	Value * CreateLogicalOr( const XE::Array< Value *> & Ops );
+	Value * CreateBitCast( Value * V, Type * DestTy );
 
-	Inst * CreateConstrainedFPBinOp( Intrinsic::ID ID, Value * L, Value * R, Inst * FMFSource = nullptr, const XE::String & Name = "", MDNode * FPMathTag = nullptr, Optional<RoundingMode> Rounding = {}, Optional<fp::ExceptionBehavior> Except = {} );
+	Value * CreateAddrSpaceCast( Value * V, Type * DestTy );
 
-	Value * CreateNeg( Value * V, const XE::String & Name = "", bool HasNUW = false, bool HasNSW = false );
+	Value * CreateZExtOrBitCast( Value * V, Type * DestTy );
 
-	Value * CreateNSWNeg( Value * V, const XE::String & Name = "" );
+	Value * CreateSExtOrBitCast( Value * V, Type * DestTy );
 
-	Value * CreateNUWNeg( Value * V, const XE::String & Name = "" );
+	Value * CreateTruncOrBitCast( Value * V, Type * DestTy );
 
-	Value * CreateFNeg( Value * V, const XE::String & Name = "", MDNode * FPMathTag = nullptr );
+	Value * CreateCast( Value * V, Type * DestTy );
 
-	Value * CreateFNegFMF( Value * V, Inst * FMFSource, const XE::String & Name = "" );
+	Value * CreatePointerCast( Value * V, Type * DestTy );
 
-	Value * CreateNot( Value * V, const XE::String & Name = "" );
+	Value * CreatePointerBitCastOrAddrSpaceCast( Value * V, Type * DestTy );
 
-	Value * CreateUnOp( XE::UnaryExprType Opc, Value * V, const XE::String & Name = "", MDNode * FPMathTag = nullptr );
+	Value * CreateIntCast( Value * V, Type * DestTy, bool isSigned );
 
-	Value * CreateNAryOp( unsigned Opc, const XE::Array< Value *> & Ops, const XE::String & Name = "", MDNode * FPMathTag = nullptr );
+	Value * CreateBitOrPointerCast( Value * V, Type * DestTy );
 
-	Inst * CreateAlloca( Type * Ty, unsigned AddrSpace, Value * ArraySize = nullptr, const XE::String & Name = "" );
+	Value * CreateFPCast( Value * V, Type * DestTy );
 
-	Inst * CreateAlloca( Type * Ty, Value * ArraySize = nullptr, const XE::String & Name = "" );
+	Value * CreateICmpEQ( Value * LHS, Value * RHS );
 
-	Inst * CreateLoad( Type * Ty, Value * Ptr, const char * Name );
+	Value * CreateICmpNE( Value * LHS, Value * RHS );
 
-	Inst * CreateLoad( Type * Ty, Value * Ptr, const XE::String & Name = "" );
+	Value * CreateICmpUGT( Value * LHS, Value * RHS );
 
-	Inst * CreateLoad( Type * Ty, Value * Ptr, bool isVolatile, const XE::String & Name = "" );
+	Value * CreateICmpUGE( Value * LHS, Value * RHS );
 
-	Inst * CreateStore( Value * Val, Value * Ptr, bool isVolatile = false );
+	Value * CreateICmpULT( Value * LHS, Value * RHS );
 
-	Inst * CreateAlignedLoad( Type * Ty, Value * Ptr, MaybeAlign Align, const char * Name );
+	Value * CreateICmpULE( Value * LHS, Value * RHS );
 
-	Inst * CreateAlignedLoad( Type * Ty, Value * Ptr, MaybeAlign Align, const XE::String & Name = "" );
+	Value * CreateICmpSGT( Value * LHS, Value * RHS );
 
-	Inst * CreateAlignedLoad( Type * Ty, Value * Ptr, MaybeAlign Align, bool isVolatile, const XE::String & Name = "" );
+	Value * CreateICmpSGE( Value * LHS, Value * RHS );
 
-	Inst * CreateAlignedStore( Value * Val, Value * Ptr, MaybeAlign Align, bool isVolatile = false );
+	Value * CreateICmpSLT( Value * LHS, Value * RHS );
 
-	Inst * CreateFence( AtomicOrdering Ordering, SyncScope::ID SSID = SyncScope::System, const XE::String & Name = "" );
+	Value * CreateICmpSLE( Value * LHS, Value * RHS );
 
-	Inst * CreateAtomicCmpXchg( Value * Ptr, Value * Cmp, Value * New, MaybeAlign Align, AtomicOrdering SuccessOrdering, AtomicOrdering FailureOrdering, SyncScope::ID SSID = SyncScope::System );
+	Value * CreateFCmpOEQ( Value * LHS, Value * RHS );
 
-	Inst * CreateAtomicRMW( Inst::BinOp Op, Value * Ptr, Value * Val, MaybeAlign Align, AtomicOrdering Ordering, SyncScope::ID SSID = SyncScope::System );
+	Value * CreateFCmpOGT( Value * LHS, Value * RHS );
 
-	Value * CreateGEP( Type * Ty, Value * Ptr, const XE::Array< Value *> & IdxList, const XE::String & Name = "", bool IsInBounds = false );
+	Value * CreateFCmpOGE( Value * LHS, Value * RHS );
 
-	Value * CreateInBoundsGEP( Type * Ty, Value * Ptr, const XE::Array< Value *> & IdxList, const XE::String & Name = "" );
+	Value * CreateFCmpOLT( Value * LHS, Value * RHS );
 
-	Value * CreateConstGEP1_32( Type * Ty, Value * Ptr, unsigned Idx0, const XE::String & Name = "" );
+	Value * CreateFCmpOLE( Value * LHS, Value * RHS );
 
-	Value * CreateConstInBoundsGEP1_32( Type * Ty, Value * Ptr, unsigned Idx0, const XE::String & Name = "" );
+	Value * CreateFCmpONE( Value * LHS, Value * RHS );
 
-	Value * CreateConstGEP2_32( Type * Ty, Value * Ptr, unsigned Idx0, unsigned Idx1, const XE::String & Name = "" );
+	Value * CreateFCmpORD( Value * LHS, Value * RHS );
 
-	Value * CreateConstInBoundsGEP2_32( Type * Ty, Value * Ptr, unsigned Idx0, unsigned Idx1, const XE::String & Name = "" );
+	Value * CreateFCmpUNO( Value * LHS, Value * RHS );
 
-	Value * CreateConstGEP1_64( Type * Ty, Value * Ptr, uint64_t Idx0, const XE::String & Name = "" );
+	Value * CreateFCmpUEQ( Value * LHS, Value * RHS );
 
-	Value * CreateConstInBoundsGEP1_64( Type * Ty, Value * Ptr, uint64_t Idx0, const XE::String & Name = "" );
+	Value * CreateFCmpUGT( Value * LHS, Value * RHS );
 
-	Value * CreateConstGEP2_64( Type * Ty, Value * Ptr, uint64_t Idx0, uint64_t Idx1, const XE::String & Name = "" );
+	Value * CreateFCmpUGE( Value * LHS, Value * RHS );
 
-	Value * CreateConstInBoundsGEP2_64( Type * Ty, Value * Ptr, uint64_t Idx0, uint64_t Idx1, const XE::String & Name = "" );
+	Value * CreateFCmpULT( Value * LHS, Value * RHS );
 
-	Value * CreateStructGEP( Type * Ty, Value * Ptr, unsigned Idx, const XE::String & Name = "" );
+	Value * CreateFCmpULE( Value * LHS, Value * RHS );
 
-	Constant * CreateGlobalStringPtr( StringRef Str, const XE::String & Name = "", unsigned AddressSpace = 0, Module * M = nullptr );
-
-	Value * CreateTrunc( Value * V, Type * DestTy, const XE::String & Name = "" );
-
-	Value * CreateZExt( Value * V, Type * DestTy, const XE::String & Name = "" );
-
-	Value * CreateSExt( Value * V, Type * DestTy, const XE::String & Name = "" );
-
-	Value * CreateZExtOrTrunc( Value * V, Type * DestTy, const XE::String & Name = "" );
-
-	Value * CreateSExtOrTrunc( Value * V, Type * DestTy, const XE::String & Name = "" );
-
-	Value * CreateFPToUI( Value * V, Type * DestTy, const XE::String & Name = "" );
-
-	Value * CreateFPToSI( Value * V, Type * DestTy, const XE::String & Name = "" );
-
-	Value * CreateUIToFP( Value * V, Type * DestTy, const XE::String & Name = "" );
-
-	Value * CreateSIToFP( Value * V, Type * DestTy, const XE::String & Name = "" );
-
-	Value * CreateFPTrunc( Value * V, Type * DestTy, const XE::String & Name = "" );
-
-	Value * CreateFPExt( Value * V, Type * DestTy, const XE::String & Name = "" );
-
-	Value * CreatePtrToInt( Value * V, Type * DestTy, const XE::String & Name = "" );
-
-	Value * CreateIntToPtr( Value * V, Type * DestTy, const XE::String & Name = "" );
-
-	Value * CreateBitCast( Value * V, Type * DestTy, const XE::String & Name = "" );
-
-	Value * CreateAddrSpaceCast( Value * V, Type * DestTy, const XE::String & Name = "" );
-
-	Value * CreateZExtOrBitCast( Value * V, Type * DestTy, const XE::String & Name = "" );
-
-	Value * CreateSExtOrBitCast( Value * V, Type * DestTy, const XE::String & Name = "" );
-
-	Value * CreateTruncOrBitCast( Value * V, Type * DestTy, const XE::String & Name = "" );
-
-	Value * CreateCast( Value * V, Type * DestTy, const XE::String & Name = "" );
-
-	Value * CreatePointerCast( Value * V, Type * DestTy, const XE::String & Name = "" );
-
-	Value * CreatePointerBitCastOrAddrSpaceCast( Value * V, Type * DestTy, const XE::String & Name = "" );
-
-	Value * CreateIntCast( Value * V, Type * DestTy, bool isSigned, const XE::String & Name = "" );
-
-	Value * CreateBitOrPointerCast( Value * V, Type * DestTy, const XE::String & Name = "" );
-
-	Value * CreateFPCast( Value * V, Type * DestTy, const XE::String & Name = "" );
-
-	Inst * CreateConstrainedFPCast( Intrinsic::ID ID, Value * V, Type * DestTy, Inst * FMFSource = nullptr, const XE::String & Name = "", MDNode * FPMathTag = nullptr, Optional<RoundingMode> Rounding = {}, Optional<fp::ExceptionBehavior> Except = {} );
-
-	Value * CreateIntCast( Value *, Type *, const char * ) = delete;
-
-	Value * CreateICmpEQ( Value * LHS, Value * RHS, const XE::String & Name = "" );
-
-	Value * CreateICmpNE( Value * LHS, Value * RHS, const XE::String & Name = "" );
-
-	Value * CreateICmpUGT( Value * LHS, Value * RHS, const XE::String & Name = "" );
-
-	Value * CreateICmpUGE( Value * LHS, Value * RHS, const XE::String & Name = "" );
-
-	Value * CreateICmpULT( Value * LHS, Value * RHS, const XE::String & Name = "" );
-
-	Value * CreateICmpULE( Value * LHS, Value * RHS, const XE::String & Name = "" );
-
-	Value * CreateICmpSGT( Value * LHS, Value * RHS, const XE::String & Name = "" );
-
-	Value * CreateICmpSGE( Value * LHS, Value * RHS, const XE::String & Name = "" );
-
-	Value * CreateICmpSLT( Value * LHS, Value * RHS, const XE::String & Name = "" );
-
-	Value * CreateICmpSLE( Value * LHS, Value * RHS, const XE::String & Name = "" );
-
-	Value * CreateFCmpOEQ( Value * LHS, Value * RHS, const XE::String & Name = "", MDNode * FPMathTag = nullptr );
-
-	Value * CreateFCmpOGT( Value * LHS, Value * RHS, const XE::String & Name = "", MDNode * FPMathTag = nullptr );
-
-	Value * CreateFCmpOGE( Value * LHS, Value * RHS, const XE::String & Name = "", MDNode * FPMathTag = nullptr );
-
-	Value * CreateFCmpOLT( Value * LHS, Value * RHS, const XE::String & Name = "", MDNode * FPMathTag = nullptr );
-
-	Value * CreateFCmpOLE( Value * LHS, Value * RHS, const XE::String & Name = "", MDNode * FPMathTag = nullptr );
-
-	Value * CreateFCmpONE( Value * LHS, Value * RHS, const XE::String & Name = "", MDNode * FPMathTag = nullptr );
-
-	Value * CreateFCmpORD( Value * LHS, Value * RHS, const XE::String & Name = "", MDNode * FPMathTag = nullptr );
-
-	Value * CreateFCmpUNO( Value * LHS, Value * RHS, const XE::String & Name = "", MDNode * FPMathTag = nullptr );
-
-	Value * CreateFCmpUEQ( Value * LHS, Value * RHS, const XE::String & Name = "", MDNode * FPMathTag = nullptr );
-
-	Value * CreateFCmpUGT( Value * LHS, Value * RHS, const XE::String & Name = "", MDNode * FPMathTag = nullptr );
-
-	Value * CreateFCmpUGE( Value * LHS, Value * RHS, const XE::String & Name = "", MDNode * FPMathTag = nullptr );
-
-	Value * CreateFCmpULT( Value * LHS, Value * RHS, const XE::String & Name = "", MDNode * FPMathTag = nullptr );
-
-	Value * CreateFCmpULE( Value * LHS, Value * RHS, const XE::String & Name = "", MDNode * FPMathTag = nullptr );
-
-	Value * CreateFCmpUNE( Value * LHS, Value * RHS, const XE::String & Name = "", MDNode * FPMathTag = nullptr );
-
-	Value * CreateICmp( CmpInst::Predicate P, Value * LHS, Value * RHS, const XE::String & Name = "" );
-
-	Value * CreateFCmp( CmpInst::Predicate P, Value * LHS, Value * RHS, const XE::String & Name = "", MDNode * FPMathTag = nullptr );
-
-	Value * CreateCmp( CmpInst::Predicate Pred, Value * LHS, Value * RHS, const XE::String & Name = "", MDNode * FPMathTag = nullptr );
-
-	Value * CreateFCmpS( CmpInst::Predicate P, Value * LHS, Value * RHS, const XE::String & Name = "", MDNode * FPMathTag = nullptr );
+	Value * CreateFCmpUNE( Value * LHS, Value * RHS );
 
 public:
-	Inst * CreateConstrainedFPCmp( Intrinsic::ID ID, CmpInst::Predicate P, Value * L, Value * R, const XE::String & Name = "", Optional<fp::ExceptionBehavior> Except = {} );
-
-	PHINode * CreatePHI( Type * Ty, unsigned NumReservedValues, const XE::String & Name = "" );
+	Inst * CreatePHI( Type * Ty, unsigned NumReservedValues );
 
 public:
-	Inst * CreateCall( FunctionType * FTy, Value * Callee, const XE::Array< Value *> & Args = {}, const XE::String & Name = "", MDNode * FPMathTag = nullptr );
+	Inst * CreateCall( Value * Callee, const XE::Span< Value *> & Args );
 
-	Inst * CreateCall( FunctionType * FTy, Value * Callee, const XE::Array< Value *> & Args, ArrayRef<OperandBundleDef> OpBundles, const XE::String & Name = "", MDNode * FPMathTag = nullptr );
+	Value * CreateSelect( Value * C, Value * True, Value * False );
 
-	Inst * CreateCall( FunctionCallee Callee, const XE::Array< Value *> & Args = {}, const XE::String & Name = "", MDNode * FPMathTag = nullptr );
+	Value * CreateExtractElement( Value * Vec, Value * Idx );
 
-	Inst * CreateCall( FunctionCallee Callee, const XE::Array< Value *> & Args, ArrayRef<OperandBundleDef> OpBundles, const XE::String & Name = "", MDNode * FPMathTag = nullptr );
+	Value * CreateExtractElement( Value * Vec, uint64_t Idx );
 
-	Inst * CreateConstrainedFPCall( Function * Callee, const XE::Array< Value *> & Args, const XE::String & Name = "", Optional<RoundingMode> Rounding = {}, Optional<fp::ExceptionBehavior> Except = {} );
+	Value * CreateInsertElement( Type * VecTy, Value * NewElt, Value * Idx );
 
-	Value * CreateSelect( Value * C, Value * True, Value * False, const XE::String & Name = "", Inst * MDFrom = nullptr );
+	Value * CreateInsertElement( Type * VecTy, Value * NewElt, uint64_t Idx );
 
-	Inst * CreateVAArg( Value * List, Type * Ty, const XE::String & Name = "" );
+	Value * CreateInsertElement( Value * Vec, Value * NewElt, Value * Idx );
 
-	Value * CreateExtractElement( Value * Vec, Value * Idx, const XE::String & Name = "" );
+	Value * CreateInsertElement( Value * Vec, Value * NewElt, uint64_t Idx );
 
-	Value * CreateExtractElement( Value * Vec, uint64_t Idx, const XE::String & Name = "" );
+	Value * CreateShuffleVector( Value * V1, Value * V2, Value * Mask );
 
-	Value * CreateInsertElement( Type * VecTy, Value * NewElt, Value * Idx, const XE::String & Name = "" );
+	Value * CreateShuffleVector( Value * V1, Value * V2, XE::Span<int> Mask );
 
-	Value * CreateInsertElement( Type * VecTy, Value * NewElt, uint64_t Idx, const XE::String & Name = "" );
+	Value * CreateShuffleVector( Value * V, XE::Span<int> Mask );
 
-	Value * CreateInsertElement( Value * Vec, Value * NewElt, Value * Idx, const XE::String & Name = "" );
+	Value * CreateExtractValue( Value * Agg, XE::Span<unsigned> Idxs );
 
-	Value * CreateInsertElement( Value * Vec, Value * NewElt, uint64_t Idx, const XE::String & Name = "" );
+	Value * CreateInsertValue( Value * Agg, Value * Val, XE::Span<unsigned> Idxs );
 
-	Value * CreateShuffleVector( Value * V1, Value * V2, Value * Mask, const XE::String & Name = "" );
+	Inst * CreateLandingPad( Type * Ty, unsigned NumClauses );
 
-	Value * CreateShuffleVector( Value * V1, Value * V2, ArrayRef<int> Mask, const XE::String & Name = "" );
+	Value * CreateFreeze( Value * V );
 
-	Value * CreateShuffleVector( Value * V, ArrayRef<int> Mask, const XE::String & Name = "" );
+	Value * CreateIsNull( Value * Arg );
 
-	Value * CreateExtractValue( Value * Agg, ArrayRef<unsigned> Idxs, const XE::String & Name = "" );
+	Value * CreateIsNotNull( Value * Arg );
 
-	Value * CreateInsertValue( Value * Agg, Value * Val, ArrayRef<unsigned> Idxs, const XE::String & Name = "" );
+	Value * CreateIsNeg( Value * Arg );
 
-	Inst * CreateLandingPad( Type * Ty, unsigned NumClauses, const XE::String & Name = "" );
+	Value * CreateIsNotNeg( Value * Arg );
 
-	Value * CreateFreeze( Value * V, const XE::String & Name = "" );
-
-	Value * CreateIsNull( Value * Arg, const XE::String & Name = "" );
-
-	Value * CreateIsNotNull( Value * Arg, const XE::String & Name = "" );
-
-	Value * CreateIsNeg( Value * Arg, const XE::String & Name = "" );
-
-	Value * CreateIsNotNeg( Value * Arg, const XE::String & Name = "" );
-
-	Value * CreatePtrDiff( Type * ElemTy, Value * LHS, Value * RHS, const XE::String & Name = "" );
+	Value * CreatePtrDiff( Type * ElemTy, Value * LHS, Value * RHS );
 
 	Value * CreateLaunderInvariantGroup( Value * Ptr );
 
 	Value * CreateStripInvariantGroup( Value * Ptr );
 
-	Value * CreateVectorReverse( Value * V, const XE::String & Name = "" );
+	Value * CreateVectorReverse( Value * V );
 
-	Value * CreateVectorSplice( Value * V1, Value * V2, int64_t Imm, const XE::String & Name = "" );
+	Value * CreateVectorSplice( Value * V1, Value * V2, int64_t Imm );
 
-	Value * CreateVectorSplat( unsigned NumElts, Value * V, const XE::String & Name = "" );
+	Value * CreateVectorSplat( unsigned NumElts, Value * V );
 
-	Value * CreateVectorSplat( ElementCount EC, Value * V, const XE::String & Name = "" );
+	Value * CreatePreserveArrayAccessIndex( Type * ElTy, Value * Base, unsigned Dimension, unsigned LastIndex );
 
-	Value * CreateExtractInteger( const DataLayout & DL, Value * From, IntegerType * ExtractedTy, uint64_t Offset, const XE::String & Name );
+	Value * CreatePreserveUnionAccessIndex( Value * Base, unsigned FieldIndex );
 
-	Value * CreatePreserveArrayAccessIndex( Type * ElTy, Value * Base, unsigned Dimension, unsigned LastIndex, MDNode * DbgInfo );
-
-	Value * CreatePreserveUnionAccessIndex( Value * Base, unsigned FieldIndex, MDNode * DbgInfo );
-
-	Value * CreatePreserveStructAccessIndex( Type * ElTy, Value * Base, unsigned Index, unsigned FieldIndex, MDNode * DbgInfo );
-
-public:
-	Inst * CreateAlignmentAssumption( const DataLayout & DL, Value * PtrValue, unsigned Alignment, Value * OffsetValue = nullptr );
-
-	Inst * CreateAlignmentAssumption( const DataLayout & DL, Value * PtrValue, Value * Alignment, Value * OffsetValue = nullptr );
+	Value * CreatePreserveStructAccessIndex( Type * ElTy, Value * Base, unsigned Index, unsigned FieldIndex );
 
 private:
 	Private * _p;
