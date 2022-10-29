@@ -60,7 +60,7 @@ XE::Variant XE::ASTMetaMethod::Invoke( XE::InvokeStack * params ) const
 				{
 					thread->PostTask( XE::ThreadType::WORKS, [this, ast]()
 					{
-						_Callback = ast->JITCompile( GetFullName(), XE::ASTCompileContext::ThreadInstance()->Compile( _Function ) );
+						_Callback = ast->JITCompile( GetFullName(), XE::ASTCompileContext::ThreadInstance()->Compile( _Method ) );
 					} );
 				}
 				break;

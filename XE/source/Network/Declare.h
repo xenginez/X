@@ -27,11 +27,6 @@ class HttpResponse;
 
 class NetworkService;
 
-template< typename Protocol, typename SSL > class SSLClient;
-template< typename Protocol, typename SSL > class SSLServer;
-template< typename Protocol, typename IArchive = XE::BinaryIArchive, typename OArchive = XE::BinaryOArchive > class RPCClient;
-template< typename Protocol, typename IArchive = XE::BinaryIArchive, typename OArchive = XE::BinaryOArchive > class RPCServer;
-
 DECL_PTR( Client );
 DECL_PTR( Server );
 DECL_PTR( Service );

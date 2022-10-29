@@ -17,72 +17,43 @@ BEG_XE_NAMESPACE
 
 class XE_API Client : public XE::NonCopyable, public XE::EnableSharedFromThis< Client >
 {
+	friend class NetworkService;
+
 public:
 	using HandshakeCallbackType = XE::Delegate< void( XE::ClientHandle, std::error_code ) >;
 	using ConnectCallbackType = XE::Delegate< void( XE::ClientHandle, std::error_code ) >;
-	using DisconnectCallbackType = XE::Delegate< void( XE::ClientHandle, std::error_code ) >;
 	using SendCallbackType = XE::Delegate< void( XE::ClientHandle, std::error_code, XE::uint64 ) >;
 	using ReceiveCallbackType = XE::Delegate< void( XE::ClientHandle, std::error_code, XE::MemoryView ) >;
 
 public:
-	Client( XE::ProtocolTypeFlags type );
+	Client();
 
 	virtual ~Client();
 
 public:
 	XE::ClientHandle GetHandle() const;
 
-	XE::ProtocolTypeFlags GetProtocol() const;
-
 	XE::Endpoint GetLocalEndpoint() const;
 
 	XE::Endpoint GetRemoteEndpoint() const;
-
-public:
-	const std::chrono::steady_clock::duration & GetReconnect() const;
-
-	void SetReconnect( const std::chrono::steady_clock::duration & val );
 
 public:
 	virtual void BindConnectCallback( const ConnectCallbackType & callback );
 
 	virtual void BindHandshakeCallback( const HandshakeCallbackType & callback );
 
-	virtual void BindDisconnectCallback( const DisconnectCallbackType & callback );
-
 	virtual void BindSendCallback( const SendCallbackType & callback );
 
 	virtual void BindReceiveCallback( const ReceiveCallbackType & callback );
 
 public:
-	virtual void Send( XE::MemoryView data );
+	virtual void Send( XE::MemoryView view ) = 0;
 
-public:
-	bool Close();
-
-	void WaitClose();
+	virtual void Close() = 0;
 
 protected:
-	virtual void Read() = 0;
-
-	virtual void Wirte() = 0;
-
-	virtual void Clear() = 0;
-
-	virtual void Connect() = 0;
-
-	virtual XE::uint64 NativeHandle() = 0;
-
-protected:
-	void AllocHandle();
-
-	void * GetIOService();
-
-protected:
-	bool _Close = true;
-
 	XE::ClientHandle _Handle;
-	XE::ProtocolTypeFlags _Protocol;
+	void * _IOService = nullptr;
 
 	XE::Endpoint _LocalEndpoint;
 	XE::Endpoint _RemoteEndpoint;
@@ -91,14 +62,6 @@ protected:
 	ReceiveCallbackType _ReceiveCB = nullptr;
 	ConnectCallbackType _ConnectCB = nullptr;
 	HandshakeCallbackType _HandshakeCB = nullptr;
-	DisconnectCallbackType _DisconnectCB = nullptr;
-
-	std::mutex _Mutex;
-	XE::ConcurrentQueue< XE::Array< XE::int8 > > _Wirte;
-	XE::ConcurrentQueue< XE::Array< XE::int8 > > _Buffers;
-
-	XE::Disposable _ReconnectTimer;
-	std::chrono::steady_clock::duration _Reconnect = std::chrono::steady_clock::duration::zero();
 };
 
 class XE_API TCPClient : public Client
@@ -112,26 +75,27 @@ public:
 	~TCPClient() override;
 
 public:
-	void Start( const XE::Endpoint & endpoint, const XE::String & endl );
+	void Start( const XE::Endpoint & endpoint, const XE::EndlCondition & endl );
 
-	void Start( const XE::Endpoint & endpoint, const std::regex & regex );
+	void Start( const XE::Endpoint & endpoint, const XE::RegexCondition & regex );
 
-	void Start( const XE::Endpoint & endpoint, const XE::Match & match );
+	void Start( const XE::Endpoint & endpoint, const XE::MatchCondition & match );
 
-	void Start( const XE::Endpoint & endpoint, const XE::Transfer & trans );
+	void Start( const XE::Endpoint & endpoint, const XE::TransferCondition & trans );
 
-	void Start( const XE::Endpoint & endpoint, const XE::DataGram & dgram );
+	void Start( const XE::Endpoint & endpoint, const XE::DataGramCondition & dgram );
+
+public:
+	void Send( XE::MemoryView view ) override;
+
+	void Close() override;
 
 private:
-	void Read() override;
+	void Read();
 
-	void Wirte() override;
+	void Write();
 
-	void Clear() override;
-
-	void Connect() override;
-
-	XE::uint64 NativeHandle() override;
+	void Connect();
 
 private:
 	Private * _p;
@@ -148,21 +112,19 @@ public:
 	~UDPClient() override;
 
 public:
-	void Start( XE::int16 bind, const XE::Endpoint & endpoint, XE::uint64 buf_size = 1400 );
+	void Start( const XE::Endpoint & endpoint, XE::uint64 buf_size = 1400 );
+
+public:
+	void Send( XE::MemoryView view ) override;
+
+	void Close() override;
 
 private:
-	void Read() override;
+	void Read();
 
-	void Wirte() override;
+	void Write();
 
-	void Clear() override;
-
-	void Connect() override;
-
-	XE::uint64 NativeHandle() override;
-
-private:
-	void Handshake();
+	void Connect();
 
 private:
 	Private * _p;
@@ -179,76 +141,73 @@ public:
 	~KCPClient() override;
 
 public:
-	void Start( XE::int16 bind, const XE::Endpoint & endpoint, XE::uint64 buf_size = 1400 );
+	void Start( const XE::Endpoint & endpoint, XE::uint64 buf_size = 1400 );
+
+public:
+	void Send( XE::MemoryView view ) override;
+
+	void Close() override;
 
 private:
-	void Read() override;
+	void Read();
 
-	void Wirte() override;
+	void Write();
 
-	void Clear() override;
-
-	void Connect() override;
-
-	XE::uint64 NativeHandle() override;
-
-private:
-	void Handshake();
+	void Connect();
 
 private:
 	Private * _p;
 };
 
-template< typename Protocol, typename SSL > class SSLClient : public Protocol
+template< typename Protocol > class HttpClient : public Protocol
 {
 public:
 	using ProtocolType = Protocol;
-	using SSLContextType = SSL;
-	using ReceiveCallbackType = typename ProtocolType::ReceiveCallbackType;
-	using HandshakeCallbackType = typename ProtocolType::HandshakeCallbackType;
+	using HttpReceiveCallbackType = XE::Delegate<void( const XE::HttpResponse & )>;
 
 public:
-	SSLClient()
+	HttpClient()
 	{
-		ProtocolType::_Protocol |= XE::ProtocolType::SSL;
-		ProtocolType::BindReceiveCallback( { &SSLClient< Protocol, SSL >::OnProtocolReceive, this } );
-		ProtocolType::BindHandshakeCallback( { &SSLClient< Protocol, SSL >::OnProtocolHandshake, this } );
+		ProtocolType::BindReceiveCallback( { &HttpClient<Protocol>::OnProtocolReceive, this } );
 	}
 
-	~SSLClient() override = default;
+	~HttpClient() override = default;
+
+private:
+	using ProtocolType::Send;
+	using ProtocolType::BindReceiveCallback;
 
 public:
-	void BindReceiveCallback( const ReceiveCallbackType & callback ) override
+	void BindReceiveCallback( const HttpReceiveCallbackType & callback )
 	{
-		_SSLReceiveCallback = callback;
-	}
-
-	void BindHandshakeCallback( const HandshakeCallbackType & callback ) override
-	{
-		_SSLHandshakeCallback = callback;
+		_HttpReceiveCB = callback;
 	}
 
 public:
-	void Send( XE::MemoryView data ) override
+	void Send( const XE::HttpRequest & request )
 	{
-		ProtocolType::Send( _SSL.Wirte( data ) );
+		auto data = request.ToString();
+
+		ProtocolType::Send( { data.data(), data.size() } );
 	}
 
 private:
-	void OnProtocolHandshake( XE::ServerHandle handle, std::error_code code )
+	void OnProtocolReceive( XE::ClientHandle handle, std::error_code code, XE::MemoryView view )
 	{
-		_SSLHandshakeCallback( handle, _SSL.Connect( ProtocolType::NativeHandle() ) );
-	}
+		if ( !code )
+		{
+			XE::HttpResponse response;
+			response.FromString( { view.data(), view.size() } );
 
-	void OnProtocolReceive( XE::ServerHandle handle, std::error_code code, XE::MemoryView data )
-	{
-		_SSLReceiveCallback( handle, code, _SSL.Read( data ) );
+			if ( _HttpReceiveCB )
+			{
+				_HttpReceiveCB( response );
+			}
+		}
 	}
 
 private:
-	SSLContextType _SSL;
-	ReceiveCallbackType _SSLReceiveCallback;
-	HandshakeCallbackType _SSLHandshakeCallback;
+	HttpReceiveCallbackType _HttpReceiveCB;
 };
 
 template< typename Protocol, typename IArchive, typename OArchive > class RPCClient : public Protocol
@@ -267,8 +226,7 @@ private:
 public:
 	RPCClient()
 	{
-		ProtocolType::_Protocol |= XE::ProtocolType::RPC;
-		ProtocolType::BindReceiveCallback( { &RPCClient<Protocol>::OnProtocolReceive, this } );
+		ProtocolType::BindReceiveCallback( { &RPCClient<Protocol, IArchive, OArchive>::OnProtocolReceive, this } );
 	}
 
 	~RPCClient() override = default;
@@ -288,7 +246,6 @@ public:
 
 			typename traits::pod_tuple_type tuple;
 
-			// load args
 			{
 				XE::MemoryStream in( XE::MemoryResource::GetFrameMemoryResource() );
 
@@ -299,7 +256,7 @@ public:
 				arch & tuple;
 			}
 
-			if constexpr( std::is_void_v< traits::result_type > )
+			if constexpr( !std::is_void_v< traits::result_type > )
 			{
 				std::apply( [f = std::move( f )]( auto && ... args )
 				{
@@ -394,7 +351,7 @@ public:
 
 		XE::MemoryStream out( XE::MemoryResource::GetFrameMemoryResource() );
 
-		out << static_cast<XE::uint8>( XE::RPCProtocolFlag::INVOKE );
+		out << static_cast<XE::uint8>( XE::RPCProtocolType::INVOKE );
 		out.write( buf, sizeof( XE::uint64 ) );
 		out.write( name.c_str(), name.size() + 1 );
 		OArchiveType arch( out );
@@ -445,11 +402,11 @@ private:
 		{
 			auto buf = view.data();
 
-			XE::RPCProtocolFlag flag = *reinterpret_cast<const XE::RPCProtocolFlag *>( buf++ );
+			XE::RPCProtocolType flag = *reinterpret_cast<const XE::RPCProtocolType *>( buf++ );
 			
 			switch( flag )
 			{
-			case XE::RPCProtocolFlag::INVOKE:
+			case XE::RPCProtocolType::INVOKE:
 			{
 				XE::uint64 handle;
 				buf += XE::ReadBigEndian( buf, handle );
@@ -462,7 +419,7 @@ private:
 				{
 					XE::MemoryStream out( XE::MemoryResource::GetFrameMemoryResource() );
 
-					out << static_cast<XE::uint8>( XE::RPCProtocolFlag::RESULT ) << code.value();
+					out << static_cast<XE::uint8>( XE::RPCProtocolType::RESULT ) << code.value();
 
 					if( !code )
 					{
@@ -486,7 +443,7 @@ private:
 				}
 			}
 			break;
-			case XE::RPCProtocolFlag::RESULT:
+			case XE::RPCProtocolType::RESULT:
 			{
 				XE::uint64 handle;
 				buf += XE::ReadBigEndian( buf, handle );

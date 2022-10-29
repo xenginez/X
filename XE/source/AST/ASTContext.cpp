@@ -1,15 +1,5 @@
 #include "ASTContext.h"
 
-#include <llvm/IR/Module.h>
-#include <llvm/IR/Verifier.h>
-#include <llvm/IR/Function.h>
-#include <llvm/IR/IRBuilder.h>
-#include <llvm/IR/BasicBlock.h>
-#include <llvm/IR/LLVMContext.h>
-#include <llvm/IR/Instructions.h>
-#include <llvm/Bitcode/BitcodeWriter.h>
-#include <llvm/ExecutionEngine/ExecutionEngine.h>
-
 #include "Core/CoreFramework.h"
 
 #include "ASTInfo.h"
@@ -20,35 +10,6 @@
 IMPLEMENT_META( XE::ASTContext );
 IMPLEMENT_META( XE::ASTExecuteContext );
 IMPLEMENT_META( XE::ASTCompileContext );
-
-namespace
-{
-	class raw_memory_ostream : public llvm::raw_ostream
-	{
-		XE::OMemoryStream & OS;
-
-		void write_impl( const char * Ptr, size_t Size ) override
-		{
-			OS.write( Ptr, Size );
-		}
-
-		uint64_t current_pos() const override
-		{
-			return OS.tellp();
-		}
-
-	public:
-		explicit raw_memory_ostream( XE::OMemoryStream & O ) : OS( O )
-		{
-			SetUnbuffered();
-		}
-
-		void reserveExtraSpace( uint64_t ExtraSize ) override
-		{
-
-		}
-	};
-}
 
 void XE::ASTContext::AddMacro( const XE::String & val )
 {
@@ -245,27 +206,9 @@ void XE::ASTExecuteContext::Exec()
 	}
 }
 
-struct XE::ASTCompileContext::Type
-{
-
-};
-struct XE::ASTCompileContext::Inst
-{
-
-};
-struct XE::ASTCompileContext::Value
-{
-
-};
-struct XE::ASTCompileContext::BasicBlock
-{
-
-};
 struct XE::ASTCompileContext::Private
 {
-	llvm::LLVMContext * _Context;
 	XE::OMemoryStream _Bytecodes;
-	XE::Deque<llvm::BasicBlock *> _BasicBlocks;
 };
 
 XE::ASTCompileContext::ASTCompileContext()
@@ -293,39 +236,6 @@ XE::MetaClassCPtr XE::ASTCompileContext::GetVisitorBaseClass()
 XE::MemoryView XE::ASTCompileContext::Compile( const XE::ASTInfoMethodPtr & method )
 {
 	_p->_Bytecodes.clear();
-	_p->_BasicBlocks.clear();
-
-	llvm::LLVMContext context;
-	_p->_Context = &context;
-
-	// TODO: 
-	llvm::Module module( "_Module", context );
-	llvm::FunctionType * prototype = llvm::FunctionType::get( llvm::IntegerType::get( context, 32 ), llvm::PointerType::get( context, 0 ), false );
-	llvm::Function * func = llvm::Function::Create( prototype, llvm::GlobalValue::ExternalLinkage, "_Function", module );
-	llvm::BasicBlock * entry = llvm::BasicBlock::Create( *_p->_Context, "entry", func, nullptr );
-	llvm::Value * params = func->arg_begin(); params->setName( "params" );
-
-	_p->_BasicBlocks.push_front( entry );
-	{
-		if ( auto service = XE::CoreFramework::GetCurrentFramework()->GetServiceT< XE::ASTService >() )
-		{
-			for ( auto it : method->StatementBody )
-			{
-				service->Visit( this, it );
-			}
-		}
-
-		if ( method->Result == nullptr || method->Result->Name == ::ClassID<void>::Get()->GetFullName() )
-		{
-			llvm::ReturnInst::Create( context, _p->_BasicBlocks.front() );
-		}
-	}
-	_p->_BasicBlocks.pop_front();
-
-	{
-		raw_memory_ostream oss( _p->_Bytecodes );
-		llvm::WriteBitcodeToFile( module, oss );
-	}
 
 	return _p->_Bytecodes.view();
 }
@@ -333,39 +243,6 @@ XE::MemoryView XE::ASTCompileContext::Compile( const XE::ASTInfoMethodPtr & meth
 XE::MemoryView XE::ASTCompileContext::Compile( const XE::ASTInfoFunctionPtr & function )
 {
 	_p->_Bytecodes.clear();
-	_p->_BasicBlocks.clear();
-
-	llvm::LLVMContext context;
-	_p->_Context = &context;
-
-	// TODO: 
-	llvm::Module module( "_Module", context );
-	llvm::FunctionType * prototype = llvm::FunctionType::get( llvm::IntegerType::get( context, 32 ), llvm::PointerType::get( context, 0 ), false );
-	llvm::Function * func = llvm::Function::Create( prototype, llvm::GlobalValue::ExternalLinkage, "_Function", module );
-	llvm::BasicBlock * entry = llvm::BasicBlock::Create( *_p->_Context, "entry", func, nullptr );
-	llvm::Value * params = func->arg_begin(); params->setName( "params" );
-
-	_p->_BasicBlocks.push_front( entry );
-	{
-		if ( auto service = XE::CoreFramework::GetCurrentFramework()->GetServiceT< XE::ASTService >() )
-		{
-			for ( auto it : function->StatementBody )
-			{
-				service->Visit( this, it );
-			}
-		}
-
-		if ( function->Result == nullptr || function->Result->Name == ::ClassID<void>::Get()->GetFullName() )
-		{
-			llvm::ReturnInst::Create( context, _p->_BasicBlocks.front() );
-		}
-	}
-	_p->_BasicBlocks.pop_front();
-
-	{
-		raw_memory_ostream oss( _p->_Bytecodes );
-		llvm::WriteBitcodeToFile( module, oss );
-	}
 
 	return _p->_Bytecodes.view();
 }

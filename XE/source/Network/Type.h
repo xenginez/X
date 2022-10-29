@@ -21,29 +21,11 @@ DECL_HANDLE( Client );
 DECL_HANDLE( Server );
 DECL_HANDLE( Session );
 
-
-enum class ReadType
+enum class RPCProtocolType : XE::uint8
 {
-	NONE,
-	ENDL,
-	REGEX,
-	MATCH,
-	TRANSFER,
-	DATAGRAM,
+	INVOKE = 1 << 0,
+	RESULT = 1 << 1,
 };
-
-enum class ProtocolType
-{
-	NONE = 0,
-	TCP = 1 << 1,
-	UDP = 1 << 2,
-	KCP = 1 << 3,
-	WEB = 1 << 4,
-	HTTP = 1 << 5,
-	SSL = 1 << 6,
-	RPC = 1 << 7,
-};
-DECL_FLAGS( ProtocolType );
 
 enum class HttpMethodType
 {
@@ -428,21 +410,6 @@ enum class HttpHeaderFieldType
 };
 DECL_XE_ENUM( HttpHeaderFieldType );
 
-enum class UDPProtocolFlag : XE::uint8
-{
-	START = 1 << 0,
-	KEEPLIVE = 1 << 1,
-	DATAGRAM = 1 << 2,
-	STOP = 1 << 3,
-};
-
-enum class RPCProtocolFlag : XE::uint8
-{
-	INVOKE = 1 << 0,
-	RESULT = 1 << 1,
-};
-
-
 struct XE_API Endpoint
 {
 	XE::String Addr;
@@ -483,19 +450,18 @@ struct XE_API BufferIterator
 	std::array< char, 64 > _Ptr;
 };
 
-struct XE_API Match
+struct XE_API EndlCondition
 {
-	Match() = default;
+	EndlCondition() = default;
 
-	Match( const XE::Delegate< XE::Pair< BufferIterator, bool >( BufferIterator, BufferIterator ) > & m )
-		:_match( m )
+	EndlCondition( const XE::String & val )
 	{
 
 	}
 
 	template <typename Iterator> std::pair<Iterator, bool> operator()( Iterator begin, Iterator end ) const
 	{
-		if ( _match == nullptr )
+		if ( endl.empty() )
 		{
 			return { begin, true };
 		}
@@ -505,7 +471,44 @@ struct XE_API Match
 		::memcpy( first._Ptr.data(), &begin, sizeof( begin ) );
 		::memcpy( second._Ptr.data(), &end, sizeof( end ) );
 
-		auto pair = _match( first, second );
+		std::regex reg( endl.std_str() );
+		std::match_results<XE::BufferIterator> results;
+		if ( std::regex_search( first, second, results, reg ) )
+		{
+			Iterator it = begin;
+			::memcpy( &it, results.begin()->second._Ptr.data(), sizeof( it ) );
+			return { it, true };
+		}
+
+		return { begin, false };
+	}
+
+	XE::String endl;
+};
+
+struct XE_API MatchCondition
+{
+	MatchCondition() = default;
+
+	MatchCondition( const XE::Delegate< XE::Pair< BufferIterator, bool >( BufferIterator, BufferIterator ) > & m )
+		:match( m )
+	{
+
+	}
+
+	template <typename Iterator> std::pair<Iterator, bool> operator()( Iterator begin, Iterator end ) const
+	{
+		if ( match == nullptr )
+		{
+			return { begin, true };
+		}
+
+		XE::BufferIterator first, second;
+
+		::memcpy( first._Ptr.data(), &begin, sizeof( begin ) );
+		::memcpy( second._Ptr.data(), &end, sizeof( end ) );
+
+		auto pair = match( first, second );
 
 		Iterator it = begin;
 
@@ -514,29 +517,29 @@ struct XE_API Match
 		return { it, pair.second };
 	}
 
-	XE::Delegate< XE::Pair< BufferIterator, bool >( BufferIterator, BufferIterator ) > _match;
+	XE::Delegate< XE::Pair< BufferIterator, bool >( BufferIterator, BufferIterator ) > match;
 };
 
-struct XE_API Regex
+struct XE_API RegexCondition
 {
-	Regex() = default;
+	RegexCondition() = default;
 
-	Regex( const std::regex & r )
-		:_regex( r )
+	RegexCondition( const std::regex & r )
+		:regex( r )
 	{
 
 	}
 
 	template <typename Iterator> std::pair<Iterator, bool> operator()( Iterator begin, Iterator end ) const
 	{
-		if ( _regex.mark_count() == 0 )
+		if ( regex.mark_count() == 0 )
 		{
 			return { begin, true };
 		}
 
 		std::match_results<Iterator> results;
 
-		if ( std::regex_match( begin, end, results, _regex ) )
+		if ( std::regex_match( begin, end, results, regex ) )
 		{
 			return { results.begin()->first, true };
 		}
@@ -544,21 +547,21 @@ struct XE_API Regex
 		return { begin, false };
 	}
 
-	std::regex _regex;
+	std::regex regex;
 };
 
-struct XE_API DataGram
+struct XE_API DataGramCondition
 {
-	using SizeType = XE::uint64;
+	DataGramCondition() = default;
 
 	template <typename Iterator> std::pair<Iterator, bool> operator()( Iterator begin, Iterator end ) const
 	{
-		if ( std::distance( begin, end ) > sizeof( SizeType ) )
+		if ( std::distance( begin, end ) > sizeof( XE::uint64 ) )
 		{
-			SizeType size = 0;
+			XE::uint64 size = 0;
 			XE::ReadBigEndian( &( *begin ), size );
 
-			if ( std::distance( begin + sizeof( SizeType ), end ) >= static_cast<XE::int64>( size ) )
+			if ( std::distance( begin + sizeof( XE::uint64 ), end ) >= static_cast<XE::int64>( size ) )
 			{
 				std::advance( begin, size );
 				return std::make_pair( begin, true );
@@ -569,10 +572,34 @@ struct XE_API DataGram
 	}
 };
 
-struct XE_API Transfer
+struct XE_API TransferCondition
 {
+	TransferCondition() = default;
+
+	TransferCondition( XE::uint64 sz )
+		:size( sz )
+	{
+
+	}
+
+	template <typename Iterator> std::pair<Iterator, bool> operator()( Iterator begin, Iterator end ) const
+	{
+		if ( std::distance( begin, end ) >= static_cast<XE::int64>( size ) )
+		{
+			std::advance( begin, size );
+			return std::make_pair( begin, true );
+		}
+
+		return std::make_pair( begin, false );
+	}
+
 	XE::uint64 size;
 };
+
+XE_INLINE XE::String ToString( std::error_code val )
+{
+	return XE::ToString( val.value() ) + " : " + val.message();
+}
 
 END_XE_NAMESPACE
 

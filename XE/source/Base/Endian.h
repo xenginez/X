@@ -281,7 +281,7 @@ XE_INLINE XE::uint64 ReadBigEndian( const void * buffer, XE::float64 & val )
 	return sizeof( val );
 }
 
-template< typename T > T ReadBigEndian( void * buffer )
+template< typename T > T ReadBigEndian( const void * buffer )
 {
 	static_assert( std::is_fundamental_v< T >, "" );
 

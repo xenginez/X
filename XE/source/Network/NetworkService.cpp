@@ -19,11 +19,9 @@ END_META()
 
 struct XE::NetworkService::Private
 {
-	std::thread _Thread;
-	asio::io_service _IOService;
+	XE::Array<asio::io_service> _IOServices;
 	XE::ClientHandleAllocator _ClientAllocator;
 	XE::ServerHandleAllocator _ServerAllocator;
-	XE::UniquePtr< asio::io_service::work > _Work;
 };
 
 XE::NetworkService::NetworkService()
@@ -39,45 +37,42 @@ XE::NetworkService::~NetworkService()
 
 void XE::NetworkService::Prepare()
 {
-	_p->_Work = XE::MakeUnique< asio::io_service::work >( _p->_IOService );
+	_p->_IOServices.resize( std::thread::hardware_concurrency() );
 }
 
 void XE::NetworkService::Startup()
 {
-	_p->_Thread = std::thread( [this]() { _p->_IOService.run(); } );
+	GetFramework()->GetServiceT< XE::ThreadService >()->ParallelTask( _p->_IOServices.begin(), _p->_IOServices.end(), []( XE::Array<asio::io_service>::iterator it )
+	{
+		it->run();
+	} );
 }
 
 void XE::NetworkService::Update()
 {
-
+	GetFramework()->GetServiceT< XE::ThreadService >()->ParallelTask( _p->_IOServices.begin(), _p->_IOServices.end(), []( XE::Array<asio::io_service>::iterator it )
+	{
+		it->run();
+	} );
 }
 
 void XE::NetworkService::Clearup()
 {
-	_p->_Work = nullptr;
-
-	if( _p->_Thread.joinable() )
+	for ( auto & it : _p->_IOServices )
 	{
-		_p->_Thread.join();
+		it.stop();
 	}
+	_p->_IOServices.clear();
 }
 
-void * XE::NetworkService::GetIOService()
+void XE::NetworkService::RegisterClient( XE::Client * val )
 {
-	return &_p->_IOService;
+	val->_Handle = _p->_ClientAllocator.Alloc();
+	val->_IOService = &_p->_IOServices[val->_Handle.GetValue() % _p->_IOServices.size()];
 }
 
-XE::ClientHandle XE::NetworkService::AllocClientHandle()
+void XE::NetworkService::RegisterServer( XE::Server * val )
 {
-	return _p->_ClientAllocator.Alloc();
-}
-
-XE::ServerHandle XE::NetworkService::AllocServerHandle()
-{
-	return _p->_ServerAllocator.Alloc();
-}
-
-void XE::NetworkService::Dispatch( const XE::Delegate< void() > & callback )
-{
-	_p->_IOService.dispatch( callback );
+	val->_Handle = _p->_ServerAllocator.Alloc();
+	val->_IOService = &_p->_IOServices[val->_Handle.GetValue() % _p->_IOServices.size()];
 }

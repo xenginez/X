@@ -41,13 +41,9 @@ public:
 	void Clearup() override;
 
 private:
-	void * GetIOService();
+	void RegisterClient( XE::Client * val );
 
-	XE::ClientHandle AllocClientHandle();
-
-	XE::ServerHandle AllocServerHandle();
-
-	void Dispatch( const XE::Delegate< void() > & callback );
+	void RegisterServer( XE::Server * val );
 
 private:
 	Private * _p;
