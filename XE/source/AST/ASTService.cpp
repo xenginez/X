@@ -5,6 +5,9 @@
 #include "ASTVisitor.h"
 #include "ASTContext.h"
 
+#include "Core/CoreFramework.h"
+#include "Core/AssetsService.h"
+
 IMPLEMENT_META( XE::ASTService )
 
 struct XE::ASTService::Private
@@ -32,7 +35,10 @@ void XE::ASTService::Prepare()
 
 void XE::ASTService::Startup()
 {
-
+	if ( auto asset = GetFramework()->GetServiceT< XE::AssetsService >() )
+	{
+		//asset->
+	}
 }
 
 void XE::ASTService::Update()
@@ -72,12 +78,12 @@ void XE::ASTService::Visit( XE::ASTContext * context, const XE::ASTNodePtr & nod
 	Visit( context, node.get() );
 }
 
-void XE::ASTService::SetVariable( const XE::String & name, const XE::Variant & val )
+void XE::ASTService::SetGlobalVariable( const XE::String & name, const XE::Variant & val )
 {
 	_p->_Globals[name] = val;
 }
 
-XE::Variant XE::ASTService::GetVariable( const XE::String & name )
+XE::Variant XE::ASTService::GetGlobalVariable( const XE::String & name )
 {
 	auto it = _p->_Globals.find( name );
 
@@ -94,18 +100,13 @@ bool XE::ASTService::HasGlobalMacro( const XE::String & val ) const
 	return _p->_Macros.find( val ) != _p->_Macros.end();
 }
 
-XE::CompileStateType XE::ASTService::GetJITCompileState( const XE::String & name ) const
+XE::ASTInstancePtr XE::ASTService::GetInstance() const
 {
-
-	return XE::CompileStateType::NONE;
+	thread_local XE::ASTInstancePtr Instance = XE::MakeShared< XE::ASTInstance >();
+	return Instance;
 }
 
-XE::Delegate< XE::Variant( XE::InvokeStack * ) > XE::ASTService::JITCompile( const XE::String & name, XE::MemoryView bitcodes )
+bool XE::ASTService::JITInvoke( const XE::String & name, XE::InvokeStack & args, XE::Variant & result ) const
 {
-	return nullptr;
-}
 
-XE::Delegate< XE::Variant( XE::InvokeStack * ) > XE::ASTService::FindJITFunction( const XE::String & name ) const
-{
-	return nullptr;
 }

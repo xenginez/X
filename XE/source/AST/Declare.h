@@ -19,13 +19,13 @@ class ASTCompileContext;
 
 DECL_PTR( ASTService );
 DECL_PTR( ASTVisitor );
+DECL_PTR( ASTInstance );
 
 DECL_PTR( ASTInfoMeta );
 DECL_PTR( ASTInfoType );
 DECL_PTR( ASTInfoEnum );
 DECL_PTR( ASTInfoClass );
 DECL_PTR( ASTInfoModule );
-DECL_PTR( ASTInfoMethod );
 DECL_PTR( ASTInfoProperty );
 DECL_PTR( ASTInfoFunction );
 DECL_PTR( ASTInfoVariable );

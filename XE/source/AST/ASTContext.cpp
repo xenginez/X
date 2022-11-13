@@ -6,6 +6,7 @@
 #include "ASTNode.h"
 #include "ASTVisitor.h"
 #include "ASTService.h"
+#include "ASTInstance.h"
 
 IMPLEMENT_META( XE::ASTContext );
 IMPLEMENT_META( XE::ASTExecuteContext );
@@ -43,189 +44,112 @@ void XE::ASTContext::PopMacroGotoType()
 }
 
 
-XE::ASTExecuteContext * XE::ASTExecuteContext::ThreadInstance()
-{
-	thread_local XE::ASTExecuteContext context;
-	return &context;
-}
-
 XE::MetaClassCPtr XE::ASTExecuteContext::GetVisitorBaseClass()
 {
 	return XE::ASTExecuteVisitor::GetMetaClassStatic();
 }
 
-XE::Variant XE::ASTExecuteContext::Invoke( const XE::ASTInfoMethodPtr & method, XE::InvokeStack * args )
+XE::Variant XE::ASTExecuteContext::Invoke( const XE::ASTInstancePtr & env, const XE::ASTInfoFunctionPtr & func, XE::InvokeStack * args )
 {
-	XE::ASTFrame frame;
-	{
-		frame.FP = 0;
-		frame.SP = _ValStack.size();
-		frame.AST = method;
-	}
+	_Frame.FP = 0;
+	_Frame.SP = env->GetStackPoint();
+	_Frame.AST = func;
+	_Frame.ExecGo = XE::ExecuteGotoType::NONE;
 
-	_FrameStack.push_back( &frame );
 	{
 		while ( !args->Empty() )
 		{
 			Push( args->Pop< XE::Variant >() );
 		}
 
-		for ( const auto & it : method->LocalVariables )
+		for ( const auto & it : func->LocalVariables )
 		{
-			frame.Variables.insert( { it.first, _ValStack.size() } );
-
-			Push( it.second );
+			_Frame.Variables.insert( { it.first, env->PushStack( it.second ) } );
 		}
 
 		Exec();
 	}
-	_FrameStack.pop_back();
 
-	return method->Result->Name.empty() ? XE::Variant() : Pop();
-}
-
-XE::Variant XE::ASTExecuteContext::Invoke( const XE::ASTInfoFunctionPtr & function, XE::InvokeStack * args )
-{
-	XE::ASTFrame frame;
-	{
-		frame.FP = 0;
-		frame.SP = _ValStack.size();
-		frame.AST = function;
-	}
-
-	_FrameStack.push_back( &frame );
-	{
-		while ( !args->Empty() )
-		{
-			Push( args->Pop< XE::Variant >() );
-		}
-
-		for ( const auto & it : function->LocalVariables )
-		{
-			frame.Variables.insert( { it.first, _ValStack.size() } );
-			Push( it.second );
-		}
-
-		Exec();
-	}
-	_FrameStack.pop_back();
-
-	return function->Result->Name.empty() ? XE::Variant() : Pop();
+	return func->Result->Name.empty() ? XE::Variant() : Pop();
 }
 
 void XE::ASTExecuteContext::Push( const XE::Variant & val )
 {
-	_ValStack.push_back( val );
+	_Instance->PushStack( val );
 }
 
 XE::Variant XE::ASTExecuteContext::Pop()
 {
-	XE::Variant val = _ValStack.back();
-	_ValStack.pop_back();
-	return val;
+	return _Instance->PopStack();
 }
 
 XE::Variant & XE::ASTExecuteContext::Top()
 {
-	return _ValStack.back();
+	return _Instance->TopStack();
 }
 
 XE::Variant & XE::ASTExecuteContext::Get( XE::uint64 val )
 {
-	return _ValStack[val];
+	return _Instance->GetStack( val );
 }
 
 XE::uint64 XE::ASTExecuteContext::Index() const
 {
-	return _ValStack.size();
+	return _Instance->GetStackPoint();
 }
 
-void XE::ASTExecuteContext::Reset( XE::uint64 val )
+void XE::ASTExecuteContext::Reset( XE::uint64 i )
 {
-	_ValStack.resize( val );
-}
-
-XE::ASTFrame * XE::ASTExecuteContext::GetFrame() const
-{
-	return _FrameStack.back();
+	_Instance->ResetStack( i );
 }
 
 void XE::ASTExecuteContext::PushLoopNode( const XE::WhileStatNode * node )
 {
-	_FrameStack.back()->Loop.push( node );
+	_Frame.Loop.push( node );
 }
 
 void XE::ASTExecuteContext::PopLoopNode()
 {
-	_FrameStack.back()->Loop.pop();
+	_Frame.Loop.pop();
 }
 
 XE::ExecuteGotoType XE::ASTExecuteContext::GetExecGotoType() const
 {
-	return _FrameStack.back()->ExecGo;
+	return _Frame.ExecGo;
 }
 
 void XE::ASTExecuteContext::SetExecGotoType( XE::ExecuteGotoType type )
 {
-	_FrameStack.back()->ExecGo = type;
+	_Frame.ExecGo = type;
 }
 
 void XE::ASTExecuteContext::Exec()
 {
 	if ( auto service = XE::CoreFramework::GetCurrentFramework()->GetServiceT< XE::ASTService >() )
 	{
-		std::visit( XE::Overloaded
-					{
-						[&]( XE::ASTInfoMethodPtr func )
-						{
-							while ( _FrameStack.back()->FP < func->StatementBody.size() )
-							{
-								service->Visit( this, func->StatementBody[_FrameStack.back()->FP++] );
+		while ( _Frame.FP < _Frame.AST->StatementBody.size() )
+		{
+			service->Visit( this, _Frame.AST->StatementBody[_Frame.FP++] );
 
-								if ( _FrameStack.back()->ExecGo == ExecuteGotoType::RETURN )
-								{
-									_FrameStack.back()->ExecGo = ExecuteGotoType::NONE;
-									return;
-								}
-							}
-						},
-						[&]( XE::ASTInfoFunctionPtr func )
-						{
-							while ( _FrameStack.back()->FP < func->StatementBody.size() )
-							{
-								service->Visit( this, func->StatementBody[_FrameStack.back()->FP++] );
-
-								if ( _FrameStack.back()->ExecGo == ExecuteGotoType::RETURN )
-								{
-									_FrameStack.back()->ExecGo = ExecuteGotoType::NONE;
-									return;
-								}
-							}
-						},
-					}, _FrameStack.back()->AST );
+			if ( _Frame.ExecGo == ExecuteGotoType::RETURN )
+			{
+				_Frame.ExecGo = ExecuteGotoType::NONE;
+				return;
+			}
+		}
 	}
 }
 
-struct XE::ASTCompileContext::Private
-{
-	XE::OMemoryStream _Bytecodes;
-};
 
 XE::ASTCompileContext::ASTCompileContext()
-	:_p( XE::New<Private>() )
+	:_Bytecodes( XE::MemoryResource::GetFrameMemoryResource() )
 {
 
 }
 
 XE::ASTCompileContext::~ASTCompileContext()
 {
-	XE::Delete( _p );
-}
 
-XE::ASTCompileContext * XE::ASTCompileContext::ThreadInstance()
-{
-	thread_local XE::ASTCompileContext context;
-	return &context;
 }
 
 XE::MetaClassCPtr XE::ASTCompileContext::GetVisitorBaseClass()
@@ -233,16 +157,11 @@ XE::MetaClassCPtr XE::ASTCompileContext::GetVisitorBaseClass()
 	return XE::ASTCompileVisitor::GetMetaClassStatic();
 }
 
-XE::MemoryView XE::ASTCompileContext::Compile( const XE::ASTInfoMethodPtr & method )
+XE::MemoryView XE::ASTCompileContext::Compile( const XE::ASTInfoModulePtr & module )
 {
-	_p->_Bytecodes.clear();
+	_Bytecodes.clear();
+	{
 
-	return _p->_Bytecodes.view();
-}
-
-XE::MemoryView XE::ASTCompileContext::Compile( const XE::ASTInfoFunctionPtr & function )
-{
-	_p->_Bytecodes.clear();
-
-	return _p->_Bytecodes.view();
+	}
+	return _Bytecodes.view();
 }

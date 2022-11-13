@@ -25,7 +25,6 @@ public:
 
 private:
 	XE::ASTInfoFunctionPtr _Function;
-	mutable XE::Delegate<XE::Variant( XE::InvokeStack * )> _Callback;
 };
 
 END_XE_NAMESPACE

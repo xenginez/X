@@ -42,10 +42,10 @@ class XE_API ASTInfoClass : public XE::ASTInfoMeta
 
 public:
 	XE::String SuperClass;
-	XE::SharedPtr< XE::ASTInfoMethod > Destruct;
-	XE::SharedPtr< XE::ASTInfoMethod > Construct;
-	XE::Array< XE::SharedPtr< XE::ASTInfoMethod > > Methods;
-	XE::Array< XE::SharedPtr< XE::ASTInfoProperty > > Propertys;
+	XE::ASTInfoFunctionPtr Destruct;
+	XE::ASTInfoFunctionPtr Construct;
+	XE::Array< XE::ASTInfoFunctionPtr > Methods;
+	XE::Array< XE::ASTInfoPropertyPtr > Propertys;
 };
 
 class XE_API ASTInfoModule : public XE::ASTInfoMeta
@@ -53,22 +53,11 @@ class XE_API ASTInfoModule : public XE::ASTInfoMeta
 	OBJECT( ASTInfoModule, XE::ASTInfoMeta )
 
 public:
-	XE::Array< XE::SharedPtr< XE::ASTInfoEnum > > Enums;
-	XE::Array< XE::SharedPtr< XE::ASTInfoClass > > Classes;
-	XE::Array< XE::SharedPtr< XE::ASTInfoModule > > Modules;
-	XE::Array< XE::SharedPtr< XE::ASTInfoFunction > > Functions;
-	XE::Array< XE::SharedPtr< XE::ASTInfoVariable > > Variables;
-};
-
-class XE_API ASTInfoMethod : public XE::ASTInfoMeta
-{
-	OBJECT( ASTInfoMethod, XE::ASTInfoMeta )
-
-public:
-	XE::ASTInfoTypePtr Result;
-	XE::Array< XE::ASTNodePtr > StatementBody;
-	XE::Array< XE::Pair< XE::String, XE::ASTInfoTypePtr > > Parameters;
-	XE::Array< XE::Pair< XE::String, XE::ASTInfoTypePtr > > LocalVariables;
+	XE::Array< XE::ASTInfoEnumPtr > Enums;
+	XE::Array< XE::ASTInfoClassPtr > Classes;
+	XE::Array< XE::ASTInfoModulePtr > Modules;
+	XE::Array< XE::ASTInfoFunctionPtr > Functions;
+	XE::Array< XE::ASTInfoVariablePtr > Variables;
 };
 
 class XE_API ASTInfoProperty : public XE::ASTInfoMeta

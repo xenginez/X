@@ -33,8 +33,6 @@ public:
 
 private:
 	XE::ASTInfoClassPtr _Class;
-	mutable XE::Delegate<XE::Variant( XE::InvokeStack * )> _Constructor;
-	mutable XE::Delegate<XE::Variant( XE::InvokeStack * )> _Destructor;
 };
 
 END_XE_NAMESPACE

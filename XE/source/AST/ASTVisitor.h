@@ -26,6 +26,7 @@ protected:
 	XE::ASTServicePtr GetService() const;
 };
 
+
 class XE_API ASTExecuteVisitor : public ASTVisitor
 {
 	OBJECT( ASTExecuteVisitor, XE::ASTVisitor );

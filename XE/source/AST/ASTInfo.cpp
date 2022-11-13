@@ -30,13 +30,6 @@ type->Property( "Functions", &XE::ASTInfoModule::Functions );
 type->Property( "Variables", &XE::ASTInfoModule::Variables );
 END_META()
 
-BEG_META( XE::ASTInfoMethod )
-type->Property( "Result", &XE::ASTInfoMethod::Result );
-type->Property( "StatementBody", &XE::ASTInfoMethod::StatementBody );
-type->Property( "Parameters", &XE::ASTInfoMethod::Parameters );
-type->Property( "LocalVariables", &XE::ASTInfoMethod::LocalVariables );
-END_META()
-
 BEG_META( XE::ASTInfoProperty )
 type->Property( "Type", &XE::ASTInfoProperty::Type );
 type->Property( "Flag", &XE::ASTInfoProperty::Flag );

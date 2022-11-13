@@ -11,7 +11,7 @@
 
 namespace
 {
-	XE::ParameterType GetMethodParameter( const XE::ASTInfoMethodPtr & val )
+	XE::ParameterType GetMethodParameter( const XE::ASTInfoFunctionPtr & val )
 	{
 		XE::ParameterType result;
 
@@ -24,7 +24,7 @@ namespace
 	}
 }
 
-XE::ASTMetaMethod::ASTMetaMethod( const XE::ASTInfoMethodPtr & val, const XE::MetaClassCPtr Owner, const XE::MetaModuleCPtr & Module )
+XE::ASTMetaMethod::ASTMetaMethod( const XE::ASTInfoFunctionPtr & val, const XE::MetaClassCPtr Owner, const XE::MetaModuleCPtr & Module )
 	: XE::MetaMethod( val->Name,
 					  false,
 					  false,
@@ -44,35 +44,18 @@ XE::ASTMetaMethod::~ASTMetaMethod()
 
 XE::Variant XE::ASTMetaMethod::Invoke( XE::InvokeStack * params ) const
 {
+	if ( auto ast = XE::CoreFramework::GetCurrentFramework()->GetServiceT< XE::ASTService >() )
+	{
 #if HAS_JIT
-	if ( _Callback != nullptr )
-	{
-		return _Callback( params );
-	}
-	else
-	{
-		if ( auto ast = XE::CoreFramework::GetCurrentFramework()->GetServiceT< XE::ASTService >() )
+		XE::Variant result;
+		if ( ast->JITInvoke( GetFullName(), *params, result ) )
 		{
-			switch ( ast->GetJITCompileState( GetFullName() ) )
-			{
-			case XE::CompileStateType::NONE:
-				if ( auto thread = XE::CoreFramework::GetCurrentFramework()->GetServiceT< XE::ThreadService >() )
-				{
-					thread->PostTask( XE::ThreadType::WORKS, [this, ast]()
-					{
-						_Callback = ast->JITCompile( GetFullName(), XE::ASTCompileContext::ThreadInstance()->Compile( _Method ) );
-					} );
-				}
-				break;
-			case XE::CompileStateType::EXIST:
-				_Callback = ast->FindJITFunction( GetFullName() );
-				return _Callback( params );
-			default:
-				break;
-			}
+			return result;
 		}
-	}
 #endif
 
-	return XE::ASTExecuteContext::ThreadInstance()->Invoke( _Method, params );
+		return XE::ASTExecuteContext().Invoke( ast->GetInstance(), _Method, params );
+	}
+
+	return {};
 }

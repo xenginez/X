@@ -41,16 +41,14 @@ public:
 	void Visit( XE::ASTContext * context, const XE::ASTNodePtr & node ) const;
 
 public:
-	XE::CompileStateType GetJITCompileState( const XE::String & name ) const;
+	XE::ASTInstancePtr GetInstance() const;
 
-	XE::Delegate< XE::Variant( XE::InvokeStack * ) > JITCompile( const XE::String & name, XE::MemoryView bitcodes );
-
-	XE::Delegate< XE::Variant( XE::InvokeStack * ) > FindJITFunction( const XE::String & name ) const;
+	bool JITInvoke( const XE::String & name, XE::InvokeStack & args, XE::Variant & result ) const;
 
 public:
-	void SetVariable( const XE::String & name, const XE::Variant & val );
+	void SetGlobalVariable( const XE::String & name, const XE::Variant & val );
 
-	XE::Variant GetVariable( const XE::String & name );
+	XE::Variant GetGlobalVariable( const XE::String & name );
 
 public:
 	void AddGlobalMacro( const XE::String & val );

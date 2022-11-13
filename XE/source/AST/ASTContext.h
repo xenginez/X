@@ -55,15 +55,10 @@ public:
 	~ASTExecuteContext() override = default;
 
 public:
-	static ASTExecuteContext * ThreadInstance();
-
-public:
 	XE::MetaClassCPtr GetVisitorBaseClass() override;
 
 public:
-	XE::Variant Invoke( const XE::ASTInfoMethodPtr & method, XE::InvokeStack * args );
-
-	XE::Variant Invoke( const XE::ASTInfoFunctionPtr & function, XE::InvokeStack * args );
+	XE::Variant Invoke( const XE::ASTInstancePtr & env, const XE::ASTInfoFunctionPtr & func, XE::InvokeStack * args );
 
 public:
 	void Push( const XE::Variant & val );
@@ -74,13 +69,9 @@ public:
 
 	XE::Variant & Get( XE::uint64 val );
 
-public:
 	XE::uint64 Index() const;
 
-	void Reset( XE::uint64 val );
-
-public:
-	XE::ASTFrame * GetFrame() const;
+	void Reset( XE::uint64 i );
 
 public:
 	void PushLoopNode( const XE::WhileStatNode * node );
@@ -96,22 +87,13 @@ private:
 	void Exec();
 
 public:
-	XE::Array< XE::Variant > _ValStack;
-	XE::Array< XE::ASTFrame * > _FrameStack;
+	XE::ASTExeFrame _Frame;
+	XE::ASTInstancePtr _Instance;
 };
 
 class XE_API ASTCompileContext : public ASTContext
 {
 	OBJECT( ASTCompileContext, XE::ASTContext );
-
-private:
-	struct Private;
-
-public:
-	struct Type;
-	struct Inst;
-	struct Value;
-	struct BasicBlock;
 
 public:
 	ASTCompileContext();
@@ -119,18 +101,20 @@ public:
 	~ASTCompileContext() override;
 
 public:
-	static ASTCompileContext * ThreadInstance();
-
-public:
 	XE::MetaClassCPtr GetVisitorBaseClass() override;
 
 public:
-	XE::MemoryView Compile( const XE::ASTInfoMethodPtr & method );
+	XE::MemoryView Compile( const XE::ASTInfoModulePtr & module );
 
-	XE::MemoryView Compile( const XE::ASTInfoFunctionPtr & function );
+public:
+	XE::uint64 PushInstruct( XE::ASTOpcode opcode );
+
+	XE::uint64 PushInstruct( XE::ASTOpcode opcode, XE::uint64 val );
+
+	XE::uint64 PushInstruct( XE::ASTOpcode opcode, const XE::String & val );
 
 private:
-	Private * _p;
+	XE::OMemoryStream _Bytecodes;
 };
 
 END_XE_NAMESPACE

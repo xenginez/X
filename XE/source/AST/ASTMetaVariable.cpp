@@ -21,10 +21,10 @@ XE::ASTMetaVariable::~ASTMetaVariable()
 
 XE::Variant XE::ASTMetaVariable::Getter() const
 {
-	return XE::CoreFramework::GetCurrentFramework()->GetServiceT< XE::ASTService >()->GetVariable( GetFullName() );
+	return XE::CoreFramework::GetCurrentFramework()->GetServiceT< XE::ASTService >()->GetGlobalVariable( GetFullName() );
 }
 
 void XE::ASTMetaVariable::Setter( const XE::Variant & val ) const
 {
-	XE::CoreFramework::GetCurrentFramework()->GetServiceT< XE::ASTService >()->SetVariable( GetFullName(), val );
+	XE::CoreFramework::GetCurrentFramework()->GetServiceT< XE::ASTService >()->SetGlobalVariable( GetFullName(), val );
 }

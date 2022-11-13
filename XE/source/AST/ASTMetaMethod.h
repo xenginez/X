@@ -16,7 +16,7 @@ BEG_XE_NAMESPACE
 class XE_API ASTMetaMethod : public XE::MetaMethod
 {
 public:
-	ASTMetaMethod( const XE::ASTInfoMethodPtr & val, const XE::MetaClassCPtr Owner, const XE::MetaModuleCPtr & Module );
+	ASTMetaMethod( const XE::ASTInfoFunctionPtr & val, const XE::MetaClassCPtr Owner, const XE::MetaModuleCPtr & Module );
 
 	~ASTMetaMethod() override;
 
@@ -24,7 +24,7 @@ public:
 	XE::Variant Invoke( XE::InvokeStack * params ) const override;
 
 private:
-	XE::ASTInfoMethodPtr _Method;
+	XE::ASTInfoFunctionPtr _Method;
 	mutable XE::Delegate<XE::Variant( XE::InvokeStack * )> _Callback;
 };
 
