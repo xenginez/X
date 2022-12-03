@@ -17,7 +17,9 @@ XE::uint64 XE::ASTInstance::GetStackPoint() const
 
 XE::uint64 XE::ASTInstance::PushStack( const XE::Variant & val )
 {
+	auto i = _Stack.size();
 	_Stack.push_back( val );
+	return i;
 }
 
 XE::Variant XE::ASTInstance::PopStack()
@@ -27,7 +29,7 @@ XE::Variant XE::ASTInstance::PopStack()
 	return val;
 }
 
-XE::Variant & XE::ASTInstance::TopStack() const
+XE::Variant & XE::ASTInstance::TopStack()
 {
 	return _Stack.back();
 }

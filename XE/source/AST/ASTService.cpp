@@ -4,6 +4,7 @@
 #include "ASTNode.h"
 #include "ASTVisitor.h"
 #include "ASTContext.h"
+#include "ASTInstance.h"
 
 #include "Core/CoreFramework.h"
 #include "Core/AssetsService.h"
@@ -108,5 +109,5 @@ XE::ASTInstancePtr XE::ASTService::GetInstance() const
 
 bool XE::ASTService::JITInvoke( const XE::String & name, XE::InvokeStack & args, XE::Variant & result ) const
 {
-
+	return false;
 }

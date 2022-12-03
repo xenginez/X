@@ -37,7 +37,8 @@
 /idea
 /build
 /target
-/vscode
+/.xmake
+/.vscode
 /depends
 
 # Files

@@ -28,7 +28,7 @@ public:
 
 	XE::Variant PopStack();
 
-	XE::Variant & TopStack() const;
+	XE::Variant & TopStack();
 
 	XE::Variant & GetStack( XE::uint64 sp );
 

@@ -95,6 +95,9 @@ class XE_API ASTCompileContext : public ASTContext
 {
 	OBJECT( ASTCompileContext, XE::ASTContext );
 
+private:
+	struct Private;
+
 public:
 	ASTCompileContext();
 
@@ -114,7 +117,7 @@ public:
 	XE::uint64 PushInstruct( XE::ASTOpcode opcode, const XE::String & val );
 
 private:
-	XE::OMemoryStream _Bytecodes;
+	Private * _p;
 };
 
 END_XE_NAMESPACE

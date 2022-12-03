@@ -14,12 +14,17 @@
 #include "Client.h"
 #include "Server.h"
 
+namespace
+{
+	using io_service_ptr = std::shared_ptr< asio::io_service >;
+}
+
 BEG_META( XE::NetworkService )
 END_META()
 
 struct XE::NetworkService::Private
 {
-	XE::Array<asio::io_service> _IOServices;
+	XE::Array<io_service_ptr> _IOServices;
 	XE::ClientHandleAllocator _ClientAllocator;
 	XE::ServerHandleAllocator _ServerAllocator;
 };
@@ -37,22 +42,25 @@ XE::NetworkService::~NetworkService()
 
 void XE::NetworkService::Prepare()
 {
-	_p->_IOServices.resize( std::thread::hardware_concurrency() );
+	for ( size_t i = 0; i < std::thread::hardware_concurrency(); i++ )
+	{
+		_p->_IOServices.push_back( std::make_shared< asio::io_service >() );
+	}
 }
 
 void XE::NetworkService::Startup()
 {
-	GetFramework()->GetServiceT< XE::ThreadService >()->ParallelTask( _p->_IOServices.begin(), _p->_IOServices.end(), []( XE::Array<asio::io_service>::iterator it )
+	GetFramework()->GetServiceT< XE::ThreadService >()->ParallelTask( _p->_IOServices.begin(), _p->_IOServices.end(), []( XE::Array<io_service_ptr>::iterator it )
 	{
-		it->run();
+		( *it )->run();
 	} );
 }
 
 void XE::NetworkService::Update()
 {
-	GetFramework()->GetServiceT< XE::ThreadService >()->ParallelTask( _p->_IOServices.begin(), _p->_IOServices.end(), []( XE::Array<asio::io_service>::iterator it )
+	GetFramework()->GetServiceT< XE::ThreadService >()->ParallelTask( _p->_IOServices.begin(), _p->_IOServices.end(), []( XE::Array<io_service_ptr>::iterator it )
 	{
-		it->run();
+		( *it )->run();
 	} );
 }
 
@@ -60,7 +68,7 @@ void XE::NetworkService::Clearup()
 {
 	for ( auto & it : _p->_IOServices )
 	{
-		it.stop();
+		it->stop();
 	}
 	_p->_IOServices.clear();
 }

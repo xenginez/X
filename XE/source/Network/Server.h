@@ -173,13 +173,13 @@ public:
 public:
 	HttpServer()
 	{
-		ProtocolType::BindReceiveCallback( { &HttpServer<Protocol, Version>::OnProtocolReceive, this } );
+		ProtocolType::BindReceiveCallback( { &HttpServer<Protocol>::OnProtocolReceive, this } );
 	}
 
 	~HttpServer() override = default;
 
 public:
-	void BindReceiveCallback( const ReceiveCallbackType & callback ) override
+	void BindReceiveCallback( const Server::ReceiveCallbackType & callback ) override
 	{
 		_HttpReceiveCB = callback;
 	}
@@ -224,7 +224,7 @@ private:
 
 private:
 	XE::Map<XE::String, CallbackType> _Callbacks;
-	ProtocolType::ReceiveCallbackType _HttpReceiveCB = nullptr;
+	Server::ReceiveCallbackType _HttpReceiveCB = nullptr;
 };
 
 template< typename Protocol, typename IArchive, typename OArchive > class RPCServer : public Protocol

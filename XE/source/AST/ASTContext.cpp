@@ -141,15 +141,20 @@ void XE::ASTExecuteContext::Exec()
 }
 
 
+struct XE::ASTCompileContext::Private
+{
+
+};
+
 XE::ASTCompileContext::ASTCompileContext()
-	:_Bytecodes( XE::MemoryResource::GetFrameMemoryResource() )
+	:_p( XE::New< Private >() )
 {
 
 }
 
 XE::ASTCompileContext::~ASTCompileContext()
 {
-
+	delete _p;
 }
 
 XE::MetaClassCPtr XE::ASTCompileContext::GetVisitorBaseClass()
@@ -159,9 +164,5 @@ XE::MetaClassCPtr XE::ASTCompileContext::GetVisitorBaseClass()
 
 XE::MemoryView XE::ASTCompileContext::Compile( const XE::ASTInfoModulePtr & module )
 {
-	_Bytecodes.clear();
-	{
-
-	}
-	return _Bytecodes.view();
+	return {};
 }
