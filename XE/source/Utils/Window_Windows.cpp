@@ -4,7 +4,7 @@
 
 #include "Core/EventService.h"
 #include "Core/CoreFramework.h"
-#include "Inputs/InputService.h"
+#include "Input/InputService.h"
 
 #include <Windows.h>
 

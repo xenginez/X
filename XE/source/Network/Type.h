@@ -455,6 +455,7 @@ struct XE_API EndlCondition
 	EndlCondition() = default;
 
 	EndlCondition( const XE::String & val )
+		:endl( val )
 	{
 
 	}
@@ -466,18 +467,11 @@ struct XE_API EndlCondition
 			return { begin, true };
 		}
 
-		XE::BufferIterator first, second;
-
-		::memcpy( first._Ptr.data(), &begin, sizeof( begin ) );
-		::memcpy( second._Ptr.data(), &end, sizeof( end ) );
-
 		std::regex reg( endl.std_str() );
-		std::match_results<XE::BufferIterator> results;
-		if ( std::regex_search( first, second, results, reg ) )
+		std::match_results<Iterator> results;
+		if ( std::regex_search( begin, end, results, reg ) )
 		{
-			Iterator it = begin;
-			::memcpy( &it, results.begin()->second._Ptr.data(), sizeof( it ) );
-			return { it, true };
+			return { results.begin()->second, true };
 		}
 
 		return { begin, false };

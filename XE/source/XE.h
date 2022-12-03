@@ -12,7 +12,7 @@
 #include "Base/Base.h"
 #include "Core/Core.h"
 #include "GUI/GUI.h"
-#include "Inputs/Inputs.h"
+#include "Input/Inputs.h"
 #include "Math/Math.h"
 #include "Memory/Memory.h"
 #include "Network/Network.h"
