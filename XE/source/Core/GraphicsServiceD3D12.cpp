@@ -969,7 +969,7 @@ namespace
 	template< typename T, XE::uint64 S > class QueueArray
 	{
 	public:
-		using iterator = std::array< T, S >::iterator;
+		using iterator = typename std::array< T, S >::iterator;
 
 	public:
 		XE::SharedPtr< T > Alloc()

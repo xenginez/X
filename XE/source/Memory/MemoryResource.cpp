@@ -13,6 +13,7 @@ void XE::MemoryResource::Free( void * ptr )
 XE::GCMemoryResource * XE::MemoryResource::GetGCMemoryResource()
 {
 	static XE::GCMemoryResource resource;
+
 	return &resource;
 }
 

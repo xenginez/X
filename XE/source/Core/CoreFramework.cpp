@@ -16,36 +16,39 @@
 
 #include "Service.h"
 
-BEG_META( XE::CoreFramework )
-END_META()
-
-void nest_json( rapidjson::Value & parent, std::vector< XE::String >::const_iterator beg, std::vector< XE::String >::const_iterator end, const XE::String & str, rapidjson::MemoryPoolAllocator< > & allocator )
+namespace
 {
-	if( beg != end )
+	void nest_json( rapidjson::Value & parent, std::vector< XE::String >::const_iterator beg, std::vector< XE::String >::const_iterator end, const XE::String & str, rapidjson::MemoryPoolAllocator< > & allocator )
 	{
-		auto it = parent.FindMember( beg->c_str() );
-		if( it == parent.MemberEnd() )
+		if ( beg != end )
+		{
+			auto it = parent.FindMember( beg->c_str() );
+			if ( it == parent.MemberEnd() )
+			{
+				parent.AddMember(
+					rapidjson::Value().SetString( beg->c_str(), allocator ).Move(),
+					rapidjson::Value( rapidjson::kObjectType ).Move(),
+					allocator
+				);
+
+				it = parent.FindMember( beg->c_str() );
+			}
+
+			nest_json( it->value, beg + 1, end, str, allocator );
+		}
+		else
 		{
 			parent.AddMember(
 				rapidjson::Value().SetString( beg->c_str(), allocator ).Move(),
-				rapidjson::Value( rapidjson::kObjectType ).Move(),
+				rapidjson::Value().SetString( str.c_str(), allocator ).Move(),
 				allocator
 			);
-
-			it = parent.FindMember( beg->c_str() );
 		}
-
-		nest_json( it->value, beg + 1, end, str, allocator );
-	}
-	else
-	{
-		parent.AddMember(
-			rapidjson::Value().SetString( beg->c_str(), allocator ).Move(),
-			rapidjson::Value().SetString( str.c_str(), allocator ).Move(),
-			allocator
-		);
 	}
 }
+
+BEG_META( XE::CoreFramework )
+END_META()
 
 struct XE::CoreFramework::Private
 {
@@ -269,6 +272,8 @@ void XE::CoreFramework::Startup()
 
 void XE::CoreFramework::Update()
 {
+	XE::GCMemoryResource::GC();
+
 	_p->_MainWindow->MessageLoop();
 
 	for( auto i : _p->_UpdateServices )

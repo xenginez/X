@@ -8,53 +8,77 @@ namespace
 	static constexpr XE::uint64 MAX_MEMORY_SIZE = GBYTE( 4 );
 	static constexpr XE::int64 INIT_THRESHOLD_SIZE = MBYTE( 400 );
 
-	enum class Status
+	enum class Status : XE::uint8
 	{
 		WHITE = 0,
 		BLACK,
 		GREY,
 	};
 
-	enum class PhaseType
+	enum class PhaseType : XE::uint8
 	{
-		THREAD,
 		NONE,
 		INITIAL,
 		MARKER,
+		MARKER_THREAD,
 		AGAIN,
 		RECYCL,
+		RECYCL_THREAD,
 	};
 
-	XE_INLINE Status GetStatus( XE::GCObject * p )
+	XE_INLINE Status GetStatus( void * ptr )
 	{
-		return Status::BLACK;
+		XE::uint8 * p = reinterpret_cast<XE::uint8 *>( ptr );
+
+		p -= sizeof( XE::uint8 );
+
+		return Status( *p & 0b00000111 );
 	}
 
-	XE_INLINE void SetStatus( XE::GCObject * p, Status s )
+	XE_INLINE void SetStatus( void * ptr, Status status )
 	{
+		XE::uint8 * p = reinterpret_cast<XE::uint8 *>( ptr );
 
+		p -= sizeof( XE::uint8 );
+
+		*p = static_cast<XE::uint8>( status ) | ( *p & 0b11111000 );
 	}
 
 	struct Page
 	{
 		XE::MMapFile MMap;
-		XE::Bitmap BitMap;
+
+		bool IsOwner( void * ptr ) const
+		{
+			return reinterpret_cast<XE::uint8 *>( ptr ) >= MMap.GetAddress() && reinterpret_cast<XE::uint8 *>( ptr ) < ( MMap.GetAddress() + MMap.GetSize() );
+		}
+
+		void * Alloc( XE::uint64 size )
+		{
+
+		}
+
+		void Free( void * ptr )
+		{
+
+		}
+	};
+
+	struct Group
+	{
+		XE::uint64 Size;
+		XE::ConcurrentList< Page * > Pages;
 	};
 }
 
 struct XE::GCMemoryResource::Private
 {
-	Private()
-		: _Phase( PhaseType::NONE )
-	{
-
-	}
-
 	std::shared_mutex _Mutex;
-	std::atomic< PhaseType > _Phase;
+	
 	XE::ConcurrentList< Page * > _Pages;
-	XE::Set< XE::GCRootObject * > _Roots;
 
+	std::atomic< PhaseType > _Phase = PhaseType::NONE;
+	XE::Set< XE::GCRootObject * > _Roots;
 	XE::ConcurrentQueue< XE::GCObject * > _Marks;
 	XE::ConcurrentQueue< XE::GCObject * > _Remarks;
 
@@ -110,7 +134,7 @@ void XE::GCMemoryResource::GC()
 	{
 	case PhaseType::NONE:
 	{
-		if ( _p->_Threshold < 0 )
+		if ( _p->_Threshold <= 0 )
 		{
 			_p->_Phase = PhaseType::INITIAL;
 		}
@@ -131,7 +155,7 @@ void XE::GCMemoryResource::GC()
 	break;
 	case PhaseType::MARKER:
 	{
-		_p->_Phase = PhaseType::THREAD;
+		_p->_Phase = PhaseType::MARKER_THREAD;
 		std::thread( [_p]()
 		{
 			XE::GCObject * ptr = nullptr;
@@ -158,12 +182,12 @@ void XE::GCMemoryResource::GC()
 	break;
 	case PhaseType::RECYCL:
 	{
-		_p->_Phase = PhaseType::THREAD;
+		_p->_Phase = PhaseType::RECYCL_THREAD;
 		std::thread( [_p]()
 		{
 		// TODO: 
 
-			_p->_Threshold = _p->_TotalUsed * 1.5f;
+			_p->_Threshold += static_cast<XE::int64>( _p->_TotalUsed * 1.5 );
 			_p->_Phase = PhaseType::NONE;
 		} ).detach();
 	}
@@ -205,7 +229,7 @@ void XE::GCMemoryResource::Barrier( XE::GCObject * _Ptr )
 {
 	auto _p = Private::_Instance->_p;
 
-	if ( _Ptr != nullptr && _p->_Phase == PhaseType::MARKER && GetStatus( _Ptr ) == Status::WHITE )
+	if ( _Ptr != nullptr && ( _p->_Phase == PhaseType::MARKER || _p->_Phase == PhaseType::MARKER_THREAD ) && GetStatus( _Ptr ) == Status::WHITE )
 	{
 		_p->_Remarks.push( _Ptr );
 		SetStatus( _Ptr, Status::GREY );

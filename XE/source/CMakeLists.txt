@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.13)
 
 project(XE)
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 if (WIN32)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj /MP")
@@ -33,7 +33,7 @@ install(TARGETS XE
         ARCHIVE DESTINATION lib
         )
 
-set(PUBLIC_HEADER_DIRS AST Audio Base Core GUI Input Math Memory Network Physics Reflect Render Scene Utils)
+set(PUBLIC_HEADER_DIRS Audio Base Core GUI Input Math Memory Network Physics Reflect Render Scene Utils WASM)
 foreach(PUBLIC_HEADER_DIR ${PUBLIC_HEADER_DIRS})
 	FILE(GLOB_RECURSE PUBLIC_HEADER_FILES ${PUBLIC_HEADER_DIR}/*.h ${PUBLIC_HEADER_DIR}/*.hpp ${PUBLIC_HEADER_DIR}/*.inc)
 	install(FILES ${PUBLIC_HEADER_FILES} DESTINATION include/XE/${PUBLIC_HEADER_DIR}/)

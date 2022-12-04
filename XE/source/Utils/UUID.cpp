@@ -20,7 +20,7 @@ XE::UUID XE::UUID::Create()
 {
 	XE::UUID result;
 
-	auto count = std::chrono::utc_clock::now().time_since_epoch().count();
+	auto count = std::chrono::system_clock::now().time_since_epoch().count();
 	std::copy( reinterpret_cast< XE::uint8 * >( &count ), reinterpret_cast< XE::uint8 * >( &count ) + sizeof( count ), result._Datas );
 
 	auto random = std::mt19937_64( std::random_device{}( ) )( );

@@ -16,8 +16,8 @@ BEG_XE_NAMESPACE
 template< typename ContainerType > class CXXMetaEnumerator : public XE::MetaEnumerator
 {
 public:
-	using Iterator = ContainerType::iterator;
-	using ValueType = ContainerType::value_type;
+	using Iterator = typename ContainerType::iterator;
+	using ValueType = typename ContainerType::value_type;
 
 public:
 	CXXMetaEnumerator( ContainerType * ptr )
@@ -112,8 +112,8 @@ template< typename ... T > class CXXMetaEnumerator< std::set< T... > > : public 
 {
 public:
 	using ContainerType = std::set< T... >;
-	using Iterator = ContainerType::iterator;
-	using ValueType = ContainerType::value_type;
+	using Iterator = typename ContainerType::iterator;
+	using ValueType = typename ContainerType::value_type;
 
 public:
 	CXXMetaEnumerator( ContainerType * ptr )
@@ -200,8 +200,8 @@ template< typename ... T > class CXXMetaEnumerator< std::map< T... > > : public 
 {
 public:
 	using ContainerType = std::map< T... >;
-	using Iterator = ContainerType::iterator;
-	using ValueType = ContainerType::value_type;
+	using Iterator = typename ContainerType::iterator;
+	using ValueType = typename ContainerType::value_type;
 
 public:
 	CXXMetaEnumerator( ContainerType * ptr )
@@ -288,8 +288,8 @@ template< typename ... T > class CXXMetaEnumerator< std::multiset< T... > > : pu
 {
 public:
 	using ContainerType = std::multiset< T... >;
-	using Iterator = ContainerType::iterator;
-	using ValueType = ContainerType::value_type;
+	using Iterator = typename ContainerType::iterator;
+	using ValueType = typename ContainerType::value_type;
 
 public:
 	CXXMetaEnumerator( ContainerType * ptr )
@@ -376,8 +376,8 @@ template< typename ... T > class CXXMetaEnumerator< std::multimap< T... > > : pu
 {
 public:
 	using ContainerType = std::multimap< T... >;
-	using Iterator = ContainerType::iterator;
-	using ValueType = ContainerType::value_type;
+	using Iterator = typename ContainerType::iterator;
+	using ValueType = typename ContainerType::value_type;
 
 public:
 	CXXMetaEnumerator( ContainerType * ptr )
@@ -464,8 +464,8 @@ template< typename ... T > class CXXMetaEnumerator< std::unordered_set< T... > >
 {
 public:
 	using ContainerType = std::unordered_set< T... >;
-	using Iterator = ContainerType::iterator;
-	using ValueType = ContainerType::value_type;
+	using Iterator = typename ContainerType::iterator;
+	using ValueType = typename ContainerType::value_type;
 
 public:
 	CXXMetaEnumerator( ContainerType * ptr )
@@ -552,8 +552,8 @@ template< typename ... T > class CXXMetaEnumerator< std::unordered_map< T... > >
 {
 public:
 	using ContainerType = std::unordered_map< T... >;
-	using Iterator = ContainerType::iterator;
-	using ValueType = ContainerType::value_type;
+	using Iterator = typename ContainerType::iterator;
+	using ValueType = typename ContainerType::value_type;
 
 public:
 	CXXMetaEnumerator( ContainerType * ptr )
@@ -640,8 +640,8 @@ template< typename ... T > class CXXMetaEnumerator< std::unordered_multiset< T..
 {
 public:
 	using ContainerType = std::unordered_multiset< T... >;
-	using Iterator = ContainerType::iterator;
-	using ValueType = ContainerType::value_type;
+	using Iterator = typename ContainerType::iterator;
+	using ValueType = typename ContainerType::value_type;
 
 public:
 	CXXMetaEnumerator( ContainerType * ptr )
@@ -728,8 +728,8 @@ template< typename ... T > class CXXMetaEnumerator< std::unordered_multimap< T..
 {
 public:
 	using ContainerType = std::unordered_multimap< T... >;
-	using Iterator = ContainerType::iterator;
-	using ValueType = ContainerType::value_type;
+	using Iterator = typename ContainerType::iterator;
+	using ValueType = typename ContainerType::value_type;
 
 public:
 	CXXMetaEnumerator( ContainerType * ptr )

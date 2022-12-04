@@ -10,7 +10,7 @@ END_META()
 
 BEG_XE_NAMESPACE
 
-XE_INLINE constexpr XE::uint64 Hash( const XE::TemplateType & val )
+XE_INLINE XE::uint64 Hash( const XE::TemplateType & val )
 {
 	XE::uint64 value = 0;
 
@@ -484,7 +484,8 @@ void XE::World::RemoveComponent( const XE::EntityHandle & handle, const XE::Meta
 		}
 		old_index = old_it->second.EntityIndexMap[handle];
 
-		auto components = old_it->second.ComponentTypes; std::erase( components, component );
+		auto & components = old_it->second.ComponentTypes;
+		components.erase( std::find( components.begin(), components.end(), component ) );
 		hash = XE::Hash( components );
 
 		new_it = _p->_ArchetypeMap.find( hash );
