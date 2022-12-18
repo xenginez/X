@@ -40,14 +40,14 @@ public:
 	static void GC();
 
 public:
-	static void Mark( XE::GCObject * _Ptr );
+	static void Mark( const XE::GCObject * _Ptr );
 
-	static void Barrier( XE::GCObject * _Ptr );
+	static void Barrier( const XE::GCObject * _Ptr );
 
 private:
-	static void Register( XE::GCRootObject * _Root );
+	static void Register( const XE::GCRootObject * _Root );
 
-	static void Unregister( XE::GCRootObject * _Root );
+	static void Unregister( const XE::GCRootObject * _Root );
 
 private:
 	Private * _p;

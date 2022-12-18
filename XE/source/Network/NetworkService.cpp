@@ -52,7 +52,7 @@ void XE::NetworkService::Startup()
 {
 	GetFramework()->GetServiceT< XE::ThreadService >()->ParallelTask( _p->_IOServices.begin(), _p->_IOServices.end(), []( XE::Array<io_service_ptr>::iterator it )
 	{
-		( *it )->run();
+		( *it )->poll();
 	} );
 }
 
@@ -60,7 +60,7 @@ void XE::NetworkService::Update()
 {
 	GetFramework()->GetServiceT< XE::ThreadService >()->ParallelTask( _p->_IOServices.begin(), _p->_IOServices.end(), []( XE::Array<io_service_ptr>::iterator it )
 	{
-		( *it )->run();
+		( *it )->poll();
 	} );
 }
 

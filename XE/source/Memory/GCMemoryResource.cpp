@@ -5,14 +5,19 @@
 
 namespace
 {
-	static constexpr XE::uint64 MAX_MEMORY_SIZE = GBYTE( 4 );
+	static constexpr XE::uint64 MIN_ALIGN_SIZE = 16;
+	static constexpr XE::uint64 MNI_PAGE_SIZE = MBYTE( 4 );
 	static constexpr XE::int64 INIT_THRESHOLD_SIZE = MBYTE( 400 );
-
-	enum class Status : XE::uint8
+	static constexpr std::array<XE::uint64, 64> GROUP_SIZE_ARRAY =
 	{
-		WHITE = 0,
-		BLACK,
-		GREY,
+		  16,  32,  48,  64,  80,  96, 112, 128,
+		 144, 160, 176, 192, 208, 224, 240, 256,
+		 272, 288, 304, 320, 336, 352, 368, 384,
+		 400, 416, 432, 448, 464, 480, 496, 512,
+		 528, 544, 560, 576, 592, 608, 624, 640,
+		 656, 672, 688, 704, 720, 736, 752, 768,
+		 784, 800, 816, 832, 848, 864, 880, 896,
+		 912, 928, 944, 960, 976, 992, 1008, 1024
 	};
 
 	enum class PhaseType : XE::uint8
@@ -26,61 +31,87 @@ namespace
 		RECYCL_THREAD,
 	};
 
-	XE_INLINE Status GetStatus( void * ptr )
+	struct MemoryPage
 	{
-		XE::uint8 * p = reinterpret_cast<XE::uint8 *>( ptr );
-
-		p -= sizeof( XE::uint8 );
-
-		return Status( *p & 0b00000111 );
-	}
-
-	XE_INLINE void SetStatus( void * ptr, Status status )
-	{
-		XE::uint8 * p = reinterpret_cast<XE::uint8 *>( ptr );
-
-		p -= sizeof( XE::uint8 );
-
-		*p = static_cast<XE::uint8>( status ) | ( *p & 0b11111000 );
-	}
-
-	struct Page
-	{
-		XE::MMapFile MMap;
-
-		bool IsOwner( void * ptr ) const
+	public:
+		MemoryPage( XE::uint64 size, XE::uint64 align )
+			: _MMap( ALIGNED( std::max( size, MNI_PAGE_SIZE ), align ) ), _Align( align )
 		{
-			return reinterpret_cast<XE::uint8 *>( ptr ) >= MMap.GetAddress() && reinterpret_cast<XE::uint8 *>( ptr ) < ( MMap.GetAddress() + MMap.GetSize() );
+			_Bits.Reset( size / align );
 		}
 
-		void * Alloc( XE::uint64 size )
+	public:
+		XE::uint64 Size() const
 		{
-
+			return _MMap.GetSize();
 		}
 
-		void Free( void * ptr )
+		XE::uint64 Align() const
 		{
-
+			return _Align;
 		}
+
+		XE::uint8 * Begin() const
+		{
+			return _MMap.GetAddress();
+		}
+
+		XE::uint8 * End() const
+		{
+			return _MMap.GetAddress() + _MMap.GetSize();
+		}
+
+		bool IsOwner( XE::uint8 * ptr ) const
+		{
+			return ptr >= Begin() && ptr < End();
+		}
+
+		XE::uint8 * Alloc( XE::uint64 size )
+		{
+			std::unique_lock< std::mutex > lock( _Mutex );
+
+			size = ALIGNED( size, _Align );
+
+			XE::uint64 i = _Bits.FindSeriesFalse( size / _Align );
+			if (i != XE::Bitmap::npos )
+			{
+				_Bits.Set( i, size / _Align, true );
+
+				return Begin() + ( i * _Align );
+			}
+
+			return nullptr;
+		}
+
+		void Free( XE::uint8 * ptr, XE::uint64 size )
+		{
+			std::unique_lock< std::mutex > lock( _Mutex );
+
+			size = ALIGNED( size, _Align );
+
+			_Bits.Set( ( ptr - Begin() ) / _Align, size / _Align, false );
+		}
+
+	private:
+		XE::Bitmap _Bits;
+		XE::uint64 _Align;
+		std::mutex _Mutex;
+		XE::MMapFile _MMap;
 	};
-
-	struct Group
-	{
-		XE::uint64 Size;
-		XE::ConcurrentList< Page * > Pages;
-	};
+	using MemoryPagePtr = std::unique_ptr< MemoryPage >;
 }
 
 struct XE::GCMemoryResource::Private
 {
-	std::shared_mutex _Mutex;
-	
-	XE::ConcurrentList< Page * > _Pages;
+	std::mutex _Mutex;
+	XE::ConcurrentList< MemoryPagePtr > _FreeLists;
+	XE::ConcurrentList< MemoryPagePtr > _BigMemLists;
+	std::array< XE::ConcurrentList< MemoryPagePtr >, 32 > _GroupLists;
 
 	std::atomic< PhaseType > _Phase = PhaseType::NONE;
-	XE::Set< XE::GCRootObject * > _Roots;
-	XE::ConcurrentQueue< XE::GCObject * > _Marks;
-	XE::ConcurrentQueue< XE::GCObject * > _Remarks;
+	XE::Set< const XE::GCRootObject * > _Roots;
+	XE::ConcurrentQueue< const XE::GCObject * > _Marks;
+	XE::ConcurrentQueue< const XE::GCObject * > _Remarks;
 
 	XE::int64 _Threshold = INIT_THRESHOLD_SIZE;
 	XE::uint64 _TotalUsed = 0;
@@ -103,11 +134,54 @@ XE::GCMemoryResource::~GCMemoryResource() noexcept
 
 void * XE::GCMemoryResource::do_allocate( size_t _Bytes, size_t _Align )
 {
+	_Align = std::max( _Align, MIN_ALIGN_SIZE );
+	_Bytes = ALIGNED( _Bytes, _Align );
+
 	void * p = nullptr;
+	XE::ConcurrentList< MemoryPagePtr > * cur_list = nullptr;
 
-	std::shared_lock< std::shared_mutex > lock( _p->_Mutex );
+	auto it = std::upper_bound( GROUP_SIZE_ARRAY.begin(), GROUP_SIZE_ARRAY.end(), _Bytes );
+	if ( it != GROUP_SIZE_ARRAY.end() )
 	{
+		_Align = *it;
+		cur_list = &_p->_GroupLists[std::distance( GROUP_SIZE_ARRAY.begin(), it )];
+	}
+	else
+	{
+		cur_list = &_p->_BigMemLists;
+	}
 
+	for ( auto & it : *cur_list )
+	{
+		p = it->Alloc( _Bytes );
+		if ( p != nullptr )
+		{
+			break;
+		}
+	}
+
+	if ( p == nullptr )
+	{
+		MemoryPagePtr page;
+
+		for ( auto it = _p->_FreeLists.begin(); it != _p->_FreeLists.end(); ++it )
+		{
+			if ( ( *it )->Size() > _Bytes )
+			{
+				page = std::move( *it );
+				_p->_FreeLists.erase( it );
+				break;
+			}
+		}
+
+		if ( page == nullptr )
+		{
+			page = std::make_unique< MemoryPage >( _Bytes, _Align );
+		}
+
+		p = page->Alloc( _Bytes );
+
+		cur_list->emplace_back( std::move( page ) );
 	}
 
 	_p->_Threshold -= _Bytes;
@@ -142,12 +216,12 @@ void XE::GCMemoryResource::GC()
 	break;
 	case PhaseType::INITIAL:
 	{
-		std::unique_lock< std::shared_mutex > lock( _p->_Mutex );
+		std::unique_lock< std::mutex > lock( _p->_Mutex );
 
 		for ( const auto & it : _p->_Roots )
 		{
 			it->Mark();
-			SetStatus( it, Status::BLACK );
+			const_cast< XE::GCRootObject *>( it )->_Status = XE::GCStatus::BLACK;
 		}
 
 		_p->_Phase = PhaseType::MARKER;
@@ -158,7 +232,7 @@ void XE::GCMemoryResource::GC()
 		_p->_Phase = PhaseType::MARKER_THREAD;
 		std::thread( [_p]()
 		{
-			XE::GCObject * ptr = nullptr;
+			const XE::GCObject * ptr = nullptr;
 			while ( _p->_Marks.try_pop( ptr ) )
 			{
 				Mark( ptr );
@@ -169,9 +243,9 @@ void XE::GCMemoryResource::GC()
 	break;
 	case PhaseType::AGAIN:
 	{
-		std::unique_lock< std::shared_mutex > lock( _p->_Mutex );
+		std::unique_lock< std::mutex > lock( _p->_Mutex );
 
-		XE::GCObject * ptr = nullptr;
+		const XE::GCObject * ptr = nullptr;
 		while ( _p->_Remarks.try_pop( ptr ) )
 		{
 			Mark( ptr );
@@ -185,7 +259,7 @@ void XE::GCMemoryResource::GC()
 		_p->_Phase = PhaseType::RECYCL_THREAD;
 		std::thread( [_p]()
 		{
-		// TODO: 
+			// TODO: 
 
 			_p->_Threshold += static_cast<XE::int64>( _p->_TotalUsed * 1.5 );
 			_p->_Phase = PhaseType::NONE;
@@ -197,59 +271,59 @@ void XE::GCMemoryResource::GC()
 	}
 }
 
-void XE::GCMemoryResource::Mark( XE::GCObject * _Ptr )
+void XE::GCMemoryResource::Mark( const XE::GCObject * _Ptr )
 {
 	auto _p = Private::_Instance->_p;
 
 	if ( _Ptr != nullptr )
 	{
-		switch ( GetStatus( _Ptr ) )
+		switch ( _Ptr->_Status )
 		{
-		case Status::WHITE:
+		case XE::GCStatus::WHITE:
 		{
-			std::shared_lock< std::shared_mutex > lock( _p->_Mutex );
-			SetStatus( _Ptr, Status::GREY );
+			const_cast< XE::GCObject * >( _Ptr )->_Status = XE::GCStatus::GREY;
 			_p->_Marks.push( _Ptr );
 		}
 		break;
-		case Status::GREY:
+		case XE::GCStatus::GREY:
 		{
-			std::shared_lock< std::shared_mutex > lock( _p->_Mutex );
 			_Ptr->Mark();
-			SetStatus( _Ptr, Status::BLACK );
+			const_cast<XE::GCObject *>( _Ptr )->_Status = XE::GCStatus::BLACK;
 		}
 		break;
-		case Status::BLACK:
+		case XE::GCStatus::BLACK:
 			break;
 		}
 	}
 }
 
-void XE::GCMemoryResource::Barrier( XE::GCObject * _Ptr )
+void XE::GCMemoryResource::Barrier( const XE::GCObject * _Ptr )
 {
 	auto _p = Private::_Instance->_p;
 
-	if ( _Ptr != nullptr && ( _p->_Phase == PhaseType::MARKER || _p->_Phase == PhaseType::MARKER_THREAD ) && GetStatus( _Ptr ) == Status::WHITE )
+	std::unique_lock< std::mutex > lock( _p->_Mutex );
+
+	if ( _Ptr != nullptr && ( _p->_Phase == PhaseType::MARKER || _p->_Phase == PhaseType::MARKER_THREAD ) && _Ptr->_Status == XE::GCStatus::WHITE )
 	{
 		_p->_Remarks.push( _Ptr );
-		SetStatus( _Ptr, Status::GREY );
+		const_cast<XE::GCObject *>( _Ptr )->_Status = XE::GCStatus::GREY;
 	}
 }
 
-void XE::GCMemoryResource::Register( GCRootObject * root )
+void XE::GCMemoryResource::Register( const GCRootObject * root )
 {
 	auto _p = Private::_Instance->_p;
 
-	std::shared_lock< std::shared_mutex > lock( _p->_Mutex );
+	std::unique_lock< std::mutex > lock( _p->_Mutex );
 
 	_p->_Roots.insert( root );
 }
 
-void XE::GCMemoryResource::Unregister( GCRootObject * root )
+void XE::GCMemoryResource::Unregister( const GCRootObject * root )
 {
 	auto _p = Private::_Instance->_p;
 
-	std::shared_lock< std::shared_mutex > lock( _p->_Mutex );
+	std::unique_lock< std::mutex > lock( _p->_Mutex );
 
 	_p->_Roots.erase( root );
 }

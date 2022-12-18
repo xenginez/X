@@ -81,13 +81,17 @@ public:
 	bool Test( XE::uint64 index ) const;
 
 public:
+	Bitmap & Set( bool val );
+
+	Bitmap & Set( XE::uint64 index, bool val );
+
+	Bitmap & Set( XE::uint64 index, XE::uint64 count, bool val );
+
 	Bitmap & Flip();
 
 	Bitmap & Flip( XE::uint64 index );
 
-	Bitmap & Set( bool val );
-
-	Bitmap & Set( XE::uint64 index, bool val );
+	Bitmap & Flip( XE::uint64 index, XE::uint64 count );
 
 public:
 	Bitmap & Reset( XE::uint64 count, bool val = false );
@@ -95,11 +99,19 @@ public:
 public:
 	XE::uint64 TrueCount() const;
 
+	XE::uint64 FalseCount() const;
+
 	XE::uint64 FindFirstTrue() const;
 
 	XE::uint64 FindFirstFalse() const;
 
 	XE::uint64 FindLastTrue() const;
+
+	XE::uint64 FindLastFalse() const;
+
+	XE::uint64 FindSeriesTrue( XE::uint64 count ) const;
+
+	XE::uint64 FindSeriesFalse( XE::uint64 count ) const;
 
 private:
 	XE::uint64 _Count = 0;

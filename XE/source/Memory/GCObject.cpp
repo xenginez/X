@@ -1,8 +1,7 @@
 #include "GCObject.h"
 
-#include "GCMemoryResource.h"
-
 XE::GCObject::GCObject()
+	:_Status( XE::GCStatus::WHITE )
 {
 
 }
@@ -12,9 +11,9 @@ XE::GCObject::~GCObject()
 
 }
 
-void XE::GCObject::Mark()
+void XE::GCObject::Mark() const
 {
-
+	XE::GCMemoryResource::Mark( this );
 }
 
 XE::GCRootObject::GCRootObject()

@@ -21,6 +21,9 @@ class GCMemoryResource;
 class FrameMemoryResource;
 class ObjectMemoryResource;
 class DefaultMemoryResource;
+
+template< typename _Ty > struct GCMarker;
+
 template< typename _Ty > class GCPtr;
 template< typename _Ty > class GCWeakPtr;
 template< typename _Ty > class EnableGCFromThis;
