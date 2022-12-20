@@ -42,6 +42,8 @@ public:
 protected:
 	virtual void Mark() const;
 
+	virtual XE::uint64 Size() const;
+
 private:
 	GCStatus _Status;
 };

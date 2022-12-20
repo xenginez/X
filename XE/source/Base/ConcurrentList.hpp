@@ -525,6 +525,8 @@ private:
 		while ( !_NPtr->_Next.compare_exchange_weak( next, node ) );
 		node->_Next = next;
 
+		++_Size;
+
 		return node;
 	}
 
@@ -574,7 +576,7 @@ private:
 	_Alnode _Al;
 	_Nodeptr _Head = nullptr;
 	_Nodeptr _Tail = nullptr;
-	XE::uint64 _Size = 0;
+	std::atomic< XE::uint64 > _Size = 0;
 };
 
 END_XE_NAMESPACE
