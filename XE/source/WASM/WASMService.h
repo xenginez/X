@@ -23,6 +23,9 @@ private:
 	struct Private;
 
 public:
+	static constexpr XE::uint64 npos = std::numeric_limits< XE::uint64 >::max();
+
+public:
 	WASMService();
 
 	~WASMService() override;
@@ -37,6 +40,22 @@ public:
 	void Clearup() override;
 
 public:
+	XE::uint64 FindGlobal( const XE::String & val );
+
+	XE::uint64 FindFunction( const XE::String & val );
+
+public:
+	XE::Variant GetGlobal( XE::uint64 idx );
+
+	void SetGlobal( XE::uint64 idx, const XE::Variant & val );
+
+	XE::Variant InvokeFunction( XE::uint64 idx, XE::InvokeStack * params );
+
+public:
+	XE::WASMContext * GetContext() const;
+
+private:
+	void Instantiate();
 
 private:
 	Private * _p;

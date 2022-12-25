@@ -125,7 +125,7 @@ void XE::WASMModule::Load( XE::MemoryView view )
 
 void XE::WASMModule::LoadCustomSecions( XE::MemoryView view )
 {
-
+	read_str( view.data(), _Custom );
 }
 
 void XE::WASMModule::LoadTypeSecions( XE::MemoryView view )

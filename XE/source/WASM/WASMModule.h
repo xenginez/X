@@ -15,6 +15,8 @@ BEG_XE_NAMESPACE
 
 class XE_API WASMModule : public XE::EnableSharedFromThis< WASMModule >
 {
+	friend class WASMService;
+
 public:
 	WASMModule();
 
@@ -50,6 +52,7 @@ private:
 
 private:
 	XE::uint32 _Start = 0;
+	XE::String _Custom;
 	XE::Array< XE::TypeSection > _Types;
 	XE::Array< XE::ImportSection > _Imports;
 	XE::Array< XE::FuncSection > _Funcs;

@@ -15,34 +15,34 @@ BEG_XE_NAMESPACE
 
 DECL_PTR( WASI );
 DECL_PTR( WASMModule );
+DECL_PTR( WASMService );
 DECL_PTR( WASMInterpreter );
-
 
 enum class WASMOpcode : XE::uint8
 {
-	/* control instructions */
-	OP_UNREACHABLE = 0x00, /* unreachable */
-	OP_NOP = 0x01,         /* nop */
-	OP_BLOCK = 0x02,       /* block */
-	OP_LOOP = 0x03,        /* loop */
-	OP_IF = 0x04,          /* if */
-	OP_ELSE = 0x05,        /* else */
+	/* CONTROL INSTRUCTIONS */
+	OP_UNREACHABLE = 0x00, /* UNREACHABLE */
+	OP_NOP = 0x01,         /* NOP */
+	OP_BLOCK = 0x02,       /* BLOCK */
+	OP_LOOP = 0x03,        /* LOOP */
+	OP_IF = 0x04,          /* IF */
+	OP_ELSE = 0x05,        /* ELSE */
 
 	OP_UNUSED_0x06 = 0x06,
 	OP_UNUSED_0x07 = 0x07,
 	OP_UNUSED_0x08 = 0x08,
 	OP_UNUSED_0x09 = 0x09,
-	OP_UNUSED_0x0a = 0x0a,
+	OP_UNUSED_0x0A = 0x0A,
 
-	OP_END = 0x0b,                  /* end */
-	OP_BR = 0x0c,                   /* br */
-	OP_BR_IF = 0x0d,                /* br if */
-	OP_BR_TABLE = 0x0e,             /* br table */
-	OP_RETURN = 0x0f,               /* return */
-	OP_CALL = 0x10,                 /* call */
-	OP_CALL_INDIRECT = 0x11,        /* call_indirect */
-	OP_RETURN_CALL = 0x12,          /* return_call */
-	OP_RETURN_CALL_INDIRECT = 0x13, /* return_call_indirect */
+	OP_END = 0x0B,                  /* END */
+	OP_BR = 0x0C,                   /* BR */
+	OP_BR_IF = 0x0D,                /* BR IF */
+	OP_BR_TABLE = 0x0E,             /* BR TABLE */
+	OP_RETURN = 0x0F,               /* RETURN */
+	OP_CALL = 0x10,                 /* CALL */
+	OP_CALL_INDIRECT = 0x11,        /* CALL_INDIRECT */
+	OP_RETURN_CALL = 0x12,          /* RETURN_CALL */
+	OP_RETURN_CALL_INDIRECT = 0x13, /* RETURN_CALL_INDIRECT */
 
 	OP_UNUSED_0x14 = 0x14,
 	OP_UNUSED_0x15 = 0x15,
@@ -51,236 +51,478 @@ enum class WASMOpcode : XE::uint8
 	OP_UNUSED_0x18 = 0x18,
 	OP_UNUSED_0x19 = 0x19,
 
-	/* parametric instructions */
-	OP_DROP = 0x1a,     /* drop */
-	OP_SELECT = 0x1b,   /* select */
-	OP_SELECT_T = 0x1c, /* select t */
+	/* PARAMETRIC INSTRUCTIONS */
+	OP_DROP = 0x1A,     /* DROP */
+	OP_SELECT = 0x1B,   /* SELECT */
+	OP_SELECT_T = 0x1C, /* SELECT T */
 
-	OP_GET_GLOBAL_64 = 0x1d,
-	OP_SET_GLOBAL_64 = 0x1e,
-	OP_SET_GLOBAL_AUX_STACK = 0x1f,
+	OP_GET_GLOBAL_64 = 0x1D,
+	OP_SET_GLOBAL_64 = 0x1E,
+	OP_SET_GLOBAL_AUX_STACK = 0x1F,
 
-	/* variable instructions */
-	OP_GET_LOCAL = 0x20,  /* get_local */
-	OP_SET_LOCAL = 0x21,  /* set_local */
-	OP_TEE_LOCAL = 0x22,  /* tee_local */
-	OP_GET_GLOBAL = 0x23, /* get_global */
-	OP_SET_GLOBAL = 0x24, /* set_global */
+	/* VARIABLE INSTRUCTIONS */
+	OP_GET_LOCAL = 0x20,  /* GET_LOCAL */
+	OP_SET_LOCAL = 0x21,  /* SET_LOCAL */
+	OP_TEE_LOCAL = 0x22,  /* TEE_LOCAL */
+	OP_GET_GLOBAL = 0x23, /* GET_GLOBAL */
+	OP_SET_GLOBAL = 0x24, /* SET_GLOBAL */
 
-	OP_TABLE_GET = 0x25, /* table.get */
-	OP_TABLE_SET = 0x26, /* table.set */
+	OP_TABLE_GET = 0x25, /* TABLE.GET */
+	OP_TABLE_SET = 0x26, /* TABLE.SET */
 	OP_UNUSED_0x27 = 0x27,
 
-	/* memory instructions */
-	OP_I32_LOAD = 0x28,     /* i32.load */
-	OP_I64_LOAD = 0x29,     /* i64.load */
-	OP_F32_LOAD = 0x2a,     /* f32.load */
-	OP_F64_LOAD = 0x2b,     /* f64.load */
-	OP_I32_LOAD8_S = 0x2c,  /* i32.load8_s */
-	OP_I32_LOAD8_U = 0x2d,  /* i32.load8_u */
-	OP_I32_LOAD16_S = 0x2e, /* i32.load16_s */
-	OP_I32_LOAD16_U = 0x2f, /* i32.load16_u */
-	OP_I64_LOAD8_S = 0x30,  /* i64.load8_s */
-	OP_I64_LOAD8_U = 0x31,  /* i64.load8_u */
-	OP_I64_LOAD16_S = 0x32, /* i64.load16_s */
-	OP_I64_LOAD16_U = 0x33, /* i64.load16_u */
-	OP_I64_LOAD32_S = 0x34, /* i32.load32_s */
-	OP_I64_LOAD32_U = 0x35, /* i32.load32_u */
-	OP_I32_STORE = 0x36,    /* i32.store */
-	OP_I64_STORE = 0x37,    /* i64.store */
-	OP_F32_STORE = 0x38,    /* f32.store */
-	OP_F64_STORE = 0x39,    /* f64.store */
-	OP_I32_STORE8 = 0x3a,   /* i32.store8 */
-	OP_I32_STORE16 = 0x3b,  /* i32.store16 */
-	OP_I64_STORE8 = 0x3c,   /* i64.store8 */
-	OP_I64_STORE16 = 0x3d,  /* i64.sotre16 */
-	OP_I64_STORE32 = 0x3e,  /* i64.store32 */
-	OP_MEMORY_SIZE = 0x3f,  /* memory.size */
-	OP_MEMORY_GROW = 0x40,  /* memory.grow */
+	/* MEMORY INSTRUCTIONS */
+	OP_I32_LOAD = 0x28,     /* I32.LOAD */
+	OP_I64_LOAD = 0x29,     /* I64.LOAD */
+	OP_F32_LOAD = 0x2A,     /* F32.LOAD */
+	OP_F64_LOAD = 0x2B,     /* F64.LOAD */
+	OP_I32_LOAD8_S = 0x2C,  /* I32.LOAD8_S */
+	OP_I32_LOAD8_U = 0x2D,  /* I32.LOAD8_U */
+	OP_I32_LOAD16_S = 0x2E, /* I32.LOAD16_S */
+	OP_I32_LOAD16_U = 0x2F, /* I32.LOAD16_U */
+	OP_I64_LOAD8_S = 0x30,  /* I64.LOAD8_S */
+	OP_I64_LOAD8_U = 0x31,  /* I64.LOAD8_U */
+	OP_I64_LOAD16_S = 0x32, /* I64.LOAD16_S */
+	OP_I64_LOAD16_U = 0x33, /* I64.LOAD16_U */
+	OP_I64_LOAD32_S = 0x34, /* I32.LOAD32_S */
+	OP_I64_LOAD32_U = 0x35, /* I32.LOAD32_U */
+	OP_I32_STORE = 0x36,    /* I32.STORE */
+	OP_I64_STORE = 0x37,    /* I64.STORE */
+	OP_F32_STORE = 0x38,    /* F32.STORE */
+	OP_F64_STORE = 0x39,    /* F64.STORE */
+	OP_I32_STORE8 = 0x3A,   /* I32.STORE8 */
+	OP_I32_STORE16 = 0x3B,  /* I32.STORE16 */
+	OP_I64_STORE8 = 0x3C,   /* I64.STORE8 */
+	OP_I64_STORE16 = 0x3D,  /* I64.SOTRE16 */
+	OP_I64_STORE32 = 0x3E,  /* I64.STORE32 */
+	OP_MEMORY_SIZE = 0x3F,  /* MEMORY.SIZE */
+	OP_MEMORY_GROW = 0x40,  /* MEMORY.GROW */
 
-	/* constant instructions */
-	OP_I32_CONST = 0x41, /* i32.const */
-	OP_I64_CONST = 0x42, /* i64.const */
-	OP_F32_CONST = 0x43, /* f32.const */
-	OP_F64_CONST = 0x44, /* f64.const */
+	/* CONSTANT INSTRUCTIONS */
+	OP_I32_CONST = 0x41, /* I32.CONST */
+	OP_I64_CONST = 0x42, /* I64.CONST */
+	OP_F32_CONST = 0x43, /* F32.CONST */
+	OP_F64_CONST = 0x44, /* F64.CONST */
 
-	/* comparison instructions */
-	OP_I32_EQZ = 0x45,  /* i32.eqz */
-	OP_I32_EQ = 0x46,   /* i32.eq */
-	OP_I32_NE = 0x47,   /* i32.ne */
-	OP_I32_LT_S = 0x48, /* i32.lt_s */
-	OP_I32_LT_U = 0x49, /* i32.lt_u */
-	OP_I32_GT_S = 0x4a, /* i32.gt_s */
-	OP_I32_GT_U = 0x4b, /* i32.gt_u */
-	OP_I32_LE_S = 0x4c, /* i32.le_s */
-	OP_I32_LE_U = 0x4d, /* i32.le_u */
-	OP_I32_GE_S = 0x4e, /* i32.ge_s */
-	OP_I32_GE_U = 0x4f, /* i32.ge_u */
+	/* COMPARISON INSTRUCTIONS */
+	OP_I32_EQZ = 0x45,  /* I32.EQZ */
+	OP_I32_EQ = 0x46,   /* I32.EQ */
+	OP_I32_NE = 0x47,   /* I32.NE */
+	OP_I32_LT_S = 0x48, /* I32.LT_S */
+	OP_I32_LT_U = 0x49, /* I32.LT_U */
+	OP_I32_GT_S = 0x4A, /* I32.GT_S */
+	OP_I32_GT_U = 0x4B, /* I32.GT_U */
+	OP_I32_LE_S = 0x4C, /* I32.LE_S */
+	OP_I32_LE_U = 0x4D, /* I32.LE_U */
+	OP_I32_GE_S = 0x4E, /* I32.GE_S */
+	OP_I32_GE_U = 0x4F, /* I32.GE_U */
 
-	OP_I64_EQZ = 0x50,  /* i64.eqz */
-	OP_I64_EQ = 0x51,   /* i64.eq */
-	OP_I64_NE = 0x52,   /* i64.ne */
-	OP_I64_LT_S = 0x53, /* i64.lt_s */
-	OP_I64_LT_U = 0x54, /* i64.lt_u */
-	OP_I64_GT_S = 0x55, /* i64.gt_s */
-	OP_I64_GT_U = 0x56, /* i64.gt_u */
-	OP_I64_LE_S = 0x57, /* i64.le_s */
-	OP_I64_LE_U = 0x58, /* i64.le_u */
-	OP_I64_GE_S = 0x59, /* i64.ge_s */
-	OP_I64_GE_U = 0x5a, /* i64.ge_u */
+	OP_I64_EQZ = 0x50,  /* I64.EQZ */
+	OP_I64_EQ = 0x51,   /* I64.EQ */
+	OP_I64_NE = 0x52,   /* I64.NE */
+	OP_I64_LT_S = 0x53, /* I64.LT_S */
+	OP_I64_LT_U = 0x54, /* I64.LT_U */
+	OP_I64_GT_S = 0x55, /* I64.GT_S */
+	OP_I64_GT_U = 0x56, /* I64.GT_U */
+	OP_I64_LE_S = 0x57, /* I64.LE_S */
+	OP_I64_LE_U = 0x58, /* I64.LE_U */
+	OP_I64_GE_S = 0x59, /* I64.GE_S */
+	OP_I64_GE_U = 0x5A, /* I64.GE_U */
 
-	OP_F32_EQ = 0x5b, /* f32.eq */
-	OP_F32_NE = 0x5c, /* f32.ne */
-	OP_F32_LT = 0x5d, /* f32.lt */
-	OP_F32_GT = 0x5e, /* f32.gt */
-	OP_F32_LE = 0x5f, /* f32.le */
-	OP_F32_GE = 0x60, /* f32.ge */
+	OP_F32_EQ = 0x5B, /* F32.EQ */
+	OP_F32_NE = 0x5C, /* F32.NE */
+	OP_F32_LT = 0x5D, /* F32.LT */
+	OP_F32_GT = 0x5E, /* F32.GT */
+	OP_F32_LE = 0x5F, /* F32.LE */
+	OP_F32_GE = 0x60, /* F32.GE */
 
-	OP_F64_EQ = 0x61, /* f64.eq */
-	OP_F64_NE = 0x62, /* f64.ne */
-	OP_F64_LT = 0x63, /* f64.lt */
-	OP_F64_GT = 0x64, /* f64.gt */
-	OP_F64_LE = 0x65, /* f64.le */
-	OP_F64_GE = 0x66, /* f64.ge */
+	OP_F64_EQ = 0x61, /* F64.EQ */
+	OP_F64_NE = 0x62, /* F64.NE */
+	OP_F64_LT = 0x63, /* F64.LT */
+	OP_F64_GT = 0x64, /* F64.GT */
+	OP_F64_LE = 0x65, /* F64.LE */
+	OP_F64_GE = 0x66, /* F64.GE */
 
-	/* numeric operators */
-	OP_I32_CLZ = 0x67,    /* i32.clz */
-	OP_I32_CTZ = 0x68,    /* i32.ctz */
-	OP_I32_POPCNT = 0x69, /* i32.popcnt */
-	OP_I32_ADD = 0x6a,    /* i32.add */
-	OP_I32_SUB = 0x6b,    /* i32.sub */
-	OP_I32_MUL = 0x6c,    /* i32.mul */
-	OP_I32_DIV_S = 0x6d,  /* i32.div_s */
-	OP_I32_DIV_U = 0x6e,  /* i32.div_u */
-	OP_I32_REM_S = 0x6f,  /* i32.rem_s */
-	OP_I32_REM_U = 0x70,  /* i32.rem_u */
-	OP_I32_AND = 0x71,    /* i32.and */
-	OP_I32_OR = 0x72,     /* i32.or */
-	OP_I32_XOR = 0x73,    /* i32.xor */
-	OP_I32_SHL = 0x74,    /* i32.shl */
-	OP_I32_SHR_S = 0x75,  /* i32.shr_s */
-	OP_I32_SHR_U = 0x76,  /* i32.shr_u */
-	OP_I32_ROTL = 0x77,   /* i32.rotl */
-	OP_I32_ROTR = 0x78,   /* i32.rotr */
+	/* NUMERIC OPERATORS */
+	OP_I32_CLZ = 0x67,    /* I32.CLZ */
+	OP_I32_CTZ = 0x68,    /* I32.CTZ */
+	OP_I32_POPCNT = 0x69, /* I32.POPCNT */
+	OP_I32_ADD = 0x6A,    /* I32.ADD */
+	OP_I32_SUB = 0x6B,    /* I32.SUB */
+	OP_I32_MUL = 0x6C,    /* I32.MUL */
+	OP_I32_DIV_S = 0x6D,  /* I32.DIV_S */
+	OP_I32_DIV_U = 0x6E,  /* I32.DIV_U */
+	OP_I32_REM_S = 0x6F,  /* I32.REM_S */
+	OP_I32_REM_U = 0x70,  /* I32.REM_U */
+	OP_I32_AND = 0x71,    /* I32.AND */
+	OP_I32_OR = 0x72,     /* I32.OR */
+	OP_I32_XOR = 0x73,    /* I32.XOR */
+	OP_I32_SHL = 0x74,    /* I32.SHL */
+	OP_I32_SHR_S = 0x75,  /* I32.SHR_S */
+	OP_I32_SHR_U = 0x76,  /* I32.SHR_U */
+	OP_I32_ROTL = 0x77,   /* I32.ROTL */
+	OP_I32_ROTR = 0x78,   /* I32.ROTR */
 
-	OP_I64_CLZ = 0x79,    /* i64.clz */
-	OP_I64_CTZ = 0x7a,    /* i64.ctz */
-	OP_I64_POPCNT = 0x7b, /* i64.popcnt */
-	OP_I64_ADD = 0x7c,    /* i64.add */
-	OP_I64_SUB = 0x7d,    /* i64.sub */
-	OP_I64_MUL = 0x7e,    /* i64.mul */
-	OP_I64_DIV_S = 0x7f,  /* i64.div_s */
-	OP_I64_DIV_U = 0x80,  /* i64.div_u */
-	OP_I64_REM_S = 0x81,  /* i64.rem_s */
-	OP_I64_REM_U = 0x82,  /* i64.rem_u */
-	OP_I64_AND = 0x83,    /* i64.and */
-	OP_I64_OR = 0x84,     /* i64.or */
-	OP_I64_XOR = 0x85,    /* i64.xor */
-	OP_I64_SHL = 0x86,    /* i64.shl */
-	OP_I64_SHR_S = 0x87,  /* i64.shr_s */
-	OP_I64_SHR_U = 0x88,  /* i64.shr_u */
-	OP_I64_ROTL = 0x89,   /* i64.rotl */
-	OP_I64_ROTR = 0x8a,   /* i64.rotr */
+	OP_I64_CLZ = 0x79,    /* I64.CLZ */
+	OP_I64_CTZ = 0x7A,    /* I64.CTZ */
+	OP_I64_POPCNT = 0x7B, /* I64.POPCNT */
+	OP_I64_ADD = 0x7C,    /* I64.ADD */
+	OP_I64_SUB = 0x7D,    /* I64.SUB */
+	OP_I64_MUL = 0x7E,    /* I64.MUL */
+	OP_I64_DIV_S = 0x7F,  /* I64.DIV_S */
+	OP_I64_DIV_U = 0x80,  /* I64.DIV_U */
+	OP_I64_REM_S = 0x81,  /* I64.REM_S */
+	OP_I64_REM_U = 0x82,  /* I64.REM_U */
+	OP_I64_AND = 0x83,    /* I64.AND */
+	OP_I64_OR = 0x84,     /* I64.OR */
+	OP_I64_XOR = 0x85,    /* I64.XOR */
+	OP_I64_SHL = 0x86,    /* I64.SHL */
+	OP_I64_SHR_S = 0x87,  /* I64.SHR_S */
+	OP_I64_SHR_U = 0x88,  /* I64.SHR_U */
+	OP_I64_ROTL = 0x89,   /* I64.ROTL */
+	OP_I64_ROTR = 0x8A,   /* I64.ROTR */
 
-	OP_F32_ABS = 0x8b,      /* f32.abs */
-	OP_F32_NEG = 0x8c,      /* f32.neg */
-	OP_F32_CEIL = 0x8d,     /* f32.ceil */
-	OP_F32_FLOOR = 0x8e,    /* f32.floor */
-	OP_F32_TRUNC = 0x8f,    /* f32.trunc */
-	OP_F32_NEAREST = 0x90,  /* f32.nearest */
-	OP_F32_SQRT = 0x91,     /* f32.sqrt */
-	OP_F32_ADD = 0x92,      /* f32.add */
-	OP_F32_SUB = 0x93,      /* f32.sub */
-	OP_F32_MUL = 0x94,      /* f32.mul */
-	OP_F32_DIV = 0x95,      /* f32.div */
-	OP_F32_MIN = 0x96,      /* f32.min */
-	OP_F32_MAX = 0x97,      /* f32.max */
-	OP_F32_COPYSIGN = 0x98, /* f32.copysign */
+	OP_F32_ABS = 0x8B,      /* F32.ABS */
+	OP_F32_NEG = 0x8C,      /* F32.NEG */
+	OP_F32_CEIL = 0x8D,     /* F32.CEIL */
+	OP_F32_FLOOR = 0x8E,    /* F32.FLOOR */
+	OP_F32_TRUNC = 0x8F,    /* F32.TRUNC */
+	OP_F32_NEAREST = 0x90,  /* F32.NEAREST */
+	OP_F32_SQRT = 0x91,     /* F32.SQRT */
+	OP_F32_ADD = 0x92,      /* F32.ADD */
+	OP_F32_SUB = 0x93,      /* F32.SUB */
+	OP_F32_MUL = 0x94,      /* F32.MUL */
+	OP_F32_DIV = 0x95,      /* F32.DIV */
+	OP_F32_MIN = 0x96,      /* F32.MIN */
+	OP_F32_MAX = 0x97,      /* F32.MAX */
+	OP_F32_COPYSIGN = 0x98, /* F32.COPYSIGN */
 
-	OP_F64_ABS = 0x99,      /* f64.abs */
-	OP_F64_NEG = 0x9a,      /* f64.neg */
-	OP_F64_CEIL = 0x9b,     /* f64.ceil */
-	OP_F64_FLOOR = 0x9c,    /* f64.floor */
-	OP_F64_TRUNC = 0x9d,    /* f64.trunc */
-	OP_F64_NEAREST = 0x9e,  /* f64.nearest */
-	OP_F64_SQRT = 0x9f,     /* f64.sqrt */
-	OP_F64_ADD = 0xa0,      /* f64.add */
-	OP_F64_SUB = 0xa1,      /* f64.sub */
-	OP_F64_MUL = 0xa2,      /* f64.mul */
-	OP_F64_DIV = 0xa3,      /* f64.div */
-	OP_F64_MIN = 0xa4,      /* f64.min */
-	OP_F64_MAX = 0xa5,      /* f64.max */
-	OP_F64_COPYSIGN = 0xa6, /* f64.copysign */
+	OP_F64_ABS = 0x99,      /* F64.ABS */
+	OP_F64_NEG = 0x9A,      /* F64.NEG */
+	OP_F64_CEIL = 0x9B,     /* F64.CEIL */
+	OP_F64_FLOOR = 0x9C,    /* F64.FLOOR */
+	OP_F64_TRUNC = 0x9D,    /* F64.TRUNC */
+	OP_F64_NEAREST = 0x9E,  /* F64.NEAREST */
+	OP_F64_SQRT = 0x9F,     /* F64.SQRT */
+	OP_F64_ADD = 0xA0,      /* F64.ADD */
+	OP_F64_SUB = 0xA1,      /* F64.SUB */
+	OP_F64_MUL = 0xA2,      /* F64.MUL */
+	OP_F64_DIV = 0xA3,      /* F64.DIV */
+	OP_F64_MIN = 0xA4,      /* F64.MIN */
+	OP_F64_MAX = 0xA5,      /* F64.MAX */
+	OP_F64_COPYSIGN = 0xA6, /* F64.COPYSIGN */
 
-	/* conversions */
-	OP_I32_WRAP_I64 = 0xa7,    /* i32.wrap/i64 */
-	OP_I32_TRUNC_S_F32 = 0xa8, /* i32.trunc_s/f32 */
-	OP_I32_TRUNC_U_F32 = 0xa9, /* i32.trunc_u/f32 */
-	OP_I32_TRUNC_S_F64 = 0xaa, /* i32.trunc_s/f64 */
-	OP_I32_TRUNC_U_F64 = 0xab, /* i32.trunc_u/f64 */
+	/* CONVERSIONS */
+	OP_I32_WRAP_I64 = 0xA7,    /* I32.WRAP/I64 */
+	OP_I32_TRUNC_S_F32 = 0xA8, /* I32.TRUNC_S/F32 */
+	OP_I32_TRUNC_U_F32 = 0xA9, /* I32.TRUNC_U/F32 */
+	OP_I32_TRUNC_S_F64 = 0xAA, /* I32.TRUNC_S/F64 */
+	OP_I32_TRUNC_U_F64 = 0xAB, /* I32.TRUNC_U/F64 */
 
-	OP_I64_EXTEND_S_I32 = 0xac, /* i64.extend_s/i32 */
-	OP_I64_EXTEND_U_I32 = 0xad, /* i64.extend_u/i32 */
-	OP_I64_TRUNC_S_F32 = 0xae,  /* i64.trunc_s/f32 */
-	OP_I64_TRUNC_U_F32 = 0xaf,  /* i64.trunc_u/f32 */
-	OP_I64_TRUNC_S_F64 = 0xb0,  /* i64.trunc_s/f64 */
-	OP_I64_TRUNC_U_F64 = 0xb1,  /* i64.trunc_u/f64 */
+	OP_I64_EXTEND_S_I32 = 0xAC, /* I64.EXTEND_S/I32 */
+	OP_I64_EXTEND_U_I32 = 0xAD, /* I64.EXTEND_U/I32 */
+	OP_I64_TRUNC_S_F32 = 0xAE,  /* I64.TRUNC_S/F32 */
+	OP_I64_TRUNC_U_F32 = 0xAF,  /* I64.TRUNC_U/F32 */
+	OP_I64_TRUNC_S_F64 = 0xB0,  /* I64.TRUNC_S/F64 */
+	OP_I64_TRUNC_U_F64 = 0xB1,  /* I64.TRUNC_U/F64 */
 
-	OP_F32_CONVERT_S_I32 = 0xb2, /* f32.convert_s/i32 */
-	OP_F32_CONVERT_U_I32 = 0xb3, /* f32.convert_u/i32 */
-	OP_F32_CONVERT_S_I64 = 0xb4, /* f32.convert_s/i64 */
-	OP_F32_CONVERT_U_I64 = 0xb5, /* f32.convert_u/i64 */
-	OP_F32_DEMOTE_F64 = 0xb6,    /* f32.demote/f64 */
+	OP_F32_CONVERT_S_I32 = 0xB2, /* F32.CONVERT_S/I32 */
+	OP_F32_CONVERT_U_I32 = 0xB3, /* F32.CONVERT_U/I32 */
+	OP_F32_CONVERT_S_I64 = 0xB4, /* F32.CONVERT_S/I64 */
+	OP_F32_CONVERT_U_I64 = 0xB5, /* F32.CONVERT_U/I64 */
+	OP_F32_DEMOTE_F64 = 0xB6,    /* F32.DEMOTE/F64 */
 
-	OP_F64_CONVERT_S_I32 = 0xb7, /* f64.convert_s/i32 */
-	OP_F64_CONVERT_U_I32 = 0xb8, /* f64.convert_u/i32 */
-	OP_F64_CONVERT_S_I64 = 0xb9, /* f64.convert_s/i64 */
-	OP_F64_CONVERT_U_I64 = 0xba, /* f64.convert_u/i64 */
-	OP_F64_PROMOTE_F32 = 0xbb,   /* f64.promote/f32 */
+	OP_F64_CONVERT_S_I32 = 0xB7, /* F64.CONVERT_S/I32 */
+	OP_F64_CONVERT_U_I32 = 0xB8, /* F64.CONVERT_U/I32 */
+	OP_F64_CONVERT_S_I64 = 0xB9, /* F64.CONVERT_S/I64 */
+	OP_F64_CONVERT_U_I64 = 0xBA, /* F64.CONVERT_U/I64 */
+	OP_F64_PROMOTE_F32 = 0xBB,   /* F64.PROMOTE/F32 */
 
-	/* reinterpretations */
-	OP_I32_REINTERPRET_F32 = 0xbc, /* i32.reinterpret/f32 */
-	OP_I64_REINTERPRET_F64 = 0xbd, /* i64.reinterpret/f64 */
-	OP_F32_REINTERPRET_I32 = 0xbe, /* f32.reinterpret/i32 */
-	OP_F64_REINTERPRET_I64 = 0xbf, /* f64.reinterpret/i64 */
+	/* REINTERPRETATIONS */
+	OP_I32_REINTERPRET_F32 = 0xBC, /* I32.REINTERPRET/F32 */
+	OP_I64_REINTERPRET_F64 = 0xBD, /* I64.REINTERPRET/F64 */
+	OP_F32_REINTERPRET_I32 = 0xBE, /* F32.REINTERPRET/I32 */
+	OP_F64_REINTERPRET_I64 = 0xBF, /* F64.REINTERPRET/I64 */
 
-	OP_I32_EXTEND8_S = 0xc0,  /* i32.extend8_s */
-	OP_I32_EXTEND16_S = 0xc1, /* i32.extend16_s */
-	OP_I64_EXTEND8_S = 0xc2,  /* i64.extend8_s */
-	OP_I64_EXTEND16_S = 0xc3, /* i64.extend16_s */
-	OP_I64_EXTEND32_S = 0xc4, /* i64.extend32_s */
+	OP_I32_EXTEND8_S = 0xC0,  /* I32.EXTEND8_S */
+	OP_I32_EXTEND16_S = 0xC1, /* I32.EXTEND16_S */
+	OP_I64_EXTEND8_S = 0xC2,  /* I64.EXTEND8_S */
+	OP_I64_EXTEND16_S = 0xC3, /* I64.EXTEND16_S */
+	OP_I64_EXTEND32_S = 0xC4, /* I64.EXTEND32_S */
+	
+	OP_UNUSED_0xC5 = 0xC5,
+	OP_UNUSED_0xC6 = 0xC6,
+	OP_UNUSED_0xC7 = 0xC7,
+	OP_UNUSED_0xC8 = 0xC8,
+	OP_UNUSED_0xC9 = 0xC9,
+	OP_UNUSED_0xCA = 0xCA,
+	OP_UNUSED_0xCB = 0xCB,
+	OP_UNUSED_0xCC = 0xCC,
+	OP_UNUSED_0xCD = 0xCD,
+	OP_UNUSED_0xCE = 0xCE,
+	OP_UNUSED_0xCF = 0xCF,
 
-	/* drop/select specified types*/
-	OP_DROP_64 = 0xc5,
-	OP_SELECT_64 = 0xc6,
+	OP_REF_NULL = 0xD0,    /* REF.NULL */
+	OP_REF_IS_NULL = 0xD1, /* REF.IS_NULL */
+	OP_REF_FUNC = 0xD2,    /* REF.FUNC */
+	OP_REF_AS_NON_NULL = 0xD3, /* REF.AS_NON_NULL */
+	OP_BR_ON_NULL = 0xD4,      /* BR_ON_NULL */
+	OP_REF_EQ = 0xD5, /* REF.EQ */
+	OP_BR_ON_NON_NULL = 0xD6, /* BR_ON_NON_NULL */
 
-	/* extend op code */
-	EXT_OP_GET_LOCAL_FAST = 0xc7,
-	EXT_OP_SET_LOCAL_FAST_I64 = 0xc8,
-	EXT_OP_SET_LOCAL_FAST = 0xc9,
-	EXT_OP_TEE_LOCAL_FAST = 0xca,
-	EXT_OP_TEE_LOCAL_FAST_I64 = 0xcb,
-	EXT_OP_COPY_STACK_TOP = 0xcc,
-	EXT_OP_COPY_STACK_TOP_I64 = 0xcd,
-	EXT_OP_COPY_STACK_VALUES = 0xce,
+	OP_UNUSED_0xD7 = 0xD7,
+	OP_UNUSED_0xD8 = 0xD8,
+	OP_UNUSED_0xD9 = 0xD9,
+	OP_UNUSED_0xDA = 0xDA,
+	OP_UNUSED_0xDB = 0xDB,
+	OP_UNUSED_0xDC = 0xDC,
+	OP_UNUSED_0xDD = 0xDD,
+	OP_UNUSED_0xDE = 0xDE,
+	OP_UNUSED_0xDF = 0xDF,
 
-	OP_IMPDEP = 0xcf,
+	OP_UNUSED_0xE0 = 0xE0,
+	OP_UNUSED_0xE1 = 0xE1,
+	OP_UNUSED_0xE2 = 0xE2,
+	OP_UNUSED_0xE3 = 0xE3,
+	OP_UNUSED_0xE4 = 0xE4,
+	OP_UNUSED_0xE5 = 0xE5,
+	OP_UNUSED_0xE6 = 0xE6,
+	OP_UNUSED_0xE7 = 0xE7,
+	OP_UNUSED_0xE8 = 0xE8,
+	OP_UNUSED_0xE9 = 0xE9,
+	OP_UNUSED_0xEA = 0xEA,
+	OP_UNUSED_0xEB = 0xEB,
+	OP_UNUSED_0xEC = 0xEC,
+	OP_UNUSED_0xED = 0xED,
+	OP_UNUSED_0xEE = 0xEE,
+	OP_UNUSED_0xEF = 0xEF,
 
-	OP_REF_NULL = 0xd0,    /* ref.null */
-	OP_REF_IS_NULL = 0xd1, /* ref.is_null */
-	OP_REF_FUNC = 0xd2,    /* ref.func */
+	OP_UNUSED_0xF0 = 0xF0,
+	OP_UNUSED_0xF1 = 0xF1,
+	OP_UNUSED_0xF2 = 0xF2,
+	OP_UNUSED_0xF3 = 0xF3,
+	OP_UNUSED_0xF4 = 0xF4,
+	OP_UNUSED_0xF5 = 0xF5,
+	OP_UNUSED_0xF6 = 0xF6,
+	OP_UNUSED_0xF7 = 0xF7,
+	OP_UNUSED_0xF8 = 0xF8,
+	OP_UNUSED_0xF9 = 0xF9,
+	OP_UNUSED_0xFA = 0xFA,
 
-	EXT_OP_BLOCK = 0xd3,          /* block with blocktype */
-	EXT_OP_LOOP = 0xd4,           /* loop with blocktype */
-	EXT_OP_IF = 0xd5,             /* if with blocktype */
-	EXT_OP_BR_TABLE_CACHE = 0xd6, /* br_table from cache */
+	/* EXTEND OP PREFIX */
+	OP_GC_PREFIX = 0xFB,
+	OP_STR_PREFIX = 0xFB,
+	OP_MISC_PREFIX = 0xFC,
+	OP_SIMD_PREFIX = 0xFD,
+	OP_THREAD_PREFIX = 0xFE,
+};
 
-	DEBUG_OP_BREAK = 0xd7, /* debug break point */
+enum class GCExtOpcode : XE::uint8
+{
+	OP_UNUSED_0x00 = 0x00,
+	OP_STRUCT_NEW_CANON = 0x01,
+	OP_STRUCT_NEW_CANON_DEFAULT = 0x02,
+	OP_STRUCT_GET = 0x03,
+	OP_STRUCT_GET_S = 0x04,
+	OP_STRUCT_GET_U = 0x05,
+	OP_STRUCT_SET = 0x06,
+	OP_UNUSED_0x07 = 0x07,
+	OP_UNUSED_0x08 = 0x08,
+	OP_UNUSED_0x09 = 0x09,
+	OP_UNUSED_0x0A = 0x0A,
+	OP_UNUSED_0x0B = 0x0B,
+	OP_UNUSED_0x0C = 0x0C,
+	OP_UNUSED_0x0D = 0x0D,
+	OP_UNUSED_0x0E = 0x0E,
+	OP_UNUSED_0x0F = 0x0F,
+	OP_UNUSED_0x10 = 0x10,
 
-	/* Post-MVP extend op prefix */
-	OP_MISC_PREFIX = 0xfc,
-	OP_SIMD_PREFIX = 0xfd,
-	OP_ATOMIC_PREFIX = 0xfe,
+	OP_ARRAY_NEW_CANON = 0x11,
+	OP_ARRAY_NEW_CANON_DEFAULT = 0x12,
+	OP_ARRAY_GET = 0x13,
+	OP_ARRAY_GET_S = 0x14,
+	OP_ARRAY_GET_U = 0x15,
+	OP_ARRAY_SET = 0x16,
+	OP_ARRAY_LEN = 0x17,
+	OP_UNUSED_0x18 = 0x18,
+	OP_ARRAY_NEW_CANON_FIXED = 0x19,
+	OP_UNUSED_0x1A = 0x1A,
+	OP_ARRAY_NEW_CANON_DATA = 0x1B,
+	OP_ARRAY_NEW_CANON_ELEM = 0x1C,
+	OP_UNUSED_0x1D = 0x1D,
+	OP_UNUSED_0x1E = 0x1E,
+	OP_UNUSED_0x1F = 0x1F,
+
+	OP_I31_NEW = 0x20,
+	OP_I31_GET_S = 0x21,
+	OP_I31_GET_U = 0x22,
+	OP_UNUSED_0x23 = 0x23,
+	OP_UNUSED_0x24 = 0x24,
+	OP_UNUSED_0x25 = 0x25,
+	OP_UNUSED_0x26 = 0x26,
+	OP_UNUSED_0x27 = 0x27,
+	OP_UNUSED_0x28 = 0x28,
+	OP_UNUSED_0x29 = 0x29,
+	OP_UNUSED_0x2A = 0x2A,
+	OP_UNUSED_0x2B = 0x2B,
+	OP_UNUSED_0x2C = 0x2C,
+	OP_UNUSED_0x2D = 0x2D,
+	OP_UNUSED_0x2E = 0x2E,
+	OP_UNUSED_0x2F = 0x2F,
+	OP_UNUSED_0x30 = 0x30,
+	OP_UNUSED_0x31 = 0x31,
+	OP_UNUSED_0x32 = 0x32,
+	OP_UNUSED_0x33 = 0x33,
+	OP_UNUSED_0x34 = 0x34,
+	OP_UNUSED_0x35 = 0x35,
+	OP_UNUSED_0x36 = 0x36,
+	OP_UNUSED_0x37 = 0x37,
+	OP_UNUSED_0x38 = 0x38,
+	OP_UNUSED_0x39 = 0x39,
+	OP_UNUSED_0x3A = 0x3A,
+	OP_UNUSED_0x3B = 0x3B,
+	OP_UNUSED_0x3C = 0x3C,
+	OP_UNUSED_0x3D = 0x3D,
+	OP_UNUSED_0x3E = 0x3E,
+	OP_UNUSED_0x3F = 0x3F,
+
+	OP_REF_TEST = 0x40,
+	OP_REF_CAST = 0x41,
+	OP_BR_ON_CAST = 0x42,
+	OP_BR_ON_CAST_FAIL = 0x43,
+	OP_UNUSED_0x44 = 0x44,
+	OP_UNUSED_0x45 = 0x45,
+	OP_UNUSED_0x46 = 0x46,
+	OP_UNUSED_0x47 = 0x47,
+	OP_UNUSED_0x48 = 0x48,
+	OP_UNUSED_0x49 = 0x49,
+	OP_UNUSED_0x4A = 0x4A,
+	OP_UNUSED_0x4B = 0x4B,
+	OP_UNUSED_0x4C = 0x4C,
+	OP_UNUSED_0x4D = 0x4D,
+	OP_UNUSED_0x4E = 0x4E,
+	OP_UNUSED_0x4F = 0x4F,
+
+	OP_UNUSED_0x50 = 0x50,
+	OP_UNUSED_0x51 = 0x51,
+	OP_UNUSED_0x52 = 0x52,
+	OP_UNUSED_0x53 = 0x53,
+	OP_UNUSED_0x54 = 0x54,
+	OP_UNUSED_0x55 = 0x55,
+	OP_UNUSED_0x56 = 0x56,
+	OP_UNUSED_0x57 = 0x57,
+	OP_UNUSED_0x58 = 0x58,
+	OP_UNUSED_0x59 = 0x59,
+	OP_UNUSED_0x5A = 0x5A,
+	OP_UNUSED_0x5B = 0x5B,
+	OP_UNUSED_0x5C = 0x5C,
+	OP_UNUSED_0x5D = 0x5D,
+	OP_UNUSED_0x5E = 0x5E,
+	OP_UNUSED_0x5F = 0x5F,
+
+	OP_UNUSED_0x60 = 0x60,
+	OP_UNUSED_0x61 = 0x61,
+	OP_UNUSED_0x62 = 0x62,
+	OP_UNUSED_0x63 = 0x63,
+	OP_UNUSED_0x64 = 0x64,
+	OP_UNUSED_0x65 = 0x65,
+	OP_UNUSED_0x66 = 0x66,
+	OP_UNUSED_0x67 = 0x67,
+	OP_UNUSED_0x68 = 0x68,
+	OP_UNUSED_0x69 = 0x69,
+	OP_UNUSED_0x6A = 0x6A,
+	OP_UNUSED_0x6B = 0x6B,
+	OP_UNUSED_0x6C = 0x6C,
+	OP_UNUSED_0x6D = 0x6D,
+	OP_UNUSED_0x6E = 0x6E,
+	OP_UNUSED_0x6F = 0x6F,
+
+	OP_EXTERN_INTERNALIZE = 0x70,
+	OP_EXTERN_EXTERNALIZE = 0x71,
+	OP_UNUSED_0x72 = 0x72,
+	OP_UNUSED_0x73 = 0x73,
+	OP_UNUSED_0x74 = 0x74,
+	OP_UNUSED_0x75 = 0x75,
+	OP_UNUSED_0x76 = 0x76,
+	OP_UNUSED_0x77 = 0x77,
+	OP_UNUSED_0x78 = 0x78,
+	OP_UNUSED_0x79 = 0x79,
+	OP_UNUSED_0x7A = 0x7A,
+	OP_UNUSED_0x7B = 0x7B,
+	OP_UNUSED_0x7C = 0x7C,
+	OP_UNUSED_0x7D = 0x7D,
+	OP_UNUSED_0x7E = 0x7E,
+	OP_UNUSED_0x7F = 0x7F,
+};
+
+enum class StrExtOpcode
+{
+	OP_STRING_NEW_UTF8 = 0x80,
+	OP_STRING_NEW_WTF16 = 0x81,
+	OP_STRING_CONST = 0x82,
+	OP_STRING_MEASURE_UTF8 = 0x83,
+	OP_STRING_MEASURE_WTF8 = 0x84,
+	OP_STRING_MEASURE_WTF16 = 0x85,
+	OP_STRING_ENCODE_UTF8 = 0x86,
+	OP_STRING_ENCODE_WTF16 = 0x87,
+	OP_STRING_CONCAT = 0x88,
+	OP_STRING_EQ = 0x89,
+	OP_STRING_IS_USV_SEQUENCE = 0x8A,
+	OP_STRING_NEW_LOSSY_UTF8 = 0x8B,
+	OP_STRING_NEW_WTF8 = 0x8C,
+	OP_STRING_ENCODE_LOSSY_UTF8 = 0x8D,
+	OP_STRING_ENCODE_WTF8 = 0x8E,
+	OP_UNUSED_0x8F = 0x8F,
+	OP_STRING_AS_WTF8 = 0x90,
+	OP_STRINGVIEW_WTF8_ADVANCE = 0x91,
+	OP_STRINGVIEW_WTF8_ENCODE_UTF8 = 0x92,
+	OP_STRINGVIEW_WTF8_SLICE = 0x93,
+	OP_STRINGVIEW_WTF8_ENCODE_LOSSY_UTF8 = 0x94,
+	OP_STRINGVIEW_WTF8_ENCODE_WTF8 = 0x95,
+	OP_UNUSED_0x96 = 0x96,
+	OP_UNUSED_0x97 = 0x97,
+	OP_STRING_AS_WTF16 = 0x98,
+	OP_STRINGVIEW_WTF16_LENGTH = 0x99,
+	OP_STRINGVIEW_WTF16_GET_CODEUNIT = 0x9A,
+	OP_STRINGVIEW_WTF16_ENCODE = 0x9B,
+	OP_STRINGVIEW_WTF16_SLICE = 0x9C,
+	OP_UNUSED_0x9D = 0x9D,
+	OP_UNUSED_0x9E = 0x9E,
+	OP_UNUSED_0x9F = 0x9F,
+
+	OP_STRING_AS_ITER = 0xA0,
+	OP_STRINGVIEW_ITER_NEXT = 0xA1,
+	OP_STRINGVIEW_ITER_ADVANCE = 0xA2,
+	OP_STRINGVIEW_ITER_REWIND = 0xA3,
+	OP_STRINGVIEW_ITER_SLICE = 0xA4,
+	OP_UNUSED_0xA5 = 0xA5,
+	OP_UNUSED_0xA6 = 0xA6,
+	OP_UNUSED_0xA7 = 0xA7,
+	OP_UNUSED_0xA8 = 0xA8,
+	OP_UNUSED_0xA9 = 0xA9,
+	OP_UNUSED_0xAA = 0xAA,
+	OP_UNUSED_0xAB = 0xAB,
+	OP_UNUSED_0xAC = 0xAC,
+	OP_UNUSED_0xAD = 0xAD,
+	OP_UNUSED_0xAE = 0xAE,
+	OP_UNUSED_0xAF = 0xAF,
+
+	OP_STRING_NEW_UTF8_ARRAY = 0xB0,
+	OP_STRING_NEW_WTF16_ARRAY = 0xB1,
+	OP_STRING_ENCODE_UTF8_ARRAY = 0xB2,
+	OP_STRING_ENCODE_WTF16_ARRAY = 0xB3,
+	OP_STRING_NEW_LOSSY_UTF8_ARRAY = 0xB4,
+	OP_STRING_NEW_WTF8_ARRAY = 0xB5,
+	OP_STRING_ENCODE_LOSSY_UTF8_ARRAY = 0xB6,
+	OP_STRING_ENCODE_WTF8_ARRAY = 0xB7,
+	OP_UNUSED_0xB8 = 0xB8,
+	OP_UNUSED_0xB9 = 0xB9,
+	OP_UNUSED_0xBA = 0xBA,
+	OP_UNUSED_0xBB = 0xBB,
+	OP_UNUSED_0xBC = 0xBC,
+	OP_UNUSED_0xBD = 0xBD,
+	OP_UNUSED_0xBE = 0xBE,
+	OP_UNUSED_0xBF = 0xBF,
 };
 
 enum class MiscExtOpcode : XE::uint8
@@ -295,12 +537,12 @@ enum class MiscExtOpcode : XE::uint8
 	OP_I64_TRUNC_SAT_U_F64 = 0x07,
 	OP_MEMORY_INIT = 0x08,
 	OP_DATA_DROP = 0x09,
-	OP_MEMORY_COPY = 0x0a,
-	OP_MEMORY_FILL = 0x0b,
-	OP_TABLE_INIT = 0x0c,
-	OP_ELEM_DROP = 0x0d,
-	OP_TABLE_COPY = 0x0e,
-	OP_TABLE_GROW = 0x0f,
+	OP_MEMORY_COPY = 0x0A,
+	OP_MEMORY_FILL = 0x0B,
+	OP_TABLE_INIT = 0x0C,
+	OP_ELEM_DROP = 0x0D,
+	OP_TABLE_COPY = 0x0E,
+	OP_TABLE_GROW = 0x0F,
 	OP_TABLE_SIZE = 0x10,
 	OP_TABLE_FILL = 0x11,
 };
@@ -558,10 +800,10 @@ enum class SimdExtOpcode : XE::uint8
 	OP_I64X2_GT_S = 0xd9,
 	OP_I64X2_LE_S = 0xda,
 	OP_I64X2_GE_S = 0xdb,
-		OP_I64X2_EXTMUL_LOW_I32X4_S = 0xdc,
-		OP_I64X2_EXTMUL_HIGH_I32X4_S = 0xdd,
-		OP_I64X2_EXTMUL_LOW_I32X4_U = 0xde,
-		OP_I64X2_EXTMUL_HIGH_I32X4_U = 0xdf,
+	OP_I64X2_EXTMUL_LOW_I32X4_S = 0xdc,
+	OP_I64X2_EXTMUL_HIGH_I32X4_S = 0xdd,
+	OP_I64X2_EXTMUL_LOW_I32X4_U = 0xde,
+	OP_I64X2_EXTMUL_HIGH_I32X4_U = 0xdf,
 
 	/* f32x4 operation */
 	OP_F32X4_ABS = 0xe0,
@@ -743,21 +985,6 @@ enum class SectionType : XE::uint8
 };
 
 
-struct XE_API WASMValue
-{
-	XE::ValueType type;
-	union
-	{
-		XE::int32 i32;
-		XE::int64 i64;
-		XE::uint32 u32;
-		XE::uint64 u64;
-		XE::float32 f32;
-		XE::float64 f64;
-		void * p;
-	};
-};
-
 struct XE_API InitExpr
 {
 	XE::ExprType Type;
@@ -777,12 +1004,12 @@ struct XE_API ImportSection
 	XE::DescType Desc;
 	union
 	{
-		XE::uint32 TypeIdx; // index of funcType in types
+		XE::uint32 TypeIdx;
 		struct
 		{
 			XE::uint32 Min;
 			XE::uint32 Max;
-		} Limits; // table, memory
+		} Limits;
 		struct
 		{
 			XE::uint32 Mutable;
@@ -838,24 +1065,34 @@ struct XE_API DataSection
 	XE::Array< XE::uint8 > Init;
 };
 
-struct XE_API FuncInstance
-{
 
+struct XE_API WASMFunc
+{
+	struct InternalFunc
+	{
+		XE::uint64 Index;
+	};
+	struct ExternalFunc
+	{
+		XE::uint64 HashCode;
+	};
+
+	std::variant< std::monostate, InternalFunc, ExternalFunc > Func;
 };
 
-struct XE_API TableInstance
+struct XE_API WASMValue
 {
-
-};
-
-struct XE_API MemoryInstance
-{
-
-};
-
-struct XE_API GlobalInstance
-{
-
+	XE::ValueType type;
+	union
+	{
+		XE::int32 i32;
+		XE::int64 i64;
+		XE::uint32 u32;
+		XE::uint64 u64;
+		XE::float32 f32;
+		XE::float64 f64;
+		XE::Object * o;
+	};
 };
 
 struct XE_API WASMFrame
@@ -863,8 +1100,56 @@ struct XE_API WASMFrame
 	XE::uint64 SP = 0;
 	XE::uint64 FP = 0;
 	XE::uint64 PC = 0;
-	XE::uint32 FuncIdx;
-	XE::WASMModulePtr Module;
+	XE::uint64 FuncIdx;
+};
+
+
+template<> struct VariantCreate< WASMValue >
+{
+	static XE::VariantData Create( const WASMValue & val )
+	{
+		switch ( val.type )
+		{
+		case XE::ValueType::NONE:
+			return XE::VariantData();
+		case XE::ValueType::I32:
+			return XE::VariantData( val.i32 );
+		case XE::ValueType::I64:
+			return XE::VariantData( val.i64 );
+		case XE::ValueType::F32:
+			return XE::VariantData( val.f32 );
+		case XE::ValueType::F64:
+			return XE::VariantData( val.f64 );
+		case XE::ValueType::FUNC:
+		case XE::ValueType::EXTERN:
+			return XE::VariantData( XE::VariantPointerData( val.o ) );
+			break;
+		}
+	}
+};
+
+template<> struct VariantCast< WASMValue >
+{
+	static WASMValue Cast( const VariantData & val )
+	{
+		return std::visit( XE::Overloaded{
+			[]( const std::monostate & val ) -> XE::WASMValue { XE::WASMValue value; value.type = ValueType::NONE; return value; },
+			[]( const bool & val ) -> XE::WASMValue { XE::WASMValue value; value.type = ValueType::I32; value.i32 = val ? 1 : 0; return value; },
+			[]( const XE::int8 & val ) -> XE::WASMValue { XE::WASMValue value; value.type = ValueType::I32; value.i32 = val; return value; },
+			[]( const XE::int16 & val ) -> XE::WASMValue { XE::WASMValue value; value.type = ValueType::I32; value.i32 = val; return value; },
+			[]( const XE::int32 & val ) -> XE::WASMValue { XE::WASMValue value; value.type = ValueType::I32; value.i32 = val; return value; },
+			[]( const XE::int64 & val ) -> XE::WASMValue { XE::WASMValue value; value.type = ValueType::I64; value.i64 = val; return value; },
+			[]( const XE::uint8 & val ) -> XE::WASMValue { XE::WASMValue value; value.type = ValueType::I32; value.i32 = val; return value; },
+			[]( const XE::uint16 & val ) -> XE::WASMValue { XE::WASMValue value; value.type = ValueType::I32; value.i32 = val; return value; },
+			[]( const XE::uint32 & val ) -> XE::WASMValue { XE::WASMValue value; value.type = ValueType::I64; value.i64 = val; return value; },
+			[]( const XE::uint64 & val ) -> XE::WASMValue { XE::WASMValue value; value.type = ValueType::I64; value.i64 = val; return value; },
+			[]( const XE::float32 & val ) -> XE::WASMValue { XE::WASMValue value; value.type = ValueType::F32; value.f32 = val; return value; },
+			[]( const XE::float64 & val ) -> XE::WASMValue { XE::WASMValue value; value.type = ValueType::F64; value.f64 = val; return value; },
+			[]( const XE::VariantEnumData & val ) -> XE::WASMValue { XE::WASMValue value; value.type = ValueType::I32; value.i32 = val.Value; return value; },
+			[]( const XE::VariantSmallData & val ) -> XE::WASMValue { XE::WASMValue value; value.type = ValueType::NONE; return value; },
+			[]( const XE::VariantPointerData & val ) -> XE::WASMValue { XE::WASMValue value; value.type = ValueType::FUNC; value.o = reinterpret_cast<XE::Object *>( val.Value ); return value; },
+			[]( const XE::VariantWarpperData & val ) -> XE::WASMValue { XE::WASMValue value; value.type = ValueType::NONE; return value; } }, val );
+	}
 };
 
 END_XE_NAMESPACE

@@ -15,7 +15,10 @@
 BEG_XE_NAMESPACE
 
 class WASI;
+class WASMValue;
 class WASMModule;
+class WASMService;
+class WASMContext;
 class WASMCompiler;
 class WASMInterpreter;
 

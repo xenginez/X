@@ -13,35 +13,19 @@
 
 BEG_XE_NAMESPACE
 
-class XE_API WASMInterpreter : public XE::EnableSharedFromThis< WASMInterpreter >
+class XE_API WASMInterpreter
 {
 public:
-	WASMInterpreter();
+	WASMInterpreter( XE::WASMContext * ctx, XE::WASMService * service );
 
-	~WASMInterpreter();
-
-public:
-	XE::int32 Invoke( const XE::WASMModulePtr & mod, XE::uint32 func );
+	~WASMInterpreter() = default;
 
 public:
-	void Push( const XE::WASMValue & val );
-
-	XE::WASMValue Top();
-
-	XE::WASMValue Pop();
-
-private:
-	void Pushed( const XE::WASMFrame & frame );
-
-	XE::WASMFrame Poped();
-
-private:
 	XE::int32 Exec( XE::MemoryView view );
 
 private:
-	XE::WASMFrame _CurFrame;
-	XE::Array< XE::WASMFrame > _FrameStack;
-	XE::Array< XE::WASMValue > _ValueStack;
+	XE::WASMContext * _Context;
+	XE::WASMService * _Service;
 };
 
 END_XE_NAMESPACE
