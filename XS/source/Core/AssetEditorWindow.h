@@ -27,7 +27,7 @@ public:
 
 	virtual QString name() = 0;
 
-	virtual QString extensionName() = 0;
+	virtual QStringList extensionName() = 0;
 
 public:
 	virtual QUuid assetCreate( const QFileInfo & path ) = 0;

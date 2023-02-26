@@ -550,7 +550,7 @@ void XS::AssetExplorerEditor::OnTreeViewClicked( const QModelIndex & index )
 	{
 		QUuid uuid = database()->Query( file );
 
-		auto it = std::find_if( _Editors.begin(), _Editors.end(), [&]( XS::AssetEditor * val ) { return val->extensionName() == file.suffix(); } );
+		auto it = std::find_if( _Editors.begin(), _Editors.end(), [&]( XS::AssetEditor * val ) { return val->extensionName().indexOf( file.suffix() ) != -1; } );
 		QIcon icon = it != _Editors.end() ? ( *it )->assetIcon( uuid ) : QIcon( "SkinIcons:/images/assets/icon_assets_file.svg" );
 
 		QListWidgetItem * item = new QListWidgetItem( icon, file.baseName(), ui->list );
@@ -604,10 +604,10 @@ void XS::AssetExplorerEditor::OnTreeViewCustomContextMenuRequested( const QPoint
 					QString name = editor->name();
 					QString path = _Model->filePath( ui->tree->currentIndex() );
 
-					QFileInfo dir( QString( "%1/New %2%3.%4" ).arg( path ).arg( name ).arg( "" ).arg( editor->extensionName()));
+					QFileInfo dir( QString( "%1/New %2%3.%4" ).arg( path ).arg( name ).arg( "" ).arg( editor->extensionName().front() ) );
 					for ( int i = 2; dir.exists(); ++i )
 					{
-						dir = QString( "%1/New %2 %3.%4" ).arg( path ).arg( name ).arg( i ).arg( editor->extensionName() );
+						dir = QString( "%1/New %2 %3.%4" ).arg( path ).arg( name ).arg( i ).arg( editor->extensionName().front() );
 					}
 
 					auto uuid = editor->assetCreate( dir );
@@ -639,7 +639,7 @@ void XS::AssetExplorerEditor::OnListWidgetItemChanged( QListWidgetItem * item )
 
 	if ( editor != nullptr && path.baseName() != item->text() )
 	{
-		editor->assetRename( uuid, path, QFileInfo( path.dir().absoluteFilePath( item->text() + "." + editor->extensionName() ) ) );
+		editor->assetRename( uuid, path, QFileInfo( path.dir().absoluteFilePath( item->text() + "." + editor->extensionName().front() ) ) );
 	}
 }
 
@@ -651,7 +651,7 @@ void XS::AssetExplorerEditor::OnListWidgetItemDoubleClicked( QListWidgetItem * i
 	QList< XS::AssetEditor * > editors;
 	for ( auto it : _Editors )
 	{
-		if ( it->extensionName() == path.suffix() )
+		if ( it->extensionName().indexOf( path.suffix() ) != -1 )
 		{
 			editors.push_back( it );
 		}
@@ -700,10 +700,10 @@ void XS::AssetExplorerEditor::OnListWidgetCustomContextMenuRequested( const QPoi
 					QString name = editor->name();
 					QString path = _Model->filePath( ui->tree->currentIndex() );
 
-					QFileInfo dir( QString( "%1/New %2%3.%4" ).arg( path ).arg( name ).arg( "" ).arg( editor->extensionName() ) );
+					QFileInfo dir( QString( "%1/New %2%3.%4" ).arg( path ).arg( name ).arg( "" ).arg( editor->extensionName().front() ) );
 					for ( int i = 2; dir.exists(); ++i )
 					{
-						dir = QString( "%1/New %2 %3.%4" ).arg( path ).arg( name ).arg( i ).arg( editor->extensionName() );
+						dir = QString( "%1/New %2 %3.%4" ).arg( path ).arg( name ).arg( i ).arg( editor->extensionName().front() );
 					}
 
 					auto uuid = editor->assetCreate( dir );
