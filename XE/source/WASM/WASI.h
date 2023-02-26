@@ -23,6 +23,23 @@ public:
 	virtual ~WASI() = default;
 
 public:
+	using device_t = XE::uint64;
+	using dircookie_t = XE::uint64;
+	using dirnamlen_t = XE::uint32;
+	using exitcode_t = XE::uint32;
+	using fd_t = XE::uint32;
+	using filedelta_t = XE::int64;
+	using filesize_t = XE::uint64;
+	using inode_t = XE::uint64;
+	using linkcount_t = XE::uint64;
+	using siflags_t = XE::uint16;
+	using size_t = XE::uint32;
+	using sock_d_t = fd_t;
+	using timestamp_t = XE::uint64;
+	using userdata_t = XE::uint64;
+	using ip_port_t = XE::uint16;
+
+public:
 	enum address_family_t : XE::uint8
 	{
 		ADDRESS_FAMILY_INET4 = 0,
@@ -324,23 +341,6 @@ public:
 		WHENCE_CUR = 1,
 		WHENCE_END = 2,
 	};
-
-public:
-	using device_t = XE::uint64;
-	using dircookie_t = XE::uint64;
-	using dirnamlen_t = XE::uint32;
-	using exitcode_t = XE::uint32;
-	using fd_t = XE::uint32;
-	using filedelta_t = XE::int64;
-	using filesize_t = XE::uint64;
-	using inode_t = XE::uint64;
-	using linkcount_t = XE::uint64;
-	using siflags_t = XE::uint16;
-	using size_t = XE::uint32;
-	using sock_d_t = fd_t;
-	using timestamp_t = XE::uint64;
-	using userdata_t = XE::uint64;
-	using ip_port_t = XE::uint16;
 
 public:
 	struct dirent_t

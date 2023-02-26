@@ -988,7 +988,13 @@ enum class SectionType : XE::uint8
 struct XE_API InitExpr
 {
 	XE::ExprType Type;
-	XE::WASMValue Val;
+	union
+	{
+		XE::int32 i32;
+		XE::int64 i64;
+		XE::float32 f32;
+		XE::float64 f64;
+	} Val;
 };
 
 struct XE_API TypeSection
@@ -1087,8 +1093,6 @@ struct XE_API WASMValue
 	{
 		XE::int32 i32;
 		XE::int64 i64;
-		XE::uint32 u32;
-		XE::uint64 u64;
 		XE::float32 f32;
 		XE::float64 f64;
 		XE::Object * o;
@@ -1110,8 +1114,6 @@ template<> struct VariantCreate< WASMValue >
 	{
 		switch ( val.type )
 		{
-		case XE::ValueType::NONE:
-			return XE::VariantData();
 		case XE::ValueType::I32:
 			return XE::VariantData( val.i32 );
 		case XE::ValueType::I64:
@@ -1125,6 +1127,8 @@ template<> struct VariantCreate< WASMValue >
 			return XE::VariantData( XE::VariantPointerData( val.o ) );
 			break;
 		}
+
+		return XE::VariantData();
 	}
 };
 

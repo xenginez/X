@@ -18,7 +18,6 @@
 #include "Format.hpp"
 #include "Exception.h"
 #include "Singleton.h"
-#include "Delegate.hpp"
 #include "MultiArray.hpp"
 #include "NonCopyable.hpp"
 #include "ConcurrentList.hpp"

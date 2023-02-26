@@ -547,7 +547,7 @@ XE::int32 XE::WASMInterpreter::Exec( XE::MemoryView view )
 			break;
 		case XE::WASMOpcode::OP_GC_PREFIX:
 		{
-			XE::GCExtOpcode code;
+			XE::GCExtOpcode code = *reinterpret_cast<const XE::GCExtOpcode *>( view.data() + _Context->GetFrame().PC++ );
 			switch ( code )
 			{
 			case XE::GCExtOpcode::OP_UNUSED_0x00:
@@ -813,7 +813,7 @@ XE::int32 XE::WASMInterpreter::Exec( XE::MemoryView view )
 			break;
 		case XE::WASMOpcode::OP_MISC_PREFIX:
 		{
-			XE::MiscExtOpcode code;
+			XE::MiscExtOpcode code = *reinterpret_cast<const XE::MiscExtOpcode *>( view.data() + _Context->GetFrame().PC++ );
 			switch ( code )
 			{
 			case XE::MiscExtOpcode::OP_I32_TRUNC_SAT_S_F32:
@@ -859,7 +859,7 @@ XE::int32 XE::WASMInterpreter::Exec( XE::MemoryView view )
 			break;
 		case XE::WASMOpcode::OP_SIMD_PREFIX:
 		{
-			XE::SimdExtOpcode code;
+			XE::SimdExtOpcode code = *reinterpret_cast<const XE::SimdExtOpcode *>( view.data() + _Context->GetFrame().PC++ );
 			switch ( code )
 			{
 			case XE::SimdExtOpcode::OP_V128_LOAD:
@@ -1359,7 +1359,7 @@ XE::int32 XE::WASMInterpreter::Exec( XE::MemoryView view )
 			break;
 		case XE::WASMOpcode::OP_THREAD_PREFIX:
 		{
-			XE::AtomicExtOpcode code;
+			XE::AtomicExtOpcode code = *reinterpret_cast<const XE::AtomicExtOpcode *>( view.data() + _Context->GetFrame().PC++ );
 			switch ( code )
 			{
 			case XE::AtomicExtOpcode::OP_ATOMIC_NOTIFY:

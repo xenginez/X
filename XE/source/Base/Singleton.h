@@ -9,7 +9,6 @@
 #ifndef SINGLETON_H__D09FB825_C94A_4310_AFF3_52EDD109471F
 #define SINGLETON_H__D09FB825_C94A_4310_AFF3_52EDD109471F
 
-#include "Delegate.hpp"
 #include "NonCopyable.hpp"
 
 BEG_XE_NAMESPACE
@@ -36,6 +35,7 @@ public:
 			{
 				_Instance = new ( pair.first ) T();
 			}
+			_Instance = reinterpret_cast<T *>( pair.first );
 		}
 
 		return _Instance;

@@ -13,31 +13,30 @@
 
 BEG_XV_NAMESPACE
 
-enum class ServiceIdent : XE::uint8
+enum class AgentIdent : XE::uint8
 {
 	NONE = 0,
-	SERVICE = 1 << 0,
-	GATEWAY = 1 << 1,
-	REGISTRY = 1 << 2,
+	CLIENT = 1 << 0,
+	SERVICE = 1 << 1,
+	GATEWAY = 1 << 2,
+	REGISTRY = 1 << 3,
 };
-DECL_FLAGS( ServiceIdent ); DECL_XV_ENUM( ServiceIdent );
+DECL_FLAGS( AgentIdent ); DECL_XV_ENUM( AgentIdent );
 
-enum class ServiceStatus : XE::uint8
+enum class AgentStatus : XE::uint8
 {
 	ONLINE,
 	OFFLINE,
 };
-DECL_XV_ENUM( ServiceStatus );
+DECL_XV_ENUM( AgentStatus );
 
-struct XV_API ServiceInfo
+struct XV_API AgentInfo
 {
-	XE::String Ip;
-	XE::uint16 Port;
-	ServiceStatus Status;
+	XE::Endpoint Addr;
+	XV::AgentStatus Status;
+	XV::AgentIdentFlags Ident;
 };
-DECL_XV_CLASS( ServiceInfo );
-
-using ServiceMap = XE::MultiMap< XE::String, XV::ServiceInfo >;
+DECL_XV_CLASS( AgentInfo );
 
 #if XE_DEBUG
 using TCP_RPCServer = XE::RPCServer< XE::TCPServer, XE::JsonIArchive, XE::JsonOArchive >;

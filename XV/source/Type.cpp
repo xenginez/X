@@ -1,10 +1,10 @@
 #include "Type.h"
 
-BEG_META( XV::ServiceIdent )
+BEG_META( XV::AgentIdent )
 END_META()
 
-BEG_META( XV::ServiceStatus )
+BEG_META( XV::AgentStatus )
 END_META()
 
-BEG_META( XV::ServiceInfo )
+BEG_META( XV::AgentInfo )
 END_META()

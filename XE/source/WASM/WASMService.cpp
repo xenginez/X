@@ -5,6 +5,7 @@
 
 #include "WASMModule.h"
 #include "WASMContext.h"
+#include "WASMInterpreter.h"
 
 IMPLEMENT_META( XE::WASMService );
 
@@ -102,7 +103,7 @@ void XE::WASMService::SetGlobal( XE::uint64 idx, const XE::Variant & val )
 
 XE::Variant XE::WASMService::InvokeFunction( XE::uint64 idx, XE::InvokeStack * params )
 {
-
+	return {};
 }
 
 XE::WASMContext * XE::WASMService::GetContext() const

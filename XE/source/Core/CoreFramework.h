@@ -95,9 +95,9 @@ protected:
 	virtual void LoadServices();
 
 protected:
-	void Save( const std::filesystem::path & path, const Map < XE::String, XE::String > & values ) const;
+	virtual void Save( const std::filesystem::path & path, const Map < XE::String, XE::String > & values ) const;
 
-	void Reload( const std::filesystem::path & path, Map < XE::String, XE::String > & values ) const;
+	virtual void Reload( const std::filesystem::path & path, Map < XE::String, XE::String > & values ) const;
 
 public:
 	void SetBool( const XE::String & key, bool val );

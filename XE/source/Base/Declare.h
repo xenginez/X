@@ -67,7 +67,7 @@ template < typename _Ty > class MultiArrayIterator;
 template < typename _Ty > class MultiArrayConstIterator;
 template < typename _Ty, typename ... _Size > class MultiArrayView;
 
-template < typename ... Args > class Delegate;
+template < typename ... Args > using Delegate = std::function< Args... >;
 
 END_XE_NAMESPACE
 

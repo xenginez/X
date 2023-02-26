@@ -185,9 +185,9 @@ public:
 	}
 
 public:
-	void Bind( const XE::String & path, const CallbackType & callback )
+	void Bind( XE::HttpMethodType method, const XE::String & path, const CallbackType & callback )
 	{
-		_Callbacks.insert( { path, callback } );
+		_Callbacks[(int)method].insert( { path, callback } );
 	}
 
 private:
@@ -198,17 +198,19 @@ private:
 			XE::HttpRequest requst;
 			requst.FromString( { view.data(), view.size() } );
 
-			auto it = _Callbacks.find( requst.GetRequest() );
-			if ( it != _Callbacks.end() )
+			int method = (int)requst.GetHttpMethod();
+
+			auto it = _Callbacks[method].find( requst.GetRequest() );
+			if ( it != _Callbacks[method].end() )
 			{
-				auto response = it( _Callbacks ).ToString();
+				auto response = it( requst ).ToString();
 				ProtocolType::Send( { response.data(), response.size() } );
 			}
 			else
 			{
 				XE::HttpResponse response;
 				{
-					response.SetHttpVersion( HttpVersionType::HTTP_1_1 );
+					response.SetHttpVersion( requst.GetHttpVersion() );
 					response.SetCode( 404 );
 					response.SetMsg( "Not Found" );
 				}
@@ -223,8 +225,8 @@ private:
 	}
 
 private:
-	XE::Map<XE::String, CallbackType> _Callbacks;
 	Server::ReceiveCallbackType _HttpReceiveCB = nullptr;
+	std::array<XE::Map<XE::String, CallbackType>, 8> _Callbacks;
 };
 
 template< typename Protocol, typename IArchive, typename OArchive > class RPCServer : public Protocol
