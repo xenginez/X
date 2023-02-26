@@ -2,7 +2,7 @@
 
 #include <QHBoxLayout>
 
-#include "TypeSelectorDialog.h"
+#include "Core/TypeSelectorDialog.h"
 
 REG_INSPECTOR( XE::ASTInfoType, XS::TypeInspector );
 

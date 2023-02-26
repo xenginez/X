@@ -9,7 +9,7 @@
 #ifndef STRINGINSPECTOR_H__F1A46D38_BDC8_4FC9_B8D4_9A2FADD989F0
 #define STRINGINSPECTOR_H__F1A46D38_BDC8_4FC9_B8D4_9A2FADD989F0
 
-#include "Inspector.h"
+#include "Core/Inspector.h"
 
 UI_DECL( StringInspector );
 

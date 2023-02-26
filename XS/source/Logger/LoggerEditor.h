@@ -11,7 +11,7 @@
 
 #include <QStandardItemModel>
 
-#include "ToolEditorWindow.h"
+#include "Core/ToolEditorWindow.h"
 
 UI_DECL( LoggerEditor );
 

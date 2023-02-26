@@ -11,7 +11,7 @@
 
 #include <QFormLayout>
 
-#include "Inspector.h"
+#include "Core/Inspector.h"
 
 UI_DECL( PairInspector );
 

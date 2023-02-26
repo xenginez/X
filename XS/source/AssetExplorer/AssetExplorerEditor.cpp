@@ -11,9 +11,9 @@
 #include <QFileSystemModel>
 #include <QFileIconProvider>
 
-#include "MainWindow.h"
-#include "CoreFramework.h"
-#include "QMetaStaticCall.h"
+#include "Core/MainWindow.h"
+#include "Core/CoreFramework.h"
+#include "Core/QMetaStaticCall.h"
 
 #define database() (XS::CoreFramework::GetCurrentFramework()->GetAssetDatabase())
 #define PATH_ROLE (Qt::UserRole + 1)

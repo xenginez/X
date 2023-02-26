@@ -9,7 +9,7 @@
 #include <QItemDelegate>
 #include <QDesktopServices>
 
-#include "MainWindow.h"
+#include "Core/MainWindow.h"
 
 namespace
 {

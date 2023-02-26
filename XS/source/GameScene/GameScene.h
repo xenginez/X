@@ -9,7 +9,7 @@
 #ifndef GAMESCENE_H__28F1025F_BA22_4F52_AA5C_A9112428279E
 #define GAMESCENE_H__28F1025F_BA22_4F52_AA5C_A9112428279E
 
-#include "Widget.h"
+#include "Core/Widget.h"
 
 UI_DECL( GameScene );
 
