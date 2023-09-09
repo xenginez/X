@@ -37,12 +37,9 @@
 [submodule "3rdparty/vkbind"]
 	path = 3rdparty/vkbind
 	url = https://github.com/mackron/vkbind.git
-[submodule "3rdparty/assimp"]
-	path = 3rdparty/assimp
-	url = https://github.com/assimp/assimp.git
-[submodule "3rdparty/glbind"]
-	path = 3rdparty/glbind
-	url = https://github.com/mackron/glbind.git
 [submodule "3rdparty/llvm-project"]
 	path = 3rdparty/llvm-project
 	url = https://github.com/llvm/llvm-project.git
+[submodule "3rdparty/tinygltf"]
+	path = 3rdparty/tinygltf
+	url = https://github.com/syoyo/tinygltf.git

@@ -2,19 +2,13 @@
 
 #include "CoreFramework.h"
 #include "GraphicsServiceNull.h"
-#include "GraphicsServiceD3D11.h"
 #include "GraphicsServiceD3D12.h"
 #include "GraphicsServiceMetal.h"
 #include "GraphicsServiceVulkan.h"
 #include "GraphicsServiceWebGpu.h"
-#include "GraphicsServiceOpenGL.h"
-#include "GraphicsServiceOpenGLES.h"
 
 namespace XE
 {
-#if !( GRAPHICS_API & GRAPHICS_D3D11 )
-	class GraphicsServiceD3D11 : public GraphicsServiceNull { public: using GraphicsServiceNull::GraphicsServiceNull; };
-#endif
 #if !( GRAPHICS_API & GRAPHICS_D3D12 )
 	class GraphicsServiceD3D12 : public GraphicsServiceNull{ public: using GraphicsServiceNull::GraphicsServiceNull; };
 #endif
@@ -27,38 +21,26 @@ namespace XE
 #if !( GRAPHICS_API & GRAPHICS_WEBGPU )
 	class GraphicsServiceWebGpu : public GraphicsServiceNull{ public: using GraphicsServiceNull::GraphicsServiceNull; };
 #endif
-#if !( GRAPHICS_API & GRAPHICS_OPENGL )
-	class GraphicsServiceOpenGL : public GraphicsServiceNull{ public: using GraphicsServiceNull::GraphicsServiceNull; };
-#endif
-#if !( GRAPHICS_API & GRAPHICS_OPENGLES )
-	class GraphicsServiceOpenGLES : public GraphicsServiceNull{ public: using GraphicsServiceNull::GraphicsServiceNull; };
-#endif
 
 #define SKIP_CALL( NAME, ... ) \
 	if constexpr ( !std::is_void_v< typename XE::FunctionTraits< decltype( &XE::GraphicsService::##NAME ) >::result_type > ) \
 	{ \
 		return std::visit( XE::Overloaded{ \
 			[&]( XE::GraphicsServiceNull * instance ) { return instance->NAME( __VA_ARGS__ ); }, \
-			[&]( XE::GraphicsServiceD3D11 * instance ) { return instance->NAME( __VA_ARGS__ ); }, \
 			[&]( XE::GraphicsServiceD3D12 * instance ) { return instance->NAME( __VA_ARGS__ ); }, \
 			[&]( XE::GraphicsServiceMetal * instance ) { return instance->NAME( __VA_ARGS__ ); }, \
 			[&]( XE::GraphicsServiceVulkan * instance ) { return instance->NAME( __VA_ARGS__ ); }, \
 			[&]( XE::GraphicsServiceWebGpu * instance ) { return instance->NAME( __VA_ARGS__ ); }, \
-			[&]( XE::GraphicsServiceOpenGL * instance ) { return instance->NAME( __VA_ARGS__ ); }, \
-			[&]( XE::GraphicsServiceOpenGLES * instance ) { return instance->NAME( __VA_ARGS__ ); } \
 						   }, _p->_Instance ); \
 	} \
 	else \
 	{ \
 		std::visit( XE::Overloaded{ \
 			[&]( XE::GraphicsServiceNull * instance ) { instance->NAME( __VA_ARGS__ ); }, \
-			[&]( XE::GraphicsServiceD3D11 * instance ) { instance->NAME( __VA_ARGS__ ); }, \
 			[&]( XE::GraphicsServiceD3D12 * instance ) { instance->NAME( __VA_ARGS__ ); }, \
 			[&]( XE::GraphicsServiceMetal * instance ) { instance->NAME( __VA_ARGS__ ); }, \
 			[&]( XE::GraphicsServiceVulkan * instance ) { instance->NAME( __VA_ARGS__ ); }, \
 			[&]( XE::GraphicsServiceWebGpu * instance ) { instance->NAME( __VA_ARGS__ ); }, \
-			[&]( XE::GraphicsServiceOpenGL * instance ) { instance->NAME( __VA_ARGS__ ); }, \
-			[&]( XE::GraphicsServiceOpenGLES * instance ) { instance->NAME( __VA_ARGS__ ); } \
 					}, _p->_Instance ); \
 	}
 }
@@ -71,13 +53,10 @@ struct XE::GraphicsService::Private
 
 	std::variant<
 		XE::GraphicsServiceNull *,
-		XE::GraphicsServiceD3D11 *,
 		XE::GraphicsServiceD3D12 *,
 		XE::GraphicsServiceMetal *,
 		XE::GraphicsServiceVulkan *,
-		XE::GraphicsServiceWebGpu *,
-		XE::GraphicsServiceOpenGL *,
-		XE::GraphicsServiceOpenGLES *
+		XE::GraphicsServiceWebGpu *
 	> _Instance;
 };
 
@@ -101,14 +80,6 @@ void XE::GraphicsService::Prepare()
 	{
 		_p->_Instance = XE::New < XE::GraphicsServiceNull >( debug );
 	}
-	else if ( backend == "XE::GraphicsBackendType::WEBGPU" )
-	{
-		_p->_Instance = XE::New < XE::GraphicsServiceWebGpu >( debug );
-	}
-	else if ( backend == "XE::GraphicsBackendType::D3D11" )
-	{
-		_p->_Instance = XE::New < XE::GraphicsServiceD3D11 >( debug );
-	}
 	else if ( backend == "XE::GraphicsBackendType::D3D12" )
 	{
 		_p->_Instance = XE::New < XE::GraphicsServiceD3D12 >( debug );
@@ -121,13 +92,9 @@ void XE::GraphicsService::Prepare()
 	{
 		_p->_Instance = XE::New < XE::GraphicsServiceVulkan >( debug );
 	}
-	else if ( backend == "XE::GraphicsBackendType::OPENGL" )
+	else if ( backend == "XE::GraphicsBackendType::WEBGPU" )
 	{
-		_p->_Instance = XE::New < XE::GraphicsServiceOpenGL >( debug );
-	}
-	else if ( backend == "XE::GraphicsBackendType::OPENGLES" )
-	{
-		_p->_Instance = XE::New < XE::GraphicsServiceOpenGLES >( debug );
+		_p->_Instance = XE::New < XE::GraphicsServiceWebGpu >( debug );
 	}
 	else
 	{
@@ -139,10 +106,6 @@ void XE::GraphicsService::Prepare()
 		_p->_Instance = XE::New < XE::GraphicsServiceVulkan >( debug );
 #elif GRAPHICS_API & GRAPHICS_WEBGPU
 		_p->_Instance = XE::New < XE::GraphicsServiceWebGpu >( debug );
-#elif GRAPHICS_API & GRAPHICS_OPENGL
-		_p->_Instance = XE::New < XE::GraphicsServiceOpenGL >( debug );
-#elif GRAPHICS_API & GRAPHICS_OPENGLES
-		_p->_Instance = XE::New < XE::GraphicsServiceOpenGLES >( debug );
 #else
 		_p->_Instance = XE::New < XE::GraphicsServiceNull >( debug );
 #endif
@@ -167,13 +130,10 @@ void XE::GraphicsService::Clearup()
 
 	std::visit( XE::Overloaded{ 
 			[&]( XE::GraphicsServiceNull * instance ) { XE::Delete( instance ); },
-			[&]( XE::GraphicsServiceD3D11 * instance ) { XE::Delete( instance ); },
 			[&]( XE::GraphicsServiceD3D12 * instance ) { XE::Delete( instance ); },
 			[&]( XE::GraphicsServiceMetal * instance ) { XE::Delete( instance ); },
 			[&]( XE::GraphicsServiceVulkan * instance ) { XE::Delete( instance ); },
 			[&]( XE::GraphicsServiceWebGpu * instance ) { XE::Delete( instance ); },
-			[&]( XE::GraphicsServiceOpenGL * instance ) { XE::Delete( instance ); },
-			[&]( XE::GraphicsServiceOpenGLES * instance ) { XE::Delete( instance ); }
 				}, _p->_Instance );
 
 	_p->_Instance = (XE::GraphicsServiceNull *)( nullptr );

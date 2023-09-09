@@ -120,12 +120,9 @@ enum class GraphicsBackendType
 {
     NIL = 0x00000000,
     WEBGPU = 0x00000001,
-    D3D11 = 0x00000002,
-    D3D12 = 0x00000003,
-    METAL = 0x00000004,
-    VULKAN = 0x00000005,
-    OPENGL = 0x00000006,
-    OPENGLES = 0x00000007,
+    D3D12 = 0x00000002,
+    METAL = 0x00000003,
+    VULKAN = 0x00000004,
     DEFAULT = 0x7FFFFFFF,
 };
 DECL_XE_ENUM( GraphicsBackendType );

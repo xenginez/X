@@ -272,7 +272,7 @@ void XE::CoreFramework::Startup()
 
 void XE::CoreFramework::Update()
 {
-	XE::GCMemoryResource::GC();
+//	XE::GCMemoryResource::GC();
 
 	_p->_MainWindow->MessageLoop();
 
@@ -309,16 +309,18 @@ void XE::CoreFramework::Clearup()
 void XE::CoreFramework::LoadModules()
 {
 	auto path = GetModulePath();
-
-	std::filesystem::directory_iterator end;
-	for( std::filesystem::directory_iterator iter( path ); iter != end; ++iter )
+	if( std::filesystem::exists( path ) )
 	{
-		if( std::filesystem::is_directory( *iter ) )
+		std::filesystem::directory_iterator end;
+		for( std::filesystem::directory_iterator iter( path ); iter != end; ++iter )
 		{
-			auto module = ( *iter ).path() / ( *iter ).path().stem();
-			if( Library::Open( module.string() ) == LibraryHandle::Invalid )
+			if( std::filesystem::is_directory( *iter ) )
 			{
-				XE_ERROR( "load module %{1} failed!", module.string().c_str() );
+				auto module = ( *iter ).path() / ( *iter ).path().stem();
+				if( Library::Open( module.string() ) == LibraryHandle::Invalid )
+				{
+					XE_ERROR( "load module %{1} failed!", module.string().c_str() );
+				}
 			}
 		}
 	}

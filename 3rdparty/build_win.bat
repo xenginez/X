@@ -31,36 +31,6 @@ git submodule update --init --recursive
 
 
 
-:BUILD_GOOGLETEST
-cd %RD3_PATH%
-mkdir .\googletest\build
-echo "build gtest debug"
-cd %RD3_PATH%
-cd .\googletest\build
-cmake -DBUILD_GMOCK=OFF -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX=.\install\ .. -G "Visual Studio 16 2019"
-msbuild.exe ".\INSTALL.vcxproj"  /m /nr:true ^
-    /p:Configuration=Debug ^
-    /p:Platform=x64 ^
-    /p:AppxBundlePlatforms=x64 ^
-    /p:UseSubFolderForOutputDirDuringMultiPlatformBuild=false
-echo "copy gtest debug file to depends"
-xcopy %cd%\install\bin\gtest.dll %RD3_PATH%\..\depends\bin\win\debug\ /y
-xcopy %cd%\install\lib\gtest.lib %RD3_PATH%\..\depends\lib\win\debug\ /y
-echo "build gtest release"
-cd %RD3_PATH%
-cd .\googletest\build
-msbuild.exe ".\INSTALL.vcxproj"  /m /nr:true ^
-    /p:Configuration=Release ^
-    /p:Platform=x64 ^
-    /p:AppxBundlePlatforms=x64 ^
-    /p:UseSubFolderForOutputDirDuringMultiPlatformBuild=false
-echo "copy gtest release file to depends"
-xcopy %cd%\install\bin\gtest.dll %RD3_PATH%\..\depends\bin\win\release\ /y
-xcopy %cd%\install\lib\gtest.lib %RD3_PATH%\..\depends\lib\win\release\ /y
-xcopy %cd%\install\include\ %RD3_PATH%\..\depends\include\ /s /y
-
-
-
 :BUILD_CPUINFO
 cd %RD3_PATH%
 mkdir .\cpuinfo\build
@@ -154,37 +124,6 @@ xcopy %cd%\install\include\ %RD3_PATH%\..\depends\include\ /s /y
 
 
 
-:BUILD_ASSIMP
-cd %RD3_PATH%
-mkdir .\assimp\build
-echo "build assimp debug"
-cd %RD3_PATH%
-cd .\assimp\build
-cmake -DASSIMP_BUILD_ALL_EXPORTERS_BY_DEFAULT=OFF -DASSIMP_BUILD_ASSIMP_TOOLS=OFF -DASSIMP_BUILD_TESTS=OFF -DASSIMP_INSTALL_PDB=OFF -DCMAKE_DEBUG_PREFIX="" -DCMAKE_DEBUG_POSTFIX="" -DLIBRARY_SUFFIX="" -DCMAKE_INSTALL_PREFIX=.\install\ .. -G "Visual Studio 16 2019"
-msbuild.exe ".\INSTALL.vcxproj"  /m /nr:true ^
-    /p:Configuration=Debug ^
-    /p:Platform=x64 ^
-    /p:AppxBundlePlatforms=x64 ^
-    /p:UseSubFolderForOutputDirDuringMultiPlatformBuild=false
-echo "copy assimp release file to depends"
-xcopy %cd%\install\bin\assimp.dll %RD3_PATH%\..\depends\bin\win\debug\ /y
-xcopy %cd%\install\lib\assimp.lib %RD3_PATH%\..\depends\lib\win\debug\ /y
-del %cd%\install\ /f /s /q
-echo "build assimp release"
-cd %RD3_PATH%
-cd .\assimp\build
-msbuild.exe ".\INSTALL.vcxproj"  /m /nr:true ^
-    /p:Configuration=Release ^
-    /p:Platform=x64 ^
-    /p:AppxBundlePlatforms=x64 ^
-    /p:UseSubFolderForOutputDirDuringMultiPlatformBuild=false
-echo "copy assimp release file to depends"
-xcopy %cd%\install\bin\assimp.dll %RD3_PATH%\..\depends\bin\win\release\ /y
-xcopy %cd%\install\lib\assimp.lib %RD3_PATH%\..\depends\lib\win\release\ /y
-xcopy %cd%\install\include\ %RD3_PATH%\..\depends\include\ /s /y
-
-
-
 :BUILD_LLVM
 cd %RD3_PATH%
 mkdir .\llvm-project\llvm\build
@@ -243,11 +182,6 @@ echo "copy d3dx12 head file to depends"
 cd %RD3_PATH%
 xcopy %cd%\D3DX12\d3dx12.h %RD3_PATH%\..\depends\include\D3DX12\ /s /y
 
-:BUILD_GLBIND
-echo "copy glbind head file to depends"
-cd %RD3_PATH%
-xcopy %cd%\glbind\glbind.h %RD3_PATH%\..\depends\include\glbind\ /y
-
 :BUILD_VKBIND
 echo "copy vkbind head file to depends"
 cd %RD3_PATH%
@@ -289,6 +223,15 @@ xcopy %cd%\imgui\imgui.cpp %RD3_PATH%\..\XE\source\GUI\ /y
 xcopy %cd%\imgui\imgui_draw.cpp %RD3_PATH%\..\XE\source\GUI\ /y
 xcopy %cd%\imgui\imgui_tables.cpp %RD3_PATH%\..\XE\source\GUI\ /y
 xcopy %cd%\imgui\imgui_widgets.cpp %RD3_PATH%\..\XE\source\GUI\ /y
+
+
+:BUILD_TINYGLTF
+echo "copy tinygltf head file to depends"
+cd %RD3_PATH%
+xcopy %cd%\tinygltf\tinygltf.h %RD3_PATH%\..\depends\include\tinygltf\ /s /y
+xcopy %cd%\tinygltf\json.hpp %RD3_PATH%\..\depends\include\tinygltf\ /s /y
+xcopy %cd%\tinygltf\stb_image.h %RD3_PATH%\..\depends\include\tinygltf\ /s /y
+xcopy %cd%\tinygltf\stb_image_write.h %RD3_PATH%\..\depends\include\tinygltf\ /s /y
 
 
 :EXIT
