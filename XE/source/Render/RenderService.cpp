@@ -144,7 +144,7 @@ struct XE::RenderService::Private
 	XE::List< RenderTextureTemporaryPtr > _TexturePool;
 	XE::Map< XE::String, RenderTextureTemporaryPtr > _GlobalTexture;
 
-	XE::List< XE::CameraComponent * > _Cameras;
+	XE::List< XE::CameraData * > _Cameras;
 	XE::OCTree< XE::LightData * > _StaticLights;
 	XE::List< XE::LightData * > _DynamicLights;
 	XE::OCTree< XE::RenderData * > _StaticRenders;
@@ -354,13 +354,13 @@ XE::RenderTexturePtr XE::RenderService::GetRenderTextureFromPool( XE::int32 widt
 	return nullptr;
 }
 
-XE::CullingData XE::RenderService::Culling( XE::CameraComponent * val )
+XE::CullingData XE::RenderService::Culling( XE::CameraData * val )
 {
 	XE::CullingData data;
 
 	// cull
 	{
-		auto frustum = val->GetFrustum();
+		auto frustum = XE::Frustum( val->_View * val->_Projection );
 		XE::Array< XE::RenderData * > renders( XE::MemoryResource::GetFrameMemoryResource() ); renders.reserve( 1000 );
 
 		_p->_StaticRenders.Intersect( frustum, {}, renders );
@@ -374,7 +374,7 @@ XE::CullingData XE::RenderService::Culling( XE::CameraComponent * val )
 
 		for ( auto it : renders )
 		{
-			if ( ( val->GetMask() & it->Mask ) != 0 )
+			if ( ( val->_Mask & it->Mask ) != 0 )
 			{
 				auto queue = it->Material->GetRenderQueueType();
 
@@ -411,7 +411,7 @@ XE::CullingData XE::RenderService::Culling( XE::CameraComponent * val )
 
 	// sort
 	{
-		auto origin = val->GetTransform().GetWorldPosition();
+		auto origin = XE::Mathf::Translation( val->_View );
 
 		std::sort( data.Background.begin(), data.Background.end(), RenderQueueSorter<XE::RenderQueueType::BACKGROUND>() );
 		std::sort( data.Geometry.begin(), data.Geometry.end(), RenderQueueSorter<XE::RenderQueueType::GEOMETRY>( origin ) );
@@ -430,22 +430,14 @@ XE::Disposable XE::RenderService::RegisterLight( XE::LightData * val )
 {
 	if ( val->IsDynamic )
 	{
-		auto it = std::find( _p->_DynamicLights.begin(), _p->_DynamicLights.end(), nullptr );
-		if (it != _p->_DynamicLights.end() )
-		{
-			*it = val;
-		}
-		else
-		{
-			_p->_DynamicLights.push_back( val );
-		}
+		_p->_DynamicLights.push_back( val );
 
 		return { [this, val]()
 		{
 			auto it = std::find( _p->_DynamicLights.begin(), _p->_DynamicLights.end(), val );
 			if ( it != _p->_DynamicLights.end() )
 			{
-				*it = nullptr;
+				_p->_DynamicLights.erase( it );
 			}
 		} };
 	}
@@ -461,22 +453,14 @@ XE::Disposable XE::RenderService::RegisterRender( XE::RenderData * val )
 {
 	if ( val->IsDynamic )
 	{
-		auto it = std::find( _p->_DynamicRenders.begin(), _p->_DynamicRenders.end(), nullptr );
-		if ( it != _p->_DynamicRenders.end() )
-		{
-			*it = val;
-		}
-		else
-		{
-			_p->_DynamicRenders.push_back( val );
-		}
+		_p->_DynamicRenders.push_back( val );
 
 		return { [this, val]()
 		{
 			auto it = std::find( _p->_DynamicRenders.begin(), _p->_DynamicRenders.end(), val );
 			if ( it != _p->_DynamicRenders.end() )
 			{
-				*it = nullptr;
+				_p->_DynamicRenders.erase( it );
 			}
 		} };
 	}
@@ -488,19 +472,9 @@ XE::Disposable XE::RenderService::RegisterRender( XE::RenderData * val )
 	}
 }
 
-XE::Disposable XE::RenderService::RegisterCamera( XE::CameraComponent * val )
+XE::Disposable XE::RenderService::RegisterCamera( XE::CameraData * val )
 {
-	auto it = std::find( _p->_Cameras.begin(), _p->_Cameras.end(), nullptr );
-	if ( it != _p->_Cameras.end() )
-	{
-		*it = val;
-	}
-	else
-	{
-		it = _p->_Cameras.insert( _p->_Cameras.end(), val );
-	}
-
-	_p->_Cameras.sort( []( const auto & left, const auto & right ) { return left->GetDepth() < right->GetDepth(); } );
+	_p->_Cameras.sort( []( const auto & left, const auto & right ) { return left->_Depth < right->_Depth; } );
 
 	return { [this, val]()
 	{
@@ -512,7 +486,12 @@ XE::Disposable XE::RenderService::RegisterCamera( XE::CameraComponent * val )
 	} };
 }
 
-void XE::RenderService::RenderCamera( XE::CameraComponent * val )
+void XE::RenderService::RenderCamera( XE::CameraData * val )
 {
-
+	if( val->_RenderResource && val->_RenderGraph && val->_RenderTexture )
+	{
+		XE::RenderExecutor exec;
+		exec.Execute( val->_RenderResource, val->_RenderGraph, val->_RenderTexture );
+		exec.Submit();
+	}
 }

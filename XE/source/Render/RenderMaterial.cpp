@@ -15,12 +15,12 @@ XE::RenderMaterial::~RenderMaterial()
 
 bool XE::RenderMaterial::GetTwoSided() const
 {
-	return _TowSided;
+	return _TwoSided;
 }
 
 void XE::RenderMaterial::SetTwoSided( bool val )
 {
-	_TowSided = val;
+	_TwoSided = val;
 }
 
 XE::RenderQueueType XE::RenderMaterial::GetRenderQueueType() const

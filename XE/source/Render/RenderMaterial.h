@@ -32,7 +32,7 @@ public:
 	void SetRenderQueueType( XE::RenderQueueType val );
 
 private:
-	bool _TowSided = false;
+	bool _TwoSided = false;
 	XE::RenderShaderPtr _Shader;
 	XE::RenderQueueType _RenderQueueType = RenderQueueType::GEOMETRY;
 };

@@ -75,7 +75,25 @@ struct XE_API RenderData
 	XE::AABB BoundingBox;
 	XE::Mat4x4f Transform;
 	XE::RenderMaterialPtr Material;
-	XE::Delegate< void( XE::RenderExecutor & ) > RenderCallback;
+	XE::GraphicsBufferPtr IndexBuffer;
+	XE::GraphicsBufferPtr VertexBuffer;
+	XE::GraphicsBufferPtr IndirectBuffer;
+};
+
+struct XE_API CameraData
+{
+	XE::float32 _FOV = 60.0f;
+	XE::float32 _Near = 0.1f;
+	XE::float32 _Far = 1000.0f;
+	XE::uint32 _Depth = 1;
+	XE::uint64 _Mask = 0;
+	XE::Rectf _Viewport = { 0, 0, 1, 1 };
+	XE::Mat4x4f _View;
+	XE::Mat4x4f _Projection;
+	XE::CameraType _Type = XE::CameraType::ORTHOGRAPHIC;
+	XE::RenderGraphPtr _RenderGraph;
+	XE::RenderTexturePtr _RenderTexture;
+	XE::RenderResourcePtr _RenderResource;
 };
 
 struct XE_API CullingData
@@ -106,7 +124,7 @@ template<> class XE::MakeAABB< XE::RenderData * >
 public:
 	XE::AABB operator()( XE::RenderData * val )
 	{
-		return {};
+		return val->BoundingBox;
 	}
 };
 

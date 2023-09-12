@@ -49,22 +49,18 @@ public:
 
 	XE::RenderTexturePtr GetRenderTextureFromPool( XE::int32 width, XE::int32 height, XE::GraphicsTextureFormat format );
 
-	XE::RenderTexturePtr GetRenderTextureFromGlobal( const XE::String & name );
-
-	XE::RenderTexturePtr CreateRenderTextureFromGlobal( const XE::String & name, XE::int32 width, XE::int32 height, XE::GraphicsTextureFormat format );
-
 public:
-	XE::CullingData Culling( XE::CameraComponent * val );
+	XE::CullingData Culling( XE::CameraData * val );
 
 private:
 	XE::Disposable RegisterLight( XE::LightData * val );
 
 	XE::Disposable RegisterRender( XE::RenderData * val );
 
-	XE::Disposable RegisterCamera( XE::CameraComponent * val );
+	XE::Disposable RegisterCamera( XE::CameraData * val );
 
 private:
-	void RenderCamera( XE::CameraComponent * val );
+	void RenderCamera( XE::CameraData * val );
 
 private:
 	Private * _p;

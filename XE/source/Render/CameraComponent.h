@@ -28,11 +28,10 @@ public:
 
 	~CameraComponent();
 
-private:
-	void Render( XE::RenderExecutor & val ) const;
-
 protected:
 	void OnStartup() override;
+
+	void OnUpdate( XE::float32 dt ) override;
 
 	void OnClearup() override;
 
@@ -82,18 +81,8 @@ public:
 	XE::Mat4x4f GetProjection() const;
 
 private:
-	XE::float32 _FOV = 60.0f;
-	XE::float32 _Near = 0.1f;
-	XE::float32 _Far = 1000.0f;
-	XE::uint32 _Depth = 1;
-	XE::uint64 _Mask = 0;
-	XE::Rectf _Viewport = { 0, 0, 1, 1 };
-	XE::CameraType _Type = XE::CameraType::ORTHOGRAPHIC;
-
+	XE::CameraData _Data;
 	XE::Disposable _Disposable;
-	XE::RenderGraphPtr _RenderGraph;
-	XE::RenderTexturePtr _RenderTexture;
-	XE::RenderResourcePtr _RenderResource;
 };
 
 END_XE_NAMESPACE

@@ -26,11 +26,6 @@ void XE::RenderComponent::OnClearup()
 	_Disposable.Dispose();
 }
 
-void XE::RenderComponent::Render( const XE::GraphicsCommandEncoderPtr & encoder ) const
-{
-
-}
-
 bool XE::RenderComponent::GetDynamic() const
 {
 	return _Data.IsDynamic;
