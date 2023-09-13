@@ -9,7 +9,6 @@
 #ifndef OBJECTSEDITOR_H__7B7C0B22_7F47_4FB6_9D83_949A00BD8BD6
 #define OBJECTSEDITOR_H__7B7C0B22_7F47_4FB6_9D83_949A00BD8BD6
 
-#include "Core/Inspector.h"
 #include "Core/ToolEditorWindow.h"
 
 class QTreeWidgetItem;
@@ -45,11 +44,7 @@ private slots:
 	void OnRenderTreeWidgetItemClicked( QTreeWidgetItem * item, int column );
 
 private:
-	void OnInspectorClicked( const XE::Variant & val );
-
-private:
 	Ui::WorldEditor * ui;
-	XS::Inspector * _Inspector = nullptr;
 };
 
 END_XS_NAMESPACE

@@ -302,19 +302,19 @@ public:
 		}
 		else if ( isPackage( index ) )
 		{
-			return QIcon( "SkinIcons:/images/assets/icon_assets_package.png" );
+			return QIcon( "SkinIcons:/images/asset/icon_asset_package.png" );
 		}
 		else if ( isFollow( index ) )
 		{
-			return QIcon( "SkinIcons:/images/assets/icon_assets_favorites.png" );
+			return QIcon( "SkinIcons:/images/asset/icon_asset_favorites.png" );
 		}
 		else if ( isDir( index ) )
 		{
-			return QIcon( "SkinIcons:/images/assets/icon_assets_folder.png" );
+			return QIcon( "SkinIcons:/images/asset/icon_asset_folder.png" );
 		}
 		else
 		{
-			return QIcon( "SkinIcons:/images/assets/icon_assets_folder.png" );
+			return QIcon( "SkinIcons:/images/asset/icon_asset_folder.png" );
 		}
 	}
 	QString fileName( const QModelIndex & index ) const
@@ -437,12 +437,12 @@ XS::AssetExplorerEditor::AssetExplorerEditor( QWidget * parent /*= nullptr */ )
 	setWindowIcon( icon() );
 	setTitleBar( ui->title_bar );
 
-	ui->add->setIcon( QIcon( "SkinIcons:/images/assets/icon_assets_add.png" ) );
-	ui->type->setIcon( QIcon( "SkinIcons:/images/assets/icon_assets_type.png" ) );
-	ui->label->setIcon( QIcon( "SkinIcons:/images/assets/icon_assets_label.png" ) );
-	ui->invisible->setIcon( QIcon( "SkinIcons:/images/assets/icon_assets_invisible.png" ) );
-	ui->icon->setPixmap( QPixmap( "SkinIcons:/images/assets/icon_assets_folder.png" ) );
-	ui->search->addAction( QIcon( "SkinIcons:/images/assets/icon_assets_search.png" ), QLineEdit::ActionPosition::LeadingPosition );
+	ui->add->setIcon( QIcon( "SkinIcons:/images/asset/icon_asset_add.png" ) );
+	ui->type->setIcon( QIcon( "SkinIcons:/images/asset/icon_asset_type.png" ) );
+	ui->label->setIcon( QIcon( "SkinIcons:/images/asset/icon_asset_label.png" ) );
+	ui->invisible->setIcon( QIcon( "SkinIcons:/images/asset/icon_asset_invisible.png" ) );
+	ui->icon->setPixmap( QPixmap( "SkinIcons:/images/asset/icon_asset_folder.png" ) );
+	ui->search->addAction( QIcon( "SkinIcons:/images/asset/icon_asset_search.png" ), QLineEdit::ActionPosition::LeadingPosition );
 
 	ui->splitter->setSizes( { 3000, 7000 } );
 

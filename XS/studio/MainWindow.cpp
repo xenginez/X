@@ -91,6 +91,7 @@ void XStudio::MainWindow::showEvent( QShowEvent * e )
 			auto edit = XS::Registry::ConstructT<XS::DockWidget>( "XS::EditSceneEditor", this ); edit->showMaximized();
 			auto game = XS::Registry::ConstructT<XS::DockWidget>( "XS::GameSceneEditor", this ); game->showMaximized();
 			auto log = XS::Registry::ConstructT<XS::DockWidget>( "XS::LoggerEditor", this ); log->showMaximized();
+			auto ins = XS::Registry::ConstructT<XS::DockWidget>( "XS::InspectorEditor", this ); ins->showMaximized();
 
 			QMetaObject::invokeMethod( this, [=]()
 			{
@@ -109,6 +110,10 @@ void XStudio::MainWindow::showEvent( QShowEvent * e )
 				addDockWidget( Qt::LeftDockWidgetArea, log );
 				QMainWindow::tabifyDockWidget( asset, log );
 				QMainWindow::setTabPosition( Qt::LeftDockWidgetArea, QTabWidget::South );
+
+				addDockWidget( Qt::RightDockWidgetArea, ins );
+				QMainWindow::splitDockWidget( world, ins, Qt::Vertical );
+				QMainWindow::resizeDocks( { world, ins }, { int( height() * 0.5f ), int( height() * 0.5f ) }, Qt::Vertical );
 
 				edit->raise();
 				asset->raise();

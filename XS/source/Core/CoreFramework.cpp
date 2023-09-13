@@ -12,7 +12,7 @@ struct XS::CoreFramework::Private
 XS::CoreFramework * XS::CoreFramework::Private::_Framework = nullptr;
 
 XS::CoreFramework::CoreFramework()
-	:_p( XE::New<Private>() )
+	: _p( XE::New<Private>() )
 {
 	Private::_Framework = this;
 }
