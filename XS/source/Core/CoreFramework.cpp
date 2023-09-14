@@ -4,10 +4,12 @@ IMPLEMENT_META( XS::CoreFramework );
 
 struct XS::CoreFramework::Private
 {
+	XS::Signals _Signals;
+	XS::AssetDatabasePtr _AssetDatabase;
+
 	std::filesystem::path _ProjectPath;
 	static XS::CoreFramework * _Framework;
 	XE::Map< XE::String, XE::String > _Values;
-	XE::SharedPtr< XS::AssetDatabase > _AssetDatabase;
 };
 XS::CoreFramework * XS::CoreFramework::Private::_Framework = nullptr;
 
@@ -27,6 +29,11 @@ XS::CoreFramework::~CoreFramework()
 XS::CoreFramework * XS::CoreFramework::GetCurrentFramework()
 {
 	return Private::_Framework;
+}
+
+XS::SignalsPtr XS::CoreFramework::GetSignals() const
+{
+	return &_p->_Signals;
 }
 
 XS::AssetDatabasePtr XS::CoreFramework::GetAssetDatabase() const

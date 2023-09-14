@@ -16,7 +16,7 @@ BEG_XE_NAMESPACE
 
 class XE_API Reflection : public XE::Singleton< XE::Reflection >
 {
-	friend class MetaInfo;
+	friend class XE::MetaInfo;
 
 private:
 	struct Private;

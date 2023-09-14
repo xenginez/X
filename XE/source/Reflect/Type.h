@@ -42,34 +42,28 @@ enum class MetaInfoType
 	VARIABLE,
 };
 
-enum class ArchiveType
-{
-	LOAD,
-	SAVE,
-};
-
 class XE_API MetaException : public XE::RuntimeException
 {
 public:
-	MetaException( MetaInfoCPtr Meta, const XE::String& Msg );
+	MetaException( XE::MetaInfoCPtr Meta, const XE::String & Msg );
 
 	~MetaException();
 
 public:
-	virtual char const* What() const;
+	virtual char const * What() const;
 
 public:
-	MetaInfoCPtr GetMetaInfo() const;
+	XE::MetaInfoCPtr GetMetaInfo() const;
 
 private:
-	String _Msg;
-	MetaInfoCPtr _Meta;
+	XE::String _Msg;
+	XE::MetaInfoCPtr _Meta;
 };
 
-template < class T > class ActiveSingleton
+template < typename T > class ActiveSingleton
 {
 public:
-	static ActiveSingleton< T >& Register()
+	static ActiveSingleton< T > & Register()
 	{
 		static ActiveSingleton< T > t;
 
@@ -92,7 +86,7 @@ private:
 private:
 	static ActiveSingleton< T > & _Reference;
 };
-template< class T > ActiveSingleton< T > & ActiveSingleton< T >::_Reference = ActiveSingleton< T >::Register();
+template< typename T > XE::ActiveSingleton< T > & XE::ActiveSingleton< T >::_Reference = XE::ActiveSingleton< T >::Register();
 template< typename T > struct MetaTypeCollector;
 
 END_XE_NAMESPACE

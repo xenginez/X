@@ -45,4 +45,6 @@ DECL_EVENT( INSPECTOR, "inspector editor view", XS::InspectorEventInfo );
 
 END_XS_NAMESPACE
 
+Q_DECLARE_METATYPE( XE::Variant );
+
 #endif//GLOBAL_H__3384BD3C_6A3A_46A7_829C_38D1EB4DD8FE

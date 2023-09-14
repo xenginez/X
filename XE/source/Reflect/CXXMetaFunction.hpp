@@ -13,41 +13,41 @@
 
 BEG_XE_NAMESPACE
 
-template< typename ... ParameterType  > class CXXMetaFunction< void( ParameterType... ) > : public MetaFunction
+template< typename ... ParameterType  > class CXXMetaFunction< void( ParameterType... ) > : public XE::MetaFunction
 {
 public:
 	using FunctionType = void( * )( ParameterType... );
 
 public:
-	CXXMetaFunction( const String & Name, FunctionType Callback, MetaModuleCPtr Module )
-		:MetaFunction( Name + XE::ToString( MakeParameterType< ParameterType... >() ), nullptr, MakeParameterType< ParameterType... >(), Module ), _Callback( Callback )
+	CXXMetaFunction( const XE::String & Name, FunctionType Callback, XE::MetaModuleCPtr Module )
+		: XE::MetaFunction( Name + XE::ToString( XE::MakeParameterType< ParameterType... >() ), nullptr, XE::MakeParameterType< ParameterType... >(), Module ), _Callback( Callback )
 	{
 	}
 
 public:
-	Variant Invoke( InvokeStack * params ) const override
+	XE::Variant Invoke( XE::InvokeStack * params ) const override
 	{
 		_Callback( params->Pop< ParameterType >()... );
-		return Variant();
+		return XE::Variant();
 	}
 
 private:
 	FunctionType _Callback;
 };
 
-template< typename ResultType, typename ... ParameterType  > class CXXMetaFunction< ResultType( ParameterType... ) > : public MetaFunction
+template< typename ResultType, typename ... ParameterType  > class CXXMetaFunction< ResultType( ParameterType... ) > : public XE::MetaFunction
 {
 public:
 	using FunctionType = ResultType( * )( ParameterType... );
 
 public:
-	CXXMetaFunction( const String & Name, FunctionType Callback, MetaModuleCPtr Module )
-		:MetaFunction( Name + XE::ToString( MakeParameterType< ParameterType... >() ), TypeID< ResultType >::Get(), MakeParameterType< ParameterType... >(), Module ), _Callback( Callback )
+	CXXMetaFunction( const XE::String & Name, FunctionType Callback, XE::MetaModuleCPtr Module )
+		: XE::MetaFunction( Name + XE::ToString( XE::MakeParameterType< ParameterType... >() ), ::TypeID< ResultType >::Get(), XE::MakeParameterType< ParameterType... >(), Module ), _Callback( Callback )
 	{
 	}
 
 public:
-	Variant Invoke( InvokeStack * params ) const override
+	XE::Variant Invoke( XE::InvokeStack * params ) const override
 	{
 		return _Callback( params->Pop< ParameterType >()... );
 	}

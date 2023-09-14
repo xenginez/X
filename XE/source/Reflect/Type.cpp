@@ -10,7 +10,7 @@ type->Value( "REFERENCE", XE::TypeFlag::REFERENCE );
 type->Value( "SHAREDPTR", XE::TypeFlag::SHAREDPTR );
 END_META()
 
-XE::MetaException::MetaException( MetaInfoCPtr Meta, const String & Msg )
+XE::MetaException::MetaException( XE::MetaInfoCPtr Meta, const XE::String & Msg )
 	: XE::RuntimeException( XE::Format( "" ) ), _Meta( Meta ), _Msg( Msg )
 {
 
@@ -21,7 +21,7 @@ XE::MetaException::~MetaException()
 
 }
 
-char const* XE::MetaException::What() const
+char const * XE::MetaException::What() const
 {
 	return ( "MetaException: " + _Meta->GetFullName() + " " + _Msg ).c_str();
 }

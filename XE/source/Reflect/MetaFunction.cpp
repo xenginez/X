@@ -1,7 +1,7 @@
 #include "MetaFunction.h"
 
-XE::MetaFunction::MetaFunction( const String & Name, MetaInfoCPtr Result, ParameterType && Parameter, MetaModuleCPtr Module )
-	:MetaInfo( Name, MetaInfoType::FUNCTION, nullptr, Module ), _Result( Result ), _Parameter( Parameter )
+XE::MetaFunction::MetaFunction( const XE::String & Name, XE::MetaInfoCPtr Result, XE::ParameterType && Parameter, XE::MetaModuleCPtr Module )
+	: XE::MetaInfo( Name, XE::MetaInfoType::FUNCTION, nullptr, Module ), _Result( Result ), _Parameter( Parameter )
 {
 
 }

@@ -14,10 +14,10 @@
 
 BEG_XE_NAMESPACE
 
-class XE_API MetaClass : public MetaType
+class XE_API MetaClass : public XE::MetaType
 {
 public:
-	MetaClass( const String& Name, XE::uint64 Size, bool IsAbs, bool IsCont, MetaClassCPtr Super, MetaInfoCPtr Owner, MetaModuleCPtr Module, const XE::TemplateType & temps, const XE::MetaTypeCPtr & element );
+	MetaClass( const XE::String & Name, XE::uint64 Size, bool IsAbs, bool IsCont, XE::MetaClassCPtr Super, XE::MetaInfoCPtr Owner, XE::MetaModuleCPtr Module, const XE::TemplateType & temps, const XE::MetaTypeCPtr & element );
 
 	~MetaClass();
 
@@ -66,9 +66,9 @@ public:
 	XE::MetaPropertyCPtr FindProperty( XE::uint64 hash ) const;
 
 public:
-	XE::MetaMethodCPtr FindMethod( const XE::String& Name ) const;
+	XE::MetaMethodCPtr FindMethod( const XE::String & Name ) const;
 
-	XE::MetaPropertyCPtr FindProperty( const XE::String& Name ) const;
+	XE::MetaPropertyCPtr FindProperty( const XE::String & Name ) const;
 
 	XE::MetaMethodCPtr FindMethod( const XE::String & Name, const XE::ParameterType & Types ) const;
 

@@ -4,8 +4,8 @@
 #include "MetaProperty.h"
 #include "MetaAttribute.h"
 
-XE::MetaClass::MetaClass( const String & Name, XE::uint64 Size, bool IsAbs, bool IsCont, MetaClassCPtr Super, MetaInfoCPtr Owner, MetaModuleCPtr Module, const XE::TemplateType & temps, const XE::MetaTypeCPtr & element )
-	:MetaType( Name, MetaInfoType::CLASS, Size, Owner, Module ), _IsAbstract( IsAbs ), _IsContainer( IsCont ), _Super( Super ), _ElementType( element )
+XE::MetaClass::MetaClass( const XE::String & Name, XE::uint64 Size, bool IsAbs, bool IsCont, XE::MetaClassCPtr Super, XE::MetaInfoCPtr Owner, XE::MetaModuleCPtr Module, const XE::TemplateType & temps, const XE::MetaTypeCPtr & element )
+	: XE::MetaType( Name, MetaInfoType::CLASS, Size, Owner, Module ), _IsAbstract( IsAbs ), _IsContainer( IsCont ), _Super( Super ), _ElementType( element )
 {
 	if( Super )
 	{
@@ -15,10 +15,10 @@ XE::MetaClass::MetaClass( const String & Name, XE::uint64 Size, bool IsAbs, bool
 
 XE::MetaClass::~MetaClass()
 {
-	if ( auto super = CP_CAST< XE::MetaClass >( _Super.lock() ) )
+	if( auto super = CP_CAST< XE::MetaClass >( _Super.lock() ) )
 	{
 		auto it = std::find( super->_DerivedClasses.begin(), super->_DerivedClasses.end(), this );
-		if ( it != super->_DerivedClasses.end() )
+		if( it != super->_DerivedClasses.end() )
 		{
 			super->_DerivedClasses.erase( it );
 		}
@@ -121,9 +121,9 @@ const XE::Array< const XE::MetaClass * > & XE::MetaClass::GetDerivedClasses() co
 	return _DerivedClasses;
 }
 
-void XE::MetaClass::VisitMethod( const XE::Delegate< void( const MetaMethodCPtr & ) > & val ) const
+void XE::MetaClass::VisitMethod( const XE::Delegate< void( const XE::MetaMethodCPtr & ) > & val ) const
 {
-	for ( auto var : _Methods )
+	for( auto var : _Methods )
 	{
 		val( var );
 	}
@@ -133,9 +133,9 @@ void XE::MetaClass::VisitMethod( const XE::Delegate< void( const MetaMethodCPtr 
 	}
 }
 
-void XE::MetaClass::VisitProperty( const XE::Delegate< void( const  MetaPropertyCPtr & ) > & val ) const
+void XE::MetaClass::VisitProperty( const XE::Delegate< void( const XE::MetaPropertyCPtr & ) > & val ) const
 {
-	for ( auto var : _Propertys )
+	for( auto var : _Propertys )
 	{
 		val( var );
 	}
@@ -145,11 +145,11 @@ void XE::MetaClass::VisitProperty( const XE::Delegate< void( const  MetaProperty
 	}
 }
 
-void XE::MetaClass::VisitDerivedClass( const XE::Delegate< void( const  MetaClassCPtr & ) > & val ) const
+void XE::MetaClass::VisitDerivedClass( const XE::Delegate< void( const XE::MetaClassCPtr & ) > & val ) const
 {
-	for ( const auto& var : _DerivedClasses )
+	for( const auto & var : _DerivedClasses )
 	{
-		val( SP_CAST< const XE::MetaClass>( var->shared_from_this() ) );
+		val( SP_CAST< const XE::MetaClass >( var->shared_from_this() ) );
 	}
 }
 
@@ -189,7 +189,7 @@ XE::MetaPropertyCPtr XE::MetaClass::FindProperty( XE::uint64 hash ) const
 	return nullptr;
 }
 
-XE::MetaMethodCPtr XE::MetaClass::FindMethod( const String & Name ) const
+XE::MetaMethodCPtr XE::MetaClass::FindMethod( const XE::String & Name ) const
 {
 	for( auto var : _Methods )
 	{
@@ -207,22 +207,22 @@ XE::MetaMethodCPtr XE::MetaClass::FindMethod( const String & Name ) const
 	return nullptr;
 }
 
-XE::MetaMethodCPtr XE::MetaClass::FindMethod( const String& Name, const ParameterType& Types /*= MakeParameterType() */ ) const
+XE::MetaMethodCPtr XE::MetaClass::FindMethod( const XE::String & Name, const XE::ParameterType & Types /*= XE::MakeParameterType() */ ) const
 {
 	return FindMethod( Name + XE::ToString( Types ) );
 }
 
-XE::MetaPropertyCPtr XE::MetaClass::FindProperty( const String& Name ) const
+XE::MetaPropertyCPtr XE::MetaClass::FindProperty( const XE::String & Name ) const
 {
-	for ( auto var : _Propertys )
+	for( auto var : _Propertys )
 	{
-		if ( var->GetName() == Name )
+		if( var->GetName() == Name )
 		{
 			return var;
 		}
 	}
 
-	if ( auto super = _Super.lock() )
+	if( auto super = _Super.lock() )
 	{
 		return super->FindProperty( Name );
 	}
@@ -230,12 +230,12 @@ XE::MetaPropertyCPtr XE::MetaClass::FindProperty( const String& Name ) const
 	return nullptr;
 }
 
-void XE::MetaClass::_RegisterMethod( const MetaMethodPtr& val )
+void XE::MetaClass::_RegisterMethod( const XE::MetaMethodPtr & val )
 {
 	_Methods.push_back( val );
 }
 
-void XE::MetaClass::_RegisterProperty( const MetaPropertyPtr& val )
+void XE::MetaClass::_RegisterProperty( const XE::MetaPropertyPtr & val )
 {
 	_Propertys.push_back( val );
 }

@@ -30,8 +30,8 @@ public:
 
 	Q_INVOKABLE static QString name();
 
-private:
-	void OnInspectorEvent( const XS::InspectorEventInfo & info );
+private slots:
+	void OnInspector( const QString & name, const XE::Variant & val );
 
 private:
 	Ui::InspectorEditor * ui;

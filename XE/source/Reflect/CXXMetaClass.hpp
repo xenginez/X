@@ -23,11 +23,11 @@
 
 BEG_XE_NAMESPACE
 
-template< typename ClassType > class CXXMetaClass : public MetaClass
+template< typename ClassType > class CXXMetaClass : public XE::MetaClass
 {
 public:
 	CXXMetaClass( const XE::String & Name, XE::MetaClassCPtr Super, XE::MetaInfoCPtr Owner, XE::MetaModuleCPtr Module, const XE::TemplateType temps = {}, const XE::MetaTypeCPtr & element = nullptr )
-		:MetaClass( Name, sizeof( ClassType ), std::is_abstract_v< ClassType >, std::is_container_v< ClassType >, Super, Owner, Module, temps, element )
+		: XE::MetaClass( Name, sizeof( ClassType ), std::is_abstract_v< ClassType >, std::is_container_v< ClassType >, Super, Owner, Module, temps, element )
 	{
 	}
 
@@ -38,16 +38,16 @@ public:
 		{
 			if constexpr( std::is_constructible_v< ClassType > )
 			{
-				( ( ClassType * )( ptr ) )->~ClassType();
+				( (ClassType *) ( ptr ) )->~ClassType();
 			}
 		}
 	}
 
-	Variant Construct( void * ptr ) const override
+	XE::Variant Construct( void * ptr ) const override
 	{
 		if constexpr( !std::is_abstract_v< ClassType > && std::is_constructible_v< ClassType > )
 		{
-			if ( ptr == nullptr )
+			if( ptr == nullptr )
 			{
 				ptr = XE::MemoryResource::Alloc( GetSize() );
 			}
@@ -55,7 +55,7 @@ public:
 			return new ( ptr ) ClassType();
 		}
 
-		throw MetaException( shared_from_this(), "is abstract type!" );
+		throw XE::MetaException( shared_from_this(), "is abstract type!" );
 	}
 
 	void Clone( const XE::Variant & from, XE::Variant & to ) const override
@@ -85,91 +85,91 @@ public:
 	}
 
 public:
-	template< typename Result, typename ... T > auto Method( const String& Name, Result( *Callback )( T... ) )
+	template< typename Result, typename ... T > auto Method( const XE::String & Name, Result( *Callback )( T... ) )
 	{
-		auto method = XE::MetaInfo::NewMetaInfo< XE::CXXMetaMethod< Result( *)( T... ) > >( 0, Name, Callback, SP_CAST< XE::MetaClass >( shared_from_this() ), GetModule() );
+		auto method = XE::MetaInfo::NewMetaInfo< XE::CXXMetaMethod< Result( * )( T... ) > >( 0, Name, Callback, SP_CAST< XE::MetaClass >( shared_from_this() ), GetModule() );
 		_RegisterMethod( method );
 		return method;
 	}
 
-	template< typename Result, typename ... T > auto Method( const String& Name, Result( ClassType::*Callback )( T... ) )
+	template< typename Result, typename ... T > auto Method( const XE::String & Name, Result( ClassType:: * Callback )( T... ) )
 	{
-		auto method = XE::MetaInfo::NewMetaInfo< CXXMetaMethod< Result( ClassType::* )( T... ) > >( 0, Name, Callback, SP_CAST< XE::MetaClass >( shared_from_this() ), GetModule() );
+		auto method = XE::MetaInfo::NewMetaInfo< CXXMetaMethod< Result( ClassType:: * )( T... ) > >( 0, Name, Callback, SP_CAST< XE::MetaClass >( shared_from_this() ), GetModule() );
 		_RegisterMethod( method );
 		return method;
 	}
 
-	template< typename Result, typename ... T > auto Method( const String& Name, Result( ClassType::*Callback )( T... ) const )
+	template< typename Result, typename ... T > auto Method( const XE::String & Name, Result( ClassType:: * Callback )( T... ) const )
 	{
-		auto method = XE::MetaInfo::NewMetaInfo< XE::CXXMetaMethod< Result( ClassType::* )( T... ) const > >( 0, Name, Callback, SP_CAST< XE::MetaClass >( shared_from_this() ), GetModule() );
+		auto method = XE::MetaInfo::NewMetaInfo< XE::CXXMetaMethod< Result( ClassType:: * )( T... ) const > >( 0, Name, Callback, SP_CAST< XE::MetaClass >( shared_from_this() ), GetModule() );
 		_RegisterMethod( method );
 		return method;
 	}
 
-	template< typename Value > auto Property( const String& Name, Value * Prop )
+	template< typename Value > auto Property( const XE::String & Name, Value * Prop )
 	{
 		auto prop = XE::MetaInfo::NewMetaInfo< XE::CXXMetaProperty< Value > >( 0, Name, Prop, SP_CAST< XE::MetaClass >( shared_from_this() ), GetModule() );
 		_RegisterProperty( prop );
 		return prop;
 	}
 
-	template< typename Value > auto Property( const String& Name, Value( ClassType::*Prop ) )
+	template< typename Value > auto Property( const XE::String & Name, Value( ClassType:: * Prop ) )
 	{
-		auto prop = XE::MetaInfo::NewMetaInfo< XE::CXXMetaProperty< Value( ClassType::* ) > >( 0, Name, Prop, SP_CAST< XE::MetaClass >( shared_from_this() ), GetModule() );
+		auto prop = XE::MetaInfo::NewMetaInfo< XE::CXXMetaProperty< Value( ClassType:: * ) > >( 0, Name, Prop, SP_CAST< XE::MetaClass >( shared_from_this() ), GetModule() );
 		_RegisterProperty( prop );
 		return prop;
 	}
 
-	template< typename GetType, typename SetType > auto Property( const String& Name, GetType( *Get )( ), void( *Set )( SetType ) )
+	template< typename GetType, typename SetType > auto Property( const XE::String & Name, GetType( *Get )( ), void( *Set )( SetType ) )
 	{
-		auto prop = XE::MetaInfo::NewMetaInfo< XE::CXXMetaProperty< GetType( *)( ), void( *)( SetType ) > >( 0, Name, Get, Set, SP_CAST< XE::MetaClass >( shared_from_this() ), GetModule() );
+		auto prop = XE::MetaInfo::NewMetaInfo< XE::CXXMetaProperty< GetType( * )( ), void( * )( SetType ) > >( 0, Name, Get, Set, SP_CAST< XE::MetaClass >( shared_from_this() ), GetModule() );
 		_RegisterProperty( prop );
 		return prop;
 	}
 
-	template< typename GetType, typename SetType > auto Property( const String& Name, GetType( ClassType::*Get )( ), void( ClassType::*Set )( SetType ) )
+	template< typename GetType, typename SetType > auto Property( const XE::String & Name, GetType( ClassType:: * Get )( ), void( ClassType:: * Set )( SetType ) )
 	{
-		auto prop = XE::MetaInfo::NewMetaInfo< XE::CXXMetaProperty< GetType( ClassType::* )( ), void( ClassType::* )( SetType ) > >( 0, Name, Get, Set, SP_CAST< XE::MetaClass >( shared_from_this() ), GetModule() );
+		auto prop = XE::MetaInfo::NewMetaInfo< XE::CXXMetaProperty< GetType( ClassType:: * )( ), void( ClassType:: * )( SetType ) > >( 0, Name, Get, Set, SP_CAST< XE::MetaClass >( shared_from_this() ), GetModule() );
 		_RegisterProperty( prop );
 		return prop;
 	}
 
-	template< typename GetType, typename SetType > auto Property( const String& Name, GetType( ClassType::*Get )( ) const, void( ClassType::*Set )( SetType ) )
+	template< typename GetType, typename SetType > auto Property( const XE::String & Name, GetType( ClassType:: * Get )( ) const, void( ClassType:: * Set )( SetType ) )
 	{
-		auto prop = XE::MetaInfo::NewMetaInfo< CXXMetaProperty< GetType( ClassType::* )( ) const, void( ClassType::* )( SetType ) > >( 0, Name, Get, Set, SP_CAST< XE::MetaClass >( shared_from_this() ), GetModule() );
+		auto prop = XE::MetaInfo::NewMetaInfo< CXXMetaProperty< GetType( ClassType:: * )( ) const, void( ClassType:: * )( SetType ) > >( 0, Name, Get, Set, SP_CAST< XE::MetaClass >( shared_from_this() ), GetModule() );
 		_RegisterProperty( prop );
 		return prop;
 	}
 
-	template< typename GetType > auto Property( const String & Name, GetType( *Get )( ) )
+	template< typename GetType > auto Property( const XE::String & Name, GetType( *Get )( ) )
 	{
 		auto prop = XE::MetaInfo::NewMetaInfo< XE::CXXMetaProperty< GetType( * )( ) > >( 0, Name, Get, SP_CAST< XE::MetaClass >( shared_from_this() ), GetModule() );
 		_RegisterProperty( prop );
 		return prop;
 	}
 
-	template< typename GetType > auto Property( const String & Name, GetType( ClassType:: * Get )( ) )
+	template< typename GetType > auto Property( const XE::String & Name, GetType( ClassType:: * Get )( ) )
 	{
 		auto prop = XE::MetaInfo::NewMetaInfo< CXXMetaProperty< GetType( ClassType:: * )( ) > >( 0, Name, Get, SP_CAST< XE::MetaClass >( shared_from_this() ), GetModule() );
 		_RegisterProperty( prop );
 		return prop;
 	}
 
-	template< typename GetType > auto Property( const String & Name, GetType( ClassType:: * Get )( ) const )
+	template< typename GetType > auto Property( const XE::String & Name, GetType( ClassType:: * Get )( ) const )
 	{
 		auto prop = XE::MetaInfo::NewMetaInfo< XE::CXXMetaProperty< GetType( ClassType:: * )( ) const > >( 0, Name, Get, SP_CAST< XE::MetaClass >( shared_from_this() ), GetModule() );
 		_RegisterProperty( prop );
 		return prop;
 	}
 
-	template< typename SetType > auto Property( const String & Name, void( *Set )( SetType ) )
+	template< typename SetType > auto Property( const XE::String & Name, void( *Set )( SetType ) )
 	{
 		auto prop = XE::MetaInfo::NewMetaInfo< XE::CXXMetaProperty< void( * )( SetType ) > >( 0, Name, Set, SP_CAST< XE::MetaClass >( shared_from_this() ), GetModule() );
 		_RegisterProperty( prop );
 		return prop;
 	}
 
-	template< typename SetType > auto Property( const String & Name, void( ClassType:: * Set )( SetType ) )
+	template< typename SetType > auto Property( const XE::String & Name, void( ClassType:: * Set )( SetType ) )
 	{
 		auto prop = XE::MetaInfo::NewMetaInfo< XE::CXXMetaProperty< void( ClassType:: * )( SetType ) > >( 0, Name, Set, SP_CAST< XE::MetaClass >( shared_from_this() ), GetModule() );
 		_RegisterProperty( prop );
@@ -178,11 +178,11 @@ public:
 
 };
 
-template< typename ClassType > class CXXMetaFundamental : public MetaClass
+template< typename ClassType > class CXXMetaFundamental : public XE::MetaClass
 {
 public:
-	CXXMetaFundamental( const XE::String& Name )
-		:MetaClass( Name, sizeof( ClassType ), false, false, nullptr, nullptr, nullptr, {}, nullptr )
+	CXXMetaFundamental( const XE::String & Name )
+		: XE::MetaClass( Name, sizeof( ClassType ), false, false, nullptr, nullptr, nullptr, {}, nullptr )
 	{
 	}
 
@@ -192,9 +192,9 @@ public:
 
 	}
 
-	Variant Construct( void * ptr ) const override
+	XE::Variant Construct( void * ptr ) const override
 	{
-		if ( ptr == nullptr )
+		if( ptr == nullptr )
 		{
 			ptr = XE::MemoryResource::Alloc( GetSize() );
 		}
@@ -223,18 +223,18 @@ public:
 	}
 };
 
-template< typename ClassType, typename ... Types > class CXXTplMetaClass : public CXXMetaClass< ClassType >
+template< typename ClassType, typename ... Types > class CXXTplMetaClass : public XE::CXXMetaClass< ClassType >
 {
 public:
 	CXXTplMetaClass( const XE::String & Name, XE::MetaClassCPtr Super, XE::MetaInfoCPtr Owner, XE::MetaModuleCPtr Module )
-		: CXXMetaClass< ClassType >( Name + XE::ToString( XE::MakeTemplateType< Types... >() ), Super, Owner, Module, XE::MakeTemplateType< Types... >(), ::TypeID< std::is_container< ClassType >::value_type >::Get() )
+		: XE::CXXMetaClass< ClassType >( Name + XE::ToString( XE::MakeTemplateType< Types... >() ), Super, Owner, Module, XE::MakeTemplateType< Types... >(), ::TypeID< std::is_container< ClassType >::value_type >::Get() )
 	{
 	}
 
 public:
 	XE::MetaEnumeratorPtr GetEnumerator( const XE::Variant & container ) const override
 	{
-		if constexpr ( std::is_container_v< ClassType > )
+		if constexpr( std::is_container_v< ClassType > )
 		{
 			return XE::MakeShared< XE::CXXMetaEnumerator< ClassType > >( container.Value< ClassType *>() );
 		}
@@ -263,7 +263,7 @@ template<> struct ::ClassID< std::nullptr_t >
 	static XE::MetaClassCPtr Get( const std::nullptr_t * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
-		
+
 		static auto meta = XE::MetaInfo::NewMetaInfo< XE::CXXMetaFundamental< std::nullptr_t > >( XE::Hash( __xe__sig__ ), "null" );
 		return meta;
 	}
@@ -274,7 +274,7 @@ template<> struct ::ClassID< bool >
 	static XE::MetaClassCPtr Get( const bool * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
-		
+
 		static auto meta = XE::MetaInfo::NewMetaInfo< XE::CXXMetaFundamental< bool > >( XE::Hash( __xe__sig__ ), "bool" );
 		return meta;
 	}
@@ -285,7 +285,7 @@ template<> struct ::ClassID< XE::int8 >
 	static XE::MetaClassCPtr Get( const XE::int8 * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
-		
+
 		static auto meta = XE::MetaInfo::NewMetaInfo< XE::CXXMetaFundamental< XE::int8 > >( XE::Hash( __xe__sig__ ), "int8" );
 		return meta;
 	}
@@ -296,7 +296,7 @@ template<> struct ::ClassID< XE::int16 >
 	static XE::MetaClassCPtr Get( const XE::int16 * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
-		
+
 		static auto meta = XE::MetaInfo::NewMetaInfo< XE::CXXMetaFundamental< XE::int16 > >( XE::Hash( __xe__sig__ ), "int16" );
 		return meta;
 	}
@@ -307,7 +307,7 @@ template<> struct ::ClassID< XE::int32 >
 	static XE::MetaClassCPtr Get( const XE::int32 * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
-		
+
 		static auto meta = XE::MetaInfo::NewMetaInfo< XE::CXXMetaFundamental< XE::int32 > >( XE::Hash( __xe__sig__ ), "int32" );
 		return meta;
 	}
@@ -326,7 +326,7 @@ template<> struct ::ClassID< XE::int64 >
 	static XE::MetaClassCPtr Get( const XE::int64 * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
-		
+
 		static auto meta = XE::MetaInfo::NewMetaInfo< XE::CXXMetaFundamental< XE::int64 > >( XE::Hash( __xe__sig__ ), "int64" );
 		return meta;
 	}
@@ -337,7 +337,7 @@ template<> struct ::ClassID< XE::uint8 >
 	static XE::MetaClassCPtr Get( const XE::uint8 * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
-		
+
 		static auto meta = XE::MetaInfo::NewMetaInfo< XE::CXXMetaFundamental< XE::uint8 > >( XE::Hash( __xe__sig__ ), "uint8" );
 		return meta;
 	}
@@ -348,7 +348,7 @@ template<> struct ::ClassID< XE::uint16 >
 	static XE::MetaClassCPtr Get( const XE::uint16 * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
-		
+
 		static auto meta = XE::MetaInfo::NewMetaInfo< XE::CXXMetaFundamental< XE::uint16 > >( XE::Hash( __xe__sig__ ), "uint16" );
 		return meta;
 	}
@@ -359,7 +359,7 @@ template<> struct ::ClassID< XE::uint32 >
 	static XE::MetaClassCPtr Get( const XE::uint32 * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
-		
+
 		static auto meta = XE::MetaInfo::NewMetaInfo< XE::CXXMetaFundamental< XE::uint32 > >( XE::Hash( __xe__sig__ ), "uint32" );
 		return meta;
 	}
@@ -378,7 +378,7 @@ template<> struct ::ClassID< XE::uint64 >
 	static XE::MetaClassCPtr Get( const XE::uint64 * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
-		
+
 		static auto meta = XE::MetaInfo::NewMetaInfo< XE::CXXMetaFundamental< XE::uint64 > >( XE::Hash( __xe__sig__ ), "uint64" );
 		return meta;
 	}
@@ -389,7 +389,7 @@ template<> struct ::ClassID< XE::float32 >
 	static XE::MetaClassCPtr Get( const XE::float32 * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
-		
+
 		static auto meta = XE::MetaInfo::NewMetaInfo< XE::CXXMetaFundamental< XE::float32 > >( XE::Hash( __xe__sig__ ), "float32" );
 		return meta;
 	}
@@ -400,7 +400,7 @@ template<> struct ::ClassID< XE::float64 >
 	static XE::MetaClassCPtr Get( const XE::float64 * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
-		
+
 		static auto meta = XE::MetaInfo::NewMetaInfo< XE::CXXMetaFundamental< XE::float64 > >( XE::Hash( __xe__sig__ ), "float64" );
 		return meta;
 	}
@@ -439,7 +439,7 @@ template<> struct ::ClassID< XE::Variant >
 	static XE::MetaClassCPtr Get( const XE::Variant * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
-		
+
 		static auto meta = XE::MetaInfo::NewMetaInfo< XE::CXXMetaClass< XE::Variant > >( XE::Hash( __xe__sig__ ), "Variant", nullptr, nullptr, XE::GetModule() );
 		return meta;
 	}
@@ -474,7 +474,7 @@ template<> struct ::ClassID< XE::VariantList >
 	static XE::MetaClassCPtr Get( const XE::VariantList * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
-		
+
 		static auto meta = XE::MetaInfo::NewMetaInfo< XE::CXXMetaClass< XE::VariantList > >( XE::Hash( __xe__sig__ ), "List", nullptr, nullptr, XE::GetModule() );
 		return meta;
 	}
@@ -485,7 +485,7 @@ template<> struct ::ClassID< XE::VariantDeque >
 	static XE::MetaClassCPtr Get( const XE::VariantDeque * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
-		
+
 		static auto meta = XE::MetaInfo::NewMetaInfo< XE::CXXMetaClass< XE::VariantDeque > >( XE::Hash( __xe__sig__ ), "Deque", nullptr, nullptr, XE::GetModule() );
 		return meta;
 	}
@@ -496,7 +496,7 @@ template<> struct ::ClassID< XE::VariantStack >
 	static XE::MetaClassCPtr Get( const XE::VariantStack * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
-		
+
 		static auto meta = XE::MetaInfo::NewMetaInfo< XE::CXXMetaClass< XE::VariantStack > >( XE::Hash( __xe__sig__ ), "Stack", nullptr, nullptr, XE::GetModule() );
 		return meta;
 	}
@@ -507,7 +507,7 @@ template<> struct ::ClassID< XE::VariantQueue >
 	static XE::MetaClassCPtr Get( const XE::VariantQueue * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
-		
+
 		static auto meta = XE::MetaInfo::NewMetaInfo< XE::CXXMetaClass< XE::VariantQueue > >( XE::Hash( __xe__sig__ ), "Queue", nullptr, nullptr, XE::GetModule() );
 		return meta;
 	}
@@ -518,7 +518,7 @@ template<> struct ::ClassID< XE::VariantArray >
 	static XE::MetaClassCPtr Get( const XE::VariantArray * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
-		
+
 		static auto meta = XE::MetaInfo::NewMetaInfo< XE::CXXMetaClass< XE::VariantArray > >( XE::Hash( __xe__sig__ ), "Array", nullptr, nullptr, XE::GetModule() );
 		return meta;
 	}
@@ -529,7 +529,7 @@ template<> struct ::ClassID< XE::VariantPair >
 	static XE::MetaClassCPtr Get( const XE::VariantPair * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
-		
+
 		static auto meta = XE::MetaInfo::NewMetaInfo< XE::CXXMetaClass< XE::VariantPair > >( XE::Hash( __xe__sig__ ), "Pair", nullptr, nullptr, XE::GetModule() );
 		return meta;
 	}
@@ -540,7 +540,7 @@ template<> struct ::ClassID< XE::VariantSet >
 	static XE::MetaClassCPtr Get( const XE::VariantSet * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
-		
+
 		static auto meta = XE::MetaInfo::NewMetaInfo< XE::CXXMetaClass< XE::VariantSet > >( XE::Hash( __xe__sig__ ), "Set", nullptr, nullptr, XE::GetModule() );
 		return meta;
 	}
@@ -551,7 +551,7 @@ template<> struct ::ClassID< XE::VariantMap >
 	static XE::MetaClassCPtr Get( const XE::VariantMap * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
-		
+
 		static auto meta = XE::MetaInfo::NewMetaInfo< XE::CXXMetaClass< XE::VariantMap > >( XE::Hash( __xe__sig__ ), "Map", nullptr, nullptr, XE::GetModule() );
 		return meta;
 	}
@@ -562,7 +562,7 @@ template<> struct ::ClassID< XE::VariantMultiSet >
 	static XE::MetaClassCPtr Get( const XE::VariantMultiSet * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
-		
+
 		static auto meta = XE::MetaInfo::NewMetaInfo< XE::CXXMetaClass< XE::VariantMultiSet > >( XE::Hash( __xe__sig__ ), "MultiSet", nullptr, nullptr, XE::GetModule() );
 		return meta;
 	}
@@ -573,7 +573,7 @@ template<> struct ::ClassID< XE::VariantMultiMap >
 	static XE::MetaClassCPtr Get( const XE::VariantMultiMap * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
-		
+
 		static auto meta = XE::MetaInfo::NewMetaInfo< XE::CXXMetaClass< XE::VariantMultiMap > >( XE::Hash( __xe__sig__ ), "MultiMap", nullptr, nullptr, XE::GetModule() );
 		return meta;
 	}
@@ -584,7 +584,7 @@ template<> struct ::ClassID< XE::VariantUnorderedSet >
 	static XE::MetaClassCPtr Get( const XE::VariantUnorderedSet * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
-		
+
 		static auto meta = XE::MetaInfo::NewMetaInfo< XE::CXXMetaClass< XE::VariantUnorderedSet > >( XE::Hash( __xe__sig__ ), "UnorderedSet", nullptr, nullptr, XE::GetModule() );
 		return meta;
 	}
@@ -595,7 +595,7 @@ template<> struct ::ClassID< XE::VariantUnorderedMap >
 	static XE::MetaClassCPtr Get( const XE::VariantUnorderedMap * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
-		
+
 		static auto meta = XE::MetaInfo::NewMetaInfo< XE::CXXMetaClass< XE::VariantUnorderedMap > >( XE::Hash( __xe__sig__ ), "UnorderedMap", nullptr, nullptr, XE::GetModule() );
 		return meta;
 	}
@@ -606,7 +606,7 @@ template<> struct ::ClassID< XE::VariantUnorderedMultiSet >
 	static XE::MetaClassCPtr Get( const XE::VariantUnorderedMultiSet * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
-		
+
 		static auto meta = XE::MetaInfo::NewMetaInfo< XE::CXXMetaClass< XE::VariantUnorderedMultiSet > >( XE::Hash( __xe__sig__ ), "UnorderedMultiSet", nullptr, nullptr, XE::GetModule() );
 		return meta;
 	}
@@ -617,7 +617,7 @@ template<> struct ::ClassID< XE::VariantUnorderedMultiMap >
 	static XE::MetaClassCPtr Get( const XE::VariantUnorderedMultiMap * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
-		
+
 		static auto meta = XE::MetaInfo::NewMetaInfo< XE::CXXMetaClass< XE::VariantUnorderedMultiMap > >( XE::Hash( __xe__sig__ ), "UnorderedMultiMap", nullptr, nullptr, XE::GetModule() );
 		return meta;
 	}
@@ -628,7 +628,7 @@ template<> struct ::ClassID< XE::ArchiveNameVariant >
 	static XE::MetaClassCPtr Get( const XE::ArchiveNameVariant * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
-		
+
 		static auto meta = XE::MetaInfo::NewMetaInfo< XE::CXXMetaClass< XE::ArchiveNameVariant > >( XE::Hash( __xe__sig__ ), "ArchiveNameVariant", nullptr, nullptr, XE::GetModule() );
 		return meta;
 	}
@@ -652,7 +652,7 @@ template< typename ... Types > struct ::ClassID< std::less< Types... > >
 	static XE::MetaClassCPtr Get( const std::less< Types... > * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
-		
+
 		static auto meta = XE::MetaInfo::NewMetaInfo< XE::CXXTplMetaClass< std::less< Types... >, Types... > >( XE::Hash( __xe__sig__ ), "less", nullptr, nullptr, std::GetModule() );
 		return meta;
 	}
@@ -671,7 +671,7 @@ template< typename ... Types > struct ::ClassID< std::equal_to< Types... > >
 	static XE::MetaClassCPtr Get( const std::equal_to< Types... > * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
-		
+
 		static auto meta = XE::MetaInfo::NewMetaInfo< XE::CXXTplMetaClass< std::equal_to< Types... >, Types... > >( XE::Hash( __xe__sig__ ), "equal_to", nullptr, nullptr, std::GetModule() );
 		return meta;
 	}
@@ -682,7 +682,7 @@ template< typename ... Types > struct ::ClassID< std::allocator< Types... > >
 	static XE::MetaClassCPtr Get( const std::allocator< Types... > * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
-		
+
 		static auto meta = XE::MetaInfo::NewMetaInfo< XE::CXXTplMetaClass< std::allocator< Types... >, Types... > >( XE::Hash( __xe__sig__ ), "allocator", nullptr, nullptr, std::GetModule() );
 		return meta;
 	}
@@ -693,7 +693,7 @@ template< typename ... Types > struct ::ClassID< std::pmr::polymorphic_allocator
 	static XE::MetaClassCPtr Get( const std::pmr::polymorphic_allocator< Types... > * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
-		
+
 		static auto meta = XE::MetaInfo::NewMetaInfo< XE::CXXTplMetaClass< std::pmr::polymorphic_allocator< Types... >, Types... > >( XE::Hash( __xe__sig__ ), "polymorphic_allocator", nullptr, nullptr, std::pmr::GetModule() );
 		return meta;
 	}
@@ -704,7 +704,7 @@ template< typename ... Types > struct ::ClassID< std::list< Types... > >
 	static XE::MetaClassCPtr Get( const std::list< Types... > * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
-		
+
 		static auto meta = XE::MetaInfo::NewMetaInfo< XE::CXXTplMetaClass< std::list< Types... >, Types... > >( XE::Hash( __xe__sig__ ), "list", nullptr, nullptr, std::GetModule() );
 		return meta;
 	}
@@ -715,7 +715,7 @@ template< typename ... Types > struct ::ClassID< std::deque< Types... > >
 	static XE::MetaClassCPtr Get( const std::deque< Types... > * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
-		
+
 		static auto meta = XE::MetaInfo::NewMetaInfo< XE::CXXTplMetaClass< std::deque< Types... >, Types... > >( XE::Hash( __xe__sig__ ), "deque", nullptr, nullptr, std::GetModule() );
 		return meta;
 	}
@@ -726,7 +726,7 @@ template< typename ... Types > struct ::ClassID< std::stack< Types... > >
 	static XE::MetaClassCPtr Get( const std::stack< Types... > * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
-		
+
 		static auto meta = XE::MetaInfo::NewMetaInfo< XE::CXXTplMetaClass< std::stack< Types... >, Types... > >( XE::Hash( __xe__sig__ ), "stack", nullptr, nullptr, std::GetModule() );
 		return meta;
 	}
@@ -737,7 +737,7 @@ template< typename ... Types > struct ::ClassID< std::queue< Types... > >
 	static XE::MetaClassCPtr Get( const std::queue< Types... > * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
-		
+
 		static auto meta = XE::MetaInfo::NewMetaInfo< XE::CXXTplMetaClass< std::queue< Types... >, Types... > >( XE::Hash( __xe__sig__ ), "queue", nullptr, nullptr, std::GetModule() );
 		return meta;
 	}
@@ -748,7 +748,7 @@ template< typename ... Types > struct ::ClassID< std::vector< Types... > >
 	static XE::MetaClassCPtr Get( const std::vector< Types... > * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
-		
+
 		static auto meta = XE::MetaInfo::NewMetaInfo< XE::CXXTplMetaClass< std::vector< Types... >, Types... > >( XE::Hash( __xe__sig__ ), "vector", nullptr, nullptr, std::GetModule() );
 		return meta;
 	}
@@ -759,7 +759,7 @@ template< typename K, typename V > struct ::ClassID< std::pair< K, V > >
 	static XE::MetaClassCPtr Get( const std::pair< K, V > * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
-		
+
 		static auto meta = XE::MetaInfo::NewMetaInfo< XE::CXXTplMetaClass< std::pair< K, V >, K, V > >( XE::Hash( __xe__sig__ ), "pair", nullptr, nullptr, std::GetModule() );
 		return meta;
 	}
@@ -778,7 +778,7 @@ template< typename ... Types > struct ::ClassID< std::set< Types... > >
 	static XE::MetaClassCPtr Get( const std::set< Types... > * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
-		
+
 		static auto meta = XE::MetaInfo::NewMetaInfo< XE::CXXTplMetaClass< std::set< Types... >, Types... > >( XE::Hash( __xe__sig__ ), "set", nullptr, nullptr, std::GetModule() );
 		return meta;
 	}
@@ -789,7 +789,7 @@ template< typename ... Types > struct ::ClassID< std::map< Types... > >
 	static XE::MetaClassCPtr Get( const std::map< Types... > * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
-		
+
 		static auto meta = XE::MetaInfo::NewMetaInfo< XE::CXXTplMetaClass< std::map< Types... >, Types... > >( XE::Hash( __xe__sig__ ), "map", nullptr, nullptr, std::GetModule() );
 		return meta;
 	}
@@ -800,7 +800,7 @@ template< typename ... Types > struct ::ClassID< std::multiset< Types... > >
 	static XE::MetaClassCPtr Get( const std::multiset< Types... > * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
-		
+
 		static auto meta = XE::MetaInfo::NewMetaInfo< XE::CXXTplMetaClass< std::multiset< Types... >, Types... > >( XE::Hash( __xe__sig__ ), "multiset", nullptr, nullptr, std::GetModule() );
 		return meta;
 	}
@@ -811,7 +811,7 @@ template< typename ... Types > struct ::ClassID< std::multimap< Types... > >
 	static XE::MetaClassCPtr Get( const std::multimap< Types... > * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
-		
+
 		static auto meta = XE::MetaInfo::NewMetaInfo< XE::CXXTplMetaClass< std::multimap< Types... >, Types... > >( XE::Hash( __xe__sig__ ), "multimap", nullptr, nullptr, std::GetModule() );
 		return meta;
 	}
@@ -822,7 +822,7 @@ template< typename ... Types > struct ::ClassID< std::unordered_set< Types... > 
 	static XE::MetaClassCPtr Get( const std::unordered_set< Types... > * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
-		
+
 		static auto meta = XE::MetaInfo::NewMetaInfo< XE::CXXTplMetaClass< std::unordered_set< Types... >, Types... > >( XE::Hash( __xe__sig__ ), "unordered_set", nullptr, nullptr, std::GetModule() );
 		return meta;
 	}
@@ -833,7 +833,7 @@ template< typename ... Types > struct ::ClassID< std::unordered_map< Types... > 
 	static XE::MetaClassCPtr Get( const std::unordered_map< Types... > * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
-		
+
 		static auto meta = XE::MetaInfo::NewMetaInfo< XE::CXXTplMetaClass< std::unordered_map< Types... >, Types... > >( XE::Hash( __xe__sig__ ), "unordered_map", nullptr, nullptr, std::GetModule() );
 		return meta;
 	}
@@ -844,7 +844,7 @@ template< typename ... Types > struct ::ClassID< std::unordered_multiset< Types.
 	static XE::MetaClassCPtr Get( const std::unordered_multiset< Types... > * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
-		
+
 		static auto meta = XE::MetaInfo::NewMetaInfo< XE::CXXTplMetaClass< std::unordered_multiset< Types... >, Types... > >( XE::Hash( __xe__sig__ ), "unordered_multiset", nullptr, nullptr, std::GetModule() );
 		return meta;
 	}
@@ -855,7 +855,7 @@ template< typename ... Types > struct ::ClassID< std::unordered_multimap< Types.
 	static XE::MetaClassCPtr Get( const std::unordered_multimap< Types... > * val = nullptr )
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
-		
+
 		static auto meta = XE::MetaInfo::NewMetaInfo< XE::CXXTplMetaClass< std::unordered_multimap< Types... >, Types... > >( XE::Hash( __xe__sig__ ), "unordered_multimap", nullptr, nullptr, std::GetModule() );
 		return meta;
 	}

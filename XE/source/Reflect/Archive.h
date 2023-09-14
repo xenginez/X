@@ -40,7 +40,7 @@ public:
 	}
 
 	ArchiveNameValue( const XE::String & name, const T & value )
-		: Name( name ), Value( const_cast< T & >( value ) )
+		: Name( name ), Value( const_cast<T &>( value ) )
 	{
 	}
 
@@ -64,9 +64,9 @@ public:
 		return *this;
 	}
 
-	template< typename T > OArchive & operator & ( ArchiveNameValue< T > val )
+	template< typename T > OArchive & operator & ( XE::ArchiveNameValue< T > val )
 	{
-		ArchiveNameVariant variant( val.Name, val.Value );
+		XE::ArchiveNameVariant variant( val.Name, val.Value );
 
 		Serialize( variant );
 
@@ -81,9 +81,9 @@ public:
 		return *this;
 	}
 
-	template< typename T > OArchive & operator << ( ArchiveNameValue< T > val )
+	template< typename T > OArchive & operator << ( XE::ArchiveNameValue< T > val )
 	{
-		ArchiveNameVariant variant( val.Name, val.Value );
+		XE::ArchiveNameVariant variant( val.Name, val.Value );
 
 		Serialize( variant );
 
@@ -360,30 +360,36 @@ public:
 	{
 	private:
 		template < typename Ty, void( Ty:: * )( Ty * ) const = &Ty::Clone >
-		static constexpr auto check( Ty * ) { return true; };
+		static constexpr auto check( Ty * )
+		{
+			return true;
+		};
 
-		static constexpr bool check( ... ) { return false; };
+		static constexpr bool check( ... )
+		{
+			return false;
+		};
 
 	public:
-		static constexpr bool value = check( static_cast< U * >( nullptr ) );
+		static constexpr bool value = check( static_cast<U *>( nullptr ) );
 	};
 
 public:
 	static void Clone( const T * from, T * to )
 	{
-		if constexpr ( HasMemberClone< T >::value )
+		if constexpr( HasMemberClone< T >::value )
 		{
 			from->Clone( to );
 		}
 		else
 		{
-			ClassID< T >::Get( from )->VisitProperty( [&]( const XE::MetaPropertyCPtr & prop )
-													  {
-														  if( prop->FindAttributeT< XE::NonCloneAttribute >() == nullptr )
-														  {
-															  prop->Set( to, prop->Get( from ) );
-														  }
-													  } );
+			::ClassID< T >::Get( from )->VisitProperty( [&]( const XE::MetaPropertyCPtr & prop )
+			{
+				if( prop->FindAttributeT< XE::NonCloneAttribute >() == nullptr )
+				{
+					prop->Set( to, prop->Get( from ) );
+				}
+			} );
 		}
 	}
 };
@@ -394,29 +400,41 @@ public:
 	template< typename U > struct HasMemberSerialize
 	{
 	private:
-		template < typename Ty, void( Ty:: * )( OArchive & ) const = &Ty::Serialize >
-		static constexpr auto check( Ty * ) { return true; };
+		template < typename Ty, void( Ty:: * )( XE::OArchive & ) const = &Ty::Serialize >
+		static constexpr auto check( Ty * )
+		{
+			return true;
+		};
 
-		static constexpr bool check( ... ) { return false; };
+		static constexpr bool check( ... )
+		{
+			return false;
+		};
 
 	public:
-		static constexpr bool value = check( static_cast< U * >( nullptr ) );
+		static constexpr bool value = check( static_cast<U *>( nullptr ) );
 	};
 
 	template< typename U > struct HasMemberDeserialize
 	{
 	private:
-		template < typename Ty, void( Ty:: * )( IArchive & ) = &Ty::Deserialize >
-		static constexpr auto check( Ty * ) { return true; };
+		template < typename Ty, void( Ty:: * )( XE::IArchive & ) = &Ty::Deserialize >
+		static constexpr auto check( Ty * )
+		{
+			return true;
+		};
 
-		static constexpr bool check( ... ) { return false; };
+		static constexpr bool check( ... )
+		{
+			return false;
+		};
 
 	public:
-		static constexpr bool value = check( static_cast< U * >( nullptr ) );
+		static constexpr bool value = check( static_cast<U *>( nullptr ) );
 	};
 
 public:
-	static void Serialize( OArchive & arc, const T & val )
+	static void Serialize( XE::OArchive & arc, const T & val )
 	{
 		if constexpr( HasMemberSerialize< T >::value )
 		{
@@ -428,20 +446,20 @@ public:
 		}
 		else
 		{
-			if( auto cls = ClassID< T >::Get( &val ) )
+			if( auto cls = ::ClassID< T >::Get( &val ) )
 			{
 				cls->VisitProperty( [&]( const XE::MetaPropertyCPtr & prop )
-									{
-										if( !prop->IsStatic() && prop->FindAttributeT< XE::NonSerializeAttribute >() == nullptr )
-										{
-											arc << ARCHIVE_NVP( prop->GetName(), prop->Get( &val ) );
-										}
-									} );
+				{
+					if( !prop->IsStatic() && prop->FindAttributeT< XE::NonSerializeAttribute >() == nullptr )
+					{
+						arc << ARCHIVE_NVP( prop->GetName(), prop->Get( &val ) );
+					}
+				} );
 			}
 		}
 	}
 
-	static void Deserialize( IArchive & arc, T & val )
+	static void Deserialize( XE::IArchive & arc, T & val )
 	{
 		if constexpr( HasMemberDeserialize< T >::value )
 		{
@@ -453,21 +471,21 @@ public:
 		}
 		else
 		{
-			if( auto cls = ClassID< T >::Get( &val ) )
+			if( auto cls = ::ClassID< T >::Get( &val ) )
 			{
 				cls->VisitProperty( [&]( const XE::MetaPropertyCPtr & prop )
-									{
-										if( !prop->IsStatic() && prop->FindAttributeT< XE::NonSerializeAttribute >() == nullptr )
-										{
-											XE::Variant var = prop->Get( val );
+				{
+					if( !prop->IsStatic() && prop->FindAttributeT< XE::NonSerializeAttribute >() == nullptr )
+					{
+						XE::Variant var = prop->Get( val );
 
-											auto nvp = ARCHIVE_NVP( prop->GetName(), var );
+						auto nvp = ARCHIVE_NVP( prop->GetName(), var );
 
-											arc >> nvp;
+						arc >> nvp;
 
-											prop->Set( &val, var );
-										}
-									} );
+						prop->Set( &val, var );
+					}
+				} );
 			}
 		}
 	}
@@ -476,7 +494,7 @@ public:
 
 template< typename ... Types > struct Serializable< std::list< Types... > >
 {
-	static void Serialize( OArchive & arc, const std::list< Types... > & val )
+	static void Serialize( XE::OArchive & arc, const std::list< Types... > & val )
 	{
 		arc << ARCHIVE_NVP( "size", val.size() );
 
@@ -487,7 +505,7 @@ template< typename ... Types > struct Serializable< std::list< Types... > >
 		}
 	}
 
-	static void Deserialize( IArchive & arc, std::list< Types... > & val )
+	static void Deserialize( XE::IArchive & arc, std::list< Types... > & val )
 	{
 		typename std::list< Types... >::size_type size = 0;
 		arc >> ARCHIVE_NVP( "size", size );
@@ -502,7 +520,7 @@ template< typename ... Types > struct Serializable< std::list< Types... > >
 };
 template< typename ... Types > struct Serializable< std::deque< Types... > >
 {
-	static void Serialize( OArchive & arc, const std::deque< Types... > & val )
+	static void Serialize( XE::OArchive & arc, const std::deque< Types... > & val )
 	{
 		arc << ARCHIVE_NVP( "size", val.size() );
 
@@ -513,7 +531,7 @@ template< typename ... Types > struct Serializable< std::deque< Types... > >
 		}
 	}
 
-	static void Deserialize( IArchive & arc, std::deque< Types... > & val )
+	static void Deserialize( XE::IArchive & arc, std::deque< Types... > & val )
 	{
 		typename std::deque< Types... >::size_type size = 0;
 		arc >> ARCHIVE_NVP( "size", size );
@@ -528,7 +546,7 @@ template< typename ... Types > struct Serializable< std::deque< Types... > >
 };
 template< typename ... Types > struct Serializable< std::stack< Types... > >
 {
-	static void Serialize( OArchive & arc, const std::stack< Types... > & val )
+	static void Serialize( XE::OArchive & arc, const std::stack< Types... > & val )
 	{
 		std::stack< Types... > temp = val;
 
@@ -541,8 +559,8 @@ template< typename ... Types > struct Serializable< std::stack< Types... > >
 			temp.pop();
 		}
 	}
-	
-	static void Deserialize( IArchive & arc, std::stack< Types... > & val )
+
+	static void Deserialize( XE::IArchive & arc, std::stack< Types... > & val )
 	{
 		std::vector< typename std::stack< Types... >::value_type > temp;
 
@@ -564,10 +582,10 @@ template< typename ... Types > struct Serializable< std::stack< Types... > >
 };
 template< typename ... Types > struct Serializable< std::queue< Types... > >
 {
-	static void Serialize( OArchive & arc, const std::queue< Types... > & val )
+	static void Serialize( XE::OArchive & arc, const std::queue< Types... > & val )
 	{
 		std::queue< Types... > temp = val;
-		
+
 		arc << ARCHIVE_NVP( "size", temp.size() );
 
 		XE::uint64 i = 0;
@@ -578,7 +596,7 @@ template< typename ... Types > struct Serializable< std::queue< Types... > >
 		}
 	}
 
-	static void Deserialize( IArchive & arc, std::queue< Types... > & val )
+	static void Deserialize( XE::IArchive & arc, std::queue< Types... > & val )
 	{
 		typename std::queue< Types... >::size_type size = 0;
 		arc >> ARCHIVE_NVP( "size", size );
@@ -593,7 +611,7 @@ template< typename ... Types > struct Serializable< std::queue< Types... > >
 };
 template< typename ... Types > struct Serializable< std::vector< Types... > >
 {
-	static void Serialize( OArchive & arc, const std::vector< Types... > & val )
+	static void Serialize( XE::OArchive & arc, const std::vector< Types... > & val )
 	{
 		arc << ARCHIVE_NVP( "size", val.size() );
 
@@ -604,7 +622,7 @@ template< typename ... Types > struct Serializable< std::vector< Types... > >
 		}
 	}
 
-	static void Deserialize( IArchive & arc, std::vector< Types... > & val )
+	static void Deserialize( XE::IArchive & arc, std::vector< Types... > & val )
 	{
 		typename std::vector< Types... >::size_type size = 0;
 		arc >> ARCHIVE_NVP( "size", size );
@@ -619,16 +637,16 @@ template< typename ... Types > struct Serializable< std::vector< Types... > >
 };
 template< typename ... Types > struct Serializable< std::pair< Types... > >
 {
-	static void Serialize( OArchive & arc, const std::pair< Types... > & val )
+	static void Serialize( XE::OArchive & arc, const std::pair< Types... > & val )
 	{
 		auto key = ARCHIVE_NVP( "first", val.first );
 		arc << key;
-		
+
 		auto value = ARCHIVE_NVP( "second", val.second );
 		arc << value;
 	}
 
-	static void Deserialize( IArchive & arc, std::pair< Types... > & val )
+	static void Deserialize( XE::IArchive & arc, std::pair< Types... > & val )
 	{
 		arc >> ARCHIVE_NVP( "first", val.first );
 
@@ -637,7 +655,7 @@ template< typename ... Types > struct Serializable< std::pair< Types... > >
 };
 template< typename ... Types > struct Serializable< std::set< Types... > >
 {
-	static void Serialize( OArchive & arc, const std::set< Types... > & val )
+	static void Serialize( XE::OArchive & arc, const std::set< Types... > & val )
 	{
 		arc << ARCHIVE_NVP( "size", val.size() );
 
@@ -648,7 +666,7 @@ template< typename ... Types > struct Serializable< std::set< Types... > >
 		}
 	}
 
-	static void Deserialize( IArchive & arc, std::set< Types... > & val )
+	static void Deserialize( XE::IArchive & arc, std::set< Types... > & val )
 	{
 		typename std::set< Types... >::size_type size = 0;
 		arc >> ARCHIVE_NVP( "size", size );
@@ -663,7 +681,7 @@ template< typename ... Types > struct Serializable< std::set< Types... > >
 };
 template< typename ... Types > struct Serializable< std::map< Types... > >
 {
-	static void Serialize( OArchive & arc, const std::map< Types... > & val )
+	static void Serialize( XE::OArchive & arc, const std::map< Types... > & val )
 	{
 		arc << ARCHIVE_NVP( "size", val.size() );
 
@@ -675,7 +693,7 @@ template< typename ... Types > struct Serializable< std::map< Types... > >
 		}
 	}
 
-	static void Deserialize( IArchive & arc, std::map< Types... > & val )
+	static void Deserialize( XE::IArchive & arc, std::map< Types... > & val )
 	{
 		typename std::map< Types... >::size_type size = 0;
 		arc >> ARCHIVE_NVP( "size", size );
@@ -690,7 +708,7 @@ template< typename ... Types > struct Serializable< std::map< Types... > >
 };
 template< typename ... Types > struct Serializable< std::multiset< Types... > >
 {
-	static void Serialize( OArchive & arc, const std::multiset< Types... > & val )
+	static void Serialize( XE::OArchive & arc, const std::multiset< Types... > & val )
 	{
 		arc << ARCHIVE_NVP( "size", val.size() );
 
@@ -701,7 +719,7 @@ template< typename ... Types > struct Serializable< std::multiset< Types... > >
 		}
 	}
 
-	static void Deserialize( IArchive & arc, std::multiset< Types... > & val )
+	static void Deserialize( XE::IArchive & arc, std::multiset< Types... > & val )
 	{
 		typename std::multiset< Types... >::size_type size = 0;
 		arc >> ARCHIVE_NVP( "size", size );
@@ -716,7 +734,7 @@ template< typename ... Types > struct Serializable< std::multiset< Types... > >
 };
 template< typename ... Types > struct Serializable< std::multimap< Types... > >
 {
-	static void Serialize( OArchive & arc, const std::multimap< Types... > & val )
+	static void Serialize( XE::OArchive & arc, const std::multimap< Types... > & val )
 	{
 		arc << ARCHIVE_NVP( "size", val.size() );
 
@@ -728,7 +746,7 @@ template< typename ... Types > struct Serializable< std::multimap< Types... > >
 		}
 	}
 
-	static void Deserialize( IArchive & arc, std::multimap< Types... > & val )
+	static void Deserialize( XE::IArchive & arc, std::multimap< Types... > & val )
 	{
 		typename std::multimap< Types... >::size_type size = 0;
 		arc >> ARCHIVE_NVP( "size", size );
@@ -743,7 +761,7 @@ template< typename ... Types > struct Serializable< std::multimap< Types... > >
 };
 template< typename ... Types > struct Serializable< std::unordered_set< Types... > >
 {
-	static void Serialize( OArchive & arc, const std::unordered_set< Types... > & val )
+	static void Serialize( XE::OArchive & arc, const std::unordered_set< Types... > & val )
 	{
 		arc << ARCHIVE_NVP( "size", val.size() );
 
@@ -754,7 +772,7 @@ template< typename ... Types > struct Serializable< std::unordered_set< Types...
 		}
 	}
 
-	static void Deserialize( IArchive & arc, std::unordered_set< Types... > & val )
+	static void Deserialize( XE::IArchive & arc, std::unordered_set< Types... > & val )
 	{
 		typename std::unordered_set< Types... >::size_type size = 0;
 		arc >> ARCHIVE_NVP( "size", size );
@@ -769,7 +787,7 @@ template< typename ... Types > struct Serializable< std::unordered_set< Types...
 };
 template< typename ... Types > struct Serializable< std::unordered_map< Types... > >
 {
-	static void Serialize( OArchive & arc, const std::unordered_map< Types... > & val )
+	static void Serialize( XE::OArchive & arc, const std::unordered_map< Types... > & val )
 	{
 		arc << ARCHIVE_NVP( "size", val.size() );
 
@@ -781,7 +799,7 @@ template< typename ... Types > struct Serializable< std::unordered_map< Types...
 		}
 	}
 
-	static void Deserialize( IArchive & arc, std::unordered_map< Types... > & val )
+	static void Deserialize( XE::IArchive & arc, std::unordered_map< Types... > & val )
 	{
 		typename std::unordered_map< Types... >::size_type size = 0;
 		arc >> ARCHIVE_NVP( "size", size );
@@ -796,7 +814,7 @@ template< typename ... Types > struct Serializable< std::unordered_map< Types...
 };
 template< typename ... Types > struct Serializable< std::unordered_multiset< Types... > >
 {
-	static void Serialize( OArchive & arc, const std::unordered_multiset< Types... > & val )
+	static void Serialize( XE::OArchive & arc, const std::unordered_multiset< Types... > & val )
 	{
 		arc << ARCHIVE_NVP( "size", val.size() );
 
@@ -807,7 +825,7 @@ template< typename ... Types > struct Serializable< std::unordered_multiset< Typ
 		}
 	}
 
-	static void Deserialize( IArchive & arc, std::unordered_multiset< Types... > & val )
+	static void Deserialize( XE::IArchive & arc, std::unordered_multiset< Types... > & val )
 	{
 		typename std::unordered_multiset< Types... >::size_type size = 0;
 		arc >> ARCHIVE_NVP( "size", size );
@@ -822,7 +840,7 @@ template< typename ... Types > struct Serializable< std::unordered_multiset< Typ
 };
 template< typename ... Types > struct Serializable< std::unordered_multimap< Types... > >
 {
-	static void Serialize( OArchive & arc, const std::unordered_multimap< Types... > & val )
+	static void Serialize( XE::OArchive & arc, const std::unordered_multimap< Types... > & val )
 	{
 		arc << ARCHIVE_NVP( "size", val.size() );
 
@@ -834,7 +852,7 @@ template< typename ... Types > struct Serializable< std::unordered_multimap< Typ
 		}
 	}
 
-	static void Deserialize( IArchive & arc, std::unordered_multimap< Types... > & val )
+	static void Deserialize( XE::IArchive & arc, std::unordered_multimap< Types... > & val )
 	{
 		typename std::unordered_multimap< Types... >::size_type size = 0;
 		arc >> ARCHIVE_NVP( "size", size );

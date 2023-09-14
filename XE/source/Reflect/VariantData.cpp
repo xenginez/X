@@ -4,14 +4,14 @@
 #include "CXXMetaEnum.hpp"
 #include "CXXMetaClass.hpp"
 
-bool XE::__VariantDataIsCanConvert( const MetaInfo * type1, const MetaInfo * type2 )
+bool XE::__VariantDataIsCanConvert( const XE::MetaInfo * type1, const XE::MetaInfo * type2 )
 {
-	if ( type1 == type2 )
+	if( type1 == type2 )
 	{
 		return true;
 	}
 
-	if ( type1->GetType() == XE::MetaInfoType::CLASS && type2->GetType() == XE::MetaInfoType::CLASS )
+	if( type1->GetType() == XE::MetaInfoType::CLASS && type2->GetType() == XE::MetaInfoType::CLASS )
 	{
 		return static_cast<const XE::MetaClass *>( type1 )->CanConvert( static_cast<const XE::MetaClass *>( type2 ) );
 	}
@@ -91,47 +91,47 @@ XE::MetaTypeCPtr XE::VariantDataGetMetaType::operator()( const std::monostate & 
 }
 XE::MetaTypeCPtr XE::VariantDataGetMetaType::operator()( const bool & ) const
 {
-	return TypeID< bool >::Get();
+	return ::TypeID< bool >::Get();
 }
 XE::MetaTypeCPtr XE::VariantDataGetMetaType::operator()( const XE::int8 & ) const
 {
-	return TypeID< XE::int8 >::Get();
+	return ::TypeID< XE::int8 >::Get();
 }
 XE::MetaTypeCPtr XE::VariantDataGetMetaType::operator()( const XE::int16 & ) const
 {
-	return TypeID< XE::int16 >::Get();
+	return ::TypeID< XE::int16 >::Get();
 }
 XE::MetaTypeCPtr XE::VariantDataGetMetaType::operator()( const XE::int32 & ) const
 {
-	return TypeID< XE::int32 >::Get();
+	return ::TypeID< XE::int32 >::Get();
 }
 XE::MetaTypeCPtr XE::VariantDataGetMetaType::operator()( const XE::int64 & ) const
 {
-	return TypeID< XE::int64 >::Get();
+	return ::TypeID< XE::int64 >::Get();
 }
 XE::MetaTypeCPtr XE::VariantDataGetMetaType::operator()( const XE::uint8 & ) const
 {
-	return TypeID< XE::uint8 >::Get();
+	return ::TypeID< XE::uint8 >::Get();
 }
 XE::MetaTypeCPtr XE::VariantDataGetMetaType::operator()( const XE::uint16 & ) const
 {
-	return TypeID< XE::uint16 >::Get();
+	return ::TypeID< XE::uint16 >::Get();
 }
 XE::MetaTypeCPtr XE::VariantDataGetMetaType::operator()( const XE::uint32 & ) const
 {
-	return TypeID< XE::uint32 >::Get();
+	return ::TypeID< XE::uint32 >::Get();
 }
 XE::MetaTypeCPtr XE::VariantDataGetMetaType::operator()( const XE::uint64 & ) const
 {
-	return TypeID< XE::uint64 >::Get();
+	return ::TypeID< XE::uint64 >::Get();
 }
 XE::MetaTypeCPtr XE::VariantDataGetMetaType::operator()( const XE::float32 & ) const
 {
-	return TypeID< XE::float32 >::Get();
+	return ::TypeID< XE::float32 >::Get();
 }
 XE::MetaTypeCPtr XE::VariantDataGetMetaType::operator()( const XE::float64 & ) const
 {
-	return TypeID< XE::float64 >::Get();
+	return ::TypeID< XE::float64 >::Get();
 }
 XE::MetaTypeCPtr XE::VariantDataGetMetaType::operator()( const XE::VariantEnumData & val ) const
 {

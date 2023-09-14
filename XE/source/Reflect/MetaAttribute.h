@@ -26,20 +26,20 @@ public:
 	virtual ~MetaAttribute() = default;
 };
 
-class XE_API FlagAttribute : public MetaAttribute
+class XE_API FlagAttribute : public XE::MetaAttribute
 {
 public:
 	static XE::MetaClassPtr GetMetaClassStatic();
 
-	virtual XE::MetaClassPtr GetMetaClass() const;
+	XE::MetaClassPtr GetMetaClass() const override;
 };
 
-class XE_API LinkAttribute : public MetaAttribute
+class XE_API LinkAttribute : public XE::MetaAttribute
 {
 public:
 	static XE::MetaClassPtr GetMetaClassStatic();
 
-	virtual XE::MetaClassPtr GetMetaClass() const;
+	XE::MetaClassPtr GetMetaClass() const override;
 
 public:
 	LinkAttribute( const XE::String & name, const XE::Delegate<bool( const XE::Variant & )> & callback );
@@ -54,12 +54,12 @@ private:
 	XE::Delegate<bool( const XE::Variant & )> _Callback;
 };
 
-class XE_API RangeAttribute : public MetaAttribute
+class XE_API RangeAttribute : public XE::MetaAttribute
 {
 public:
 	static XE::MetaClassPtr GetMetaClassStatic();
 
-	virtual XE::MetaClassPtr GetMetaClass() const;
+	XE::MetaClassPtr GetMetaClass() const override;
 
 public:
 	RangeAttribute( XE::float64 min, XE::float64 max, XE::float64 step = 1.0 );
@@ -77,23 +77,23 @@ private:
 	XE::float64 _Max = std::numeric_limits< XE::float64 >::max();
 };
 
-class XE_API NonCloneAttribute : public MetaAttribute
+class XE_API NonCloneAttribute : public XE::MetaAttribute
 {
 public:
 	static XE::MetaClassPtr GetMetaClassStatic();
 
-	virtual XE::MetaClassPtr GetMetaClass() const;
+	XE::MetaClassPtr GetMetaClass() const override;
 
 public:
 	NonCloneAttribute() = default;
 };
 
-class XE_API InspectorAttribute : public MetaAttribute
+class XE_API InspectorAttribute : public XE::MetaAttribute
 {
 public:
 	static XE::MetaClassPtr GetMetaClassStatic();
 
-	virtual XE::MetaClassPtr GetMetaClass() const;
+	XE::MetaClassPtr GetMetaClass() const override;
 
 public:
 	InspectorAttribute( const XE::String & type );
@@ -105,26 +105,43 @@ private:
 	XE::String _Type;
 };
 
-class XE_API NonInspectorAttribute : public MetaAttribute
+class XE_API NonInspectorAttribute : public XE::MetaAttribute
 {
 public:
 	static XE::MetaClassPtr GetMetaClassStatic();
 
-	virtual XE::MetaClassPtr GetMetaClass() const;
+	XE::MetaClassPtr GetMetaClass() const override;
 
 public:
 	NonInspectorAttribute() = default;
 };
 
-class XE_API NonSerializeAttribute : public MetaAttribute
+class XE_API NonSerializeAttribute : public XE::MetaAttribute
 {
 public:
 	static XE::MetaClassPtr GetMetaClassStatic();
 
-	virtual XE::MetaClassPtr GetMetaClass() const;
+	XE::MetaClassPtr GetMetaClass() const override;
 
 public:
 	NonSerializeAttribute() = default;
+};
+
+class XE_API ParameterNamesAttribute : public XE::MetaAttribute
+{
+public:
+	static XE::MetaClassPtr GetMetaClassStatic();
+
+	XE::MetaClassPtr GetMetaClass() const override;
+
+public:
+	ParameterNamesAttribute( const XE::Array< XE::String > & names );
+
+public:
+	const XE::Array< XE::String > & GetNames() const;
+
+private:
+	XE::Array< XE::String > _Names;
 };
 
 END_XE_NAMESPACE

@@ -38,7 +38,7 @@ template< typename T > struct ClassID< T * >
 {
 	static XE::MetaClassCPtr Get( const T * val = nullptr )
 	{
-		return ClassID< T >::Get( val );
+		return ::ClassID< T >::Get( val );
 	}
 };
 
@@ -46,7 +46,7 @@ template< typename T > struct ClassID< T & >
 {
 	static XE::MetaClassCPtr Get( const T * val = nullptr )
 	{
-		return ClassID< T >::Get( val );
+		return ::ClassID< T >::Get( val );
 	}
 };
 
@@ -54,7 +54,7 @@ template< typename T > struct ClassID< const T >
 {
 	static XE::MetaClassCPtr Get( const T * val = nullptr )
 	{
-		return ClassID< T >::Get( val );
+		return ::ClassID< T >::Get( val );
 	}
 };
 
@@ -64,10 +64,10 @@ template< typename T > struct ClassID< XE::SharedPtr< T > >
 	{
 		if( val != nullptr )
 		{
-			return ClassID< T >::Get( val.get() );
+			return ::ClassID< T >::Get( val.get() );
 		}
 
-		return ClassID< T >::Get();
+		return ::ClassID< T >::Get();
 	}
 };
 
@@ -77,7 +77,7 @@ template< typename T > struct TypeID
 	{
 		using raw_t = typename XE::TypeTraits< T >::raw_t;
 
-		return SP_CAST< const XE::MetaType >( std::conditional_t< std::is_enum_v< raw_t >, EnumID< raw_t >, ClassID< raw_t > >::Get( val ) );
+		return SP_CAST< const XE::MetaType >( std::conditional_t< std::is_enum_v< raw_t >, ::EnumID< raw_t >, ::ClassID< raw_t > >::Get( val ) );
 	}
 };
 
@@ -87,27 +87,27 @@ template< typename T > struct TypeID< XE::SharedPtr< T > >
 	{
 		if( val != nullptr )
 		{
-			return TypeID< T >::Get( val->get() );
+			return ::TypeID< T >::Get( val->get() );
 		}
 
-		return TypeID< T >::Get();
+		return ::TypeID< T >::Get();
 	}
 };
 
 BEG_XE_NAMESPACE
 
-template< typename T > XE_INLINE XE::String ToString(const T * _Val )
+template< typename T > XE_INLINE XE::String ToString( const T * _Val )
 {
 	using raw_t = XE::TypeTraits< T >::raw_t;
 
-	return TypeID< raw_t >::Get( _Val )->GetFullName();
+	return ::TypeID< raw_t >::Get( _Val )->GetFullName();
 }
 
-template< typename T > XE_INLINE XE::String ToString(const T & _Val )
+template< typename T > XE_INLINE XE::String ToString( const T & _Val )
 {
 	using raw_t = XE::TypeTraits< T >::raw_t;
 
-	return TypeID< raw_t >::Get( &_Val )->GetFullName();
+	return ::TypeID< raw_t >::Get( &_Val )->GetFullName();
 }
 
 END_XE_NAMESPACE

@@ -17,12 +17,12 @@ BEG_XE_NAMESPACE
 
 class XE_API Object : public XE::EnableSharedFromThis< Object >
 {
-	template< typename T > friend struct MetaTypeCollector;
+	template< typename T > friend struct XE::MetaTypeCollector;
 
 public:
-	static MetaClassCPtr GetMetaClassStatic();
+	static XE::MetaClassCPtr GetMetaClassStatic();
 
-	virtual MetaClassCPtr GetMetaClass() const;
+	virtual XE::MetaClassCPtr GetMetaClass() const;
 
 public:
 	Object();
@@ -36,7 +36,7 @@ public:
 
 	virtual XE::Variant Invoke( const XE::String & name, XE::InvokeStack * params );
 
-	template< typename ... Types > XE::Variant Invoke( const String & name, Types && ...args )
+	template< typename ... Types > XE::Variant Invoke( const XE::String & name, Types && ...args )
 	{
 		XE::InvokeStack stack;
 

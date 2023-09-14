@@ -81,12 +81,12 @@ void XS::WorldEditor::OnLogicTreeWidgetItemClicked( QTreeWidgetItem * item, int 
 {
 	ui->render_tree->setCurrentItem( nullptr );
 
-	// emit XS::CoreFramework::GetCurrentFramework()->Inspector()
+	emit XS::CoreFramework::GetCurrentFramework()->GetSignals()->Inspector( "World/Logic/" + item->text( 0 ), item->data( 0, Qt::UserRole + 1 ).value< XE::Variant >() );
 }
 
 void XS::WorldEditor::OnRenderTreeWidgetItemClicked( QTreeWidgetItem * item, int column )
 {
 	ui->logic_tree->setCurrentItem( nullptr );
 
-	// emit XS::CoreFramework::GetCurrentFramework()->Inspector()
+	emit XS::CoreFramework::GetCurrentFramework()->GetSignals()->Inspector( "World/Render/" + item->text( 0 ), item->data( 0, Qt::UserRole + 1 ).value< XE::Variant >() );
 }

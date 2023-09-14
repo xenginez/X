@@ -9,7 +9,7 @@ XE::Variant::Variant()
 }
 
 XE::Variant::Variant( std::nullptr_t )
-	: _Data( VariantPointerData() )
+	: _Data( XE::VariantPointerData() )
 {
 
 }
@@ -148,7 +148,7 @@ XE::Variant::Variant( const XE::SharedPtr< void > & ptr, const XE::MetaTypeCPtr 
 
 XE::Variant & XE::Variant::operator=( std::nullptr_t )
 {
-	_Data = VariantPointerData();
+	_Data = XE::VariantPointerData();
 
 	return *this;
 }
@@ -282,66 +282,210 @@ XE::Variant & XE::Variant::operator=( const XE::VariantWarpperData & val )
 XE::Variant XE::Variant::operator!() const
 {
 	return std::visit( XE::Overloaded{
-						[this]( const std::monostate & val ) -> XE::Variant { throw * this; },
-						[this]( const bool & val ) -> XE::Variant { return !val; },
-						[this]( const XE::int8 & val ) -> XE::Variant { return !val; },
-						[this]( const XE::int16 & val ) -> XE::Variant { return !val; },
-						[this]( const XE::int32 & val ) -> XE::Variant { return !val; },
-						[this]( const XE::int64 & val ) -> XE::Variant { return !val; },
-						[this]( const XE::uint8 & val ) -> XE::Variant { return !val; },
-						[this]( const XE::uint16 & val ) -> XE::Variant { return !val; },
-						[this]( const XE::uint32 & val ) -> XE::Variant { return !val; },
-						[this]( const XE::uint64 & val ) -> XE::Variant { return !val; },
-						[this]( const XE::float32 & val ) -> XE::Variant { return !val; },
-						[this]( const XE::float64 & val ) -> XE::Variant { return !val; },
-						[this]( const VariantEnumData & val ) -> XE::Variant { throw * this; },
-						[this]( const VariantSmallData & val ) -> XE::Variant { throw * this; },
-						[this]( const VariantPointerData & val ) -> XE::Variant { throw * this; },
-						[this]( const VariantWarpperData & val ) -> XE::Variant { throw * this; },
+						[this]( const std::monostate & val ) -> XE::Variant
+ {
+throw * this;
+},
+		[this]( const bool & val ) -> XE::Variant
+{
+return !val;
+},
+		 [this]( const XE::int8 & val ) -> XE::Variant
+{
+return !val;
+},
+		 [this]( const XE::int16 & val ) -> XE::Variant
+{
+return !val;
+},
+		 [this]( const XE::int32 & val ) -> XE::Variant
+{
+return !val;
+},
+		 [this]( const XE::int64 & val ) -> XE::Variant
+{
+return !val;
+},
+		 [this]( const XE::uint8 & val ) -> XE::Variant
+{
+return !val;
+},
+		 [this]( const XE::uint16 & val ) -> XE::Variant
+{
+return !val;
+},
+		 [this]( const XE::uint32 & val ) -> XE::Variant
+{
+return !val;
+},
+		 [this]( const XE::uint64 & val ) -> XE::Variant
+{
+return !val;
+},
+		 [this]( const XE::float32 & val ) -> XE::Variant
+{
+return !val;
+},
+		 [this]( const XE::float64 & val ) -> XE::Variant
+{
+return !val;
+},
+		 [this]( const VariantEnumData & val ) -> XE::Variant
+{
+throw * this;
+},
+		[this]( const VariantSmallData & val ) -> XE::Variant
+{
+throw * this;
+},
+		[this]( const VariantPointerData & val ) -> XE::Variant
+{
+throw * this;
+},
+		[this]( const VariantWarpperData & val ) -> XE::Variant
+{
+throw * this;
+},
 					   }, _Data );
 }
 
 XE::Variant XE::Variant::operator~() const
 {
 	return std::visit( XE::Overloaded{
-						[this]( const std::monostate & val ) -> XE::Variant { throw * this; },
-						[this]( const bool & val ) -> XE::Variant { throw * this; },
-						[this]( const XE::int8 & val ) -> XE::Variant { return ~val; },
-						[this]( const XE::int16 & val ) -> XE::Variant { return ~val; },
-						[this]( const XE::int32 & val ) -> XE::Variant { return ~val; },
-						[this]( const XE::int64 & val ) -> XE::Variant { return ~val; },
-						[this]( const XE::uint8 & val ) -> XE::Variant { return ~val; },
-						[this]( const XE::uint16 & val ) -> XE::Variant { return ~val; },
-						[this]( const XE::uint32 & val ) -> XE::Variant { return ~val; },
-						[this]( const XE::uint64 & val ) -> XE::Variant { return ~val; },
-						[this]( const XE::float32 & val ) -> XE::Variant { throw * this; },
-						[this]( const XE::float64 & val ) -> XE::Variant { throw * this; },
-						[this]( const VariantEnumData & val ) -> XE::Variant { throw * this; },
-						[this]( const VariantSmallData & val ) -> XE::Variant { throw * this; },
-						[this]( const VariantPointerData & val ) -> XE::Variant { throw * this; },
-						[this]( const VariantWarpperData & val ) -> XE::Variant { throw * this; },
+						[this]( const std::monostate & val ) -> XE::Variant
+ {
+throw * this;
+},
+		[this]( const bool & val ) -> XE::Variant
+{
+throw * this;
+},
+		[this]( const XE::int8 & val ) -> XE::Variant
+{
+return ~val;
+},
+		 [this]( const XE::int16 & val ) -> XE::Variant
+{
+return ~val;
+},
+		 [this]( const XE::int32 & val ) -> XE::Variant
+{
+return ~val;
+},
+		 [this]( const XE::int64 & val ) -> XE::Variant
+{
+return ~val;
+},
+		 [this]( const XE::uint8 & val ) -> XE::Variant
+{
+return ~val;
+},
+		 [this]( const XE::uint16 & val ) -> XE::Variant
+{
+return ~val;
+},
+		 [this]( const XE::uint32 & val ) -> XE::Variant
+{
+return ~val;
+},
+		 [this]( const XE::uint64 & val ) -> XE::Variant
+{
+return ~val;
+},
+		 [this]( const XE::float32 & val ) -> XE::Variant
+{
+throw * this;
+},
+		[this]( const XE::float64 & val ) -> XE::Variant
+{
+throw * this;
+},
+		[this]( const VariantEnumData & val ) -> XE::Variant
+{
+throw * this;
+},
+		[this]( const VariantSmallData & val ) -> XE::Variant
+{
+throw * this;
+},
+		[this]( const VariantPointerData & val ) -> XE::Variant
+{
+throw * this;
+},
+		[this]( const VariantWarpperData & val ) -> XE::Variant
+{
+throw * this;
+},
 					   }, _Data );
 }
 
 XE::Variant XE::Variant::operator-() const
 {
 	return std::visit( XE::Overloaded{
-						[this]( const std::monostate & val ) -> XE::Variant { throw * this; },
-						[this]( const bool & val ) -> XE::Variant { throw * this; },
-						[this]( const XE::int8 & val ) -> XE::Variant { return -val; },
-						[this]( const XE::int16 & val ) -> XE::Variant { return -val; },
-						[this]( const XE::int32 & val ) -> XE::Variant { return -val; },
-						[this]( const XE::int64 & val ) -> XE::Variant { return -val; },
-						[this]( const XE::uint8 & val ) -> XE::Variant { return -(XE::int8)val; },
-						[this]( const XE::uint16 & val ) -> XE::Variant { return -(XE::int16)val; },
-						[this]( const XE::uint32 & val ) -> XE::Variant { return -(XE::int32)val; },
-						[this]( const XE::uint64 & val ) -> XE::Variant { return -(XE::int64)val; },
-						[this]( const XE::float32 & val ) -> XE::Variant { return -val; },
-						[this]( const XE::float64 & val ) -> XE::Variant { return -val; },
-						[this]( const VariantEnumData & val ) -> XE::Variant { throw * this; },
-						[this]( const VariantSmallData & val ) -> XE::Variant { throw * this; },
-						[this]( const VariantPointerData & val ) -> XE::Variant { throw * this; },
-						[this]( const VariantWarpperData & val ) -> XE::Variant { throw * this; },
+						[this]( const std::monostate & val ) -> XE::Variant
+ {
+throw * this;
+},
+		[this]( const bool & val ) -> XE::Variant
+{
+throw * this;
+},
+		[this]( const XE::int8 & val ) -> XE::Variant
+{
+return -val;
+},
+		 [this]( const XE::int16 & val ) -> XE::Variant
+{
+return -val;
+},
+		 [this]( const XE::int32 & val ) -> XE::Variant
+{
+return -val;
+},
+		 [this]( const XE::int64 & val ) -> XE::Variant
+{
+return -val;
+},
+		 [this]( const XE::uint8 & val ) -> XE::Variant
+{
+return -(XE::int8) val;
+},
+[this]( const XE::uint16 & val ) -> XE::Variant
+{
+return -(XE::int16) val;
+},
+[this]( const XE::uint32 & val ) -> XE::Variant
+{
+return -(XE::int32) val;
+},
+[this]( const XE::uint64 & val ) -> XE::Variant
+{
+return -(XE::int64) val;
+},
+[this]( const XE::float32 & val ) -> XE::Variant
+{
+return -val;
+},
+		 [this]( const XE::float64 & val ) -> XE::Variant
+{
+return -val;
+},
+		 [this]( const VariantEnumData & val ) -> XE::Variant
+{
+throw * this;
+},
+		[this]( const VariantSmallData & val ) -> XE::Variant
+{
+throw * this;
+},
+		[this]( const VariantPointerData & val ) -> XE::Variant
+{
+throw * this;
+},
+		[this]( const VariantWarpperData & val ) -> XE::Variant
+{
+throw * this;
+},
 					   }, _Data );
 }
 
@@ -377,12 +521,12 @@ bool XE::Variant::operator!=( const XE::Variant & val ) const
 
 bool XE::Variant::operator&&( const XE::Variant & val ) const
 {
-	return !( val.IsInvalid() || val.IsInvalid() );
+	return !( val.IsInvalid() );
 }
 
 bool XE::Variant::operator||( const XE::Variant & val ) const
 {
-	return !( val.IsInvalid() && val.IsInvalid() );
+	return !( val.IsInvalid() );
 }
 
 XE::Variant XE::Variant::operator+( const XE::Variant & val ) const
@@ -390,7 +534,7 @@ XE::Variant XE::Variant::operator+( const XE::Variant & val ) const
 	return std::visit( XE::Overloaded{
 						[&]( const auto & left, const auto & right ) -> XE::Variant
 						{
-							if constexpr ( std::is_fundamental_v< decltype( left )> && std::is_fundamental_v< decltype( left )> )
+							if constexpr( std::is_fundamental_v< decltype( left )> && std::is_fundamental_v< decltype( left )> )
 							{
 								return left + right;
 							}
@@ -407,7 +551,7 @@ XE::Variant XE::Variant::operator-( const XE::Variant & val ) const
 	return std::visit( XE::Overloaded{
 						[&]( const auto & left, const auto & right ) -> XE::Variant
 						{
-							if constexpr ( std::is_fundamental_v< decltype( left )> && std::is_fundamental_v< decltype( left )> )
+							if constexpr( std::is_fundamental_v< decltype( left )> && std::is_fundamental_v< decltype( left )> )
 							{
 								return left - right;
 							}
@@ -424,7 +568,7 @@ XE::Variant XE::Variant::operator*( const XE::Variant & val ) const
 	return std::visit( XE::Overloaded{
 						[&]( const auto & left, const auto & right ) -> XE::Variant
 						{
-							if constexpr ( std::is_fundamental_v< decltype( left )> && std::is_fundamental_v< decltype( left )> )
+							if constexpr( std::is_fundamental_v< decltype( left )> && std::is_fundamental_v< decltype( left )> )
 							{
 								return left * right;
 							}
@@ -441,7 +585,7 @@ XE::Variant XE::Variant::operator/( const XE::Variant & val ) const
 	return std::visit( XE::Overloaded{
 						[&]( const auto & left, const auto & right ) -> XE::Variant
 						{
-							if constexpr ( std::is_fundamental_v< decltype( left )> && std::is_fundamental_v< decltype( left )> )
+							if constexpr( std::is_fundamental_v< decltype( left )> && std::is_fundamental_v< decltype( left )> )
 							{
 								return left / right;
 							}
@@ -458,7 +602,7 @@ XE::Variant XE::Variant::operator%( const XE::Variant & val ) const
 	return std::visit( XE::Overloaded{
 						[&]( const auto & left, const auto & right ) -> XE::Variant
 						{
-							if constexpr ( std::is_integral_v< decltype( left )> && std::is_integral_v< decltype( left )> )
+							if constexpr( std::is_integral_v< decltype( left )> && std::is_integral_v< decltype( left )> )
 							{
 								return left % right;
 							}
@@ -475,7 +619,7 @@ XE::Variant XE::Variant::operator|( const XE::Variant & val ) const
 	return std::visit( XE::Overloaded{
 						[&]( const auto & left, const auto & right ) -> XE::Variant
 						{
-							if constexpr ( std::is_integral_v< decltype( left )> && std::is_integral_v< decltype( left )> )
+							if constexpr( std::is_integral_v< decltype( left )> && std::is_integral_v< decltype( left )> )
 							{
 								return left | right;
 							}
@@ -492,7 +636,7 @@ XE::Variant XE::Variant::operator^( const XE::Variant & val ) const
 	return std::visit( XE::Overloaded{
 						[&]( const auto & left, const auto & right ) -> XE::Variant
 						{
-							if constexpr ( std::is_integral_v< decltype( left )> && std::is_integral_v< decltype( left )> )
+							if constexpr( std::is_integral_v< decltype( left )> && std::is_integral_v< decltype( left )> )
 							{
 								return left ^ right;
 							}
@@ -509,7 +653,7 @@ XE::Variant XE::Variant::operator&( const XE::Variant & val ) const
 	return std::visit( XE::Overloaded{
 						[&]( const auto & left, const auto & right ) -> XE::Variant
 						{
-							if constexpr ( std::is_integral_v< decltype( left )> && std::is_integral_v< decltype( left )> )
+							if constexpr( std::is_integral_v< decltype( left )> && std::is_integral_v< decltype( left )> )
 							{
 								return left & right;
 							}
@@ -526,7 +670,7 @@ XE::Variant XE::Variant::operator<<( const XE::Variant & val ) const
 	return std::visit( XE::Overloaded{
 						[&]( const auto & left, const auto & right ) -> XE::Variant
 						{
-							if constexpr ( std::is_integral_v< decltype( left )> && std::is_integral_v< decltype( left )> )
+							if constexpr( std::is_integral_v< decltype( left )> && std::is_integral_v< decltype( left )> )
 							{
 								return left << right;
 							}
@@ -543,7 +687,7 @@ XE::Variant XE::Variant::operator>>( const XE::Variant & val ) const
 	return std::visit( XE::Overloaded{
 						[&]( const auto & left, const auto & right ) -> XE::Variant
 						{
-							if constexpr ( std::is_integral_v< decltype( left )> && std::is_integral_v< decltype( left )> )
+							if constexpr( std::is_integral_v< decltype( left )> && std::is_integral_v< decltype( left )> )
 							{
 								return left >> right;
 							}
@@ -587,7 +731,7 @@ bool XE::Variant::IsSharedPtr() const
 
 bool XE::Variant::IsFundamental() const
 {
-	return std::visit( 
+	return std::visit(
 		VariantDataIsType< bool, XE::int8, XE::int16, XE::int32, XE::int64, XE::uint8, XE::uint16, XE::uint32, XE::uint64, XE::float32, XE::float64 >(),
 		_Data );
 }
@@ -665,7 +809,7 @@ XE::String XE::Variant::ToString() const
 
 void * XE::Variant::ToPointer() const
 {
-	return std::visit( XE::VariantDataGetRawPointer(), const_cast< XE::VariantData & >( _Data ) );
+	return std::visit( XE::VariantDataGetRawPointer(), const_cast<XE::VariantData &>( _Data ) );
 }
 
 XE::Array< XE::Variant > XE::Variant::ToArray() const

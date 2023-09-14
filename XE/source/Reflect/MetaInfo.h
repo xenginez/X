@@ -16,23 +16,50 @@ BEG_XE_NAMESPACE
 class XE_API MetaInfo : public XE::EnableSharedFromThis< MetaInfo >
 {
 public:
-	MetaInfo( const String & Name, MetaInfoType Type, MetaInfoCPtr Owner, MetaModuleCPtr Module );
+	MetaInfo( const XE::String & Name, XE::MetaInfoType Type, XE::MetaInfoCPtr Owner, XE::MetaModuleCPtr Module );
 
 	virtual ~MetaInfo();
 
 public:
-	MetaInfoType GetType() const;
+	XE::MetaInfoType GetType() const;
 
 	XE::uint64 GetHashCode() const;
 
-	const String & GetName() const;
+	const XE::String & GetName() const;
 
-	const String & GetFullName() const;
+	const XE::String & GetFullName() const;
+
+	const XE::Array< XE::MetaAttributeCPtr > & GetAttributes() const;
 
 public:
-	MetaInfoCPtr GetOwner() const;
+	XE::MetaInfoCPtr GetOwner() const;
 
-	MetaModuleCPtr GetModule() const;
+	XE::MetaModuleCPtr GetModule() const;
+
+public:
+	XE::MetaAttributeCPtr FindAttribute( const XE::MetaClassCPtr & val ) const;
+
+	template< typename T > XE::SharedPtr< const T > FindAttributeT() const
+	{
+		return SP_CAST< const T >( FindAttribute( T::GetMetaClassStatic() ) );
+	}
+
+public:
+	template< typename T > XE::MetaInfo * Attribute( const T & val )
+	{
+		_Attributes.push_back( XE::MakeShared< T >( val ) );
+
+		return this;
+	}
+
+	template< typename T, typename ... ARGS > XE::MetaInfo * Attribute( const T & val, ARGS &&... args )
+	{
+		Attribute( val );
+
+		Attribute( std::forward< ARGS >( args )... );
+
+		return this;
+	}
 
 public:
 	template< typename T, typename ... Types > XE::SharedPtr< T > static NewMetaInfo( XE::uint64 code, Types &&... args )
@@ -58,12 +85,13 @@ protected:
 	void Register();
 
 private:
-	MetaInfoType _Type;
-	String _Name;
-	String _FullName;
+	XE::MetaInfoType _Type;
+	XE::String _Name;
+	XE::String _FullName;
 	XE::uint64 _HashCode;
-	MetaInfoCWPtr _Owner;
-	MetaModuleCWPtr _Module;
+	XE::MetaInfoCWPtr _Owner;
+	XE::MetaModuleCWPtr _Module;
+	XE::Array< XE::MetaAttributeCPtr > _Attributes;
 };
 
 END_XE_NAMESPACE

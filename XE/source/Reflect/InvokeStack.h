@@ -69,13 +69,13 @@ public:
 public:
 	template< typename T > T Pop()
 	{
-	#if COMPILER == COMPILER_MSVC
+#if COMPILER == COMPILER_MSVC
 		Variant var = _Stack.back();
 		_Stack.pop_back();
-	#else
+#else
 		Variant var = _Stack.front();
 		_Stack.pop_front();
-	#endif
+#endif
 
 		return var.Value< T >();
 	}
@@ -88,10 +88,10 @@ public:
 
 	XE::uint64 GetSize() const;
 
-	ParameterType GetTypes() const;
+	XE::ParameterType GetTypes() const;
 
 private:
-	VariantArray _Stack;
+	XE::VariantArray _Stack;
 };
 
 END_XE_NAMESPACE

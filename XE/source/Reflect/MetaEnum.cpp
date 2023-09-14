@@ -2,8 +2,8 @@
 
 
 
-XE::MetaEnum::MetaEnum( const String & Name, XE::uint64 Size, MetaInfoCPtr Owner, MetaModuleCPtr Module )
-	:MetaType( Name, MetaInfoType::ENUM, Size, Owner, Module )
+XE::MetaEnum::MetaEnum( const XE::String & Name, XE::uint64 Size, XE::MetaInfoCPtr Owner, XE::MetaModuleCPtr Module )
+	: XE::MetaType( Name, MetaInfoType::ENUM, Size, Owner, Module )
 {
 
 }
@@ -16,7 +16,7 @@ XE::MetaEnum::~MetaEnum()
 XE::uint64 XE::MetaEnum::GetFlags() const
 {
 	XE::uint64 result = 0;
-	for ( const auto & it : _Values )
+	for( const auto & it : _Values )
 	{
 		result |= it.second.ToUInt64();
 	}
@@ -40,9 +40,9 @@ XE::Variant XE::MetaEnum::GetDefaultValue() const
 
 XE::String XE::MetaEnum::FindName( XE::Variant val ) const
 {
-	for ( auto var : _Values )
+	for( auto var : _Values )
 	{
-		if ( var.second == val )
+		if( var.second == val )
 		{
 			return var.first;
 		}
@@ -51,11 +51,11 @@ XE::String XE::MetaEnum::FindName( XE::Variant val ) const
 	return "";
 }
 
-XE::Variant XE::MetaEnum::FindValue( const String& val ) const
+XE::Variant XE::MetaEnum::FindValue( const XE::String & val ) const
 {
-	for ( auto var : _Values )
+	for( auto var : _Values )
 	{
-		if ( var.first == val )
+		if( var.first == val )
 		{
 			return var.second;
 		}
@@ -69,15 +69,15 @@ const XE::Array< XE::Pair< XE::String, XE::Variant > > & XE::MetaEnum::GetValues
 	return _Values;
 }
 
-void XE::MetaEnum::Visit( const XE::Delegate< void( const String &, const XE::Variant & ) > & val ) const
+void XE::MetaEnum::Visit( const XE::Delegate< void( const XE::String &, const XE::Variant & ) > & val ) const
 {
-	for ( auto var : _Values )
+	for( auto var : _Values )
 	{
 		val( var.first, var.second );
 	}
 }
 
-void XE::MetaEnum::_RegisterValue( const String& Name, const  XE::Variant & Val )
+void XE::MetaEnum::_RegisterValue( const XE::String & Name, const  XE::Variant & Val )
 {
 	_Values.push_back( std::make_pair( Name, Val ) );
 }

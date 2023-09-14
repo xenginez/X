@@ -13,14 +13,14 @@
 
 BEG_XE_NAMESPACE
 
-template< typename T > class CXXMetaEnum : public MetaEnum
+template< typename T > class CXXMetaEnum : public XE::MetaEnum
 {
 public:
 	using EnumType = T;
 
 public:
-	CXXMetaEnum( const String& Name, MetaInfoCPtr Owner, MetaModuleCPtr Module )
-		:MetaEnum( Name, sizeof( EnumType ), Owner, Module )
+	CXXMetaEnum( const XE::String & Name, XE::MetaInfoCPtr Owner, XE::MetaModuleCPtr Module )
+		: XE::MetaEnum( Name, sizeof( EnumType ), Owner, Module )
 	{
 
 	}
@@ -37,7 +37,7 @@ public:
 	}
 
 public:
-	void Value( const String& Name, EnumType val )
+	void Value( const XE::String & Name, EnumType val )
 	{
 		_RegisterValue( Name, val );
 	}

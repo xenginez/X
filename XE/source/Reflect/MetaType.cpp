@@ -1,13 +1,10 @@
 #include "MetaType.h"
 
-#include "MetaAttribute.h"
-
-XE::MetaType::MetaType( const String & Name, MetaInfoType Type, XE::uint64 Size, MetaInfoCPtr Owner, MetaModuleCPtr Module )
-	:MetaInfo( Name, Type, Owner, Module ), _Size( Size )
+XE::MetaType::MetaType( const XE::String & Name, XE::MetaInfoType Type, XE::uint64 Size, XE::MetaInfoCPtr Owner, XE::MetaModuleCPtr Module )
+	: XE::MetaInfo( Name, Type, Owner, Module ), _Size( Size )
 {
 
 }
-
 
 XE::MetaType::~MetaType()
 {
@@ -17,22 +14,4 @@ XE::MetaType::~MetaType()
 XE::uint64 XE::MetaType::GetSize() const
 {
 	return _Size;
-}
-
-XE::MetaAttributeCPtr XE::MetaType::FindAttribute( const XE::MetaClassCPtr & val ) const
-{
-	for ( const auto & it : _Attributes )
-	{
-		if ( it->GetMetaClass() == val )
-		{
-			return it;
-		}
-	}
-
-	return nullptr;
-}
-
-const XE::Array< XE::MetaAttributeCPtr > & XE::MetaType::GetAttributes() const
-{
-	return _Attributes;
 }

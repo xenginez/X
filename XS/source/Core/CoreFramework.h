@@ -10,6 +10,7 @@
 #define COREFRAMEWORK_H__941035B0_93C2_49A9_BEB1_FC3442BCA3F4
 
 #include "Global.h"
+#include "Signals.h"
 #include "AssetDatabase.h"
 
 BEG_XS_NAMESPACE
@@ -29,6 +30,8 @@ public:
 	static XS::CoreFramework * GetCurrentFramework();
 
 public:
+	XS::SignalsPtr GetSignals() const;
+
 	XS::AssetDatabasePtr GetAssetDatabase() const;
 
 public:

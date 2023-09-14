@@ -116,42 +116,42 @@ void XE::Reflection::RegisterMetaInfo( XE::MetaInfoPtr val )
 void XE::Reflection::VisitMeta( const XE::Delegate< void( const XE::MetaInfoCPtr & ) > & val )
 {
 	VisitEnum( [&]( const XE::MetaEnumCPtr & it )
-			   {
-				   val( it );
-			   } );
+	{
+		val( it );
+	} );
 
 	VisitClass( [&]( const XE::MetaClassCPtr & it )
-				{
-					val( it );
-				} );
+	{
+		val( it );
+	} );
 
 	VisitModule( [&]( const XE::MetaModuleCPtr & it )
-				 {
-					 val( it );
-				 } );
+	{
+		val( it );
+	} );
 
 	VisitMethod( [&]( const XE::MetaMethodCPtr & it )
-				 {
-					 val( it );
-				 } );
+	{
+		val( it );
+	} );
 
 	VisitProperty( [&]( const XE::MetaPropertyCPtr & it )
-				   {
-					   val( it );
-				   } );
+	{
+		val( it );
+	} );
 }
 
 void XE::Reflection::VisitType( const XE::Delegate< void( const XE::MetaTypeCPtr & ) > & val )
 {
 	VisitEnum( [&]( const XE::MetaEnumCPtr & enm )
-			   {
-				   val( enm );
-			   } );
+	{
+		val( enm );
+	} );
 
 	VisitClass( [&]( const XE::MetaClassCPtr & cls )
-				{
-					val( cls );
-				} );
+	{
+		val( cls );
+	} );
 }
 
 void XE::Reflection::VisitEnum( const XE::Delegate< void( const XE::MetaEnumCPtr & ) > & val )

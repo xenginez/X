@@ -121,7 +121,7 @@ namespace
 	}
 	template< typename T > void read( std::istream & stream, T & val )
 	{
-		stream.read( reinterpret_cast< char * >( &val ), sizeof( T ) );
+		stream.read( reinterpret_cast<char *>( &val ), sizeof( T ) );
 	}
 
 	void write( std::ostream & stream, XE::int8 val )
@@ -192,7 +192,7 @@ namespace
 	}
 	template< typename T > void write( std::ostream & stream, const T & val )
 	{
-		stream.write( reinterpret_cast< const char * >( &val ), sizeof( T ) );
+		stream.write( reinterpret_cast<const char *>( &val ), sizeof( T ) );
 	}
 }
 
@@ -297,12 +297,12 @@ void XE::XmlOArchive::Serialize( const XE::Variant & val )
 		}
 		else
 		{
-			if( val.GetType() == ClassID< XE::String >::Get() )
+			if( val.GetType() == ::ClassID< XE::String >::Get() )
 			{
 				_p->_Stack.back()->append_attribute( "type" ).set_value( val.GetType()->GetFullName().c_str() );
 				_p->_Stack.back()->text().set( val.Value< XE::String >().c_str() );
 			}
-			else if( val.GetType() == ClassID< XE::ArchiveNameVariant >::Get() )
+			else if( val.GetType() == ::ClassID< XE::ArchiveNameVariant >::Get() )
 			{
 				auto nvp = val.Value< XE::ArchiveNameVariant >();
 
@@ -339,7 +339,7 @@ struct XE::XmlIArchive::Private
 
 	bool _Init = false;
 	pugi::xml_document _Document;
-	std::deque< pugi::xml_node * > _Stack;
+	XE::Deque< pugi::xml_node * > _Stack;
 };
 
 XE::XmlIArchive::XmlIArchive( std::istream & stream )
@@ -449,7 +449,10 @@ XE::Variant XE::XmlIArchive::Deserialize( const XE::String & name /*= "" */ )
 				{
 					void * p = XE::MemoryResource::Alloc( cls->GetSize() );
 					cls->Construct( p );
-					XE::SharedPtr< void > sp( p, [c = cls.get()]( void * p ) { c->Destruct( p ); XE::MemoryResource::Free( p ); } );
+					XE::SharedPtr< void > sp( p, [c = cls.get()]( void * p )
+					{
+						c->Destruct( p ); XE::MemoryResource::Free( p );
+					} );
 					result = XE::Variant( sp, cls.get() );
 				}
 				else
@@ -485,7 +488,7 @@ struct XE::JsonOArchive::Private
 	bool _Init = false;
 	std::ostream & _Stream;
 	rapidjson::Document _Document;
-	std::deque< rapidjson::Value * > _Stack;
+	XE::Deque< rapidjson::Value * > _Stack;
 };
 
 XE::JsonOArchive::JsonOArchive( std::ostream & stream )
@@ -537,11 +540,11 @@ void XE::JsonOArchive::Serialize( const XE::Variant & val )
 			_p->_Stack.back()->AddMember( "type", type, _p->_Document.GetAllocator() );
 			_p->_Stack.back()->AddMember( "value", value, _p->_Document.GetAllocator() );
 		}
-		else if ( val.GetType() == ClassID< bool >::Get() )
+		else if( val.GetType() == ClassID< bool >::Get() )
 		{
 			_p->_Stack.back()->SetBool( val.ToBool() );
 		}
-		else if ( val.IsFundamental() )
+		else if( val.IsFundamental() )
 		{
 			_p->_Stack.back()->SetObject();
 
@@ -549,7 +552,7 @@ void XE::JsonOArchive::Serialize( const XE::Variant & val )
 			rapidjson::Value value( rapidjson::Type::kFalseType );
 			key.SetString( val.GetType()->GetFullName().c_str(), _p->_Document.GetAllocator() );
 
-			switch ( val.GetData().index() )
+			switch( val.GetData().index() )
 			{
 			case 2:
 				value.SetInt( val.Value< XE::int8 >() );
@@ -587,11 +590,11 @@ void XE::JsonOArchive::Serialize( const XE::Variant & val )
 
 			_p->_Stack.back()->AddMember( key, value, _p->_Document.GetAllocator() );
 		}
-		else if ( val.GetType() == ClassID< XE::String >::Get() )
+		else if( val.GetType() == ::ClassID< XE::String >::Get() )
 		{
 			_p->_Stack.back()->SetString( val.Value< const XE::String & >().c_str(), _p->_Document.GetAllocator() );
 		}
-		else if ( val.GetType() == ClassID< XE::ArchiveNameVariant >::Get() )
+		else if( val.GetType() == ::ClassID< XE::ArchiveNameVariant >::Get() )
 		{
 			auto nvp = val.Value< XE::ArchiveNameVariant >();
 
@@ -616,7 +619,7 @@ void XE::JsonOArchive::Serialize( const XE::Variant & val )
 			_p->_Stack.back()->AddMember( "type", type, _p->_Document.GetAllocator() );
 			_p->_Stack.back()->AddMember( "flag", flag, _p->_Document.GetAllocator() );
 
-			if ( val.IsNull() )
+			if( val.IsNull() )
 			{
 				value.SetNull();
 			}
@@ -643,7 +646,7 @@ struct XE::JsonIArchive::Private
 
 	bool _Init = false;
 	rapidjson::Document _Document;
-	std::deque< rapidjson::Value * > _Stack;
+	XE::Deque< rapidjson::Value * > _Stack;
 };
 
 XE::JsonIArchive::JsonIArchive( std::istream & stream )
@@ -684,57 +687,57 @@ XE::Variant XE::JsonIArchive::Deserialize( const XE::String & name /*= ""*/ )
 			_p->_Stack.pop_back();
 		}
 	}
-	else if ( _p->_Stack.back()->IsBool() )
+	else if( _p->_Stack.back()->IsBool() )
 	{
 		result = _p->_Stack.back()->GetBool();
 	}
-	else if ( _p->_Stack.back()->IsObject() && _p->_Stack.back()->HasMember( ::TypeID< XE::int8 >::Get()->GetFullName().c_str() ) )
+	else if( _p->_Stack.back()->IsObject() && _p->_Stack.back()->HasMember( ::TypeID< XE::int8 >::Get()->GetFullName().c_str() ) )
 	{
 		result = XE::int8( _p->_Stack.back()->MemberBegin()->value.GetInt() );
 	}
-	else if ( _p->_Stack.back()->IsObject() && _p->_Stack.back()->HasMember( ::TypeID< XE::int16 >::Get()->GetFullName().c_str() ) )
+	else if( _p->_Stack.back()->IsObject() && _p->_Stack.back()->HasMember( ::TypeID< XE::int16 >::Get()->GetFullName().c_str() ) )
 	{
 		result = XE::int16( _p->_Stack.back()->MemberBegin()->value.GetInt() );
 	}
-	else if ( _p->_Stack.back()->IsObject() && _p->_Stack.back()->HasMember( ::TypeID< XE::int32 >::Get()->GetFullName().c_str() ) )
+	else if( _p->_Stack.back()->IsObject() && _p->_Stack.back()->HasMember( ::TypeID< XE::int32 >::Get()->GetFullName().c_str() ) )
 	{
 		result = XE::int32( _p->_Stack.back()->MemberBegin()->value.GetInt() );
 	}
-	else if ( _p->_Stack.back()->IsObject() && _p->_Stack.back()->HasMember( ::TypeID< XE::int64 >::Get()->GetFullName().c_str() ) )
+	else if( _p->_Stack.back()->IsObject() && _p->_Stack.back()->HasMember( ::TypeID< XE::int64 >::Get()->GetFullName().c_str() ) )
 	{
 		result = XE::int64( _p->_Stack.back()->MemberBegin()->value.GetInt64() );
 	}
-	else if ( _p->_Stack.back()->IsObject() && _p->_Stack.back()->HasMember( ::TypeID< XE::uint8 >::Get()->GetFullName().c_str() ) )
+	else if( _p->_Stack.back()->IsObject() && _p->_Stack.back()->HasMember( ::TypeID< XE::uint8 >::Get()->GetFullName().c_str() ) )
 	{
 		result = XE::uint8( _p->_Stack.back()->MemberBegin()->value.GetUint() );
 	}
-	else if ( _p->_Stack.back()->IsObject() && _p->_Stack.back()->HasMember( ::TypeID< XE::uint16 >::Get()->GetFullName().c_str() ) )
+	else if( _p->_Stack.back()->IsObject() && _p->_Stack.back()->HasMember( ::TypeID< XE::uint16 >::Get()->GetFullName().c_str() ) )
 	{
 		result = XE::uint16( _p->_Stack.back()->MemberBegin()->value.GetUint() );
 	}
-	else if ( _p->_Stack.back()->IsObject() && _p->_Stack.back()->HasMember( ::TypeID< XE::uint32 >::Get()->GetFullName().c_str() ) )
+	else if( _p->_Stack.back()->IsObject() && _p->_Stack.back()->HasMember( ::TypeID< XE::uint32 >::Get()->GetFullName().c_str() ) )
 	{
 		result = XE::uint32( _p->_Stack.back()->MemberBegin()->value.GetUint() );
 	}
-	else if ( _p->_Stack.back()->IsObject() && _p->_Stack.back()->HasMember( ::TypeID< XE::uint64 >::Get()->GetFullName().c_str() ) )
+	else if( _p->_Stack.back()->IsObject() && _p->_Stack.back()->HasMember( ::TypeID< XE::uint64 >::Get()->GetFullName().c_str() ) )
 	{
 		result = XE::uint64( _p->_Stack.back()->MemberBegin()->value.GetUint64() );
 	}
-	else if ( _p->_Stack.back()->IsObject() && _p->_Stack.back()->HasMember( ::TypeID< XE::float32 >::Get()->GetFullName().c_str() ) )
+	else if( _p->_Stack.back()->IsObject() && _p->_Stack.back()->HasMember( ::TypeID< XE::float32 >::Get()->GetFullName().c_str() ) )
 	{
 		result = XE::float32( _p->_Stack.back()->MemberBegin()->value.GetFloat() );
 	}
-	else if ( _p->_Stack.back()->IsObject() && _p->_Stack.back()->HasMember( ::TypeID< XE::float64 >::Get()->GetFullName().c_str() ) )
+	else if( _p->_Stack.back()->IsObject() && _p->_Stack.back()->HasMember( ::TypeID< XE::float64 >::Get()->GetFullName().c_str() ) )
 	{
 		result = XE::float64( _p->_Stack.back()->MemberBegin()->value.GetDouble() );
 	}
-	else if ( _p->_Stack.back()->IsString() )
+	else if( _p->_Stack.back()->IsString() )
 	{
 		result = XE::String( _p->_Stack.back()->GetString() );
 	}
-	else if ( XE::MetaTypeCPtr type = XE::Reflection::FindType( _p->_Stack.back()->FindMember( "type" )->value.GetString() ) )
+	else if( XE::MetaTypeCPtr type = XE::Reflection::FindType( _p->_Stack.back()->FindMember( "type" )->value.GetString() ) )
 	{
-		if ( type->GetType() == XE::MetaInfoType::ENUM )
+		if( type->GetType() == XE::MetaInfoType::ENUM )
 		{
 			auto & value = _p->_Stack.back()->FindMember( "value" )->value;
 			result = SP_CAST< const XE::MetaEnum >( type )->FindValue( value.GetString() );
@@ -743,17 +746,20 @@ XE::Variant XE::JsonIArchive::Deserialize( const XE::String & name /*= ""*/ )
 		{
 			auto flag = str_flag( _p->_Stack.back()->FindMember( "flag" )->value.GetString() );
 
-			if ( XE::MetaClassCPtr cls = SP_CAST< const XE::MetaClass >( type ) )
+			if( XE::MetaClassCPtr cls = SP_CAST< const XE::MetaClass >( type ) )
 			{
-				if ( flag == is_null )
+				if( flag == is_null )
 				{
 					result = XE::VariantData( XE::VariantPointerData( nullptr, type.get() ) );
 				}
-				else if ( flag == is_shared_ptr )
+				else if( flag == is_shared_ptr )
 				{
 					void * p = XE::MemoryResource::Alloc( cls->GetSize() );
 					cls->Construct( p );
-					XE::SharedPtr< void > sp( p, [c = cls.get()]( void * p ) { c->Destruct( p ); XE::MemoryResource::Free( p ); } );
+					XE::SharedPtr< void > sp( p, [c = cls.get()]( void * p )
+					{
+						c->Destruct( p ); XE::MemoryResource::Free( p );
+					} );
 					result = XE::Variant( sp, cls.get() );
 				}
 				else
@@ -763,7 +769,7 @@ XE::Variant XE::JsonIArchive::Deserialize( const XE::String & name /*= ""*/ )
 				}
 			}
 
-			if ( !result.IsNull() )
+			if( !result.IsNull() )
 			{
 				auto & value = _p->_Stack.back()->FindMember( "value" )->value;
 
@@ -804,64 +810,64 @@ void XE::BinaryOArchive::Serialize( const XE::Variant & val )
 {
 	write( _p->_Stream, val.GetType()->GetHashCode() );
 
-	if( val.GetType() == ClassID< std::nullptr_t >::Get() )
+	if( val.GetType() == ::ClassID< std::nullptr_t >::Get() )
 	{
 
 	}
 	else if( val.IsFundamental() )
 	{
-		if( val.GetType() == TypeID< bool >::Get() )
+		if( val.GetType() == ::TypeID< bool >::Get() )
 		{
 			write( _p->_Stream, val.Value< bool >() );
 		}
-		else if( val.GetType() == TypeID< XE::int8 >::Get() )
+		else if( val.GetType() == ::TypeID< XE::int8 >::Get() )
 		{
 			write( _p->_Stream, val.Value< XE::int8 >() );
 		}
-		else if( val.GetType() == TypeID< XE::int16 >::Get() )
+		else if( val.GetType() == ::TypeID< XE::int16 >::Get() )
 		{
 			write( _p->_Stream, val.Value< XE::int16 >() );
 		}
-		else if( val.GetType() == TypeID< XE::int32 >::Get() )
+		else if( val.GetType() == ::TypeID< XE::int32 >::Get() )
 		{
 			write( _p->_Stream, val.Value< XE::int32 >() );
 		}
-		else if( val.GetType() == TypeID< XE::int64 >::Get() )
+		else if( val.GetType() == ::TypeID< XE::int64 >::Get() )
 		{
 			write( _p->_Stream, val.Value< XE::int64 >() );
 		}
-		else if( val.GetType() == TypeID< XE::uint8 >::Get() )
+		else if( val.GetType() == ::TypeID< XE::uint8 >::Get() )
 		{
 			write( _p->_Stream, val.Value< XE::uint8 >() );
 		}
-		else if( val.GetType() == TypeID< XE::uint16 >::Get() )
+		else if( val.GetType() == ::TypeID< XE::uint16 >::Get() )
 		{
 			write( _p->_Stream, val.Value< XE::uint16 >() );
 		}
-		else if( val.GetType() == TypeID< XE::uint32 >::Get() )
+		else if( val.GetType() == ::TypeID< XE::uint32 >::Get() )
 		{
 			write( _p->_Stream, val.Value< XE::uint32 >() );
 		}
-		else if( val.GetType() == TypeID< XE::uint64 >::Get() )
+		else if( val.GetType() == ::TypeID< XE::uint64 >::Get() )
 		{
 			write( _p->_Stream, val.Value< XE::uint64 >() );
 		}
-		else if( val.GetType() == TypeID< XE::float32 >::Get() )
+		else if( val.GetType() == ::TypeID< XE::float32 >::Get() )
 		{
 			write( _p->_Stream, val.Value< XE::float32 >() );
 		}
-		else if( val.GetType() == TypeID< XE::float64 >::Get() )
+		else if( val.GetType() == ::TypeID< XE::float64 >::Get() )
 		{
 			write( _p->_Stream, val.Value< XE::float64 >() );
 		}
 	}
 	else
 	{
-		if( val.GetType() == ClassID< XE::String >::Get() )
+		if( val.GetType() == ::ClassID< XE::String >::Get() )
 		{
 			write( _p->_Stream, val.Value< const XE::String & >() );
 		}
-		else if( val.GetType() == ClassID< XE::ArchiveNameVariant >::Get() )
+		else if( val.GetType() == ::ClassID< XE::ArchiveNameVariant >::Get() )
 		{
 			auto nvp = val.Value< XE::ArchiveNameVariant >();
 
@@ -912,83 +918,83 @@ XE::Variant XE::BinaryIArchive::Deserialize( const XE::String & name /*= ""*/ )
 
 	if( auto type = XE::Reflection::FindType( hash_code ) )
 	{
-		if( type == ClassID< std::nullptr_t >::Get() )
+		if( type == ::ClassID< std::nullptr_t >::Get() )
 		{
 			return nullptr;
 		}
-		else if( type == ClassID< bool >::Get() )
+		else if( type == ::ClassID< bool >::Get() )
 		{
 			bool val = false;
 			read( _p->_Stream, val );
 			return val;
 		}
-		else if( type == ClassID< XE::int8 >::Get() )
+		else if( type == ::ClassID< XE::int8 >::Get() )
 		{
 			XE::int8 val = 0;
 			read( _p->_Stream, val );
 			return val;
 		}
-		else if( type == ClassID< XE::int16 >::Get() )
+		else if( type == ::ClassID< XE::int16 >::Get() )
 		{
 			XE::int16 val = 0;
 			read( _p->_Stream, val );
 			return val;
 		}
-		else if( type == ClassID< XE::int32 >::Get() )
+		else if( type == ::ClassID< XE::int32 >::Get() )
 		{
 			XE::int32 val = 0;
 			read( _p->_Stream, val );
 			return val;
 		}
-		else if( type == ClassID< XE::int64 >::Get() )
+		else if( type == ::ClassID< XE::int64 >::Get() )
 		{
 			XE::int64 val = 0;
 			read( _p->_Stream, val );
 			return val;
 		}
-		else if( type == ClassID< XE::uint8 >::Get() )
+		else if( type == ::ClassID< XE::uint8 >::Get() )
 		{
 			XE::uint8 val = 0;
 			read( _p->_Stream, val );
 			return val;
 		}
-		else if( type == ClassID< XE::uint16 >::Get() )
+		else if( type == ::ClassID< XE::uint16 >::Get() )
 		{
 			XE::uint16 val = 0;
 			read( _p->_Stream, val );
 			return val;
 		}
-		else if( type == ClassID< XE::uint32 >::Get() )
+		else if( type == ::ClassID< XE::uint32 >::Get() )
 		{
 			XE::uint32 val = 0;
 			read( _p->_Stream, val );
 			return val;
 		}
-		else if( type == ClassID< XE::uint64 >::Get() )
+		else if( type == ::ClassID< XE::uint64 >::Get() )
 		{
 			XE::uint64 val = 0;
 			read( _p->_Stream, val );
 			return val;
 		}
-		else if( type == ClassID< XE::float32 >::Get() )
+		else if( type == ::ClassID< XE::float32 >::Get() )
 		{
 			XE::float32 val = 0;
 			read( _p->_Stream, val );
 			return val;
 		}
-		else if( type == ClassID< XE::float64 >::Get() )
+		else if( type == ::ClassID< XE::float64 >::Get() )
 		{
 			XE::float64 val = 0;
 			read( _p->_Stream, val );
 			return val;
 		}
-		else if( type == ClassID< XE::String >::Get() )
+		else if( type == ::ClassID< XE::String >::Get() )
 		{
 			XE::String val;
 			read( _p->_Stream, val );
 			return val;
 		}
-		else if( type == ClassID< XE::ArchiveNameVariant >::Get() )
+		else if( type == ::ClassID< XE::ArchiveNameVariant >::Get() )
 		{
 			return Deserialize();
 		}
@@ -1015,7 +1021,10 @@ XE::Variant XE::BinaryIArchive::Deserialize( const XE::String & name /*= ""*/ )
 				{
 					void * p = XE::MemoryResource::Alloc( cls->GetSize() );
 					cls->Construct( p );
-					XE::SharedPtr< void > sp( p, [c = cls.get()]( void * p ) { c->Destruct( p ); XE::MemoryResource::Free( p ); } );
+					XE::SharedPtr< void > sp( p, [c = cls.get()]( void * p )
+					{
+						c->Destruct( p ); XE::MemoryResource::Free( p );
+					} );
 					result = XE::Variant( sp, cls.get() );
 				}
 				else

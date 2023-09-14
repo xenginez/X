@@ -233,11 +233,11 @@ public:
 		{
 			if constexpr( std::is_pointer_v< T > )
 			{
-				return const_cast< XE::Variant * >( this );
+				return const_cast<XE::Variant *>( this );
 			}
 			else
 			{
-				return *( const_cast< XE::Variant * >( this ) );
+				return *( const_cast<XE::Variant *>( this ) );
 			}
 		}
 		else
@@ -417,7 +417,7 @@ public:
 	}
 	const XE::MetaType * GetMetaType() const override
 	{
-		return TypeID< ContainerType >::Get().get();
+		return ::TypeID< ContainerType >::Get().get();
 	}
 	void * ValuePointer() override
 	{
@@ -437,7 +437,7 @@ public:
 	}
 	bool FromArray( const XE::Array< XE::Variant > & val )
 	{
-		if ( val.size() == 2 )
+		if( val.size() == 2 )
 		{
 			_Value.first = val[0].Value< ContainerType::first_type >();
 			_Value.second = val[1].Value< ContainerType::second_type >();
@@ -461,19 +461,36 @@ public:
 	using SharedPtrType = XE::SharedPtr< ContainerType >;
 public:
 	VariantSharedPtrData() = default;
-	VariantSharedPtrData( const SharedPtrType & val ) : _Value( val ) {}
+	VariantSharedPtrData( const SharedPtrType & val ) : _Value( val )
+	{
+	}
 public:
-	bool IsContainer() const override { return true; }
-	bool IsSharedPtr() const override { return true; }
-	const XE::MetaType * GetMetaType() const override { return TypeID< ContainerType >::Get( _Value.get() ).get(); }
+	bool IsContainer() const override
+	{
+		return true;
+	}
+	bool IsSharedPtr() const override
+	{
+		return true;
+	}
+	const XE::MetaType * GetMetaType() const override
+	{
+		return ::TypeID< ContainerType >::Get( _Value.get() ).get();
+	}
 public:
-	void * ValuePointer() override { return _Value.get(); }
-	XE::SharedPtr< void > SharedPointer() override { return _Value; }
+	void * ValuePointer() override
+	{
+		return _Value.get();
+	}
+	XE::SharedPtr< void > SharedPointer() override
+	{
+		return _Value;
+	}
 public:
 	XE::Array< XE::Variant > ToArray() const override
 	{
 		XE::VariantArray result;
-		if ( _Value != nullptr )
+		if( _Value != nullptr )
 		{
 			result.push_back( _Value->first );
 			result.push_back( _Value->second );
@@ -482,7 +499,7 @@ public:
 	}
 	bool FromArray( const XE::Array< XE::Variant > & val )
 	{
-		if ( val.size() == 2 )
+		if( val.size() == 2 )
 		{
 			_Value->first = val[0].Value< ContainerType::first_type >();
 			_Value->second = val[1].Value< ContainerType::second_type >();

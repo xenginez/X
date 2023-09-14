@@ -14,10 +14,10 @@
 
 BEG_XE_NAMESPACE
 
-class XE_API MetaEnum : public MetaType
+class XE_API MetaEnum : public XE::MetaType
 {
 public:
-	MetaEnum( const String& Name, XE::uint64 Size, MetaInfoCPtr Owner, MetaModuleCPtr Module );
+	MetaEnum( const XE::String & Name, XE::uint64 Size, XE::MetaInfoCPtr Owner, XE::MetaModuleCPtr Module );
 
 	~MetaEnum();
 
@@ -28,23 +28,23 @@ public:
 
 public:
 	XE::String GetDefaultName() const;
-	
+
 	XE::Variant GetDefaultValue() const;
 
 	String FindName( XE::Variant val ) const;
 
-	XE::Variant FindValue( const String& val ) const;
+	XE::Variant FindValue( const String & val ) const;
 
 	const Array< Pair< String, XE::Variant > > & GetValues() const;
 
 public:
-	void Visit( const XE::Delegate< void( const String &, const XE::Variant & ) > & val ) const;
+	void Visit( const XE::Delegate< void( const XE::String &, const XE::Variant & ) > & val ) const;
 
 protected:
-	void _RegisterValue( const String& Name, const XE::Variant & Val );
+	void _RegisterValue( const XE::String & Name, const XE::Variant & Val );
 
 private:
-	Array< Pair< String, XE::Variant > > _Values;
+	XE::Array< XE::Pair< XE::String, XE::Variant > > _Values;
 };
 
 END_XE_NAMESPACE

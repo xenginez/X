@@ -40,7 +40,7 @@ public:
 
 	bool Update( const QUuid & uuid, const QJsonDocument & json );
 
-	QPair<QFileInfo, QJsonDocument > Query( const QUuid & uuid );
+	QPair< QFileInfo, QJsonDocument > Query( const QUuid & uuid );
 
 	QUuid Query( const QFileInfo & path );
 

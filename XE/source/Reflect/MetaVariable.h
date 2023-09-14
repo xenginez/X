@@ -9,14 +9,14 @@
 #ifndef METAVARIABLE_H__082CE86F_3DEE_4687_88D2_32D432AE58CA
 #define METAVARIABLE_H__082CE86F_3DEE_4687_88D2_32D432AE58CA
 
-#include "MetaInfo.h"
+#include "Variant.h"
 
 BEG_XE_NAMESPACE
 
-class XE_API MetaVariable : public MetaInfo
+class XE_API MetaVariable : public XE::MetaInfo
 {
 public:
-	MetaVariable( const String & Name, bool IsConst, XE::TypeFlag Flag, MetaTypeCPtr Value, MetaModuleCPtr Module );
+	MetaVariable( const XE::String & Name, bool IsConst, XE::TypeFlag Flag, XE::MetaTypeCPtr Value, XE::MetaModuleCPtr Module );
 
 	~MetaVariable();
 
@@ -34,51 +34,22 @@ public:
 	XE::TypeFlag GetFlag() const;
 
 public:
-	MetaTypeCPtr GetValueType() const;
+	XE::MetaTypeCPtr GetValueType() const;
 
-	const XE::Array< XE::MetaAttributeCPtr > & GetAttributes() const;
-
-public:
-	XE::MetaAttributeCPtr FindAttribute( const XE::MetaClassCPtr & val ) const;
-
-	template< typename T > XE::SharedPtr< const T > FindAttributeT() const
-	{
-		return SP_CAST< const T >( FindAttribute( ClassID< T >::Get() ) );
-	}
-
-public:
-	template< typename T > MetaVariable * Attribute( const T & val )
-	{
-		static_assert( std::is_base_of_v< XE::MetaAttribute, XE::TypeTraits< T >::raw_t >, "does not belong to meta attribute" );
-
-		_Attributes.push_back( XE::MakeShared< T >( val ) );
-
-		return this;
-	}
-
-	template< typename T, typename ... ARGS > MetaVariable * Attribute( const T & val, ARGS &&... args )
-	{
-		Attribute( val );
-
-		Attribute( std::forward< ARGS >( args )... );
-
-		return this;
-	}
 public:
 	XE::Variant Get() const;
 
-	void Set(const XE::Variant & val ) const;
+	void Set( const XE::Variant & val ) const;
 
 protected:
 	virtual XE::Variant Getter() const = 0;
 
-	virtual void Setter(const XE::Variant & val ) const = 0;
+	virtual void Setter( const XE::Variant & val ) const = 0;
 
 private:
 	bool _IsConst;
 	XE::TypeFlag _Flag;
 	XE::MetaTypeCWPtr _Value;
-	XE::Array< XE::MetaAttributeCPtr > _Attributes;
 };
 
 END_XE_NAMESPACE

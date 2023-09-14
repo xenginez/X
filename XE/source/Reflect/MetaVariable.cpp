@@ -1,9 +1,7 @@
 #include "MetaVariable.h"
 
-#include "MetaAttribute.h"
-
-XE::MetaVariable::MetaVariable( const String & Name, bool IsConst, XE::TypeFlag Flag, MetaTypeCPtr Value, MetaModuleCPtr Module )
-	:MetaInfo( Name, MetaInfoType::VARIABLE, nullptr, Module ), _IsConst( IsConst ), _Flag( Flag ), _Value( Value )
+XE::MetaVariable::MetaVariable( const XE::String & Name, bool IsConst, XE::TypeFlag Flag, XE::MetaTypeCPtr Value, XE::MetaModuleCPtr Module )
+	: XE::MetaInfo( Name, XE::MetaInfoType::VARIABLE, nullptr, Module ), _IsConst( IsConst ), _Flag( Flag ), _Value( Value )
 {
 
 }
@@ -20,22 +18,22 @@ bool XE::MetaVariable::IsConst() const
 
 bool XE::MetaVariable::IsObject() const
 {
-	return _Flag == TypeFlag::VALUE;
+	return _Flag == XE::TypeFlag::VALUE;
 }
 
 bool XE::MetaVariable::IsPointer() const
 {
-	return _Flag == TypeFlag::POINTER;
+	return _Flag == XE::TypeFlag::POINTER;
 }
 
 bool XE::MetaVariable::IsSharedPtr() const
 {
-	return _Flag == TypeFlag::SHAREDPTR;
+	return _Flag == XE::TypeFlag::SHAREDPTR;
 }
 
 bool XE::MetaVariable::IsReference() const
 {
-	return _Flag == TypeFlag::REFERENCE;
+	return _Flag == XE::TypeFlag::REFERENCE;
 }
 
 XE::TypeFlag XE::MetaVariable::GetFlag() const
@@ -46,24 +44,6 @@ XE::TypeFlag XE::MetaVariable::GetFlag() const
 XE::MetaTypeCPtr XE::MetaVariable::GetValueType() const
 {
 	return _Value.lock();
-}
-
-const XE::Array< XE::MetaAttributeCPtr > & XE::MetaVariable::GetAttributes() const
-{
-	return _Attributes;
-}
-
-XE::MetaAttributeCPtr XE::MetaVariable::FindAttribute( const XE::MetaClassCPtr & val ) const
-{
-	for( const auto & it : _Attributes )
-	{
-		if( it->GetMetaClass() == val )
-		{
-			return it;
-		}
-	}
-
-	return nullptr;
 }
 
 XE::Variant XE::MetaVariable::Get() const

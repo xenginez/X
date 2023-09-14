@@ -17,10 +17,10 @@ BEG_XE_NAMESPACE
 
 class XE_API MetaModule : public XE::MetaInfo
 {
-	friend class MetaInfo;
+	friend class XE::MetaInfo;
 
 public:
-	MetaModule( const String & Name, MetaInfoCPtr Owner );
+	MetaModule( const XE::String & Name, XE::MetaInfoCPtr Owner );
 
 	~MetaModule();
 
@@ -30,12 +30,12 @@ public:
 public:
 	XE::MetaInfoCPtr FindMetaInfo( XE::uint64 hash ) const;
 
-	XE::MetaInfoCPtr FindMetaInfo( const String & FullName ) const;
+	XE::MetaInfoCPtr FindMetaInfo( const XE::String & FullName ) const;
 
 	void Visit( const XE::Delegate< void( const XE::MetaInfoCPtr & ) > & val ) const;
 
 private:
-	void RegisterMetaInfo( MetaInfoPtr val );
+	void RegisterMetaInfo( XE::MetaInfoPtr val );
 
 private:
 	XE::Array< XE::MetaInfoCPtr > _MetaInfos;

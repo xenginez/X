@@ -1,6 +1,7 @@
 #include "InspectorEditor.h"
 #include "ui_InspectorEditor.h"
 
+#include <QTimer>
 REG_WIDGET( XS::InspectorEditor );
 
 XS::InspectorEditor::InspectorEditor( QWidget * parent )
@@ -21,13 +22,7 @@ XS::InspectorEditor::InspectorEditor( QWidget * parent )
 	{
 		if( _Inspector != nullptr ) _Inspector->Collapse();
 	} );
-
-	/*
-	_InspectorEvent = XS::CoreFramework::GetCurrentFramework()->GetServiceT<XE::EventService>()->RegisterListener( XS::EVENT_INSPECTOR, [this]( const XE::EventPtr & event )
-	{
-		OnInspectorEvent( event->parameter.Value<XS::InspectorEventInfo>() );
-	} );
-	*/
+	connect( XS::CoreFramework::GetCurrentFramework()->GetSignals(), &Signals::Inspector, this, &XS::InspectorEditor::OnInspector );
 }
 
 XS::InspectorEditor::~InspectorEditor()
@@ -45,16 +40,17 @@ QString XS::InspectorEditor::name()
 	return tr( "Inspector" );
 }
 
-void XS::InspectorEditor::OnInspectorEvent( const XS::InspectorEventInfo & info )
+void XS::InspectorEditor::OnInspector( const QString & name, const XE::Variant & val )
 {
 	if( ui->inspector_layout->count() != 0 )
 	{
 		ui->inspector_layout->removeItem( ui->inspector_layout->itemAt( 0 ) );
 	}
 
-	_Inspector = XS::Inspector::Create( new XS::VariantObjectProxy( info.second ), this );
+	_Inspector = XS::Inspector::Create( new XS::VariantObjectProxy( val ), this );
 
 	ui->inspector_layout->addWidget( _Inspector );
 
-	ui->inspector_name->setText( QString::fromUtf8( info.first.c_str() ) );
+	ui->inspector_name->setToolTip( name );
+	ui->inspector_name->setText( QFontMetrics( ui->inspector_name->font() ).elidedText( name, Qt::ElideRight, ui->inspector_name->width() ) );
 }

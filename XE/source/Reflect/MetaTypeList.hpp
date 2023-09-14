@@ -17,7 +17,7 @@ template< typename T, typename ... Types > struct TypeList< T, Types... >
 {
 	static void Make( XE::Array< XE::MetaTypeCPtr > * args )
 	{
-		args->push_back( TypeID< typename TypeTraits< T >::raw_t >::Get() );
+		args->push_back( ::TypeID< typename XE::TypeTraits< T >::raw_t >::Get() );
 
 		TypeList< Types... >::Make( args );
 	}
@@ -27,11 +27,11 @@ template< typename T > struct TypeList< T >
 {
 	static void Make( XE::Array< XE::MetaTypeCPtr > * args )
 	{
-		args->push_back( TypeID< typename TypeTraits< T >::raw_t >::Get() );
+		args->push_back( ::TypeID< typename XE::TypeTraits< T >::raw_t >::Get() );
 	}
 };
 
-template< > struct TypeList< >
+template< > struct TypeList<>
 {
 	static void Make( XE::Array< XE::MetaTypeCPtr > * args )
 	{
@@ -51,22 +51,22 @@ public:
 };
 
 
-template< typename ... Types > TemplateType MakeTemplateType()
+template< typename ... Types > XE::TemplateType MakeTemplateType()
 {
-	TemplateType ret;
+	XE::TemplateType ret;
 	XE::TypeList< Types... >::Make( &ret );
 	return ret;
 }
 
-template< typename ... Types > ParameterType MakeParameterType()
+template< typename ... Types > XE::ParameterType MakeParameterType()
 {
-	ParameterType ret;
+	XE::ParameterType ret;
 	XE::TypeList< Types... >::Make( &ret );
 	return ret;
 }
 
 
-XE_INLINE XE::String ToString( const TemplateType & _Val )
+XE_INLINE XE::String ToString( const XE::TemplateType & _Val )
 {
 	XE::String ret = "< ";
 
@@ -82,7 +82,7 @@ XE_INLINE XE::String ToString( const TemplateType & _Val )
 	return ret + " >";
 }
 
-XE_INLINE XE::String ToString( const ParameterType & _Val )
+XE_INLINE XE::String ToString( const XE::ParameterType & _Val )
 {
 	XE::String ret = "( ";
 

@@ -13,25 +13,25 @@
 
 BEG_XE_NAMESPACE
 
-template< typename ValueType > class CXXMetaVariable : public MetaVariable
+template< typename ValueType > class CXXMetaVariable : public XE::MetaVariable
 {
 public:
 	using VariableType = ValueType;
 
 public:
-	CXXMetaVariable( const String & Name, VariableType * Value, MetaModuleCPtr Module )
-		:MetaVariable( Name, true,  XE::TypeTraits< ValueType >::flag, TypeID< typename TypeTraits< ValueType >::raw_t >::Get(), Module ), _Value( Value )
+	CXXMetaVariable( const XE::String & Name, VariableType * Value, XE::MetaModuleCPtr Module )
+		: XE::MetaVariable( Name, true, XE::TypeTraits< ValueType >::flag, ::TypeID< typename XE::TypeTraits< ValueType >::raw_t >::Get(), Module ), _Value( Value )
 	{
 
 	}
 
 public:
-	Variant Getter() const override
+	XE::Variant Getter() const override
 	{
 		return *_Value;
 	}
 
-	void Setter( const Variant & val ) const override
+	void Setter( const XE::Variant & val ) const override
 	{
 		if constexpr( !std::is_const_v< ValueType > )
 		{
@@ -39,7 +39,7 @@ public:
 		}
 		else
 		{
-			throw MetaException( shared_from_this(), "is const value" );
+			throw XE::MetaException( shared_from_this(), "is const value" );
 		}
 	}
 

@@ -40,7 +40,7 @@ struct XE_API VariantEnumData
 	}
 
 	template< typename T > VariantEnumData( T val )
-		:Value( XE::BitCast< XE::uint64 >( val ) ), Type( TypeID< T >::Get().get() )
+		: Value( XE::BitCast< XE::uint64 >( val ) ), Type( ::TypeID< T >::Get().get() )
 	{
 
 	}
@@ -94,7 +94,7 @@ struct XE_API VariantSmallData
 	VariantSmallData & operator = ( const VariantSmallData & ) = default;
 
 	template< typename T > VariantSmallData( T val )
-		:Value( XE::BitCast< XE::uint64 >( val ) ), Type( TypeID< T >::Get().get() )
+		:Value( XE::BitCast< XE::uint64 >( val ) ), Type( ::TypeID< T >::Get().get() )
 	{
 
 	}
@@ -146,13 +146,13 @@ struct XE_API VariantPointerData
 	VariantPointerData & operator = ( const VariantPointerData & ) = default;
 
 	template< typename T > VariantPointerData( const T * val )
-		:Value( static_cast< void * >( const_cast< T * >( val ) ) ) , Type( TypeID< T >::Get( val ).get() )
+		:Value( static_cast<void *>( const_cast<T *>( val ) ) ), Type( ::TypeID< T >::Get( val ).get() )
 	{
 
 	}
 
 	VariantPointerData( const void * val, const XE::MetaType * type )
-		:Value( const_cast< void * >( val ) ), Type( type )
+		:Value( const_cast<void *>( val ) ), Type( type )
 	{
 
 	}
@@ -219,7 +219,7 @@ public:
 	virtual XE::SharedPtr< VariantInterfaceData > Clone() const = 0;
 };
 
-template< typename T > struct VariantClassData : public VariantInterfaceData
+template< typename T > struct VariantClassData : public XE::VariantInterfaceData
 {
 public:
 	VariantClassData() = default;
@@ -242,7 +242,7 @@ public:
 
 	const XE::MetaType * GetMetaType() const override
 	{
-		return TypeID< T >::Get( &_Value ).get();
+		return ::TypeID< T >::Get( &_Value ).get();
 	}
 
 public:
@@ -268,16 +268,16 @@ public:
 	}
 
 public:
-	XE::SharedPtr< VariantInterfaceData > Clone() const override
+	XE::SharedPtr< XE::VariantInterfaceData > Clone() const override
 	{
-		return XE::MakeShared< VariantClassData< T > >( _Value );
+		return XE::MakeShared< XE::VariantClassData< T > >( _Value );
 	}
 
 private:
 	T _Value;
 };
 
-template< typename T > struct VariantSharedPtrData : public VariantInterfaceData
+template< typename T > struct VariantSharedPtrData : public XE::VariantInterfaceData
 {
 public:
 	VariantSharedPtrData() = default;
@@ -301,7 +301,7 @@ public:
 
 	const XE::MetaType * GetMetaType() const override
 	{
-		return TypeID< T >::Get( _Value.get() ).get();
+		return ::TypeID< T >::Get( _Value.get() ).get();
 	}
 
 public:
@@ -327,16 +327,16 @@ public:
 	}
 
 public:
-	XE::SharedPtr< VariantInterfaceData > Clone() const override
+	XE::SharedPtr< XE::VariantInterfaceData > Clone() const override
 	{
-		return XE::MakeShared< VariantSharedPtrData< T > >( _Value );
+		return XE::MakeShared< XE::VariantSharedPtrData< T > >( _Value );
 	}
 
 private:
 	XE::SharedPtr< T > _Value;
 };
 
-struct VariantVoidSharedPtrData : public VariantInterfaceData
+struct VariantVoidSharedPtrData : public XE::VariantInterfaceData
 {
 public:
 	VariantVoidSharedPtrData() = default;
@@ -386,7 +386,7 @@ public:
 	}
 
 public:
-	XE::SharedPtr< VariantInterfaceData > Clone() const override
+	XE::SharedPtr< XE::VariantInterfaceData > Clone() const override
 	{
 		return XE::MakeShared< XE::VariantVoidSharedPtrData >( _Value, _Type );
 	}
@@ -410,19 +410,19 @@ public:
 	VariantWarpperData & operator = ( const VariantWarpperData & val ) = default;
 
 	template< typename T > VariantWarpperData( const T & val )
-		: Pointer( XE::MakeShared< VariantClassData< T > >( val ) )
+		: Pointer( XE::MakeShared< XE::VariantClassData< T > >( val ) )
 	{
 
 	}
 
 	template< typename T > VariantWarpperData( const XE::SharedPtr< T > & val )
-		: Pointer( XE::MakeShared< VariantSharedPtrData< T > >( val ) )
+		: Pointer( XE::MakeShared< XE::VariantSharedPtrData< T > >( val ) )
 	{
 
 	}
 
 	VariantWarpperData( const XE::SharedPtr< void > & val, const XE::MetaType * type )
-		: Pointer( XE::MakeShared< VariantVoidSharedPtrData >( val, type ) )
+		: Pointer( XE::MakeShared< XE::VariantVoidSharedPtrData >( val, type ) )
 	{
 
 	}
@@ -461,10 +461,10 @@ public:
 	}
 
 public:
-	XE::SharedPtr< VariantInterfaceData > Pointer = nullptr;
+	XE::SharedPtr< XE::VariantInterfaceData > Pointer = nullptr;
 };
 
-using VariantData = std::variant< std::monostate, bool, XE::int8, XE::int16, XE::int32, XE::int64, XE::uint8, XE::uint16, XE::uint32, XE::uint64, XE::float32, XE::float64, VariantEnumData, VariantSmallData, VariantPointerData, VariantWarpperData >;
+using VariantData = std::variant< std::monostate, bool, XE::int8, XE::int16, XE::int32, XE::int64, XE::uint8, XE::uint16, XE::uint32, XE::uint64, XE::float32, XE::float64, XE::VariantEnumData, XE::VariantSmallData, XE::VariantPointerData, XE::VariantWarpperData >;
 
 struct XE_API VariantDataIsNull
 {
@@ -633,10 +633,10 @@ template< typename ... T > struct VariantDataIsType
 		return IsSameType< U, T... >();
 	}
 };
-using VariantDataIsSignedType = VariantDataIsType< XE::int8, XE::int16, XE::int32, XE::int64 >;
-using VariantDataIsUnsignedType = VariantDataIsType< XE::uint8, XE::uint16, XE::uint32, XE::uint64 >;
-using VariantDataIsIntegerType = VariantDataIsType< XE::int8, XE::int16, XE::int32, XE::int64, XE::uint8, XE::uint16, XE::uint32, XE::uint64 >;
-using VariantDataIsFloatingType = VariantDataIsType< XE::float32, XE::float64 >;
+using VariantDataIsSignedType = XE::VariantDataIsType< XE::int8, XE::int16, XE::int32, XE::int64 >;
+using VariantDataIsUnsignedType = XE::VariantDataIsType< XE::uint8, XE::uint16, XE::uint32, XE::uint64 >;
+using VariantDataIsIntegerType = XE::VariantDataIsType< XE::int8, XE::int16, XE::int32, XE::int64, XE::uint8, XE::uint16, XE::uint32, XE::uint64 >;
+using VariantDataIsFloatingType = XE::VariantDataIsType< XE::float32, XE::float64 >;
 
 template< typename T > struct VariantDataIsCanConvert
 {
@@ -646,63 +646,63 @@ template< typename T > struct VariantDataIsCanConvert
 	}
 	bool operator()( const bool & ) const
 	{
-		return TypeID< T >::Get() == TypeID< bool >::Get();
+		return ::TypeID< T >::Get() == ::TypeID< bool >::Get();
 	}
 	bool operator()( const XE::int8 & ) const
 	{
-		return TypeID< T >::Get() == TypeID< XE::int8 >::Get();
+		return ::TypeID< T >::Get() == ::TypeID< XE::int8 >::Get();
 	}
 	bool operator()( const XE::int16 & ) const
 	{
-		return TypeID< T >::Get() == TypeID< XE::int16 >::Get();
+		return ::TypeID< T >::Get() == ::TypeID< XE::int16 >::Get();
 	}
 	bool operator()( const XE::int32 & ) const
 	{
-		return TypeID< T >::Get() == TypeID< XE::int32 >::Get();
+		return ::TypeID< T >::Get() == ::TypeID< XE::int32 >::Get();
 	}
 	bool operator()( const XE::int64 & ) const
 	{
-		return TypeID< T >::Get() == TypeID< XE::int64 >::Get();
+		return ::TypeID< T >::Get() == ::TypeID< XE::int64 >::Get();
 	}
 	bool operator()( const XE::uint8 & ) const
 	{
-		return TypeID< T >::Get() == TypeID< XE::uint8 >::Get();
+		return ::TypeID< T >::Get() == ::TypeID< XE::uint8 >::Get();
 	}
 	bool operator()( const XE::uint16 & ) const
 	{
-		return TypeID< T >::Get() == TypeID< XE::uint16 >::Get();
+		return ::TypeID< T >::Get() == ::TypeID< XE::uint16 >::Get();
 	}
 	bool operator()( const XE::uint32 & ) const
 	{
-		return TypeID< T >::Get() == TypeID< XE::uint32 >::Get();
+		return ::TypeID< T >::Get() == ::TypeID< XE::uint32 >::Get();
 	}
 	bool operator()( const XE::uint64 & ) const
 	{
-		return TypeID< T >::Get() == TypeID< XE::uint64 >::Get();
+		return ::TypeID< T >::Get() == ::TypeID< XE::uint64 >::Get();
 	}
 	bool operator()( const XE::float32 & ) const
 	{
-		return TypeID< T >::Get() == TypeID< XE::float32 >::Get();
+		return ::TypeID< T >::Get() == ::TypeID< XE::float32 >::Get();
 	}
 	bool operator()( const XE::float64 & ) const
 	{
-		return TypeID< T >::Get() == TypeID< XE::float64 >::Get();
+		return ::TypeID< T >::Get() == ::TypeID< XE::float64 >::Get();
 	}
-	bool operator()( const VariantEnumData & val ) const
+	bool operator()( const XE::VariantEnumData & val ) const
 	{
-		return TypeID< T >::Get().get() == val.Type;
+		return ::TypeID< T >::Get().get() == val.Type;
 	}
-	bool operator()( const VariantSmallData & val ) const
+	bool operator()( const XE::VariantSmallData & val ) const
 	{
-		return val.Type != nullptr && __VariantDataIsCanConvert( val.Type, TypeID< T >::Get().get() );
+		return val.Type != nullptr && XE::__VariantDataIsCanConvert( val.Type, ::TypeID< T >::Get().get() );
 	}
-	bool operator()( const VariantPointerData & val ) const
+	bool operator()( const XE::VariantPointerData & val ) const
 	{
-		return val.Type != nullptr && __VariantDataIsCanConvert( val.Type, TypeID< T >::Get().get() );
+		return val.Type != nullptr && XE::__VariantDataIsCanConvert( val.Type, ::TypeID< T >::Get().get() );
 	}
-	bool operator()( const VariantWarpperData & val ) const
+	bool operator()( const XE::VariantWarpperData & val ) const
 	{
-		return val.Pointer != nullptr && __VariantDataIsCanConvert( val.Pointer->GetMetaType(), TypeID< T >::Get().get() );
+		return val.Pointer != nullptr && XE::__VariantDataIsCanConvert( val.Pointer->GetMetaType(), ::TypeID< T >::Get().get() );
 	}
 };
 
@@ -714,47 +714,47 @@ template< typename T > struct VariantDataGetFundamental
 	}
 	T operator()( const bool & val ) const
 	{
-		return static_cast< T >( val );
+		return static_cast<T>( val );
 	}
 	T operator()( const XE::int8 & val ) const
 	{
-		return static_cast< T >( val );
+		return static_cast<T>( val );
 	}
 	T operator()( const XE::int16 & val ) const
 	{
-		return static_cast< T >( val );
+		return static_cast<T>( val );
 	}
 	T operator()( const XE::int32 & val ) const
 	{
-		return static_cast< T >( val );
+		return static_cast<T>( val );
 	}
 	T operator()( const XE::int64 & val ) const
 	{
-		return static_cast< T >( val );
+		return static_cast<T>( val );
 	}
 	T operator()( const XE::uint8 & val ) const
 	{
-		return static_cast< T >( val );
+		return static_cast<T>( val );
 	}
 	T operator()( const XE::uint16 & val ) const
 	{
-		return static_cast< T >( val );
+		return static_cast<T>( val );
 	}
 	T operator()( const XE::uint32 & val ) const
 	{
-		return static_cast< T >( val );
+		return static_cast<T>( val );
 	}
 	T operator()( const XE::uint64 & val ) const
 	{
-		return static_cast< T >( val );
+		return static_cast<T>( val );
 	}
 	T operator()( const XE::float32 & val ) const
 	{
-		return static_cast< T >( val );
+		return static_cast<T>( val );
 	}
 	T operator()( const XE::float64 & val ) const
 	{
-		return static_cast< T >( val );
+		return static_cast<T>( val );
 	}
 	T operator()( const XE::VariantEnumData & val ) const
 	{
@@ -778,7 +778,7 @@ template< typename ... T > struct VariantDataWarpperIsType
 {
 	template< typename U > static bool IsSameType( XE::MetaType * type )
 	{
-		return type == TypeID< U >::Get().get();
+		return type == ::TypeID< U >::Get().get();
 	}
 
 	template< typename U, typename ... ARGS > static bool IsSameType( XE::MetaType * type )
@@ -839,19 +839,19 @@ template< typename ... T > struct VariantDataWarpperIsType
 	{
 		return false;
 	}
-	bool operator()( const VariantEnumData & val ) const
+	bool operator()( const XE::VariantEnumData & val ) const
 	{
 		return false;
 	}
-	bool operator()( const VariantSmallData & val ) const
+	bool operator()( const XE::VariantSmallData & val ) const
 	{
 		return false;
 	}
-	bool operator()( const VariantPointerData & val ) const
+	bool operator()( const XE::VariantPointerData & val ) const
 	{
 		return false;
 	}
-	bool operator()( const VariantWarpperData & val ) const
+	bool operator()( const XE::VariantWarpperData & val ) const
 	{
 		return val.Pointer != nullptr ? IsSameType< T... >( val.Pointer->GetMetaType() ) : false;
 	}

@@ -1,9 +1,10 @@
 #include "MetaInfo.h"
 
 #include "Reflection.h"
+#include "MetaAttribute.h"
 
-XE::MetaInfo::MetaInfo( const String & Name, MetaInfoType Type, MetaInfoCPtr Owner, MetaModuleCPtr Module )
-	:_Type( Type ), _Name( Name ), _FullName( Name ), _Owner( Owner ), _Module( Module )
+XE::MetaInfo::MetaInfo( const XE::String & Name, XE::MetaInfoType Type, XE::MetaInfoCPtr Owner, XE::MetaModuleCPtr Module )
+	: _Type( Type ), _Name( Name ), _FullName( Name ), _Owner( Owner ), _Module( Module )
 {
 	if( Owner )
 	{
@@ -36,14 +37,19 @@ XE::uint64 XE::MetaInfo::GetHashCode() const
 	return _HashCode;
 }
 
-const XE::String& XE::MetaInfo::GetName() const
+const XE::String & XE::MetaInfo::GetName() const
 {
 	return _Name;
 }
 
-const XE::String& XE::MetaInfo::GetFullName() const
+const XE::String & XE::MetaInfo::GetFullName() const
 {
 	return _FullName;
+}
+
+const XE::Array< XE::MetaAttributeCPtr > & XE::MetaInfo::GetAttributes() const
+{
+	return _Attributes;
 }
 
 XE::MetaInfoCPtr XE::MetaInfo::GetOwner() const
@@ -54,6 +60,19 @@ XE::MetaInfoCPtr XE::MetaInfo::GetOwner() const
 XE::MetaModuleCPtr XE::MetaInfo::GetModule() const
 {
 	return _Module.lock();
+}
+
+XE::MetaAttributeCPtr XE::MetaInfo::FindAttribute( const XE::MetaClassCPtr & val ) const
+{
+	for( const auto & it : _Attributes )
+	{
+		if( it->GetMetaClass() == val )
+		{
+			return it;
+		}
+	}
+
+	return nullptr;
 }
 
 void XE::MetaInfo::Register()

@@ -15,22 +15,22 @@
 
 BEG_XE_NAMESPACE
 
-class XE_API MetaFunction : public MetaInfo
+class XE_API MetaFunction : public XE::MetaInfo
 {
 public:
-	MetaFunction( const String & Name, MetaInfoCPtr Result, ParameterType && Parameter, MetaModuleCPtr Module );
+	MetaFunction( const XE::String & Name, XE::MetaInfoCPtr Result, XE::ParameterType && Parameter, XE::MetaModuleCPtr Module );
 
 	~MetaFunction();
 
 public:
-	MetaInfoCPtr GetResultType() const;
+	XE::MetaInfoCPtr GetResultType() const;
 
-	const ParameterType & GetParameterType() const;
+	const XE::ParameterType & GetParameterType() const;
 
 public:
-	template< typename ... Types > Variant Invoke( Types &&... args ) const
+	template< typename ... Types > XE::Variant Invoke( Types &&... args ) const
 	{
-		InvokeStack stack;
+		XE::InvokeStack stack;
 
 		stack.Push( std::forward< Types >( args )... );
 
@@ -38,11 +38,11 @@ public:
 	}
 
 public:
-	virtual Variant Invoke( InvokeStack * params ) const = 0;
+	virtual XE::Variant Invoke( XE::InvokeStack * params ) const = 0;
 
 private:
-	MetaInfoCWPtr _Result;
-	ParameterType _Parameter;
+	XE::MetaInfoCWPtr _Result;
+	XE::ParameterType _Parameter;
 };
 
 END_XE_NAMESPACE

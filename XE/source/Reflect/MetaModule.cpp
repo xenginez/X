@@ -2,8 +2,8 @@
 
 #include "Reflection.h"
 
-XE::MetaModule::MetaModule( const String & Name, MetaInfoCPtr Owner )
-	:MetaInfo( Name, MetaInfoType::MODULE, Owner, nullptr )
+XE::MetaModule::MetaModule( const XE::String & Name, XE::MetaInfoCPtr Owner )
+	: XE::MetaInfo( Name, XE::MetaInfoType::MODULE, Owner, nullptr )
 {
 
 }
@@ -48,7 +48,7 @@ XE::MetaInfoCPtr XE::MetaModule::FindMetaInfo( const String & val ) const
 	return nullptr;
 }
 
-void XE::MetaModule::Visit( const XE::Delegate< void( const  XE::MetaInfoCPtr & ) > & val ) const
+void XE::MetaModule::Visit( const XE::Delegate< void( const XE::MetaInfoCPtr & ) > & val ) const
 {
 	for( const auto & it : _MetaInfos )
 	{
@@ -56,7 +56,7 @@ void XE::MetaModule::Visit( const XE::Delegate< void( const  XE::MetaInfoCPtr & 
 	}
 }
 
-void XE::MetaModule::RegisterMetaInfo( MetaInfoPtr val )
+void XE::MetaModule::RegisterMetaInfo( XE::MetaInfoPtr val )
 {
 	_MetaInfos.push_back( val );
 }
