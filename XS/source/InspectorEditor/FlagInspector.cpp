@@ -6,7 +6,7 @@
 REG_WIDGET( XS::FlagInspector );
 
 XS::FlagInspector::FlagInspector( QWidget * parent /*= nullptr */ )
-	:Inspector( parent )
+	:InspectorWidget( parent )
 {
 	_QComboBox = new QComboBox( this );
 
@@ -142,7 +142,7 @@ bool XS::FlagInspector::eventFilter( QObject * watched, QEvent * event )
 		return true;
 	}
 
-	return Inspector::eventFilter( watched, event );
+	return InspectorWidget::eventFilter( watched, event );
 }
 
 void XS::FlagInspector::RefreshComboBox( XE::uint64 flag )

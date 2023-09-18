@@ -9,7 +9,7 @@
 #ifndef GAMESCENEEDITOR_H__391B86FC_35F4_4404_B14D_AB5418BE3285
 #define GAMESCENEEDITOR_H__391B86FC_35F4_4404_B14D_AB5418BE3285
 
-#include "Core/ToolEditorWindow.h"
+#include "Widgets/ToolEditorWindow.h"
 
 #include "GameScene.h"
 

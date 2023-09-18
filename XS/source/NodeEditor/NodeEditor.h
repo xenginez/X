@@ -9,8 +9,7 @@
 #ifndef NODEEDITOR_H__F9578566_72B5_4583_9B30_F74EEBD01F27
 #define NODEEDITOR_H__F9578566_72B5_4583_9B30_F74EEBD01F27
 
-#include "Core/Inspector.h"
-#include "Core/ToolEditorWindow.h"
+#include "Widgets/ToolEditorWindow.h"
 
 UI_DECL( NodeEditor );
 

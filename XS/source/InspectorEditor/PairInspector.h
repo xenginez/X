@@ -11,13 +11,13 @@
 
 #include <QFormLayout>
 
-#include "Core/Inspector.h"
+#include "Widgets/InspectorWidget.h"
 
 UI_DECL( PairInspector );
 
 BEG_XS_NAMESPACE
 
-class XS_API PairInspector : public XS::Inspector
+class XS_API PairInspector : public XS::InspectorWidget
 {
 	Q_OBJECT
 

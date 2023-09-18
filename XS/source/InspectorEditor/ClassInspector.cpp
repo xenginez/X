@@ -5,7 +5,7 @@
 REG_WIDGET( XS::ClassInspector );
 
 XS::ClassInspector::ClassInspector( QWidget * parent /* = nullptr */ )
-	: Inspector( parent )
+	: InspectorWidget( parent )
 {
 	_QTreeWidget = new QTreeWidget( this );
 	SetContentWidget( _QTreeWidget );
@@ -42,7 +42,7 @@ void XS::ClassInspector::Refresh()
 				}
 				_QTreeWidget->addTopLevelItem( item );
 
-				auto inspector = Inspector::Create( proxy, this );
+				auto inspector = InspectorWidget::Create( proxy, this );
 
 				if ( inspector->metaObject()->inherits( &XS::GroupInspector::staticMetaObject ) )
 				{

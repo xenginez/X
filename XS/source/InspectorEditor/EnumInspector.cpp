@@ -3,7 +3,7 @@
 REG_WIDGET( XS::EnumInspector );
 
 XS::EnumInspector::EnumInspector( QWidget * parent /*= nullptr */ )
-	:Inspector( parent )
+	:InspectorWidget( parent )
 {
 	_QComboBox = new QComboBox( this );
 	SetContentWidget( _QComboBox );

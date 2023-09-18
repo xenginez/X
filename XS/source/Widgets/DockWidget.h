@@ -15,8 +15,8 @@
 #include <QDockWidget>
 #include <QUndoCommand>
 
-#include "Registry.h"
-#include "CoreFramework.h"
+#include "Core/Registry.h"
+#include "Core/CoreFramework.h"
 
 class QToolButton;
 

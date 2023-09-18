@@ -9,8 +9,8 @@
 #ifndef ASSETSEDITOR_H__5E9D7DFE_346F_4735_AFAE_DE82F5673EC8
 #define ASSETSEDITOR_H__5E9D7DFE_346F_4735_AFAE_DE82F5673EC8
 
-#include "Core/ToolEditorWindow.h"
-#include "Core/AssetEditorWindow.h"
+#include "Widgets/ToolEditorWindow.h"
+#include "Widgets/AssetEditorWindow.h"
 
 class QListWidgetItem;
 

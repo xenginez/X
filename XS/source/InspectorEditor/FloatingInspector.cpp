@@ -5,7 +5,7 @@ REG_INSPECTOR( XE::float32, XS::FloatingInspector );
 REG_INSPECTOR( XE::float64, XS::FloatingInspector );
 
 XS::FloatingInspector::FloatingInspector( QWidget * parent /*= nullptr */ )
-	:Inspector( parent )
+	:InspectorWidget( parent )
 {
 	_QDoubleSpinBox = new QDoubleSpinBox( this );
 	{

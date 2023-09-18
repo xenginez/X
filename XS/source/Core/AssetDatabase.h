@@ -14,7 +14,7 @@
 #include <QUuid>
 #include <QJsonDocument>
 
-#include "Global.h"
+#include "Type.h"
 
 BEG_XS_NAMESPACE
 

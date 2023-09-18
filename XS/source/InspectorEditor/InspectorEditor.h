@@ -9,8 +9,8 @@
 #ifndef INSPECTOREDITOR_H__FAF8AC9B_77BB_4F16_867A_56CF43E88042
 #define INSPECTOREDITOR_H__FAF8AC9B_77BB_4F16_867A_56CF43E88042
 
-#include "Core/Inspector.h"
-#include "Core/ToolEditorWindow.h"
+#include "Widgets/InspectorWidget.h"
+#include "Widgets/ToolEditorWindow.h"
 
 UI_DECL( InspectorEditor );
 
@@ -35,7 +35,7 @@ private slots:
 
 private:
 	Ui::InspectorEditor * ui;
-	XS::Inspector * _Inspector = nullptr;
+	XS::InspectorWidget * _Inspector = nullptr;
 	XE::Disposable _InspectorEvent;
 };
 

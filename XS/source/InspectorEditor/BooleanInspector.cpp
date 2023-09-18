@@ -5,7 +5,7 @@
 REG_INSPECTOR( bool, XS::BooleanInspector );
 
 XS::BooleanInspector::BooleanInspector( QWidget * parent /*= nullptr */ )
-	:XS::Inspector( parent )
+	:XS::InspectorWidget( parent )
 {
 	_CheckBox = new QCheckBox( this );
 	SetContentWidget( _CheckBox );

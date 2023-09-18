@@ -1,34 +1,34 @@
 /*!
- * \file	Inspector.h
+ * \file	InspectorWidget.h
  *
  * \author	ZhengYuanQing
- * \date	2022/03/24
+ * \date	2023/09/16
  * \email	zhengyuanqing.95@gmail.com
  *
- */
-#ifndef INSPECTOR_H__D0D642BB_FD51_49D3_BDCA_AF020BFAE231
-#define INSPECTOR_H__D0D642BB_FD51_49D3_BDCA_AF020BFAE231
+*/
+#ifndef INSPECTORWIDGET_H__9496F958_FB75_4B9A_AC7B_9D0E29C4142E
+#define INSPECTORWIDGET_H__9496F958_FB75_4B9A_AC7B_9D0E29C4142E
 
 #include "Widget.h"
-#include "ObjectProxy.h"
+#include "Core/ObjectProxy.h"
 
 BEG_XS_NAMESPACE
 
-class XS_API Inspector : public XS::Widget
+class XS_API InspectorWidget : public XS::Widget
 {
 	Q_OBJECT
 
 public:
-	Inspector( QWidget * parent = nullptr );
+	InspectorWidget( QWidget * parent = nullptr );
 
-	~Inspector() override;
+	~InspectorWidget() override;
 
 public:
 	static void Register( const XE::String & tname, const QString & name );
 
 	static void Register( const XE::MetaTypeCPtr & type, const QString & name );
 
-	static Inspector * Create( XS::ObjectProxy * proxy, QWidget * parent = nullptr );
+	static InspectorWidget * Create( XS::ObjectProxy * proxy, QWidget * parent = nullptr );
 
 public:
 	virtual void Expand();
@@ -49,7 +49,7 @@ private:
 	XS::ObjectProxy * _Proxy = nullptr;
 };
 
-class XS_API GroupInspector : public Inspector
+class XS_API GroupInspector : public InspectorWidget
 {
 	Q_OBJECT
 
@@ -68,7 +68,7 @@ namespace XS \
 	{ \
 		MetaTypeCollector() \
 		{ \
-			XS::Inspector::Register( ::TypeID<TYPE>::Get(), #NAME ); \
+			XS::InspectorWidget::Register( ::TypeID<TYPE>::Get(), #NAME ); \
 			XS::Registry::Register( &NAME::staticMetaObject, []( QObject * parent ) { return new NAME( qobject_cast< QWidget * >( parent ) ); } ); \
 		} \
 		static void Use() \
@@ -85,7 +85,7 @@ namespace XS \
 	{ \
 		MetaTypeCollector() \
 		{ \
-			XS::Inspector::Register( #KEY, #TYPE ); \
+			XS::InspectorWidget::Register( #KEY, #TYPE ); \
 			XS::Registry::Register( &TYPE::staticMetaObject, []( QObject * parent ) { return new TYPE( qobject_cast< QWidget * >( parent ) ); } ); \
 		} \
 		static void Use() \
@@ -95,4 +95,4 @@ namespace XS \
 	}; \
 };
 
-#endif//INSPECTOR_H__D0D642BB_FD51_49D3_BDCA_AF020BFAE231
+#endif//INSPECTORWIDGET_H__9496F958_FB75_4B9A_AC7B_9D0E29C4142E

@@ -9,7 +9,7 @@
 #ifndef EDITSCENEEDITOR_H__2C2FB7BC_1E8B_4ADF_9296_1F4802B4CADB
 #define EDITSCENEEDITOR_H__2C2FB7BC_1E8B_4ADF_9296_1F4802B4CADB
 
-#include "Core/ToolEditorWindow.h"
+#include "Widgets/ToolEditorWindow.h"
 
 UI_DECL( EditSceneEditor );
 

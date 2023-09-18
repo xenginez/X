@@ -9,7 +9,7 @@
 #include <QApplication>
 #include <QJsonDocument>
 
-#include "Menubar.h"
+#include "MenuBar.h"
 #include "StatusBar.h"
 #include "DockWidget.h"
 

@@ -12,11 +12,11 @@
 #include <QLabel>
 #include <QDoubleSpinBox>
 
-#include "Core/Inspector.h"
+#include "Widgets/InspectorWidget.h"
 
 BEG_XS_NAMESPACE
 
-class XS_API Vec4fInspector : public XS::Inspector
+class XS_API Vec4fInspector : public XS::InspectorWidget
 {
 	Q_OBJECT
 

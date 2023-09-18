@@ -14,7 +14,7 @@
 #include <QLabel>
 #include <QVector>
 
-#include "Core/Global.h"
+#include "Global.h"
 
 UI_DECL( LayoutDialog );
 

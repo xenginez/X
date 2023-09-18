@@ -5,7 +5,7 @@
 REG_INSPECTOR( XE::Vec2f, XS::Vec2fInspector );
 
 XS::Vec2fInspector::Vec2fInspector( QWidget * parent /*= nullptr */ )
-	:Inspector( parent )
+	:InspectorWidget( parent )
 {
 	QWidget * widget = new QWidget( this );
 	{

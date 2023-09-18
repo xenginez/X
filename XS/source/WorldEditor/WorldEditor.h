@@ -9,7 +9,7 @@
 #ifndef OBJECTSEDITOR_H__7B7C0B22_7F47_4FB6_9D83_949A00BD8BD6
 #define OBJECTSEDITOR_H__7B7C0B22_7F47_4FB6_9D83_949A00BD8BD6
 
-#include "Core/ToolEditorWindow.h"
+#include "Widgets/ToolEditorWindow.h"
 
 class QTreeWidgetItem;
 

@@ -11,7 +11,7 @@
 #include <QFileSystemModel>
 #include <QFileIconProvider>
 
-#include "Core/MainWindow.h"
+#include "Widgets/MainWindow.h"
 #include "Core/CoreFramework.h"
 #include "Core/QMetaStaticCall.h"
 

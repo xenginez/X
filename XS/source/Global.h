@@ -39,10 +39,6 @@ static constexpr const char * PACKAGES_DIRECTORY = "Packages";
 static constexpr const char * PROJECT_FILE_NAME = "Project.json";
 static constexpr const char * ASSET_DATABASE_URL = "Project/AssetDatabaseUrl";
 
-using InspectorEventInfo = std::pair<XE::String, XE::Variant>;
-
-DECL_EVENT( INSPECTOR, "inspector editor view", XS::InspectorEventInfo );
-
 END_XS_NAMESPACE
 
 Q_DECLARE_METATYPE( XE::Variant );

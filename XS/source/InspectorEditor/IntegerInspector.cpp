@@ -10,7 +10,7 @@ REG_INSPECTOR( XE::uint32, XS::IntegerInspector );
 REG_INSPECTOR( XE::uint64, XS::IntegerInspector );
 
 XS::IntegerInspector::IntegerInspector( QWidget * parent /*= nullptr */ )
-	:XS::Inspector( parent )
+	:XS::InspectorWidget( parent )
 {
 	_QSpinBox = new QSpinBox( this );
 	{

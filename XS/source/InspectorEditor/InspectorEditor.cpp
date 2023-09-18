@@ -47,7 +47,7 @@ void XS::InspectorEditor::OnInspector( const QString & name, const XE::Variant &
 		ui->inspector_layout->removeItem( ui->inspector_layout->itemAt( 0 ) );
 	}
 
-	_Inspector = XS::Inspector::Create( new XS::VariantObjectProxy( val ), this );
+	_Inspector = XS::InspectorWidget::Create( new XS::VariantObjectProxy( val ), this );
 
 	ui->inspector_layout->addWidget( _Inspector );
 

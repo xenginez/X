@@ -3,7 +3,7 @@
 REG_INSPECTOR_T( XE::Pair, XS::PairInspector );
 
 XS::PairInspector::PairInspector( QWidget * parent /*= nullptr */ )
-	: XS::Inspector( parent )
+	: XS::InspectorWidget( parent )
 {
 	_Layout = new QFormLayout( this );
 
@@ -29,7 +29,7 @@ void XS::PairInspector::Refresh()
 		auto first = cls->FindProperty( "first" );
 		auto second = cls->FindProperty( "second" );
 
-		_Layout->addRow( tr( "key" ), XS::Inspector::Create( new XS::PropertyObjectProxy( first, GetObjectProxy() ), this ) );
-		_Layout->addRow( tr( "value" ), XS::Inspector::Create( new XS::PropertyObjectProxy( second, GetObjectProxy() ), this ) );
+		_Layout->addRow( tr( "key" ), XS::InspectorWidget::Create( new XS::PropertyObjectProxy( first, GetObjectProxy() ), this ) );
+		_Layout->addRow( tr( "value" ), XS::InspectorWidget::Create( new XS::PropertyObjectProxy( second, GetObjectProxy() ), this ) );
 	}
 }

@@ -51,7 +51,7 @@ namespace Ui
 }
 
 XS::StringInspector::StringInspector( QWidget * parent /*= nullptr */ )
-	:Inspector( parent ), ui( new Ui::StringInspector )
+	:InspectorWidget( parent ), ui( new Ui::StringInspector )
 {
 	ui->setupUi( this );
 

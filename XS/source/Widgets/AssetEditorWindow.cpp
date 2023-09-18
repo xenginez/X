@@ -1,6 +1,6 @@
 #include "AssetEditorWindow.h"
 
-#include "CoreFramework.h"
+#include "Core/CoreFramework.h"
 
 XS::AssetEditor::AssetEditor( QObject * parent /*= nullptr */ )
 	: QObject( parent )

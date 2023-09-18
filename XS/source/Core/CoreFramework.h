@@ -9,7 +9,7 @@
 #ifndef COREFRAMEWORK_H__941035B0_93C2_49A9_BEB1_FC3442BCA3F4
 #define COREFRAMEWORK_H__941035B0_93C2_49A9_BEB1_FC3442BCA3F4
 
-#include "Global.h"
+#include "Type.h"
 #include "Signals.h"
 #include "AssetDatabase.h"
 

@@ -12,11 +12,11 @@
 #include <QLineEdit>
 #include <QToolButton>
 
-#include "Core/Inspector.h"
+#include "Widgets/InspectorWidget.h"
 
 BEG_XS_NAMESPACE
 
-class XS_API TypeInspector : public XS::Inspector
+class XS_API TypeInspector : public XS::InspectorWidget
 {
 	Q_OBJECT
 

@@ -2,12 +2,12 @@
 
 #include <QHBoxLayout>
 
-#include "Core/TypeSelectorDialog.h"
+#include "Widgets/TypeSelectorDialog.h"
 
 REG_INSPECTOR( XE::ASTInfoType, XS::TypeInspector );
 
 XS::TypeInspector::TypeInspector( QWidget * parent /*= nullptr */ )
-	:Inspector( parent )
+	:InspectorWidget( parent )
 {
 	QWidget * widget = new QWidget( this );
 	{

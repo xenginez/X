@@ -11,11 +11,11 @@
 
 #include <QTreeWidget>
 
-#include "Core/Inspector.h"
+#include "Widgets/InspectorWidget.h"
 
 BEG_XS_NAMESPACE
 
-class XS_API ClassInspector : public XS::Inspector
+class XS_API ClassInspector : public XS::InspectorWidget
 {
 	Q_OBJECT
 

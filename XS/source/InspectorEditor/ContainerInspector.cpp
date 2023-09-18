@@ -89,7 +89,7 @@ void XS::ContainerInspector::Refresh()
 	{
 		XS::ObjectProxy * proxy = new ElementObjectProxy( i, _Enumerator, GetObjectProxy() );
 
-		auto inspector = XS::Inspector::Create( proxy, this );
+		auto inspector = XS::InspectorWidget::Create( proxy, this );
 
 		QListWidgetItem * item = new QListWidgetItem( ui->list );
 		item->setFlags( item->flags() | Qt::ItemIsSelectable );
