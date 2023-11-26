@@ -1,6 +1,7 @@
 #include "TimerService.h"
 
-#include "Utils/Concurrent.hpp"
+#include "Base/MultiArray.hpp"
+#include "Base/ConcurrentList.hpp"
 
 BEG_META( XE::TimerService )
 END_META()

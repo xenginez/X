@@ -198,7 +198,7 @@ XE::uint64 XE::Bitmap::Count() const
 	return _Count;
 }
 
-const std::vector< XE::uint8 > & XE::Bitmap::Data() const
+const XE::Array< XE::uint8 > & XE::Bitmap::Data() const
 {
 	return _Data;
 }

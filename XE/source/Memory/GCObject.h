@@ -9,6 +9,8 @@
 #ifndef GCOBJECT_H__358986EA_20A0_43CF_975E_6D0BCBEF1AB4
 #define GCOBJECT_H__358986EA_20A0_43CF_975E_6D0BCBEF1AB4
 
+#include "Base/Type.h"
+
 #include "GCMemoryResource.h"
 
 namespace std
@@ -325,25 +327,17 @@ template< typename ... Types > struct GCMarker< std::pair< Types... > >
 		if constexpr ( std::is_base_of_v< raw_key_type, XE::GCObject > || std::is_same_v< raw_key_type, XE::GCObject > )
 		{
 			if constexpr ( std::is_pointer_v< key_type > )
-			{
-				GCMarker< raw_key_type >::Mark( it );
-			}
+				GCMarker< raw_key_type >::Mark( val->first );
 			else
-			{
-				GCMarker< raw_key_type >::Mark( &it );
-			}
+				GCMarker< raw_key_type >::Mark( &val.first );
 		}
 
 		if constexpr ( std::is_base_of_v< raw_value_type, XE::GCObject > || std::is_gc_ptr_v< raw_value_type > )
 		{
 			if constexpr ( std::is_pointer_v< value_type > )
-			{
-				GCMarker< raw_value_type >::Mark( it );
-			}
+				GCMarker< raw_value_type >::Mark( val->second );
 			else
-			{
-				GCMarker< raw_value_type >::Mark( &it );
-			}
+				GCMarker< raw_value_type >::Mark( &val.second );
 		}
 	}
 };

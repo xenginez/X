@@ -9,13 +9,13 @@
 #ifndef KEYBOARDINPUT_H__1752AAC6_7327_48B2_8D15_2B5A8BEF631C
 #define KEYBOARDINPUT_H__1752AAC6_7327_48B2_8D15_2B5A8BEF631C
 
-#include "Input.h"
+#include "InputItem.h"
 
 BEG_XE_NAMESPACE
 
-class XE_API KeyboardInput : public XE::Input
+class XE_API KeyboardInput : public XE::InputItem
 {
-	OBJECT( KeyboardInput, XE::Input );
+	OBJECT( KeyboardInput, XE::InputItem );
 
 private:
 	struct Private;

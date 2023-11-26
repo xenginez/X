@@ -1,6 +1,9 @@
 #include "CacheService.h"
 
 #include <fstream>
+#include <shared_mutex>
+
+#include "Memory/MMapFile.h"
 
 #include "CoreFramework.h"
 

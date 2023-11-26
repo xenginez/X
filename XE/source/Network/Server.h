@@ -9,6 +9,9 @@
 #ifndef SERVER_H__BAC42B2F_9C7C_445E_919D_21BD53777A6F
 #define SERVER_H__BAC42B2F_9C7C_445E_919D_21BD53777A6F
 
+#include "Base/Endian.h"
+#include "Base/ConcurrentHashMap.hpp"
+
 #include "HttpRequest.h"
 #include "HttpResponse.h"
 

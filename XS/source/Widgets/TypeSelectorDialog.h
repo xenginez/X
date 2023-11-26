@@ -35,6 +35,7 @@ public:
 	~TypeSelectorDialog() override;
 
 public:
+	XE::MetaID GetSelectTypeID() const;
 	const XE::MetaTypeCPtr & GetSelectType() const;
 
 private slots:

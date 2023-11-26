@@ -50,6 +50,9 @@ private:
 	static void Unregister( const XE::GCRootObject * _Root );
 
 private:
+	void Recycl();
+
+private:
 	Private * _p;
 };
 

@@ -4,17 +4,14 @@
 #include "Utils/Platform.h"
 #include "Core/CoreFramework.h"
 #include "Core/ThreadService.h"
+#include "Base/ConcurrentList.hpp"
 
 #include "Canvas.h"
-#include "imgui_impl.h"
 
 IMPLEMENT_META( XE::GUIService );
 
 struct XE::GUIService::Private
 {
-	XE::ImGuiImplPtr _Impl;
-	ImFontAtlas _FontAtlas;
-	XE::Map<XE::String, ImFont * > _Fonts;
 	XE::ConcurrentQueue< XE::CanvasPtr > _FreeCanvas;
 	XE::ConcurrentList< XE::Pair< XE::CanvasPtr, bool > > _Canvas;
 };
@@ -32,44 +29,17 @@ XE::GUIService::~GUIService()
 
 void XE::GUIService::Prepare()
 {
-	ImGui::SetAllocatorFunctions( 
-		[]( size_t sz, void * user_data ) { return XE::MemoryResource::Alloc( sz ); },
-		[]( void * ptr, void * user_data ) { XE::MemoryResource::Free( ptr ); },
-		nullptr );
+
 }
 
 void XE::GUIService::Startup()
 {
-	_p->_Impl = XE::MakeShared< XE::ImGuiImpl >();
 
-	// TODO: fonts
-
-	_p->_Impl->Startup( {}, 2, GraphicsTextureFormat::RGBA8UNORM );
 }
 
 void XE::GUIService::Update()
 {
-	using Iterator = XE::ConcurrentList< XE::Pair< XE::CanvasPtr, bool > >::iterator;
-	GetFramework()->GetServiceT< XE::ThreadService >()->ParallelTask( _p->_Canvas.begin(), _p->_Canvas.end(), [this]( Iterator it )
-	{
-		if ( it->second == false )
-		{
-			it->first->SetImpl( _p->_Impl );
-			it->first->SetRect( { XE::Vec2i::Zero, GetScreenSize() } );
 
-			it->first->Startup();
-
-			it->second = true;
-		}
-
-		it->first->Update();
-	} ).wait();
-
-	XE::CanvasPtr canvas;
-	while ( _p->_FreeCanvas.try_pop( canvas ) )
-	{
-		canvas->Clearup();
-	}
 }
 
 void XE::GUIService::Clearup()
@@ -88,27 +58,11 @@ void XE::GUIService::Clearup()
 	{
 		canvas->Clearup();
 	}
-
-	_p->_Impl->Clearup();
-
-	_p->_Impl = nullptr;
 }
 
 XE::Vec2i XE::GUIService::GetScreenSize() const
 {
 	return { XE::Platform::GetSrceenWidth(), XE::Platform::GetSrceenHeight() };
-}
-
-ImFontAtlas * XE::GUIService::GetFontAtlas() const
-{
-	return &_p->_FontAtlas;
-}
-
-ImFont * XE::GUIService::FindFont( const XE::String & val ) const
-{
-	auto it = _p->_Fonts.find( val );
-
-	return it != _p->_Fonts.end() ? it->second : nullptr;
 }
 
 XE::CanvasPtr XE::GUIService::FindCanvas( const XE::String & val )

@@ -5,7 +5,6 @@
 #endif
 #include <asio/asio.hpp>
 
-
 BEG_META( XE::HttpMethodType )
 type->Value( "GET", XE::HttpMethodType::HTTP_GET );
 type->Value( "HEAD", XE::HttpMethodType::HTTP_HEAD );

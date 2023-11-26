@@ -9,11 +9,13 @@
 #ifndef WASMMETAFUNCTION_H__44E354F2_F4BC_432A_9F37_B1ABA64F390E
 #define WASMMETAFUNCTION_H__44E354F2_F4BC_432A_9F37_B1ABA64F390E
 
+#include "Reflect/MetaFunction.h"
+
 #include "Type.h"
 
 BEG_XE_NAMESPACE
 
-class XE_API WASMMetaFunction : public XE::MetaClass
+class XE_API WASMMetaFunction : public XE::MetaFunction
 {
 
 };

@@ -9,6 +9,10 @@
 #ifndef MMAPFILE_H__886D355F_2A43_4F62_B820_BC9B8CE19917
 #define MMAPFILE_H__886D355F_2A43_4F62_B820_BC9B8CE19917
 
+#include <filesystem>
+
+#include "Base/NonCopyable.hpp"
+
 #include "Type.h"
 
 BEG_XE_NAMESPACE

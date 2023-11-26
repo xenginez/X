@@ -9,6 +9,8 @@
 #ifndef __REFLECTION_H__7A09BEF6_4373_410D_94CD_7AF277A37AB3
 #define __REFLECTION_H__7A09BEF6_4373_410D_94CD_7AF277A37AB3
 
+#include "Base/Singleton.h"
+
 #include "CXXMetaEnum.hpp"
 #include "CXXMetaClass.hpp"
 

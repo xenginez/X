@@ -1,14 +1,12 @@
 #include "NodeGraphicsView.h"
-#include "ui_NodeGraphicsView.h"
 
 NodeGraphicsView::NodeGraphicsView(QWidget *parent)
-	: QWidget(parent)
-	, ui(new Ui::NodeGraphicsView())
+	: QGraphicsView(parent)
 {
-	ui->setupUi(this);
+
 }
 
 NodeGraphicsView::~NodeGraphicsView()
 {
-	delete ui;
+
 }

@@ -9,6 +9,7 @@
 #ifndef RENDERMESH_H__8BB22F95_C71A_4DFB_ACBD_18BCD66C1D0A
 #define RENDERMESH_H__8BB22F95_C71A_4DFB_ACBD_18BCD66C1D0A
 
+#include "Reflect/Object.h"
 #include "Math/Mesh.h"
 
 #include "Type.h"

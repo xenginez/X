@@ -3,6 +3,9 @@
 #include "Core/TimerService.h"
 #include "Core/CoreFramework.h"
 
+#include "InputState.h"
+#include "InputStateItem.h"
+
 BEG_META( XE::InputStateMap )
 type->Property( "StateItems", &XE::InputStateMap::GetStateItems, &XE::InputStateMap::SetStateItems );
 END_META()

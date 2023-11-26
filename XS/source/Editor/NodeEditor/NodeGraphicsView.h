@@ -9,16 +9,9 @@
 #ifndef NODEGRAPHICSVIEW_H__0BDEDAEB_3D81_4485_87E7_AC940E007D1B
 #define NODEGRAPHICSVIEW_H__0BDEDAEB_3D81_4485_87E7_AC940E007D1B
 
-#include <QWidget>
+#include <QGraphicsView>
 
-QT_BEGIN_NAMESPACE
-namespace Ui
-{
-	class NodeGraphicsView;
-};
-QT_END_NAMESPACE
-
-class NodeGraphicsView : public QWidget
+class NodeGraphicsView : public QGraphicsView
 {
 	Q_OBJECT
 
@@ -26,8 +19,6 @@ public:
 	NodeGraphicsView( QWidget * parent = nullptr );
 	~NodeGraphicsView();
 
-private:
-	Ui::NodeGraphicsView * ui;
 };
 
 #endif//NODEGRAPHICSVIEW_H__0BDEDAEB_3D81_4485_87E7_AC940E007D1B

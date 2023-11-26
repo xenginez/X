@@ -9,6 +9,8 @@
 #ifndef SHA_H__CDAA54BE_793D_415D_ABD8_D31F5770791F
 #define SHA_H__CDAA54BE_793D_415D_ABD8_D31F5770791F
 
+#include <array>
+
 #include "Type.h"
 
 BEG_XE_NAMESPACE

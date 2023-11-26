@@ -43,6 +43,16 @@ public:
 		}
 	}
 
+	XE::Variant Construct() const override
+	{
+		if constexpr ( !std::is_abstract_v< ClassType > && std::is_constructible_v< ClassType > )
+		{
+			return XE::MakeShared< ClassType >();
+		}
+
+		throw XE::MetaException( shared_from_this(), "is abstract type!" );
+	}
+
 	XE::Variant Construct( void * ptr ) const override
 	{
 		if constexpr( !std::is_abstract_v< ClassType > && std::is_constructible_v< ClassType > )
@@ -190,6 +200,16 @@ public:
 	void Destruct( void * ptr ) const override
 	{
 
+	}
+
+	XE::Variant Construct() const override
+	{
+		if constexpr ( !std::is_abstract_v< ClassType > && std::is_constructible_v< ClassType > )
+		{
+			return ClassType();
+		}
+
+		throw XE::MetaException( shared_from_this(), "is abstract type!" );
 	}
 
 	XE::Variant Construct( void * ptr ) const override
@@ -441,6 +461,18 @@ template<> struct ::ClassID< XE::Variant >
 		static constexpr char __xe__sig__[] = __FUNCTION__;
 
 		static auto meta = XE::MetaInfo::NewMetaInfo< XE::CXXMetaClass< XE::Variant > >( XE::Hash( __xe__sig__ ), "Variant", nullptr, nullptr, XE::GetModule() );
+		return meta;
+	}
+};
+
+template<> struct ::ClassID< XE::MetaID >
+{
+	static XE::MetaClassCPtr Get( const XE::MetaID * val = nullptr )
+	{
+		static constexpr char __xe__sig__[] = __FUNCTION__;
+
+		static auto meta = XE::MetaInfo::NewMetaInfo< XE::CXXMetaClass< XE::MetaID > >( XE::Hash( __xe__sig__ ), "MetaID", nullptr, nullptr, XE::GetModule() );
+
 		return meta;
 	}
 };

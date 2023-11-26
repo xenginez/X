@@ -9,7 +9,7 @@
 #ifndef __HANDLE_HPP__7920C1A9_2044_45F0_84C4_221961C006AF
 #define __HANDLE_HPP__7920C1A9_2044_45F0_84C4_221961C006AF
 
-#include <atomic>
+#include "Base/ConcurrentQueue.hpp"
 
 #include "Type.h"
 

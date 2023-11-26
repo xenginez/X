@@ -9,9 +9,10 @@
 #ifndef TYPE_H__30CAD44D_274D_4F6D_BF9B_E9A055B63588
 #define TYPE_H__30CAD44D_274D_4F6D_BF9B_E9A055B63588
 
-#include "Declare.h"
 #include "Math/Graph.hpp"
 #include "Utils/Handle.hpp"
+
+#include "Declare.h"
 
 BEG_XE_NAMESPACE
 

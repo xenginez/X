@@ -13,29 +13,25 @@
 
 #include "Math/Rect.h"
 #include "Utils/Flags.hpp"
-#include "Core/GraphicsService.h"
+#include "Reflect/Object.h"
 
 BEG_XE_NAMESPACE
 
 DECL_PTR( Canvas );
 DECL_PTR( Widget );
 DECL_PTR( Layout );
-DECL_PTR( ImGuiImpl );
 DECL_PTR( Controller );
 DECL_PTR( LayoutItem );
 
-enum class VAlignment
+enum class Alignment
 {
-	TOP,
-	BOTTOM,
-	CENTER,
-};
-
-enum class HAlignment
-{
-	LEFT,
-	RIGHT,
-	CENTER,
+	LEFT = 1 << 0,
+	RIGHT = 1 << 1,
+	HCENTER = 1 << 2,
+	TOP = 1 << 3,
+	BOTTOM = 1 << 4,
+	VCENTER = 1 << 5,
+	CENTER = HCENTER | VCENTER,
 };
 
 enum class FlexWrap

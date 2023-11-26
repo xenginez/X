@@ -1,5 +1,7 @@
 #include "Logger.h"
 
+#include "Base/ConcurrentList.hpp"
+
 struct XE::Logger::Private
 {
 	XE::ConcurrentList< XE::Logger::ListenerType > _Listeners;

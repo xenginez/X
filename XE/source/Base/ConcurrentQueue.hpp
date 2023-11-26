@@ -10,8 +10,9 @@
 #define CONCURRENTQUEUE_HPP__6063D922_4E58_47CE_897D_E3E790DA8D23
 
 #include <atomic>
+#include <memory_resource>
 
-#include "Type.h"
+#include "Declare.h"
 
 BEG_XE_NAMESPACE
 

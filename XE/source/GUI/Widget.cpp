@@ -1,5 +1,7 @@
 #include "Widget.h"
 
+#include "Core/CoreFramework.h"
+
 #include "Canvas.h"
 #include "Layout.h"
 

@@ -9,6 +9,8 @@
 #ifndef STACKMEMORYRESOURCE_HPP__81B98080_8CEE_4E0F_9FF6_4239DB46F11B
 #define STACKMEMORYRESOURCE_HPP__81B98080_8CEE_4E0F_9FF6_4239DB46F11B
 
+#include <array>
+
 #include "MemoryResource.h"
 #include "DefaultMemoryResource.h"
 

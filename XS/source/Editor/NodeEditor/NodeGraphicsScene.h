@@ -9,9 +9,9 @@
 #ifndef NODEGRAPHICSSCENE_H__FCAF4F81_DBBE_4BEB_990A_B78FAD49136D
 #define NODEGRAPHICSSCENE_H__FCAF4F81_DBBE_4BEB_990A_B78FAD49136D
 
-#include <QObject>
+#include <QGraphicsScene>
 
-class NodeGraphicsScene : public QObject
+class NodeGraphicsScene : public QGraphicsScene
 {
 	Q_OBJECT
 

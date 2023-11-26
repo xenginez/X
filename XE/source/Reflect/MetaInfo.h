@@ -9,12 +9,135 @@
 #ifndef __IMETA_H__7FB7B1B8_7091_4DBE_82E4_E95126647F93
 #define __IMETA_H__7FB7B1B8_7091_4DBE_82E4_E95126647F93
 
+#include "Memory/AllocatorProxy.hpp"
+
 #include "Type.h"
 
 BEG_XE_NAMESPACE
 
 class XE_API MetaInfo : public XE::EnableSharedFromThis< MetaInfo >
 {
+public:
+	class ID
+	{
+	public:
+		ID()
+			:_value( 0 )
+		{
+		}
+
+		ID( const ID & val )
+			:_value( val._value )
+		{
+		}
+
+		ID( XE::uint64 val )
+			:_value( val )
+		{
+		}
+
+	public:
+		ID & operator=( const ID & val )
+		{
+			_value = val._value;
+			return *this;
+		}
+
+		ID & operator=( std::nullptr_t )
+		{
+			_value = 0;
+
+			return *this;
+		}
+
+	public:
+		operator bool() const
+		{
+			return _value != 0;
+		}
+
+	public:
+		bool operator< ( XE::uint64 val ) const
+		{
+			return _value < val;
+		}
+
+		bool operator >( XE::uint64 val ) const
+		{
+			return _value > val;
+		}
+
+		bool operator<=( XE::uint64 val ) const
+		{
+			return _value <= val;
+		}
+
+		bool operator>=( XE::uint64 val ) const
+		{
+			return _value >= val;
+		}
+
+		bool operator!=( XE::uint64 val ) const
+		{
+			return _value != val;
+		}
+
+		bool operator==( XE::uint64 val ) const
+		{
+			return _value == val;
+		}
+
+		bool operator!=( std::nullptr_t ) const
+		{
+			return _value != 0;
+		}
+
+		bool operator==( std::nullptr_t ) const
+		{
+			return _value == 0;
+		}
+
+	public:
+		bool operator< ( const ID & val ) const
+		{
+			return _value < val._value;
+		}
+
+		bool operator >( const ID & val ) const
+		{
+			return _value > val._value;
+		}
+
+		bool operator<=( const ID & val ) const
+		{
+			return _value <= val._value;
+		}
+
+		bool operator>=( const ID & val ) const
+		{
+			return _value >= val._value;
+		}
+
+		bool operator!=( const ID & val ) const
+		{
+			return _value != val._value;
+		}
+
+		bool operator==( const ID & val ) const
+		{
+			return _value == val._value;
+		}
+
+	public:
+		XE::uint64 GetHashCode() const
+		{
+			return _value;
+		}
+
+	private:
+		XE::uint64 _value;
+	};
+
 public:
 	MetaInfo( const XE::String & Name, XE::MetaInfoType Type, XE::MetaInfoCPtr Owner, XE::MetaModuleCPtr Module );
 
@@ -93,6 +216,7 @@ private:
 	XE::MetaModuleCWPtr _Module;
 	XE::Array< XE::MetaAttributeCPtr > _Attributes;
 };
+using MetaID = XE::MetaInfo::ID;
 
 END_XE_NAMESPACE
 

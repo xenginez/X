@@ -9,8 +9,6 @@
 #ifndef __IMETATYPE_H__8929D439_3C4B_4410_85AD_5D3F570075E6
 #define __IMETATYPE_H__8929D439_3C4B_4410_85AD_5D3F570075E6
 
-#include <functional>
-
 #include "MetaInfo.h"
 
 BEG_XE_NAMESPACE

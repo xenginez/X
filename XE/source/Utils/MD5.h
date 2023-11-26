@@ -9,6 +9,8 @@
 #ifndef MD5_H__EF0EE087_0F95_41D9_956F_532BA1F954FA
 #define MD5_H__EF0EE087_0F95_41D9_956F_532BA1F954FA
 
+#include <array>
+
 #include "Type.h"
 
 BEG_XE_NAMESPACE

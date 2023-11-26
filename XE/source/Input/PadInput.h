@@ -9,13 +9,13 @@
 #ifndef PADINPUT_H__521F2F7A_5CAC_4A6C_A35F_2C5557708AE7
 #define PADINPUT_H__521F2F7A_5CAC_4A6C_A35F_2C5557708AE7
 
-#include "Input.h"
+#include "InputItem.h"
 
 BEG_XE_NAMESPACE
 
-class XE_API PadInput : public XE::Input
+class XE_API PadInput : public XE::InputItem
 {
-	OBJECT( PadInput, XE::Input );
+	OBJECT( PadInput, XE::InputItem );
 
 private:
 	struct Private;

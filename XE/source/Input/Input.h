@@ -1,42 +1,20 @@
 /*!
- * \file	Input.h
+ * \file	Inputs.h
  *
  * \author	ZhengYuanQing
  * \date	2022/03/05
  * \email	zhengyuanqing.95@gmail.com
  *
  */
-#ifndef INPUT_H__9CFA0460_9BAF_40D3_8CEE_09031B242A54
-#define INPUT_H__9CFA0460_9BAF_40D3_8CEE_09031B242A54
+#ifndef INPUTS_H__EE29DB5B_7C69_44A8_84B5_D2AC7A9F7F87
+#define INPUTS_H__EE29DB5B_7C69_44A8_84B5_D2AC7A9F7F87
 
 #include "InputState.h"
+#include "InputStateMap.h"
 
-BEG_XE_NAMESPACE
+#include "PadInput.h"
+#include "TouchInput.h"
+#include "MouseInput.h"
+#include "KeyboardInput.h"
 
-class XE_API Input : public XE::EnableSharedFromThis< Input >
-{
-	OBJECT( Input );
-
-public:
-	Input();
-
-	virtual ~Input();
-
-public:
-	virtual void Startup() = 0;
-
-	virtual void Update() = 0;
-
-	virtual void Clearup() = 0;
-
-	virtual void ClearStatus() = 0;
-
-	virtual const XE::InputState & GetState() const = 0;
-
-public:
-	virtual bool Vibrate( XE::uint32 index, XE::float32 left, XE::float32 right ) = 0;
-};
-
-END_XE_NAMESPACE
-
-#endif//INPUT_H__9CFA0460_9BAF_40D3_8CEE_09031B242A54
+#endif//INPUTS_H__EE29DB5B_7C69_44A8_84B5_D2AC7A9F7F87

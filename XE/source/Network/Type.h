@@ -9,10 +9,13 @@
 #ifndef TYPE_H__6C170E6D_D354_483E_BFED_93FF8ED5FC97
 #define TYPE_H__6C170E6D_D354_483E_BFED_93FF8ED5FC97
 
-#include "Declare.h"
+#include <array>
 
+#include "Base/Endian.h"
 #include "Utils/Flags.hpp"
 #include "Utils/Handle.hpp"
+
+#include "Declare.h"
 
 BEG_XE_NAMESPACE
 

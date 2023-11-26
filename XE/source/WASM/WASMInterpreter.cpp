@@ -1,5 +1,7 @@
 #include "WASMInterpreter.h"
 
+#include "Base/Leb128.hpp"
+
 #include "WASMContext.h"
 #include "WASMService.h"
 

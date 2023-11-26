@@ -101,7 +101,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QTabWidget" name="node_tab"/>
+    <widget class="QTabWidget" name="view_tab"/>
    </item>
   </layout>
  </widget>

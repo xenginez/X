@@ -11,6 +11,8 @@
 
 #include <bitset>
 
+#include "Base/Type.h"
+
 #include "Type.h"
 
 BEG_XE_NAMESPACE

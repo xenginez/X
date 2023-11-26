@@ -75,6 +75,8 @@ public:
 public:
 	virtual void Destruct( void * ptr ) const = 0;
 
+	virtual XE::Variant Construct() const = 0;
+
 	virtual XE::Variant Construct( void * ptr ) const = 0;
 
 	virtual void Clone( const XE::Variant & from, XE::Variant & to ) const = 0;

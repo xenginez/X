@@ -11,7 +11,6 @@
 
 #include "Math/Declare.h"
 #include "Utils/Declare.h"
-#include "Network/Declare.h"
 
 BEG_XE_NAMESPACE
 
@@ -25,7 +24,6 @@ DECL_PTR( AudioService );
 DECL_PTR( CacheService );
 DECL_PTR( AssetsService );
 DECL_PTR( ThreadService );
-DECL_PTR( PhysicsService );
 DECL_PTR( GraphicsService );
 DECL_PTR( LocalizationService );
 

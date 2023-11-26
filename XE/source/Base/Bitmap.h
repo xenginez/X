@@ -75,7 +75,7 @@ public:
 public:
 	XE::uint64 Count() const;
 
-	const std::vector< XE::uint8 > & Data() const;
+	const XE::Array< XE::uint8 > & Data() const;
 
 public:
 	bool Test( XE::uint64 index ) const;
@@ -115,7 +115,7 @@ public:
 
 private:
 	XE::uint64 _Count = 0;
-	std::vector< XE::uint8 > _Data;
+	XE::Array< XE::uint8 > _Data;
 };
 
 XE::Bitmap operator&( const XE::Bitmap & Left, const XE::Bitmap & Right );

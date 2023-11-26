@@ -1,5 +1,7 @@
 #include "Order.h"
 
+#include <array>
+
 #include "CRC32.h"
 
 struct OrderInfo

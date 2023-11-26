@@ -9,12 +9,13 @@
 #ifndef TYPE_H__0C77630F_7738_4E3F_98F9_BF858383FB30
 #define TYPE_H__0C77630F_7738_4E3F_98F9_BF858383FB30
 
-#include "Declare.h"
 #include "Utils/Event.h"
+
+#include "Declare.h"
 
 BEG_XE_NAMESPACE
 
-DECL_PTR( Input );
+DECL_PTR( InputItem );
 DECL_PTR( InputStateMap );
 DECL_PTR( InputStateItem );
 
@@ -141,6 +142,7 @@ enum class KeyCode : XE::uint32
 	KeyMenu,
 };
 DECL_XE_ENUM( KeyCode );
+
 enum class PadCode : XE::uint32
 {
 	Pad0ButtonLeftStickX,
@@ -455,6 +457,7 @@ enum class PadCode : XE::uint32
 	Pad3Button31,
 };
 DECL_XE_ENUM( PadCode );
+
 enum class MouseCode : XE::uint32
 {
 	MousePos,
@@ -473,6 +476,7 @@ enum class MouseCode : XE::uint32
 	MouseButton9,
 };
 DECL_XE_ENUM( MouseCode );
+
 enum class TouchCode : XE::uint32
 {
 	Touch0Down,
@@ -509,6 +513,7 @@ enum class TouchCode : XE::uint32
 	Touch7Z,
 };
 DECL_XE_ENUM( TouchCode );
+
 enum class InputStateItemTimeoutType
 {
 	TIME,

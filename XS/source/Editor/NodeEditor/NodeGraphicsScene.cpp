@@ -1,7 +1,7 @@
 #include "NodeGraphicsScene.h"
 
 NodeGraphicsScene::NodeGraphicsScene(QObject *parent)
-	: QObject(parent)
+	: QGraphicsScene(parent)
 {
 }
 

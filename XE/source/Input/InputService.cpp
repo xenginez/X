@@ -2,9 +2,13 @@
 
 #include "Core/CoreFramework.h"
 
-#include "Input.h"
+#include "InputItem.h"
 #include "InputState.h"
 #include "InputStateMap.h"
+
+#if PLATFORM_OS == OS_WINDOWS
+#pragma comment(lib, "xinput.lib")
+#endif
 
 BEG_META( XE::InputService )
 END_META()
@@ -13,7 +17,7 @@ struct XE::InputService::Private
 {
 	XE::InputState _State;
 	XE::InputStateMapPtr _StateMap;
-	XE::Array< XE::InputPtr > _Inputs;
+	XE::Array< XE::InputItemPtr > _InputItems;
 };
 
 XE::InputService::InputService()
@@ -34,7 +38,7 @@ void XE::InputService::Prepare()
 
 void XE::InputService::Startup()
 {
-	for ( auto & it : _p->_Inputs )
+	for ( auto & it : _p->_InputItems )
 	{
 		it->Startup();
 	}
@@ -45,7 +49,7 @@ void XE::InputService::Update()
 {
 	_p->_State.ClearChanges();
 
-	for ( auto & it : _p->_Inputs )
+	for ( auto & it : _p->_InputItems )
 	{
 		it->Update();
 		_p->_State.Merge( it->GetState() );
@@ -57,13 +61,13 @@ void XE::InputService::Update()
 
 void XE::InputService::Clearup()
 {
-	for ( auto & it : _p->_Inputs )
+	for ( auto & it : _p->_InputItems )
 	{
 		it->Clearup();
 	}
 	_p->_StateMap->Clearup();
 
-	_p->_Inputs.clear();
+	_p->_InputItems.clear();
 	_p->_State.Clear();
 }
 
@@ -115,7 +119,7 @@ XE::BasicMemoryView< XE::CodePoint > XE::InputService::GetUnicodes() const
 
 void XE::InputService::Vibrate( XE::float32 left, XE::float32 right, XE::uint32 index /*= 0*/ )
 {
-	for ( auto & it : _p->_Inputs )
+	for ( auto & it : _p->_InputItems )
 	{
 		it->Vibrate( index, left, right );
 	}
@@ -123,7 +127,7 @@ void XE::InputService::Vibrate( XE::float32 left, XE::float32 right, XE::uint32 
 
 void XE::InputService::ClearStatus()
 {
-	for ( auto & it : _p->_Inputs )
+	for ( auto & it : _p->_InputItems )
 	{
 		it->ClearStatus();
 	}

@@ -1,5 +1,6 @@
 #include "AssetsService.h"
 
+#include "Base/ConcurrentLruCache.hpp"
 #include "Utils/Logger.h"
 #include "Utils/Package.h"
 

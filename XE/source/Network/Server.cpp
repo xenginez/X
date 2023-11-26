@@ -1,5 +1,6 @@
 #include "Server.h"
 
+#include "Base/ConcurrentHashMap.hpp"
 #include "Core/CoreFramework.h"
 #include "Core/TimerService.h"
 

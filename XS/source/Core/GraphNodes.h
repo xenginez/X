@@ -52,12 +52,12 @@ public:
 	~GraphNodeMeta() override;
 
 public:
-	const XE::String & GetModule() const;
+	const XE::String & GetModuleName() const;
 
-	void SetModule( const XE::String & val );
+	void SetModuleName( const XE::String & val );
 
 private:
-	XE::String _Module;
+	XE::String _ModuleName;
 };
 class GraphNodeEnum : public XS::GraphNodeMeta
 {

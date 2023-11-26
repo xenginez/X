@@ -9,6 +9,7 @@
 #ifndef RENDERTEXTURE_H__90FD6768_55DE_47C9_9733_86656FC5926E
 #define RENDERTEXTURE_H__90FD6768_55DE_47C9_9733_86656FC5926E
 
+#include "Reflect/Object.h"
 #include "Core/Type.h"
 
 #include "Type.h"

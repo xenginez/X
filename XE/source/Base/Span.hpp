@@ -9,7 +9,9 @@
 #ifndef SPAN_HPP__54C7CB94_FE5C_45DD_AD7B_D1A840D7C02D
 #define SPAN_HPP__54C7CB94_FE5C_45DD_AD7B_D1A840D7C02D
 
-#include "Type.h"
+#include <array>
+
+#include "Declare.h"
 
 BEG_XE_NAMESPACE
 
@@ -175,7 +177,7 @@ template <typename, typename = void> struct HasContainerInterface : std::false_t
 
 template <typename _Rng> struct HasContainerInterface<_Rng, std::void_t<decltype( std::data( std::declval<_Rng &>() ) ), decltype( std::size( std::declval<_Rng &>() ) )>> : std::true_type {};
 
-template <typename _Rng, typename _Ty> inline constexpr bool IsSpanCompatibleRange = std::conjunction_v<std::negation<std::is_array<_Rng>>, std::negation<IsSpan<std::remove_const_t<_Rng>>>, std::negation<IsStdArray<remove_const_t<_Rng>>>, HasContainerInterface<_Rng>, IsSpanConvertibleRange<_Rng, _Ty>>;
+template <typename _Rng, typename _Ty> inline constexpr bool IsSpanCompatibleRange = std::conjunction_v<std::negation<std::is_array<_Rng>>, std::negation<IsSpan<std::remove_const_t<_Rng>>>, std::negation<IsStdArray<std::remove_const_t<_Rng>>>, HasContainerInterface<_Rng>, IsSpanConvertibleRange<_Rng, _Ty>>;
 
 template <typename _Ty, XE::uint64 _Extent = SpanDynamicExtent> class Span : private SpanExtentType<_Ty, _Extent>
 {

@@ -11,7 +11,6 @@
 
 #include "Base/String.h"
 #include "Base/Exception.h"
-#include "Memory/AllocatorProxy.hpp"
 
 #include "Declare.h"
 
@@ -50,13 +49,9 @@ public:
 	~MetaException();
 
 public:
-	virtual char const * What() const;
-
-public:
 	XE::MetaInfoCPtr GetMetaInfo() const;
 
 private:
-	XE::String _Msg;
 	XE::MetaInfoCPtr _Meta;
 };
 

@@ -9,9 +9,10 @@
 #ifndef LEVEL_H__0AF6B270_6AC9_4303_AFB5_F2A9EF50E227
 #define LEVEL_H__0AF6B270_6AC9_4303_AFB5_F2A9EF50E227
 
-#include "Type.h"
-
 #include "Math/Transform.h"
+#include "Reflect/Object.h"
+
+#include "Type.h"
 
 BEG_XE_NAMESPACE
 

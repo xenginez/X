@@ -9,20 +9,20 @@
 #ifndef XS_H__841996AE_C7A0_4FAA_BE5C_0DA1CD20AB42
 #define XS_H__841996AE_C7A0_4FAA_BE5C_0DA1CD20AB42
 
-#include "Core/Skin.h"
-#include "Core/Widget.h"
 #include "Core/Registry.h"
 #include "Core/Inspector.h"
-#include "Core/DockWidget.h"
-#include "Core/NodeWidget.h"
-#include "Core/MainWindow.h"
 #include "Core/ObjectProxy.h"
-#include "Core/WindowProxy.h"
-#include "Core/RenderWidget.h"
 #include "Core/CoreFramework.h"
-#include "Core/ToolEditorWindow.h"
-#include "Core/AssetEditorWindow.h"
-
 #include "Core/QMetaStaticCall.h"
+
+#include "Widgets/Skin.h"
+#include "Widgets/Widget.h"
+#include "Widgets/DockWidget.h"
+#include "Widgets/NodeWidget.h"
+#include "Widgets/MainWindow.h"
+#include "Widgets/WindowProxy.h"
+#include "Widgets/RenderWidget.h"
+#include "Widgets/ToolEditorWindow.h"
+#include "Widgets/AssetEditorWindow.h"
 
 #endif//XS_H__841996AE_C7A0_4FAA_BE5C_0DA1CD20AB42

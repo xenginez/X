@@ -9,13 +9,13 @@
 #ifndef MOUSEINPUT_H__88723973_0CD0_4167_BEDE_461BD84ED43E
 #define MOUSEINPUT_H__88723973_0CD0_4167_BEDE_461BD84ED43E
 
-#include "Input.h"
+#include "InputItem.h"
 
 BEG_XE_NAMESPACE
 
-class XE_API MouseInput : public XE::Input
+class XE_API MouseInput : public XE::InputItem
 {
-	OBJECT( MouseInput, XE::Input );
+	OBJECT( MouseInput, XE::InputItem );
 
 private:
 	struct Private;

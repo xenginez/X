@@ -9,6 +9,7 @@
 #ifndef AUDIOBUFFER_H__09ABB54B_87D3_49B2_87DA_A84502CE275F
 #define AUDIOBUFFER_H__09ABB54B_87D3_49B2_87DA_A84502CE275F
 
+#include "Reflect/Object.h"
 #include "Utils/UUID.h"
 
 #include "Type.h"

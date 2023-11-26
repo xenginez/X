@@ -9,6 +9,7 @@
 #ifndef ASSET_H__728E58FA_63BE_4DF7_AF23_F7A0F10BCE88
 #define ASSET_H__728E58FA_63BE_4DF7_AF23_F7A0F10BCE88
 
+#include "Reflect/Object.h"
 #include "Utils/UUID.h"
 
 BEG_XE_NAMESPACE

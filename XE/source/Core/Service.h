@@ -9,6 +9,8 @@
 #ifndef SERVICE_H__BABD7EC6_4C87_4CC3_B914_98C949300CEB
 #define SERVICE_H__BABD7EC6_4C87_4CC3_B914_98C949300CEB
 
+#include "Reflect/Object.h"
+
 #include "Type.h"
 
 BEG_XE_NAMESPACE

@@ -9,9 +9,9 @@
 #ifndef SERVICE_H__613AEC00_F8C2_4C3A_8612_B15EA97F0B61
 #define SERVICE_H__613AEC00_F8C2_4C3A_8612_B15EA97F0B61
 
-#include "Type.h"
-
 #include "Core/Service.h"
+
+#include "Type.h"
 
 BEG_XE_NAMESPACE
 

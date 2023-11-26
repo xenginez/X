@@ -7,5 +7,5 @@ type->Value( "AUDIO", XE::ThreadType::AUDIO );
 type->Value( "RENDER", XE::ThreadType::RENDER );
 type->Value( "PHYSICS", XE::ThreadType::PHYSICS );
 type->Value( "WORKS", XE::ThreadType::WORKS );
-type->Value( "WORKS", XE::ThreadType::UNKNOWN );
+type->Value( "UNKNOWN", XE::ThreadType::UNKNOWN );
 END_META()

@@ -1,8 +1,14 @@
 #include "GCMemoryResource.h"
 
+#include <array>
+
 #include "MMapFile.h"
 #include "GCObject.h"
 #include "StackMemoryResource.hpp"
+
+#include "Base/Bitmap.h"
+#include "Base/ConcurrentList.hpp"
+#include "Base/ConcurrentQueue.hpp"
 
 namespace
 {
@@ -287,60 +293,9 @@ void XE::GCMemoryResource::GC()
 	case PhaseType::RECYCL:
 	{
 		_p->_Phase = PhaseType::RECYCL_THREAD;
-		std::thread( [_p]()
+		std::thread( []()
 		{
-			XE::StackMemoryResource<MBYTE( 1 )> res;
-			{
-				XE::Array< XE::ConcurrentList< MemoryPagePtr > * > lists( &res );
-
-				for ( auto & list : _p->_GroupLists )
-				{
-					lists.push_back( &list );
-				}
-				lists.push_back( &_p->_BigMemLists );
-
-				for ( auto list : lists )
-				{
-					for ( auto it = list->begin(); it != list->end(); ++it )
-					{
-						XE::GCObject * ptr = reinterpret_cast<XE::GCObject *>( ( *it )->FirstUsePtr() );
-						do
-						{
-							if ( ptr != nullptr )
-							{
-								if ( ptr->_Status == XE::GCStatus::WHITE )
-								{
-									auto size = ptr->Size();
-
-									ptr->~GCObject();
-
-									( *it )->Free( reinterpret_cast<XE::uint8 *>( ptr ), size );
-
-									_p->_TotalUsed -= size;
-								}
-								else
-								{
-									ptr->_Status = XE::GCStatus::WHITE;
-								}
-							}
-						} while ( ptr = reinterpret_cast<XE::GCObject *>( ( *it )->NextUsePtr( reinterpret_cast<XE::uint8 *>( ptr ) ) ) );
-						if ( ( *it )->UseSize() == 0 )
-						{
-							MemoryPagePtr page = std::move( *it );
-							list->erase( it );
-							_p->_FreeLists.emplace_back( std::move( page ) );
-						}
-					}
-				}
-
-				while ( _p->_FreeLists.size() > 2 )
-				{
-					_p->_FreeLists.pop_back();
-				}
-
-				_p->_Threshold += static_cast<XE::int64>( _p->_TotalUsed * 1.5 );
-				_p->_Phase = PhaseType::NONE;
-			}
+			Private::_Instance->Recycl();
 		} ).detach();
 	}
 	break;
@@ -404,4 +359,60 @@ void XE::GCMemoryResource::Unregister( const GCRootObject * root )
 	std::unique_lock< std::mutex > lock( _p->_Mutex );
 
 	_p->_Roots.erase( root );
+}
+
+void XE::GCMemoryResource::Recycl()
+{
+	XE::StackMemoryResource<MBYTE( 1 )> res;
+	{
+		XE::Array< XE::ConcurrentList< MemoryPagePtr > * > lists( &res );
+
+		for ( auto & list : _p->_GroupLists )
+		{
+			lists.push_back( &list );
+		}
+		lists.push_back( &_p->_BigMemLists );
+
+		for ( auto list : lists )
+		{
+			for ( auto it = list->begin(); it != list->end(); ++it )
+			{
+				XE::GCObject * ptr = reinterpret_cast<XE::GCObject *>( ( *it )->FirstUsePtr() );
+				do
+				{
+					if ( ptr != nullptr )
+					{
+						if ( ptr->_Status == XE::GCStatus::WHITE )
+						{
+							auto size = ptr->Size();
+
+							ptr->~GCObject();
+
+							( *it )->Free( reinterpret_cast<XE::uint8 *>( ptr ), size );
+
+							_p->_TotalUsed -= size;
+						}
+						else
+						{
+							ptr->_Status = XE::GCStatus::WHITE;
+						}
+					}
+				} while ( ptr = reinterpret_cast<XE::GCObject *>( ( *it )->NextUsePtr( reinterpret_cast<XE::uint8 *>( ptr ) ) ) );
+				if ( ( *it )->UseSize() == 0 )
+				{
+					MemoryPagePtr page = std::move( *it );
+					list->erase( it );
+					_p->_FreeLists.emplace_back( std::move( page ) );
+				}
+			}
+		}
+
+		while ( _p->_FreeLists.size() > 2 )
+		{
+			_p->_FreeLists.pop_back();
+		}
+
+		_p->_Threshold += static_cast<XE::int64>( _p->_TotalUsed * 1.5 );
+		_p->_Phase = PhaseType::NONE;
+	}
 }

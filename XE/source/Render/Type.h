@@ -9,7 +9,6 @@
 #ifndef TYPE_H__F5415E7B_FE49_440C_86FC_57B459E6B43E
 #define TYPE_H__F5415E7B_FE49_440C_86FC_57B459E6B43E
 
-#include "Declare.h"
 #include "Math/Rect.h"
 #include "Math/AABB.h"
 #include "Math/Color.h"
@@ -17,6 +16,8 @@
 #include "Utils/Flags.hpp"
 #include "Utils/Handle.hpp"
 #include "Utils/RefCount.h"
+
+#include "Declare.h"
 
 BEG_XE_NAMESPACE
 

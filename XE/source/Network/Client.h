@@ -9,6 +9,8 @@
 #ifndef CLIENT_H__A413619C_1137_4FB0_A2C3_41408D07E9AA
 #define CLIENT_H__A413619C_1137_4FB0_A2C3_41408D07E9AA
 
+#include "Base/ConcurrentHashMap.hpp"
+
 #include "HttpRequest.h"
 #include "HttpResponse.h"
 

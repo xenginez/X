@@ -4,9 +4,9 @@
 
 #include "Widgets/TypeSelectorDialog.h"
 
-REG_INSPECTOR( XE::ASTInfoType, XS::TypeInspector );
+REG_INSPECTOR( XE::MetaID, XS::TypeInspector );
 
-XS::TypeInspector::TypeInspector( QWidget * parent /*= nullptr */ )
+XS::TypeInspector::TypeInspector( QWidget * parent )
 	:InspectorWidget( parent )
 {
 	QWidget * widget = new QWidget( this );
@@ -44,7 +44,10 @@ XS::TypeInspector::~TypeInspector()
 
 void XS::TypeInspector::Refresh()
 {
-	_Edit->setText( QString::fromUtf8( GetObjectProxy()->GetValue().Value<XE::ASTInfoTypePtr>()->Name.c_str() ) );
+	auto id = GetObjectProxy()->GetValue().Value<XE::MetaID>();
+
+	_Edit->setProperty( "MetaID", id.GetHashCode() );
+	_Edit->setText( QString::fromUtf8( XE::Reflection::FindType( id.GetHashCode() )->GetFullName().c_str() ) );
 }
 
 void XS::TypeInspector::OnToolButtonClicked()
@@ -53,17 +56,22 @@ void XS::TypeInspector::OnToolButtonClicked()
 
 	if ( dialog.exec() == QDialog::Accepted )
 	{
-		auto old_type = _Edit->text();
-		auto new_type = dialog.GetSelectType();
+		XE::MetaID old_id = _Edit->property( "MetaID" ).toULongLong();
+		XE::MetaID new_id = dialog.GetSelectTypeID();
+
 		PushUndoCommand
 		( tr( "TypeInspector" ),
-		  [this, new_type]()
+		  [this, new_id]()
 		{
-			GetObjectProxy()->GetValue().Value<XE::ASTInfoTypePtr>()->Name = new_type->GetFullName();
+			_Edit->setProperty( "MetaID", new_id.GetHashCode() );
+
+			GetObjectProxy()->SetValue( new_id );
 		},
-		  [this, old_type]()
+		  [this, old_id]()
 		{
-			GetObjectProxy()->GetValue().Value<XE::ASTInfoTypePtr>()->Name = old_type.toStdString();
+			_Edit->setProperty( "MetaID", old_id.GetHashCode() );
+
+			GetObjectProxy()->SetValue( old_id );
 		} );
 	}
 }

@@ -9,8 +9,6 @@
 #ifndef CONCURRENT_H__FBC498D1_BC14_4F2C_8264_9266C236C648
 #define CONCURRENT_H__FBC498D1_BC14_4F2C_8264_9266C236C648
 
-#include <mutex>
-#include <functional>
 #include <shared_mutex>
 
 #include "Type.h"

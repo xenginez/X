@@ -9,10 +9,6 @@
 #ifndef WIDGET_H__EE35767C_971B_43A8_8B3F_9278900E2FAE
 #define WIDGET_H__EE35767C_971B_43A8_8B3F_9278900E2FAE
 
-#include "Utils/Picture.h"
-#include "Core/Asset.h"
-#include "Core/CoreFramework.h"
-
 #include "Action.h"
 
 BEG_XE_NAMESPACE

@@ -2,6 +2,8 @@
 
 #include <cpuinfo/cpuinfo.h>
 
+#include "Base/Format.hpp"
+
 namespace XE
 {
 	XE::String ToString( cpuinfo_vendor vendor )

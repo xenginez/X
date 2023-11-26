@@ -9,7 +9,8 @@
 #ifndef QTREE_HPP__29CC31D8_FEF9_4084_8E7E_531966B9692A
 #define QTREE_HPP__29CC31D8_FEF9_4084_8E7E_531966B9692A
 
-#include "Type.h"
+#include "AABB.h"
+#include "Rect.h"
 
 BEG_XE_NAMESPACE
 

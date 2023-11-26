@@ -9,6 +9,8 @@
 #ifndef LOGGER_H__FABB4435_9587_4290_9EA3_18733C722EE2
 #define LOGGER_H__FABB4435_9587_4290_9EA3_18733C722EE2
 
+#include "Base/Format.hpp"
+
 #include "Disposable.h"
 
 BEG_XE_NAMESPACE

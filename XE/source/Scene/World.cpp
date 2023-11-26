@@ -1,6 +1,8 @@
 #include "World.h"
 
+#include "Base/Bitmap.h"
 #include "Utils/Logger.h"
+#include "Memory/StackMemoryResource.hpp"
 
 #include "Entity.h"
 #include "GameObject.h"

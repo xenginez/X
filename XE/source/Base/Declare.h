@@ -9,22 +9,8 @@
 #ifndef DECLARE_H__5DFAB569_85CF_410A_8A0D_5FCFF4D85232
 #define DECLARE_H__5DFAB569_85CF_410A_8A0D_5FCFF4D85232
 
-#include <set>
-#include <map>
-#include <list>
-#include <deque>
-#include <stack>
-#include <queue>
 #include <memory>
-#include <string>
-#include <chrono>
-#include <sstream>
-#include <iomanip>
 #include <functional>
-#include <filesystem>
-#include <unordered_set>
-#include <unordered_map>
-#include <memory_resource>
 
 #include "Config.h"
 

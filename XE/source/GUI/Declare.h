@@ -9,12 +9,7 @@
 #ifndef DECLARE_H__025662EC_638B_44E4_BFC3_C330938E4079
 #define DECLARE_H__025662EC_638B_44E4_BFC3_C330938E4079
 
-#include "Utils/Declare.h"
-
-struct ImFont;
-struct ImGuiStyle;
-struct ImFontAtlas;
-struct ImGuiContext;
+#include "Core/Declare.h"
 
 BEG_XE_NAMESPACE
 

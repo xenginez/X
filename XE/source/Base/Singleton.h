@@ -10,13 +10,14 @@
 #define SINGLETON_H__D09FB825_C94A_4310_AFF3_52EDD109471F
 
 #include "NonCopyable.hpp"
+#include "Type.h"
 
 BEG_XE_NAMESPACE
 
 class XE_API SingletonBase : public XE::NonCopyable
 {
 protected:
-	static XE::Pair< void *, bool > NewSigleton( XE::uint64 hash, XE::uint64 size, const XE::Delegate< void( void * ) > & destructor );
+	static void * NewSigleton( XE::uint64 hash, XE::uint64 size, const XE::Delegate< void( void * ) > & construct, const XE::Delegate< void( void * ) > & destructor );
 };
 
 template< typename T > class Singleton : public XE::SingletonBase
@@ -26,17 +27,13 @@ public:
 	{
 		static constexpr char __xe__sig__[] = __FUNCTION__;
 
-		static T * _Instance = nullptr;
-
-		if( _Instance == nullptr )
+		static T * _Instance = reinterpret_cast<T *>( NewSigleton( XE::Hash( __xe__sig__ ), sizeof( T ), []( void * p )
 		{
-			auto pair = NewSigleton( XE::Hash( __xe__sig__ ), sizeof( T ), []( void * p ) { reinterpret_cast< T * >( p )->~T(); } );
-			if( pair.second == false )
-			{
-				_Instance = new ( pair.first ) T();
-			}
-			_Instance = reinterpret_cast<T *>( pair.first );
-		}
+			new ( p ) T();
+		}, []( void * p )
+		{
+			reinterpret_cast<T *>( p )->~T();
+		} ) );
 
 		return _Instance;
 	}

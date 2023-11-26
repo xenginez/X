@@ -9,7 +9,7 @@
 #ifndef DECLARE_H__B2A36370_706B_42B8_B679_1A18124E5DD3
 #define DECLARE_H__B2A36370_706B_42B8_B679_1A18124E5DD3
 
-#include "Memory/Memory.h"
+#include "Memory/Declare.h"
 
 BEG_XE_NAMESPACE
 

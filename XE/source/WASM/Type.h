@@ -9,6 +9,9 @@
 #ifndef TYPE_H__7E436181_F13C_40BF_ADA5_29233BD1218E
 #define TYPE_H__7E436181_F13C_40BF_ADA5_29233BD1218E
 
+#include "Reflect/Reflection.h"
+#include "Reflect/Object.h"
+
 #include "Declare.h"
 
 BEG_XE_NAMESPACE

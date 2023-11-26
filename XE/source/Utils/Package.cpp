@@ -1,6 +1,10 @@
 #include "Package.h"
 
+#include <array>
 #include <fstream>
+
+#include "Base/Endian.h"
+#include "Memory/MMapFile.h"
 
 #include "lz4.h"
 

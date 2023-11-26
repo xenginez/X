@@ -18,7 +18,6 @@
 #include "CacheService.h"
 #include "AssetsService.h"
 #include "ThreadService.h"
-#include "PhysicsService.h"
 #include "GraphicsService.h"
 #include "LocalizationService.h"
 

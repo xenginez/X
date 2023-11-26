@@ -9,7 +9,7 @@
 #ifndef DECLARE_H__7D432CD9_EC29_4924_B303_4414FB236264
 #define DECLARE_H__7D432CD9_EC29_4924_B303_4414FB236264
 
-#include "Reflect/Reflect.h"
+#include "Reflect/Declare.h"
 
 BEG_XE_NAMESPACE
 

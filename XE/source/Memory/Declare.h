@@ -9,7 +9,7 @@
 #ifndef DECLARE_H__FFE474C0_FA49_4631_A284_A4861F8FB635
 #define DECLARE_H__FFE474C0_FA49_4631_A284_A4861F8FB635
 
-#include "Base/Base.h"
+#include "Base/Declare.h"
 
 BEG_XE_NAMESPACE
 

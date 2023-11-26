@@ -11,11 +11,11 @@
 
 #include <atomic>
 
-#include "Type.h"
+#include "Declare.h"
 
 BEG_XE_NAMESPACE
 
-template <typename _Mynode> class ConcurrentListConstIterator
+template< typename _Mynode > class ConcurrentListConstIterator
 {
 public:
 	using iterator_category = std::bidirectional_iterator_tag;

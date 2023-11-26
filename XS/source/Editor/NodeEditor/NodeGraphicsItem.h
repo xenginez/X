@@ -9,14 +9,14 @@
 #ifndef NODEGRAPHICSITEM_H__9C58B676_3EF5_47A9_A477_0D7FF68996CC
 #define NODEGRAPHICSITEM_H__9C58B676_3EF5_47A9_A477_0D7FF68996CC
 
-#include <QObject>
+#include <QGraphicsItem>
 
-class NodeGraphicsItem : public QObject
+class NodeGraphicsItem : public QGraphicsObject
 {
 	Q_OBJECT
 
 public:
-	NodeGraphicsItem( QObject * parent );
+	NodeGraphicsItem( QGraphicsItem * parent );
 	~NodeGraphicsItem();
 };
 

@@ -20,6 +20,7 @@
 #include "MetaProperty.h"
 #include "MetaFunction.h"
 #include "MetaVariable.h"
+#include "MetaAttribute.h"
 
 #include "CXXMetaEnum.hpp"
 #include "CXXMetaClass.hpp"
@@ -37,6 +38,5 @@
 #include "Object.h"
 #include "Archive.h"
 #include "Reflection.h"
-#include "MetaAttribute.h"
 
 #endif // REFLECT_H__DB8AE6CB_8BEE_4A58_B0E8_02BA454A5BF3

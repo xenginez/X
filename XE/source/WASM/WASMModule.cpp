@@ -1,5 +1,8 @@
 #include "WASMModule.h"
 
+#include "Base/Endian.h"
+#include "Base/Leb128.hpp"
+
 namespace
 {
 	XE::uint64 read_str( const void * buffer, XE::String & str )

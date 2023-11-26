@@ -2,9 +2,9 @@
 
 #include "Utils/RefCount.h"
 
-#include "CoreFramework.h"
-#include "ThreadService.h"
-#include "TimerService.h"
+#include "Core/CoreFramework.h"
+#include "Core/ThreadService.h"
+#include "Core/TimerService.h"
 
 IMPLEMENT_META( XE::PhysicsService );
 

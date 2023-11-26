@@ -1,10 +1,9 @@
 #include "LocalizationService.h"
 
+#include <array>
 #include <fstream>
 
 #include <csv2/csv2.hpp>
-
-#undef CreateWindow
 
 #include "CoreFramework.h"
 

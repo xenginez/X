@@ -11,6 +11,8 @@
 
 #include <iostream>
 
+#include "Base/String.h"
+
 #include "Type.h"
 
 BEG_XE_NAMESPACE

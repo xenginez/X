@@ -9,6 +9,8 @@
 #ifndef GUISERVICE_H__59B6C5BA_686C_4552_889E_194404FDDE5A
 #define GUISERVICE_H__59B6C5BA_686C_4552_889E_194404FDDE5A
 
+#include "Core/Service.h"
+
 #include "Type.h"
 
 BEG_XE_NAMESPACE
@@ -36,10 +38,6 @@ public:
 
 public:
 	XE::Vec2i GetScreenSize() const;
-
-	ImFontAtlas * GetFontAtlas() const;
-
-	ImFont * FindFont( const XE::String & val ) const;
 
 public:
 	XE::CanvasPtr FindCanvas( const XE::String & val );

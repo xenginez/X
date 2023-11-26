@@ -13,7 +13,7 @@
 
 BEG_XE_NAMESPACE
 
-class XE_API Canvas final : public XE::Object
+class XE_API Canvas : public XE::Object
 {
 	OBJECT( Canvas, XE::Object )
 
@@ -42,10 +42,6 @@ public:
 
 	void SetName( const XE::String & val );
 
-	const ImGuiStyle & GetStyle() const;
-
-	void SetStyle( const ImGuiStyle & val );
-
 	const XE::ControllerPtr & GetController() const;
 
 	void SetController( const XE::ControllerPtr & val );
@@ -53,10 +49,6 @@ public:
 	const XE::LayoutPtr & GetLayout() const;
 
 	void SetLayout( const XE::LayoutPtr & val );
-
-	const XE::ImGuiImplPtr & GetImpl() const;
-
-	void SetImpl( const XE::ImGuiImplPtr & val );
 
 public:
 	const XE::Array< XE::WidgetPtr > & GetChildren() const;
@@ -73,13 +65,8 @@ private:
 	XE::Recti _Rect;
 	XE::String _Name;
 	XE::LayoutPtr _Layout;
-	XE::ImGuiImplPtr _Impl;
 	XE::ControllerPtr _Controller;
 	XE::Array< XE::WidgetPtr > _Children;
-
-	ImGuiStyle * _Style = nullptr;
-	ImGuiContext * _Context = nullptr;
-
 	XE::GraphicsRenderPassEncoderPtr _PassEncoder;
 };
 

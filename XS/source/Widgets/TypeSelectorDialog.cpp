@@ -120,6 +120,11 @@ XS::TypeSelectorDialog::~TypeSelectorDialog()
 	delete ui;
 }
 
+XE::MetaID XS::TypeSelectorDialog::GetSelectTypeID() const
+{
+	return XE::MetaID( _MetaType->GetHashCode() );
+}
+
 const XE::MetaTypeCPtr & XS::TypeSelectorDialog::GetSelectType() const
 {
 	return _MetaType;

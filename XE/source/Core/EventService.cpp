@@ -1,5 +1,8 @@
 #include "EventService.h"
 
+#include "Base/ConcurrentList.hpp"
+#include "Base/ConcurrentHashMap.hpp"
+
 BEG_META( XE::EventService )
 END_META()
 

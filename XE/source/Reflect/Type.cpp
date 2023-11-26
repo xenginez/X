@@ -1,5 +1,7 @@
 #include "Type.h"
 
+#include "Base/Format.hpp"
+
 #include "MetaInfo.h"
 #include "Reflection.h"
 
@@ -11,7 +13,7 @@ type->Value( "SHAREDPTR", XE::TypeFlag::SHAREDPTR );
 END_META()
 
 XE::MetaException::MetaException( XE::MetaInfoCPtr Meta, const XE::String & Msg )
-	: XE::RuntimeException( XE::Format( "" ) ), _Meta( Meta ), _Msg( Msg )
+	: XE::RuntimeException( XE::Format( "MetaException: {} {}", Meta->GetFullName(), Msg ) ), _Meta( Meta )
 {
 
 }
@@ -19,11 +21,6 @@ XE::MetaException::MetaException( XE::MetaInfoCPtr Meta, const XE::String & Msg 
 XE::MetaException::~MetaException()
 {
 
-}
-
-char const * XE::MetaException::What() const
-{
-	return ( "MetaException: " + _Meta->GetFullName() + " " + _Msg ).c_str();
 }
 
 XE::MetaInfoCPtr XE::MetaException::GetMetaInfo() const

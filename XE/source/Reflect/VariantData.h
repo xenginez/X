@@ -13,6 +13,7 @@
 #include <functional>
 
 #include "Base/NonCopyable.hpp"
+#include "Memory/AllocatorProxy.hpp"
 
 #include "TypeID.hpp"
 #include "MetaType.h"

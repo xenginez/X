@@ -9,8 +9,13 @@
 #ifndef TYPE_H__A935D3BC_1222_4AE4_97BD_7B25C63E0BFF
 #define TYPE_H__A935D3BC_1222_4AE4_97BD_7B25C63E0BFF
 
+#include <array>
+
+#include "Utils/Buffer.h"
+#include "Utils/Handle.hpp"
+#include "Utils/Concurrent.hpp"
+
 #include "Declare.h"
-#include "Core/Service.h"
 
 BEG_XE_NAMESPACE
 

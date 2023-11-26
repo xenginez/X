@@ -9,7 +9,9 @@
 #ifndef PHYSICSSERVICE_H__ADE17909_C884_4703_AC6A_C27AD29B171E
 #define PHYSICSSERVICE_H__ADE17909_C884_4703_AC6A_C27AD29B171E
 
-#include "Service.h"
+#include "Core/Service.h"
+
+#include "Type.h"
 
 BEG_XE_NAMESPACE
 

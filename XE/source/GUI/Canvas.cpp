@@ -5,36 +5,28 @@
 #include "Widget.h"
 #include "Layout.h"
 #include "GUIService.h"
-#include "imgui_impl.h"
-#include "Controller.h"
 
 BEG_META( XE::Canvas )
 type->Property( "Enable", &XE::Canvas::_Enable );
 type->Property( "Name", &XE::Canvas::_Name );
 type->Property( "Rect", &XE::Canvas::_Rect );
 type->Property( "Model", &XE::Canvas::_Controller );
-type->Property( "Style", &XE::Canvas::GetStyle, &XE::Canvas::SetStyle );
 type->Property( "Layout", &XE::Canvas::_Layout );
 type->Property( "Children", &XE::Canvas::_Children )->Attribute( XE::NonInspectorAttribute() );
 END_META()
 
 XE::Canvas::Canvas()
-	: _Style( XE::New< ImGuiStyle >() )
 {
 
 }
 
 XE::Canvas::~Canvas()
 {
-	XE::Delete( _Style );
+
 }
 
 void XE::Canvas::Startup()
 {
-	_Context = ImGui::CreateContext( XE::CoreFramework::GetCurrentFramework()->GetServiceT< XE::GUIService >()->GetFontAtlas() );
-
-	_Impl->StartupContext( _Context );
-
 	if ( _Layout )
 	{
 		_Layout->Rebuild( _Rect.width, _Rect.height, _Children );
@@ -59,37 +51,7 @@ void XE::Canvas::Update()
 			_Layout->Rebuild( _Rect.width, _Rect.height, _Children );
 		}
 
-		ImGui::SetCurrentContext( _Context );
-		{
-			ImGui::GetStyle() = GetStyle();
-
-			auto & io = ImGui::GetIO();
-			{
-
-			}
-
-			ImGui::NewFrame();
-			{
-				ImGui::SetNextWindowPos( _Rect.GetMin() );
-				ImGui::SetNextWindowSize( _Rect.GetSize() );
-
-				ImGui::Begin( _Name.c_str(), nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoBackground );
-				{
-					for ( const auto & it : _Children )
-					{
-						it->Update();
-						it->Render();
-					}
-				}
-				ImGui::End();
-			}
-			ImGui::Render();
-		}
-		ImGui::SetCurrentContext( nullptr );
-
 		_Dirty = false;
-
-		_Impl->RenderContext( _Context, _PassEncoder );
 	}
 }
 
@@ -100,17 +62,12 @@ void XE::Canvas::Clearup()
 		it->Clearup();
 	}
 
-	_Impl->ClearupContext( _Context );
-	ImGui::DestroyContext( _Context );
-
 	_Children.clear();
 
 	_Controller->Clearup();
 
-	_Context = nullptr;
 	_Layout = nullptr;
 	_Controller = nullptr;
-	_Impl = nullptr;
 	_Dirty = false;
 	_Enable = true;
 }
@@ -123,18 +80,6 @@ bool XE::Canvas::GetEnable() const
 void XE::Canvas::SetEnable( bool val )
 {
 	_Enable = val;
-
-	Rebuild();
-}
-
-const ImGuiStyle & XE::Canvas::GetStyle() const
-{
-	return *_Style;
-}
-
-void XE::Canvas::SetStyle( const ImGuiStyle & val )
-{
-	*_Style = val;
 
 	Rebuild();
 }
@@ -181,16 +126,6 @@ void XE::Canvas::SetLayout( const XE::LayoutPtr & val )
 	_Layout = val;
 
 	Rebuild();
-}
-
-const XE::ImGuiImplPtr & XE::Canvas::GetImpl() const
-{
-	return _Impl;
-}
-
-void XE::Canvas::SetImpl( const XE::ImGuiImplPtr & val )
-{
-	_Impl = val;
 }
 
 const XE::Array< XE::WidgetPtr > & XE::Canvas::GetChildren() const

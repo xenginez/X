@@ -10,6 +10,10 @@
 #define STRING_HPP__2D116B84_5AD0_4FFF_A245_8EC14E092378
 
 #include <regex>
+#include <string>
+#include <chrono>
+#include <sstream>
+#include <filesystem>
 
 #include "Type.h"
 
@@ -2298,11 +2302,11 @@ XE_INLINE XE::String ToString( const std::filesystem::path & _Val )
 	return _Val.string();
 }
 
-XE_INLINE XE::String ToString( const std::chrono::system_clock::time_point & _Val )
+template< typename Clock > XE_INLINE XE::String ToString( const std::chrono::time_point< Clock > & _Val, const char * format = "%Y-%m-%d %X" )
 {
 	std::tm _tm;
 	std::ostringstream _oss;
-	const time_t _tt = std::chrono::system_clock::to_time_t( _Val );
+	const time_t _tt = Clock::to_time_t( _Val );
 
 #if PLATFORM_OS == OS_WINDOWS
 	localtime_s( &_tm, &_tt );
@@ -2310,7 +2314,7 @@ XE_INLINE XE::String ToString( const std::chrono::system_clock::time_point & _Va
 	localtime_r( &_tt, &_tm );
 #endif
 
-	_oss << std::put_time( &_tm, "%Y-%m-%d %X" );
+	_oss << std::put_time( &_tm, format );
 
 	return _oss.str();
 }
@@ -2418,7 +2422,7 @@ XE_INLINE bool FromString( const XE::String & _Str, std::filesystem::path & _Val
 	return true;
 }
 
-XE_INLINE bool FromString( const XE::String & _Str, std::chrono::system_clock::time_point & _Val )
+template< typename Clock > XE_INLINE bool FromString( const XE::String & _Str, std::chrono::time_point< Clock > & _Val )
 {
 	if( _Str.size() == 18 )
 	{
@@ -2431,7 +2435,7 @@ XE_INLINE bool FromString( const XE::String & _Str, std::chrono::system_clock::t
 		_tm.tm_min = std::atoi( reinterpret_cast<const char *>( _Str.substr( 14, 2 ).c_str() ) );
 		_tm.tm_sec = std::atoi( reinterpret_cast<const char *>( _Str.substr( 17, 2 ).c_str() ) );
 
-		_Val = std::chrono::system_clock::from_time_t( std::mktime( &_tm ) );
+		_Val = Clock::from_time_t( std::mktime( &_tm ) );
 
 		return true;
 	}
@@ -2694,7 +2698,6 @@ void swap( XE::BasicString< Encode, Alloc > & str1, XE::BasicString< Encode, All
 {
 	str1.swap( str2 );
 }
-
 
 namespace std
 {

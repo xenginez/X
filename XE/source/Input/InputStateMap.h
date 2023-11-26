@@ -9,8 +9,7 @@
 #ifndef INPUTSTATEMAP_H__B5863FE2_70B8_477B_994A_67E2CAE93A5C
 #define INPUTSTATEMAP_H__B5863FE2_70B8_477B_994A_67E2CAE93A5C
 
-#include "InputState.h"
-#include "InputStateItem.h"
+#include "Type.h"
 
 BEG_XE_NAMESPACE
 

@@ -9,6 +9,17 @@
 #ifndef __TYPE_H__B9857ED9_F6EE_4A0A_8E87_0DAA433A5E40
 #define __TYPE_H__B9857ED9_F6EE_4A0A_8E87_0DAA433A5E40
 
+#include <set>
+#include <map>
+#include <list>
+#include <deque>
+#include <stack>
+#include <queue>
+#include <tuple>
+#include <unordered_set>
+#include <unordered_map>
+#include <memory_resource>
+
 #include "Declare.h"
 
 namespace std
@@ -350,14 +361,12 @@ XE_INLINE constexpr XE::uint64 Hash( const wchar_t * str, XE::uint64 value = 146
 {
 	return *str != 0 ? Hash( ++str, ( value ^ static_cast< XE::uint64 >( *str ) ) * 1099511628211ULL ) : value;
 }
-
 #ifdef __cpp_char8_t
 XE_INLINE constexpr XE::uint64 Hash( const char8_t * str, XE::uint64 value = 14695981039346656037ULL )
 {
 	return *str != 0 ? Hash( ++str, ( value ^ static_cast< XE::uint64 >( *str ) ) * 1099511628211ULL ) : value;
 }
 #endif
-
 template< typename T > XE_INLINE constexpr XE::uint64 Hash( const T & val, XE::uint64 value = 14695981039346656037ULL ) noexcept
 {
 	return XE::Hash( reinterpret_cast<const XE::uint8 *>( &val ), sizeof( T ), value );

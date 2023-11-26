@@ -7,19 +7,14 @@
 #include <d3d12.h>
 #include <windows.h>
 #include <dxgi1_6.h>
-#include <sdkddkver.h>
 #include <d3dcommon.h>
 #include <wrl/client.h>
 #include <d3dcompiler.h>
 
 #include "Utils/Logger.h"
 #include "Utils/Window.h"
-#include "Utils/RefCount.h"
 
 #include "CoreFramework.h"
-#include "EventService.h"
-#include "CacheService.h"
-#include "ThreadService.h"
 
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "d3d12.lib")

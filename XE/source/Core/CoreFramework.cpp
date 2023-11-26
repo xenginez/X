@@ -1,5 +1,6 @@
 #include "CoreFramework.h"
 
+#include <array>
 #include <mutex>
 #include <atomic>
 #include <fstream>
@@ -203,7 +204,7 @@ std::filesystem::path XE::CoreFramework::GetConfigsPath() const
 
 std::filesystem::path XE::CoreFramework::GetApplicationPath() const
 {
-	return std::filesystem::absolute( std::filesystem::current_path() );
+	return std::filesystem::current_path();
 }
 
 XE::uint64 XE::CoreFramework::FindMask( const XE::String & val ) const
