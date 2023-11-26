@@ -1,8 +1,11 @@
 #include "NodeGraphicsScene.h"
 
-NodeGraphicsScene::NodeGraphicsScene(QObject *parent)
-	: QGraphicsScene(parent)
+#include <QVariant>
+
+NodeGraphicsScene::NodeGraphicsScene( QObject * parent )
+	: QGraphicsScene( parent )
 {
+	setSceneRect( QRectF( -SHRT_MAX, -SHRT_MAX, SHRT_MAX, SHRT_MAX ) );
 }
 
 NodeGraphicsScene::~NodeGraphicsScene()

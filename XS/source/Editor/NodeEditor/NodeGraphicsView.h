@@ -19,6 +19,15 @@ public:
 	NodeGraphicsView( QWidget * parent = nullptr );
 	~NodeGraphicsView();
 
+protected:
+	void wheelEvent( QWheelEvent * event ) override;
+	void mousePressEvent( QMouseEvent * event ) override;
+	void mouseMoveEvent( QMouseEvent * event ) override;
+	void mouseReleaseEvent( QMouseEvent * event ) override;
+
+protected:
+	virtual void drawBackground( QPainter * painter, const QRectF & rect );
+	virtual void drawForeground( QPainter * painter, const QRectF & rect );
 };
 
 #endif//NODEGRAPHICSVIEW_H__0BDEDAEB_3D81_4485_87E7_AC940E007D1B
