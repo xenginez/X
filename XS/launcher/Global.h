@@ -9,7 +9,7 @@
 #ifndef GLOBAL_H__86673D3C_5283_4408_A043_A78F04A6ACB3
 #define GLOBAL_H__86673D3C_5283_4408_A043_A78F04A6ACB3
 
-#include <XS/XS.h>
+#include <XS.h>
 
 #include <QList>
 #include <QDialog>

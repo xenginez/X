@@ -18,8 +18,8 @@ FILE(GLOB_RECURSE SOURCE_FILES *.*)
 add_library(XS ${X_LIB_TYPE} ${SOURCE_FILES})
 
 target_compile_definitions(XS PRIVATE -DXS_EXPORT)
-target_link_directories(XS PRIVATE ${CMAKE_SOURCE_DIR}/depends/lib/${X_PLATFORM}/${X_CONFIG} ${X_TARGET_DIR}/lib/${X_CONFIG})
-target_include_directories(XS PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/depends/include ${X_TARGET_DIR}/include)
+target_link_directories(XS PRIVATE ${CMAKE_SOURCE_DIR}/depends/lib/${X_PLATFORM}/${X_CONFIG})
+target_include_directories(XS PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/depends/include ${CMAKE_SOURCE_DIR}/XE/source)
 target_link_libraries(XS PRIVATE XE Qt${QT_VERSION_MAJOR}::Sql Qt${QT_VERSION_MAJOR}::Widgets)
 
 install(TARGETS XS
@@ -33,9 +33,7 @@ set(PUBLIC_HEADER_DIRS Core Widgets)
 foreach(PUBLIC_HEADER_DIR ${PUBLIC_HEADER_DIRS})
 	FILE(GLOB_RECURSE PUBLIC_HEADER_FILES ${PUBLIC_HEADER_DIR}/*.h ${PUBLIC_HEADER_DIR}/*.hpp ${PUBLIC_HEADER_DIR}/*.inc)
     install(FILES ${PUBLIC_HEADER_FILES} DESTINATION include/XS/${PUBLIC_HEADER_DIR})
-    file(COPY ${PUBLIC_HEADER_FILES} DESTINATION ${X_TARGET_DIR}/include/XS/${PUBLIC_HEADER_DIR})
 endforeach(PUBLIC_HEADER_DIR)
 
 install(FILES XS.h DESTINATION include/XS/)
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/XS.h DESTINATION ${X_TARGET_DIR}/include/XS/)
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/../resource DESTINATION ${X_TARGET_DIR}/bin/${X_CONFIG}/)
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../resource DESTINATION bin)

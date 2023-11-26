@@ -10,7 +10,6 @@
 #define XS_H__841996AE_C7A0_4FAA_BE5C_0DA1CD20AB42
 
 #include "Core/Registry.h"
-#include "Core/Inspector.h"
 #include "Core/ObjectProxy.h"
 #include "Core/CoreFramework.h"
 #include "Core/QMetaStaticCall.h"
@@ -22,6 +21,7 @@
 #include "Widgets/MainWindow.h"
 #include "Widgets/WindowProxy.h"
 #include "Widgets/RenderWidget.h"
+#include "Widgets/InspectorWidget.h"
 #include "Widgets/ToolEditorWindow.h"
 #include "Widgets/AssetEditorWindow.h"
 

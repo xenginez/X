@@ -18,8 +18,7 @@ find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets REQUIRED)
 FILE(GLOB_RECURSE SOURCE_FILES *.*)
 add_executable(XStudio ${SOURCE_FILES})
 
-target_include_directories(XStudio PRIVATE ${X_TARGET_DIR}/include)
-target_link_directories(XStudio PRIVATE ${X_TARGET_DIR}/lib/${X_CONFIG})
+target_include_directories(XStudio PRIVATE ${CMAKE_SOURCE_DIR}/XE/source ${CMAKE_SOURCE_DIR}/XS/source)
 target_link_libraries(XStudio PRIVATE XE XS Qt${QT_VERSION_MAJOR}::Widgets)
 
 install(TARGETS XStudio
