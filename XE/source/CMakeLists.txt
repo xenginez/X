@@ -24,13 +24,14 @@ install(TARGETS XE
         ARCHIVE DESTINATION lib
         )
 
-set(PUBLIC_HEADER_DIRS Audio Base Core GUI Input Math Memory Network Physics Reflect Render Scene Utils WASM)
-foreach(PUBLIC_HEADER_DIR ${PUBLIC_HEADER_DIRS})
-	FILE(GLOB_RECURSE PUBLIC_HEADER_FILES ${PUBLIC_HEADER_DIR}/*.h ${PUBLIC_HEADER_DIR}/*.hpp ${PUBLIC_HEADER_DIR}/*.inc)
-	install(FILES ${PUBLIC_HEADER_FILES} DESTINATION include/XE/${PUBLIC_HEADER_DIR}/)
-endforeach(PUBLIC_HEADER_DIR)
-
-install(FILES XE.h DESTINATION include/XE/)
-
 FILE(GLOB_RECURSE DEPEND_LIBS ${CMAKE_SOURCE_DIR}/depends/bin/${X_PLATFORM}/${X_CONFIG}/*.*)
 install(FILES ${DEPEND_LIBS} DESTINATION bin)
+
+if(${X_CONFIG} MATCHES "release")
+    set(PUBLIC_HEADER_DIRS Audio Base Core GUI Input Math Memory Network Physics Reflect Render Scene Utils WASM)
+    foreach(PUBLIC_HEADER_DIR ${PUBLIC_HEADER_DIRS})
+	    FILE(GLOB_RECURSE PUBLIC_HEADER_FILES ${PUBLIC_HEADER_DIR}/*.h ${PUBLIC_HEADER_DIR}/*.hpp ${PUBLIC_HEADER_DIR}/*.inc)
+	    install(FILES ${PUBLIC_HEADER_FILES} DESTINATION include/XE/${PUBLIC_HEADER_DIR}/)
+    endforeach(PUBLIC_HEADER_DIR)
+    install(FILES XE.h DESTINATION include/XE/)
+endif()

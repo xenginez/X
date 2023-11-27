@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>NodeEditor</class>
- <widget class="QWidget" name="NodeEditor">
+ <class>NodeGraphicsEditor</class>
+ <widget class="QWidget" name="NodeGraphicsEditor">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Node</string>
+   <string>NodeGraphics</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <property name="spacing">
@@ -101,7 +101,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QTabWidget" name="view_tab"/>
+    <widget class="QTabWidget" name="graphics_tab"/>
    </item>
   </layout>
  </widget>

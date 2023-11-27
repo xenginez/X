@@ -34,6 +34,8 @@ public:
 
 	void polish( QApplication * app ) override;
 
+	void drawControl( ControlElement element, const QStyleOption * option, QPainter * painter, const QWidget * widget = nullptr ) const override;
+
 private:
 	QStyle * styleBase( QStyle * style = Q_NULLPTR ) const;
 

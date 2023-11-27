@@ -1,10 +1,15 @@
 #include "Skin.h"
 
+#include <QPen>
 #include <QDir>
 #include <QFile>
 #include <QDebug>
+#include <QTabBar>
+#include <QPainter>
+#include <QTextOption>
 #include <QApplication>
 #include <QStyleFactory>
+#include <QStyleOptionTab>
 
 XS::Skin::Skin()
 	:QProxyStyle( styleBase() )
@@ -151,6 +156,39 @@ void XS::Skin::polish( QApplication * app )
 	app->setFont( defaultFont );
 
 	app->setStyleSheet( _QSS );
+}
+
+void XS::Skin::drawControl( ControlElement element, const QStyleOption * option, QPainter * painter, const QWidget * widget ) const
+{
+	if ( element == QStyle::CE_TabBarTabLabel )
+	{
+		if ( const QStyleOptionTab * tab = qstyleoption_cast<const QStyleOptionTab *>( option ) )
+		{
+			if ( tab->shape == QTabBar::Shape::RoundedWest || tab->shape == QTabBar::Shape::RoundedEast ||
+				 tab->shape == QTabBar::Shape::TriangularWest || tab->shape == QTabBar::Shape::TriangularEast )
+			{
+				QString tabText;
+				for ( int i = 0; i < tab->text.length(); i++ )
+				{
+					tabText.append( tab->text.at( i ) );
+					tabText.append( '\n' );
+				}
+				if ( tabText.length() > 1 )
+					tabText = tabText.mid( 0, tabText.length() - 1 );
+
+				QTextOption option;
+				option.setAlignment( Qt::AlignCenter );
+				QPen pen = painter->pen();
+				pen.setColor( tab->palette.color( QPalette::WindowText ) );
+				painter->setPen( pen );
+				painter->drawText( tab->rect, tabText, option );
+			}
+		}
+	}
+	else
+	{
+		QProxyStyle::drawControl( element, option, painter, widget );
+	}
 }
 
 QStyle * XS::Skin::styleBase( QStyle * style /*= Q_NULLPTR */ ) const

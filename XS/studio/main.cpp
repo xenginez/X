@@ -17,7 +17,6 @@ int main( int argc, char * argv[] )
 	}
 
 	QApplication a( argc, argv );
-
 	a.setStyle( new XS::Skin( QApplication::applicationDirPath() + "/resource/qss/darkstyle.qss" ) );
 
 	XS::CoreFramework framework;

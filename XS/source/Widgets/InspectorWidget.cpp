@@ -5,8 +5,16 @@
 
 namespace
 {
-	QMap< XE::String, QString > _TemplateRegisters = {};
-	QMap< XE::MetaTypeCPtr, QString > _Registers = {};
+	QMap< XE::String, QString > & _TemplateRegisters()
+	{
+		static QMap< XE::String, QString > map;
+		return map;
+	}
+	QMap< XE::MetaTypeCPtr, QString > & _Registers()
+	{
+		static QMap< XE::MetaTypeCPtr, QString > map;
+		return map;
+	}
 }
 
 XS::InspectorWidget::InspectorWidget( QWidget * parent /*= nullptr*/ )
@@ -25,12 +33,12 @@ XS::InspectorWidget::~InspectorWidget()
 
 void XS::InspectorWidget::Register( const XE::String & tname, const QString & name )
 {
-	_TemplateRegisters.insert( tname, name );
+	_TemplateRegisters().insert(tname, name);
 }
 
 void XS::InspectorWidget::Register( const XE::MetaTypeCPtr & type, const QString & name )
 {
-	_Registers.insert( type, name );
+	_Registers().insert(type, name);
 }
 
 XS::InspectorWidget * XS::InspectorWidget::Create( XS::ObjectProxy * proxy, QWidget * parent /*= nullptr */ )
@@ -44,8 +52,8 @@ XS::InspectorWidget * XS::InspectorWidget::Create( XS::ObjectProxy * proxy, QWid
 	}
 	else
 	{
-		auto it = _Registers.find( type );
-		if ( it != _Registers.end() )
+		auto it = _Registers().find(type);
+		if ( it != _Registers().end() )
 		{
 			result = XS::Registry::ConstructT< XS::InspectorWidget >( it.value(), parent );
 		}
@@ -69,8 +77,8 @@ XS::InspectorWidget * XS::InspectorWidget::Create( XS::ObjectProxy * proxy, QWid
 			else if ( cls->IsTemplate() )
 			{
 				auto name = cls->GetFullName().substr( 0, cls->GetFullName().find( "<" ) );
-				auto it = _TemplateRegisters.find( name );
-				if ( it != _TemplateRegisters.end() )
+				auto it = _TemplateRegisters().find(name);
+				if ( it != _TemplateRegisters().end() )
 				{
 					result = XS::Registry::ConstructT< XS::InspectorWidget >( it.value(), parent );
 				}

@@ -25,7 +25,7 @@
       </property>
       <layout class="QVBoxLayout" name="inspector_layout"/>
      </widget>
-     <widget class="NodeGraphicsView" name="view">
+     <widget class="XS::NodeGraphicsView" name="view">
       <property name="frameShape">
        <enum>QFrame::StyledPanel</enum>
       </property>
@@ -39,7 +39,7 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>NodeGraphicsView</class>
+   <class>XS::NodeGraphicsView</class>
    <extends>QFrame</extends>
    <header>NodeGraphicsView.h</header>
    <container>1</container>

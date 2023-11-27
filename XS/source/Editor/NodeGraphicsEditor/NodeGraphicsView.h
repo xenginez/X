@@ -11,6 +11,10 @@
 
 #include <QGraphicsView>
 
+#include "Global.h"
+
+BEG_XS_NAMESPACE
+
 class NodeGraphicsView : public QGraphicsView
 {
 	Q_OBJECT
@@ -29,5 +33,7 @@ protected:
 	virtual void drawBackground( QPainter * painter, const QRectF & rect );
 	virtual void drawForeground( QPainter * painter, const QRectF & rect );
 };
+
+END_XS_NAMESPACE
 
 #endif//NODEGRAPHICSVIEW_H__0BDEDAEB_3D81_4485_87E7_AC940E007D1B

@@ -11,6 +11,10 @@
 
 #include "Global.h"
 
+UI_DECL( NodeGraphicsWidget );
+
+BEG_XS_NAMESPACE
+
 class XS_API NodeGraphicsWidget : public QWidget
 {
 	Q_OBJECT
@@ -22,6 +26,10 @@ public:
 
 public:
 
+private:
+	Ui::NodeGraphicsWidget * ui;
 };
+
+END_XS_NAMESPACE
 
 #endif//NODEGRAPHICSWIDGET_H__B51CF07A_C9E8_4D9E_B53B_CE8B14A5565F
