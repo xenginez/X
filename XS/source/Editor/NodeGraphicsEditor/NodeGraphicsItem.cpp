@@ -1,11 +1,14 @@
 #include "NodeGraphicsItem.h"
 
+#include <QPainter>
 #include <QGraphicsSceneEvent>
 
 NodeGraphicsItem::NodeGraphicsItem( QGraphicsItem * parent )
 	: QGraphicsObject( parent )
 {
+	setAcceptHoverEvents( true );
 	setFlag( ItemIsMovable, true );
+	setFlag( ItemIsFocusable, true );
 	setFlag( ItemIsSelectable, true );
 	setFlag( ItemAcceptsInputMethod, true );
 	setFlag( ItemContainsChildrenInShape, true );
@@ -18,7 +21,7 @@ NodeGraphicsItem::~NodeGraphicsItem()
 
 bool NodeGraphicsItem::isHovered() const
 {
-	return property( "isHovered" ).toBool();
+	return _isHovered;
 }
 
 QRectF NodeGraphicsItem::boundingRect() const
@@ -39,23 +42,22 @@ void NodeGraphicsItem::paint( QPainter * painter, const QStyleOptionGraphicsItem
 
 	rect = rect.marginsRemoved( QMargins( 5, 5, 5, 5 ) );
 
-	drawBackground( painter, rect );
-	drawTitleBar( painter, QRectF( rect.left() + 5, rect.top() + 5, rect.width() - 5, 20 ) );
-	drawContext(painter, QRectF( rect.left() + 5, rect.top() + 25, rect.width() - 5, rect.height() - 5 ) );
+	drawTitleBar( painter, QRectF( rect.left(), rect.top(), rect.width(), 20 ) );
+	drawContextBody(painter, QRectF( rect.left(), rect.top() + 20, rect.width(), rect.height() - 20 ) );
 }
 
 void NodeGraphicsItem::hoverEnterEvent( QGraphicsSceneHoverEvent * event )
 {
 	QGraphicsObject::hoverEnterEvent( event );
 
-	setProperty( "isHovered", true );
+	_isHovered = true;
 }
 
 void NodeGraphicsItem::hoverLeaveEvent( QGraphicsSceneHoverEvent * event )
 {
 	QGraphicsObject::hoverLeaveEvent( event );
 
-	setProperty( "isHovered", false );
+	_isHovered = false;
 }
 
 void NodeGraphicsItem::mousePressEvent( QGraphicsSceneMouseEvent * event )
@@ -86,19 +88,52 @@ QMenu * NodeGraphicsItem::contextMenu() const
 {
 	QMenu * menu = new QMenu;
 	{
+		menu->addAction( tr( "delete" ), []()
+		{
 
+		} );
+		menu->addSeparator();
 	}
 	return menu;
 }
 
+QRectF NodeGraphicsItem::contextRect() const
+{
+	return QRectF( 0, 0, 100, 100 );
+}
+
 void NodeGraphicsItem::drawBorder( QPainter * painter, const QRectF & rect )
 {
+	painter->save();
+
+	if( isSelected() )
+		painter->setPen( QPen( Qt::yellow, 3 ) );
+	else
+		painter->setPen( QPen( Qt::yellow, 3, Qt::PenStyle::DashDotDotLine ) );
+
+	QPainterPath path;
+	path.moveTo( rect.topLeft() );
+	path.lineTo( rect.topRight() );
+	path.lineTo( rect.bottomRight() );
+	path.lineTo( rect.bottomLeft() );
+	path.lineTo( rect.topLeft() );
+	painter->drawPath( path );
+
+	painter->restore();
 }
 
 void NodeGraphicsItem::drawTitleBar( QPainter * painter, const QRectF & rect )
 {
+
 }
 
-void NodeGraphicsItem::drawBackground( QPainter * painter, const QRectF & rect )
+void NodeGraphicsItem::drawContextBody( QPainter * painter, const QRectF & rect )
 {
+	painter->save();
+
+	painter->setBrush( QBrush( Qt::white ) );
+
+	painter->drawRect( rect );
+
+	painter->restore();
 }

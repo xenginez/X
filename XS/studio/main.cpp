@@ -17,9 +17,11 @@ int main( int argc, char * argv[] )
 	}
 
 	QApplication a( argc, argv );
-	a.setStyle( new XS::Skin( QApplication::applicationDirPath() + "/resource/qss/darkstyle.qss" ) );
-
 	XS::CoreFramework framework;
+
+	auto skin = new XS::Skin( QApplication::applicationDirPath() + "/resource/qss/darkstyle.qss" );
+	a.setStyle( skin );
+
 	XStudio::MainWindow window( project );
 
 	framework.Exec( XE::MakeShared< XS::WindowProxy >( &window ), project );

@@ -32,6 +32,10 @@ protected:
 protected:
 	virtual void drawBackground( QPainter * painter, const QRectF & rect );
 	virtual void drawForeground( QPainter * painter, const QRectF & rect );
+
+private:
+	bool _isMove = false;
+	QPointF _centerPos, _movePos;
 };
 
 END_XS_NAMESPACE

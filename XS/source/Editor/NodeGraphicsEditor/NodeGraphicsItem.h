@@ -17,7 +17,7 @@ class NodeGraphicsItem : public QGraphicsObject
 	Q_OBJECT
 
 public:
-	NodeGraphicsItem( QGraphicsItem * parent );
+	NodeGraphicsItem( QGraphicsItem * parent = nullptr );
 	~NodeGraphicsItem();
 
 public:
@@ -37,13 +37,13 @@ protected:
 
 protected:
 	virtual QMenu * contextMenu() const;
-	virtual QRectF contextRect() const = 0;
-	virtual void drawContext( QPainter * painter, const QRectF & rect ) = 0;
+	virtual QRectF contextRect() const;
+	virtual void drawBorder( QPainter * painter, const QRectF & rect );
+	virtual void drawTitleBar( QPainter * painter, const QRectF & rect );
+	virtual void drawContextBody( QPainter * painter, const QRectF & rect );
 
 private:
-	void drawBorder( QPainter * painter, const QRectF & rect );
-	void drawTitleBar( QPainter * painter, const QRectF & rect );
-	void drawBackground( QPainter * painter, const QRectF & rect );
+	bool _isHovered = false;
 };
 
 #endif//NODEGRAPHICSITEM_H__9C58B676_3EF5_47A9_A477_0D7FF68996CC

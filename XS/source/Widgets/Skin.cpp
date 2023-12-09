@@ -6,6 +6,7 @@
 #include <QDebug>
 #include <QTabBar>
 #include <QPainter>
+#include <QDockWidget>
 #include <QTextOption>
 #include <QApplication>
 #include <QStyleFactory>
@@ -151,11 +152,24 @@ void XS::Skin::polish( QApplication * app )
 {
 	if ( !app ) return;
 
-	QFont defaultFont = QApplication::font();
-	defaultFont.setPointSize( defaultFont.pointSize() + 1 );
-	app->setFont( defaultFont );
-
 	app->setStyleSheet( _QSS );
+}
+
+QSize XS::Skin::sizeFromContents( ContentsType type, const QStyleOption * option, const QSize & size, const QWidget * widget ) const
+{
+	if ( type == QStyle::CT_TabBarTab )
+	{
+		if ( const QStyleOptionTab * tab = qstyleoption_cast<const QStyleOptionTab *>( option ) )
+		{
+			if ( tab->shape == QTabBar::Shape::RoundedWest || tab->shape == QTabBar::Shape::RoundedEast ||
+				 tab->shape == QTabBar::Shape::TriangularWest || tab->shape == QTabBar::Shape::TriangularEast )
+			{
+
+			}
+		}
+	}
+
+	return QProxyStyle::sizeFromContents( type, option, size, widget );
 }
 
 void XS::Skin::drawControl( ControlElement element, const QStyleOption * option, QPainter * painter, const QWidget * widget ) const
@@ -167,28 +181,35 @@ void XS::Skin::drawControl( ControlElement element, const QStyleOption * option,
 			if ( tab->shape == QTabBar::Shape::RoundedWest || tab->shape == QTabBar::Shape::RoundedEast ||
 				 tab->shape == QTabBar::Shape::TriangularWest || tab->shape == QTabBar::Shape::TriangularEast )
 			{
-				QString tabText;
-				for ( int i = 0; i < tab->text.length(); i++ )
+				painter->save();
 				{
-					tabText.append( tab->text.at( i ) );
-					tabText.append( '\n' );
-				}
-				if ( tabText.length() > 1 )
-					tabText = tabText.mid( 0, tabText.length() - 1 );
+					QString text;
+					for ( auto it : tab->text )
+					{
+						text.push_back( it );
+						text.push_back( '\n' );
+					}
+					text.remove( text.size() - 1, 1 );
 
-				QTextOption option;
-				option.setAlignment( Qt::AlignCenter );
-				QPen pen = painter->pen();
-				pen.setColor( tab->palette.color( QPalette::WindowText ) );
-				painter->setPen( pen );
-				painter->drawText( tab->rect, tabText, option );
+					int alignment = Qt::AlignCenter | Qt::TextShowMnemonic;
+					if ( !proxy()->styleHint( SH_UnderlineShortcut, option, widget ) )
+						alignment |= Qt::TextHideMnemonic;
+
+					proxy()->drawItemText( painter, tab->rect, alignment, tab->palette, tab->state & State_Enabled, text, QPalette::WindowText );
+				}
+				painter->restore();
+
+				return;
 			}
 		}
 	}
-	else
-	{
-		QProxyStyle::drawControl( element, option, painter, widget );
-	}
+
+	QProxyStyle::drawControl( element, option, painter, widget );
+}
+
+void XS::Skin::drawPrimitive( PrimitiveElement element, const QStyleOption * option, QPainter * painter, const QWidget * widget ) const
+{
+	QProxyStyle::drawPrimitive( element, option, painter, widget );
 }
 
 QStyle * XS::Skin::styleBase( QStyle * style /*= Q_NULLPTR */ ) const
