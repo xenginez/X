@@ -16,6 +16,10 @@ int main( int argc, char * argv[] )
 		project = argv[1];
 	}
 
+	qputenv( "QT_SCALE_FACTOR", QString::number( XE::Platform::GetDpiFactor() ).toUtf8() );
+	QApplication::setAttribute( Qt::AA_EnableHighDpiScaling );
+
+
 	QApplication a( argc, argv );
 	XS::CoreFramework framework;
 

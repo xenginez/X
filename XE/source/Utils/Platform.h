@@ -30,9 +30,12 @@ public:
 	static Language GetDefaultLanguage();
 
 public:
+	static XE::float32 GetDpiFactor();
+
 	static XE::int32 GetSrceenWidth();
 
 	static XE::int32 GetSrceenHeight();
+
 };
 
 END_XE_NAMESPACE

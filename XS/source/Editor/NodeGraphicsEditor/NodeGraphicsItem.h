@@ -10,7 +10,9 @@
 #define NODEGRAPHICSITEM_H__9C58B676_3EF5_47A9_A477_0D7FF68996CC
 
 #include <QMenu>
+#include <QTextDocument>
 #include <QGraphicsItem>
+#include <QGraphicsView>
 
 class NodeGraphicsItem : public QGraphicsObject
 {
@@ -22,27 +24,41 @@ public:
 
 public:
 	bool isHovered() const;
+	QGraphicsView * view() const;
 
 public:
 	QRectF boundingRect() const override;
 	void paint( QPainter * painter, const QStyleOptionGraphicsItem * option, QWidget * widget = nullptr ) override;
 
 protected:
+	void keyPressEvent( QKeyEvent * event ) override;
+	void keyReleaseEvent( QKeyEvent * event ) override;
+	void focusOutEvent( QFocusEvent * event ) override;
 	void hoverEnterEvent( QGraphicsSceneHoverEvent * event ) override;
 	void hoverLeaveEvent( QGraphicsSceneHoverEvent * event ) override;
 	void mousePressEvent( QGraphicsSceneMouseEvent * event ) override;
 	void mouseMoveEvent( QGraphicsSceneMouseEvent * event ) override;
 	void mouseReleaseEvent( QGraphicsSceneMouseEvent * event ) override;
+	void mouseDoubleClickEvent( QGraphicsSceneMouseEvent * event ) override;
 	void contextMenuEvent( QGraphicsSceneContextMenuEvent * event ) override;
 
+	void inputMethodEvent( QInputMethodEvent * event ) override;
+	QVariant inputMethodQuery( Qt::InputMethodQuery query ) const override;
+
 protected:
-	virtual QMenu * contextMenu() const;
 	virtual QRectF contextRect() const;
+	virtual QMenu * contextMenu() const;
+
+protected:
 	virtual void drawBorder( QPainter * painter, const QRectF & rect );
 	virtual void drawTitleBar( QPainter * painter, const QRectF & rect );
 	virtual void drawContextBody( QPainter * painter, const QRectF & rect );
 
 private:
+	QPointF _pos, _movePos;
+	QTextDocument _document;
+	bool _titleEdit = false;
+	bool _isMoveed = false;
 	bool _isHovered = false;
 };
 

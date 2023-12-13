@@ -7,6 +7,9 @@
 
 int main( int argc, char * argv[] )
 {
+	qputenv( "QT_SCALE_FACTOR", QString::number( XE::Platform::GetDpiFactor() ).toUtf8() );
+	QApplication::setAttribute( Qt::AA_EnableHighDpiScaling );
+
 	QApplication a( argc, argv );
 
 	QApplication::setStyle( new XS::Skin( QApplication::applicationDirPath() + "/resource/qss/darkstyle.qss" ) );

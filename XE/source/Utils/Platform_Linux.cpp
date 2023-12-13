@@ -7,4 +7,9 @@ XE::Language XE::Platform::GetDefaultLanguage()
 	return Language::ENGLISH;
 }
 
+XE::float32 XE::Platform::GetDpiFactor()
+{
+	return 1.0f;
+}
+
 #endif

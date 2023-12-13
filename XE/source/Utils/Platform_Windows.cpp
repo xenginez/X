@@ -154,6 +154,17 @@ XE::Language XE::Platform::GetDefaultLanguage()
 	}
 }
 
+XE::float32 XE::Platform::GetDpiFactor()
+{
+	HDC desktopDc = GetDC( NULL );
+	float horizontal_dpi = GetDeviceCaps( desktopDc, LOGPIXELSX );
+	float vrtical_dpi = GetDeviceCaps( desktopDc, LOGPIXELSY );
+	ReleaseDC( NULL, desktopDc );
+
+	int hv_dpi = ( horizontal_dpi + vrtical_dpi ) / 2;
+	return static_cast<XE::float32>( hv_dpi ) / 96.0f;
+}
+
 XE::int32 XE::Platform::GetSrceenWidth()
 {
 	::RECT rect;

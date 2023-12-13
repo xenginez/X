@@ -152,6 +152,16 @@ XE::Language XE::Platform::GetDefaultLanguage()
 	return Language::ENGLISH;
 }
 
+XE::float32 XE::Platform::GetDpiFactor()
+{
+	return 1.0f;
+
+	// return [[NSScreen mainScreen] userSpaceScaleFactor];
+	// NSScreen *screen = [NSScreen mainScreen];
+	// CGFloat scaleFactor = [screen backingScaleFactor]; // 缩放分辨率
+	// CGFloat userSpaceScaleFactor = [screen userSpaceScaleFactor]; // 比例系数
+}
+
 XE::int32 XE::Platform::GetSrceenWidth()
 {
 	return [[[NSScreen mainScreen] frame] width];
