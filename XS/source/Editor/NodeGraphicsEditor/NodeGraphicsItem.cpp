@@ -1,16 +1,18 @@
 #include "NodeGraphicsItem.h"
 
 #include <QDebug>
+#include <QTimer>
 #include <QPainter>
 #include <QKeyEvent>
-#include <QTextCursor>
+#include <QClipboard>
+#include <QApplication>
 #include <QGraphicsScene>
 #include <QGraphicsSceneEvent>
 
 #define TITLE_HEIGHT 20
 
 NodeGraphicsItem::NodeGraphicsItem( QGraphicsItem * parent )
-	: QGraphicsObject( parent ), _document( "aaaaaaaa", this)
+	: QGraphicsObject( parent ), _timer( this ), _document( "aaaaaaaa", this )
 {
 	setAcceptHoverEvents( true );
 	setFlag( ItemIsFocusable, true );
@@ -18,6 +20,13 @@ NodeGraphicsItem::NodeGraphicsItem( QGraphicsItem * parent )
 	setFlag( ItemAcceptsInputMethod, true );
 	setFlag( ItemContainsChildrenInShape, true );
 	setCacheMode( ItemCoordinateCache );
+
+	_cursor = QTextCursor( &_document );
+	connect( &_timer, &QTimer::timeout, [this]()
+	{
+		_cursorShow = !_cursorShow;
+		update();
+	} );
 }
 
 NodeGraphicsItem::~NodeGraphicsItem()
@@ -58,24 +67,140 @@ void NodeGraphicsItem::paint( QPainter * painter, const QStyleOptionGraphicsItem
 
 void NodeGraphicsItem::keyPressEvent( QKeyEvent * event )
 {
-	QGraphicsObject::keyPressEvent( event );
+	if ( _titleEdit && ( event->modifiers() & Qt::AltModifier ) == 0 )
+	{
+		if ( event->modifiers() == Qt::ControlModifier )
+		{
+			if ( event->key() == Qt::Key_A )
+			{
+				_cursor.movePosition( QTextCursor::Start );
+				_cursor.movePosition( QTextCursor::End, QTextCursor::KeepAnchor );
+
+				QTextCharFormat fmt = _cursor.charFormat();
+				fmt.setForeground( QColor( view()->palette().color( QPalette::ColorRole::WindowText ) ) );
+				fmt.setBackground( QColor( view()->palette().color( QPalette::ColorRole::Highlight ) ) );
+				_cursor.setCharFormat( fmt );
+			}
+			else if ( event->key() == Qt::Key_C )
+			{
+				if ( _cursor.hasSelection() )
+				{
+					qApp->clipboard()->setText( _cursor.selectedText() );
+				}
+			}
+			else if ( event->key() == Qt::Key_V )
+			{
+				if ( _cursor.hasSelection() )
+				{
+					_cursor.removeSelectedText();
+				}
+
+				_cursor.insertText( qApp->clipboard()->text() );
+			}
+		}
+		else
+		{
+			if ( event->key() >= Qt::Key_Space && event->key() <= Qt::Key_AsciiTilde )
+			{
+				if ( _cursor.hasSelection() )
+				{
+					_cursor.removeSelectedText();
+				}
+
+				_cursor.insertText( event->text() );
+			}
+			else if ( event->key() == Qt::Key_Left )
+			{
+				if ( _cursor.hasSelection() )
+				{
+					QTextCharFormat fmt = _cursor.charFormat();
+					fmt.setForeground( QColor( view()->palette().color( QPalette::ColorRole::WindowText ) ) );
+					fmt.setBackground( titleBarBrush() );
+					_cursor.setCharFormat( fmt );
+
+					_cursor.clearSelection();
+				}
+				_cursor.setPosition( _cursor.position() - 1 );
+			}
+			else if ( event->key() == Qt::Key_Right )
+			{
+				if ( _cursor.hasSelection() )
+				{
+					QTextCharFormat fmt = _cursor.charFormat();
+					fmt.setForeground( QColor( view()->palette().color( QPalette::ColorRole::WindowText ) ) );
+					fmt.setBackground( titleBarBrush() );
+					_cursor.setCharFormat( fmt );
+
+					_cursor.clearSelection();
+				}
+				_cursor.setPosition( _cursor.position() + 1 );
+			}
+			else if ( event->key() == Qt::Key_Home )
+			{
+				if ( _cursor.hasSelection() )
+				{
+					QTextCharFormat fmt = _cursor.charFormat();
+					fmt.setForeground( QColor( view()->palette().color( QPalette::ColorRole::WindowText ) ) );
+					fmt.setBackground( titleBarBrush() );
+					_cursor.setCharFormat( fmt );
+
+					_cursor.clearSelection();
+				}
+				_cursor.movePosition( QTextCursor::Start );
+			}
+			else if ( event->key() == Qt::Key_End )
+			{
+				if ( _cursor.hasSelection() )
+				{
+					QTextCharFormat fmt = _cursor.charFormat();
+					fmt.setForeground( QColor( view()->palette().color( QPalette::ColorRole::WindowText ) ) );
+					fmt.setBackground( titleBarBrush() );
+					_cursor.setCharFormat( fmt );
+
+					_cursor.clearSelection();
+				}
+				_cursor.movePosition( QTextCursor::End );
+			}
+			else
+			{
+				qDebug() << event->text() << ":" << event->key();
+			}
+		}
+
+		update();
+	}
+	else
+	{
+		QGraphicsObject::keyPressEvent( event );
+	}
 }
 
 void NodeGraphicsItem::keyReleaseEvent( QKeyEvent * event )
 {
-	if ( _titleEdit && event->key() == Qt::Key_Enter )
+	if ( _titleEdit )
 	{
-		_titleEdit = false;
-	}
+		if ( event->key() == Qt::Key_Return )
+		{
+			_cursorShow = false;
+			_titleEdit = false;
+			_timer.stop();
+		}
 
-	QGraphicsObject::keyReleaseEvent( event );
+		update();
+	}
+	else
+	{
+		QGraphicsObject::keyReleaseEvent( event );
+	}
 }
 
 void NodeGraphicsItem::focusOutEvent( QFocusEvent * event )
 {
 	QGraphicsObject::focusOutEvent( event );
 
+	_cursorShow = false;
 	_titleEdit = false;
+	_timer.stop();
 }
 
 void NodeGraphicsItem::hoverEnterEvent( QGraphicsSceneHoverEvent * event )
@@ -96,13 +221,16 @@ void NodeGraphicsItem::mousePressEvent( QGraphicsSceneMouseEvent * event )
 {
 	QGraphicsObject::mousePressEvent( event );
 
-	auto rect = boundingRect();
-	QRectF title_rect( 5, 5, rect.width() - 5, TITLE_HEIGHT );
-	if ( title_rect.contains( event->pos() ) )
+	if ( event->buttons() == Qt::LeftButton )
 	{
-		_isMoveed = true;
-		_pos = pos();
-		_movePos = mapToScene( event->pos() );
+		auto rect = boundingRect();
+		QRectF title_rect( 5, 5, rect.width() - 5, TITLE_HEIGHT );
+		if ( title_rect.contains( event->pos() ) )
+		{
+			_isMoveed = true;
+			_pos = pos();
+			_movePos = mapToScene( event->pos() );
+		}
 	}
 }
 
@@ -131,16 +259,17 @@ void NodeGraphicsItem::mouseDoubleClickEvent( QGraphicsSceneMouseEvent * event )
 
 	if ( title_rect.contains( event->pos() ) )
 	{
-		QTextCursor cursor( &_document );
-		cursor.movePosition( QTextCursor::Start );
-		cursor.movePosition( QTextCursor::End, QTextCursor::KeepAnchor );
-		cursor.select( QTextCursor::BlockUnderCursor );
-		QTextCharFormat fmt;
-		fmt.setForeground( QColor( Qt::white ) );
-		fmt.setBackground( QColor( Qt::blue ) );
-		cursor.mergeCharFormat( fmt );
+		_cursor.movePosition( QTextCursor::Start );
+		_cursor.movePosition( QTextCursor::End, QTextCursor::KeepAnchor );
+
+		QTextCharFormat fmt = _cursor.charFormat();
+		fmt.setForeground( QColor( view()->palette().color( QPalette::ColorRole::WindowText ) ) );
+		fmt.setBackground( QColor( view()->palette().color( QPalette::ColorRole::Highlight ) ) );
+		_cursor.setCharFormat( fmt );
 
 		_titleEdit = true;
+		_cursorShow = true;
+		_timer.start( 500 );
 
 		update();
 	}
@@ -258,6 +387,11 @@ QVariant NodeGraphicsItem::inputMethodQuery( Qt::InputMethodQuery query ) const
 	return QGraphicsObject::inputMethodQuery( query );
 }
 
+QBrush NodeGraphicsItem::titleBarBrush() const
+{
+	return QBrush( Qt::black );
+}
+
 QMenu * NodeGraphicsItem::contextMenu() const
 {
 	QMenu * menu = new QMenu;
@@ -300,18 +434,25 @@ void NodeGraphicsItem::drawTitleBar( QPainter * painter, const QRectF & rect )
 {
 	painter->save();
 
-	painter->setBrush( QBrush( Qt::black ) );
+	painter->setBrush( titleBarBrush() );
 	painter->drawRect( rect );
 
-	painter->setPen( QPen( Qt::white, 1 ) );
+	painter->setPen( QPen( view()->palette().color( QPalette::ColorRole::WindowText ), 1 ) );
+	QFontMetrics metrics( painter->font() );
 	auto text_rect = rect.marginsRemoved( QMarginsF( 5, 0, 0, 0 ) );
 	if ( _titleEdit )
 	{
 		_document.drawContents( painter, text_rect );
+		if ( _cursorShow )
+		{
+			auto s = _document.toPlainText();
+			auto i = _cursor.position();
+			int x = metrics.width( _document.toPlainText(), _cursor.position() );
+			painter->drawLine( QPoint( text_rect.left() + x, text_rect.top() + 1 ), QPoint( text_rect.left() + x, text_rect.bottom() - 1 ) );
+		}
 	}
 	else
 	{
-		QFontMetrics metrics( painter->font() );
 		QString elidedText = metrics.elidedText( _document.toPlainText(), Qt::ElideRight, text_rect.width() );
 		painter->drawText( text_rect, elidedText, QTextOption( Qt::AlignLeft | Qt::AlignVCenter ) );
 	}

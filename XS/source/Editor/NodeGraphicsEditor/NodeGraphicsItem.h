@@ -10,6 +10,8 @@
 #define NODEGRAPHICSITEM_H__9C58B676_3EF5_47A9_A477_0D7FF68996CC
 
 #include <QMenu>
+#include <QTimer>
+#include <QTextCursor>
 #include <QTextDocument>
 #include <QGraphicsItem>
 #include <QGraphicsView>
@@ -45,6 +47,9 @@ protected:
 	void inputMethodEvent( QInputMethodEvent * event ) override;
 	QVariant inputMethodQuery( Qt::InputMethodQuery query ) const override;
 
+public:
+	QBrush titleBarBrush() const;
+
 protected:
 	virtual QRectF contextRect() const;
 	virtual QMenu * contextMenu() const;
@@ -55,8 +60,12 @@ protected:
 	virtual void drawContextBody( QPainter * painter, const QRectF & rect );
 
 private:
-	QPointF _pos, _movePos;
+	QPointF _pos;
+	QPointF _movePos;
+	QTimer _timer;
+	QTextCursor _cursor;
 	QTextDocument _document;
+	bool _cursorShow = false;
 	bool _titleEdit = false;
 	bool _isMoveed = false;
 	bool _isHovered = false;
