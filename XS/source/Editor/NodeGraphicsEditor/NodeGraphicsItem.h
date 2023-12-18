@@ -16,6 +16,10 @@
 #include <QGraphicsItem>
 #include <QGraphicsView>
 
+#include "Global.h"
+
+BEG_XS_NAMESPACE
+
 class NodeGraphicsItem : public QGraphicsObject
 {
 	Q_OBJECT
@@ -27,6 +31,9 @@ public:
 public:
 	bool isHovered() const;
 	QGraphicsView * view() const;
+
+public:
+	QRectF titleBarRect() const;
 
 public:
 	QRectF boundingRect() const override;
@@ -47,10 +54,8 @@ protected:
 	void inputMethodEvent( QInputMethodEvent * event ) override;
 	QVariant inputMethodQuery( Qt::InputMethodQuery query ) const override;
 
-public:
-	QBrush titleBarBrush() const;
-
 protected:
+	virtual QBrush titleBarBrush() const;
 	virtual QRectF contextRect() const;
 	virtual QMenu * contextMenu() const;
 
@@ -70,5 +75,7 @@ private:
 	bool _isMoveed = false;
 	bool _isHovered = false;
 };
+
+END_XS_NAMESPACE
 
 #endif//NODEGRAPHICSITEM_H__9C58B676_3EF5_47A9_A477_0D7FF68996CC

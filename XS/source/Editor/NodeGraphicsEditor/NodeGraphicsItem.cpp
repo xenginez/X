@@ -11,7 +11,7 @@
 
 #define TITLE_HEIGHT 20
 
-NodeGraphicsItem::NodeGraphicsItem( QGraphicsItem * parent )
+XS::NodeGraphicsItem::NodeGraphicsItem( QGraphicsItem * parent )
 	: QGraphicsObject( parent ), _timer( this ), _document( "aaaaaaaa", this )
 {
 	setAcceptHoverEvents( true );
@@ -29,28 +29,35 @@ NodeGraphicsItem::NodeGraphicsItem( QGraphicsItem * parent )
 	} );
 }
 
-NodeGraphicsItem::~NodeGraphicsItem()
+XS::NodeGraphicsItem::~NodeGraphicsItem()
 {
 }
 
-bool NodeGraphicsItem::isHovered() const
+bool XS::NodeGraphicsItem::isHovered() const
 {
 	return _isHovered;
 }
 
-QGraphicsView * NodeGraphicsItem::view() const
+QGraphicsView * XS::NodeGraphicsItem::view() const
 {
 	return scene()->views().front();
 }
 
-QRectF NodeGraphicsItem::boundingRect() const
+QRectF XS::NodeGraphicsItem::titleBarRect() const
+{
+	auto rect = boundingRect().marginsRemoved( QMargins( 5, 5, 5, 5 ) );
+
+	return QRectF( rect.left(), rect.top(), rect.width(), TITLE_HEIGHT );
+}
+
+QRectF XS::NodeGraphicsItem::boundingRect() const
 {
 	auto cr = contextRect();
 
 	return QRectF( QPointF(), QSizeF( cr.width(), TITLE_HEIGHT + cr.height() ) ).marginsAdded( QMargins( 5, 5, 5, 5 ) );
 }
 
-void NodeGraphicsItem::paint( QPainter * painter, const QStyleOptionGraphicsItem * option, QWidget * widget )
+void XS::NodeGraphicsItem::paint( QPainter * painter, const QStyleOptionGraphicsItem * option, QWidget * widget )
 {
 	auto rect = boundingRect();
 
@@ -65,7 +72,7 @@ void NodeGraphicsItem::paint( QPainter * painter, const QStyleOptionGraphicsItem
 	drawContextBody(painter, QRectF( rect.left(), rect.top() + TITLE_HEIGHT, rect.width(), rect.height() - TITLE_HEIGHT ) );
 }
 
-void NodeGraphicsItem::keyPressEvent( QKeyEvent * event )
+void XS::NodeGraphicsItem::keyPressEvent( QKeyEvent * event )
 {
 	if ( _titleEdit && ( event->modifiers() & Qt::AltModifier ) == 0 )
 	{
@@ -175,7 +182,7 @@ void NodeGraphicsItem::keyPressEvent( QKeyEvent * event )
 	}
 }
 
-void NodeGraphicsItem::keyReleaseEvent( QKeyEvent * event )
+void XS::NodeGraphicsItem::keyReleaseEvent( QKeyEvent * event )
 {
 	if ( _titleEdit )
 	{
@@ -194,7 +201,7 @@ void NodeGraphicsItem::keyReleaseEvent( QKeyEvent * event )
 	}
 }
 
-void NodeGraphicsItem::focusOutEvent( QFocusEvent * event )
+void XS::NodeGraphicsItem::focusOutEvent( QFocusEvent * event )
 {
 	QGraphicsObject::focusOutEvent( event );
 
@@ -203,21 +210,21 @@ void NodeGraphicsItem::focusOutEvent( QFocusEvent * event )
 	_timer.stop();
 }
 
-void NodeGraphicsItem::hoverEnterEvent( QGraphicsSceneHoverEvent * event )
+void XS::NodeGraphicsItem::hoverEnterEvent( QGraphicsSceneHoverEvent * event )
 {
 	QGraphicsObject::hoverEnterEvent( event );
 
 	_isHovered = true;
 }
 
-void NodeGraphicsItem::hoverLeaveEvent( QGraphicsSceneHoverEvent * event )
+void XS::NodeGraphicsItem::hoverLeaveEvent( QGraphicsSceneHoverEvent * event )
 {
 	QGraphicsObject::hoverLeaveEvent( event );
 
 	_isHovered = false;
 }
 
-void NodeGraphicsItem::mousePressEvent( QGraphicsSceneMouseEvent * event )
+void XS::NodeGraphicsItem::mousePressEvent( QGraphicsSceneMouseEvent * event )
 {
 	QGraphicsObject::mousePressEvent( event );
 
@@ -234,7 +241,7 @@ void NodeGraphicsItem::mousePressEvent( QGraphicsSceneMouseEvent * event )
 	}
 }
 
-void NodeGraphicsItem::mouseMoveEvent( QGraphicsSceneMouseEvent * event )
+void XS::NodeGraphicsItem::mouseMoveEvent( QGraphicsSceneMouseEvent * event )
 {
 	QGraphicsObject::mouseMoveEvent( event );
 
@@ -245,14 +252,14 @@ void NodeGraphicsItem::mouseMoveEvent( QGraphicsSceneMouseEvent * event )
 	}
 }
 
-void NodeGraphicsItem::mouseReleaseEvent( QGraphicsSceneMouseEvent * event )
+void XS::NodeGraphicsItem::mouseReleaseEvent( QGraphicsSceneMouseEvent * event )
 {
 	QGraphicsObject::mouseReleaseEvent( event );
 
 	_isMoveed = false;
 }
 
-void NodeGraphicsItem::mouseDoubleClickEvent( QGraphicsSceneMouseEvent * event )
+void XS::NodeGraphicsItem::mouseDoubleClickEvent( QGraphicsSceneMouseEvent * event )
 {
 	auto title_rect = boundingRect().marginsRemoved( QMargins( 5, 5, 5, 5 ) );
 	title_rect.setHeight( TITLE_HEIGHT );
@@ -279,7 +286,7 @@ void NodeGraphicsItem::mouseDoubleClickEvent( QGraphicsSceneMouseEvent * event )
 	}
 }
 
-void NodeGraphicsItem::contextMenuEvent( QGraphicsSceneContextMenuEvent * event )
+void XS::NodeGraphicsItem::contextMenuEvent( QGraphicsSceneContextMenuEvent * event )
 {
 	QGraphicsObject::contextMenuEvent( event );
 	
@@ -288,12 +295,12 @@ void NodeGraphicsItem::contextMenuEvent( QGraphicsSceneContextMenuEvent * event 
 	delete menu;
 }
 
-void NodeGraphicsItem::inputMethodEvent( QInputMethodEvent * event )
+void XS::NodeGraphicsItem::inputMethodEvent( QInputMethodEvent * event )
 {
 	QGraphicsObject::inputMethodEvent( event );
 }
 
-QVariant NodeGraphicsItem::inputMethodQuery( Qt::InputMethodQuery query ) const
+QVariant XS::NodeGraphicsItem::inputMethodQuery( Qt::InputMethodQuery query ) const
 {
 	switch ( query )
 	{
@@ -387,12 +394,12 @@ QVariant NodeGraphicsItem::inputMethodQuery( Qt::InputMethodQuery query ) const
 	return QGraphicsObject::inputMethodQuery( query );
 }
 
-QBrush NodeGraphicsItem::titleBarBrush() const
+QBrush XS::NodeGraphicsItem::titleBarBrush() const
 {
 	return QBrush( Qt::black );
 }
 
-QMenu * NodeGraphicsItem::contextMenu() const
+QMenu * XS::NodeGraphicsItem::contextMenu() const
 {
 	QMenu * menu = new QMenu;
 	{
@@ -405,15 +412,15 @@ QMenu * NodeGraphicsItem::contextMenu() const
 	return menu;
 }
 
-QRectF NodeGraphicsItem::contextRect() const
+QRectF XS::NodeGraphicsItem::contextRect() const
 {
 	return QRectF( 0, 0, 100, 100 );
 }
 
-void NodeGraphicsItem::drawBorder( QPainter * painter, const QRectF & rect )
+void XS::NodeGraphicsItem::drawBorder( QPainter * painter, const QRectF & rect )
 {
 	painter->save();
-
+	
 	if( isSelected() )
 		painter->setPen( QPen( Qt::yellow, 3 ) );
 	else
@@ -430,7 +437,7 @@ void NodeGraphicsItem::drawBorder( QPainter * painter, const QRectF & rect )
 	painter->restore();
 }
 
-void NodeGraphicsItem::drawTitleBar( QPainter * painter, const QRectF & rect )
+void XS::NodeGraphicsItem::drawTitleBar( QPainter * painter, const QRectF & rect )
 {
 	painter->save();
 
@@ -460,7 +467,7 @@ void NodeGraphicsItem::drawTitleBar( QPainter * painter, const QRectF & rect )
 	painter->restore();
 }
 
-void NodeGraphicsItem::drawContextBody( QPainter * painter, const QRectF & rect )
+void XS::NodeGraphicsItem::drawContextBody( QPainter * painter, const QRectF & rect )
 {
 	painter->save();
 
