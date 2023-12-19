@@ -18,29 +18,30 @@ class NodeGraphicsItemGroup : public XS::NodeGraphicsItem
 	Q_OBJECT
 
 public:
-	NodeGraphicsItemGroup( QGraphicsItem * parent = nullptr );
+	NodeGraphicsItemGroup( const QList<QGraphicsItem * > & items, QGraphicsScene * scene, QGraphicsItem * parent = nullptr );
 	~NodeGraphicsItemGroup() override;
 
-public:
-	void addToGroup( XS::NodeGraphicsItem * item );
-	void removeFromGroup( XS::NodeGraphicsItem * item );
+protected:
+	void mousePressEvent( QGraphicsSceneMouseEvent * event ) override;
 
 protected:
-	QBrush titleBarBrush() const override;
-
-protected:
+	QMenu * contextMenu() override;
 	QRectF contextRect() const override;
+	QBrush titleBarBrush() const override;
 	
 protected:
 	void drawTitleBar( QPainter * painter, const QRectF & rect ) override;
 	void drawContextBody( QPainter * painter, const QRectF & rect ) override;
 
 private:
-	void updatePos();
 	QRectF colorButtonRect() const;
 
+private slots:
+	void updateBoundingRect();
+	
 private:
 	QColor _color;
+	bool _isUpdate = false;
 };
 
 END_XS_NAMESPACE

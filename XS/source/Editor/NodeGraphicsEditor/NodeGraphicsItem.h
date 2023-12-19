@@ -25,7 +25,7 @@ class NodeGraphicsItem : public QGraphicsObject
 	Q_OBJECT
 
 public:
-	NodeGraphicsItem( QGraphicsItem * parent = nullptr );
+	NodeGraphicsItem( QGraphicsScene * scene, QGraphicsItem * parent = nullptr );
 	~NodeGraphicsItem();
 
 public:
@@ -55,9 +55,9 @@ protected:
 	QVariant inputMethodQuery( Qt::InputMethodQuery query ) const override;
 
 protected:
-	virtual QBrush titleBarBrush() const;
+	virtual QMenu * contextMenu();
 	virtual QRectF contextRect() const;
-	virtual QMenu * contextMenu() const;
+	virtual QBrush titleBarBrush() const;
 
 protected:
 	virtual void drawBorder( QPainter * painter, const QRectF & rect );
@@ -65,9 +65,8 @@ protected:
 	virtual void drawContextBody( QPainter * painter, const QRectF & rect );
 
 private:
-	QPointF _pos;
-	QPointF _movePos;
 	QTimer _timer;
+	QPointF _movePos;
 	QTextCursor _cursor;
 	QTextDocument _document;
 	bool _cursorShow = false;

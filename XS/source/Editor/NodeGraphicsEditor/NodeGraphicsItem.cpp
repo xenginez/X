@@ -11,7 +11,7 @@
 
 #define TITLE_HEIGHT 20
 
-XS::NodeGraphicsItem::NodeGraphicsItem( QGraphicsItem * parent )
+XS::NodeGraphicsItem::NodeGraphicsItem( QGraphicsScene * scene, QGraphicsItem * parent )
 	: QGraphicsObject( parent ), _timer( this ), _document( "aaaaaaaa", this )
 {
 	setAcceptHoverEvents( true );
@@ -235,7 +235,6 @@ void XS::NodeGraphicsItem::mousePressEvent( QGraphicsSceneMouseEvent * event )
 		if ( title_rect.contains( event->pos() ) )
 		{
 			_isMoveed = true;
-			_pos = pos();
 			_movePos = mapToScene( event->pos() );
 		}
 	}
@@ -247,8 +246,9 @@ void XS::NodeGraphicsItem::mouseMoveEvent( QGraphicsSceneMouseEvent * event )
 
 	if ( _isMoveed )
 	{
-		auto dt = mapToScene( event->pos() ) - _movePos;
-		setPos( _pos + dt );
+		auto cur = mapToScene( event->pos() );
+		setPos( pos() + ( cur - _movePos ) );
+		_movePos = cur;
 	}
 }
 
@@ -394,27 +394,19 @@ QVariant XS::NodeGraphicsItem::inputMethodQuery( Qt::InputMethodQuery query ) co
 	return QGraphicsObject::inputMethodQuery( query );
 }
 
-QBrush XS::NodeGraphicsItem::titleBarBrush() const
+QMenu * XS::NodeGraphicsItem::contextMenu()
 {
-	return QBrush( Qt::black );
-}
-
-QMenu * XS::NodeGraphicsItem::contextMenu() const
-{
-	QMenu * menu = new QMenu;
-	{
-		menu->addAction( tr( "delete" ), []()
-		{
-
-		} );
-		menu->addSeparator();
-	}
-	return menu;
+	return new QMenu;
 }
 
 QRectF XS::NodeGraphicsItem::contextRect() const
 {
 	return QRectF( 0, 0, 100, 100 );
+}
+
+QBrush XS::NodeGraphicsItem::titleBarBrush() const
+{
+	return QBrush( Qt::black );
 }
 
 void XS::NodeGraphicsItem::drawBorder( QPainter * painter, const QRectF & rect )

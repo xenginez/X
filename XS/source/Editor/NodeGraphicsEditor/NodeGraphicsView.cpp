@@ -69,12 +69,8 @@ void XS::NodeGraphicsView::mouseReleaseEvent( QMouseEvent * event )
 		auto list = items( rubberBandRect(), Qt::IntersectsItemShape);
 		if ( !list.isEmpty() )
 		{
-			auto group = new NodeGraphicsItemGroup( nullptr );
+			auto group = new NodeGraphicsItemGroup( list, scene() );
 			scene()->addItem( group );
-			for ( auto & it : list )
-			{
-				group->addToGroup( dynamic_cast<XS::NodeGraphicsItem *>( it ) );
-			}
 		}
 	}
 
